@@ -9,7 +9,7 @@ type Cell = String
 data Board = Board [Cell] deriving Eq
 
 instance Show Board where
-  show board = intercalate "\n" $ liftM concat $ toGrid board
+  show board =  intercalate "\n" (liftM (intercalate " ") $ toGrid board)
 
 board = Board (map toCell [1..(9*9)])
 
