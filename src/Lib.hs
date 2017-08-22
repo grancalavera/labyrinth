@@ -1,36 +1,30 @@
 module Lib where
+import Data.List (intercalate)
+import Control.Monad (liftM)
 
 printBoard :: IO ()
 printBoard = putStrLn $ show board
 
 type Cell = String
-data Board = Board [Cell]
+data Board = Board [Cell] deriving Eq
 
 instance Show Board where
-  show (Board board) = show board
+  show board = intercalate "\n" $ liftM concat $ toGrid board
 
 board = Board (map toCell [1..(9*9)])
 
--- board = concat $ ([
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n",
---   (concatMap toCell [1..9]) ++ "\n"
---   ])
-
 toCell :: Int -> Cell
-toCell = \_ -> "[  ]"
+toCell = \_ -> "[___]"
 
 getBoard :: Board -> [Cell]
 getBoard (Board board) = board
 
-toGrid :: [Cell] -> [[Cell]]
-toGrid board = toGrid' (splitAt 9 board)
+toGrid :: Board -> [[Cell]]
+toGrid (Board board) = toGrid' board
   where
-    toGrid' ([],_) = []
-    toGrid' (xs, ys) = xs : toGrid ys
+    toGrid' :: [Cell] -> [[Cell]]
+    toGrid' b = split (splitAt 9 b)
+
+    split :: ([Cell], [Cell]) -> [[Cell]]
+    split ([], _) = []
+    split (xs, ys) = xs : toGrid' ys
