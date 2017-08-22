@@ -1,25 +1,36 @@
 module Lib where
 
 printBoard :: IO ()
-printBoard = putStrLn board
+printBoard = putStrLn $ show board
 
+type Cell = String
+data Board = Board [Cell]
 
-board :: String
-board = concat $ ([
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n",
-  (concatMap cell [1..9]) ++ "\n"
-  ])
+instance Show Board where
+  show (Board board) = show board
 
-cell :: Int -> String
-cell = \_ -> "[TOP] "
+board = Board (map toCell [1..(9*9)])
 
--- T: type
--- O: objective
--- P: player
+-- board = concat $ ([
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n",
+--   (concatMap toCell [1..9]) ++ "\n"
+--   ])
+
+toCell :: Int -> Cell
+toCell = \_ -> "[  ]"
+
+getBoard :: Board -> [Cell]
+getBoard (Board board) = board
+
+toGrid :: [Cell] -> [[Cell]]
+toGrid board = toGrid' (splitAt 9 board)
+  where
+    toGrid' ([],_) = []
+    toGrid' (xs, ys) = xs : toGrid ys
