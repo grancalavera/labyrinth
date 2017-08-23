@@ -20,10 +20,11 @@ instance Show Board where
   show board =  intercalate "\n" (liftM (intercalate " ") $ toGrid board)
 
 toCell :: Int -> Cell
-toCell i = (pad i) ++ "|" ++ cell
-  where cell | isCorner i = "***"
-             | isEdge i = " + "
-             | otherwise = "   "
+toCell i = (show $ getCoords i)++ cell ++ "|"
+  where cell | isGate i   = "[G]"
+             | isCorner i = "***"
+             | isEdge i   = " + "
+             | otherwise  = "   "
 
 getBoard :: Board -> [Cell]
 getBoard (Board board) = board
@@ -67,3 +68,30 @@ isCorner i = isCorner' (getCoords i)
                         | (x==size) && (y==size) = True
                         | (x==0)    && (y==size) = True
                         | otherwise              = False
+
+isGate :: Int -> Bool
+isGate i = not (isCorner i) && isEdge i && isGate' (getCoords i)
+  where isGate' (x,y) | even x && isTop i    = True
+                      | even x && isBottom i = True
+                      | even y && isLeft i   = True
+                      | even y && isRight i  = True
+                      | otherwise            = False
+
+isTop :: Int -> Bool
+isTop i = isTop' (getCoords i)
+  where isTop' (x,y) | y == 0    = True
+                     | otherwise = False
+
+isBottom :: Int -> Bool
+isBottom i = isBottom' (getCoords i)
+  where isBottom' (x,y) | y == size = True
+                        | otherwise = False
+isLeft :: Int -> Bool
+isLeft i = isLeft' (getCoords i)
+  where isLeft' (x,y) | x == 0    = True
+                      | otherwise = False
+
+isRight :: Int -> Bool
+isRight i = isRight' (getCoords i)
+  where isRight' (x,y) | x == size = True
+                       | otherwise = False
