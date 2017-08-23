@@ -7,13 +7,19 @@ printBoard = putStrLn $ show board
 
 cols :: Integral a => a
 cols = 9
+
+board :: Board
+board = Board (map toCell [1..(cols*cols)])
+
 type Cell = String
 data Board = Board [Cell] deriving Eq
 
 instance Show Board where
   show board =  intercalate "\n" (liftM (intercalate " ") $ toGrid board)
 
-board = Board (map toCell [1..(cols*cols)])
+data Point = Point (Int, Int) deriving Eq
+instance Show Point where
+  show (Point (x,y)) = "(" ++ show x ++ "," ++ show y ++ ")"
 
 toCell :: Int -> Cell
 toCell = \i -> "[" ++ (pad i) ++ "]"
