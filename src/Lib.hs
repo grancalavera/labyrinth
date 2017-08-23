@@ -9,17 +9,13 @@ cols :: Integral a => a
 cols = 9
 
 board :: Board
-board = Board (map toCell [1..(cols*cols)])
+board = Board (map toCell [0..(cols*cols)-1])
 
 type Cell = String
 data Board = Board [Cell] deriving Eq
 
 instance Show Board where
   show board =  intercalate "\n" (liftM (intercalate " ") $ toGrid board)
-
-data Point = Point (Int, Int) deriving Eq
-instance Show Point where
-  show (Point (x,y)) = "(" ++ show x ++ "," ++ show y ++ ")"
 
 toCell :: Int -> Cell
 toCell = \i -> "[" ++ (pad i) ++ "]"
@@ -47,7 +43,7 @@ toGrid (Board board) = toGrid' board
 
 coords :: Integral a => a -> a -> (a, a)
 coords cols index = (x, y)
-  where x = index `mod` cols
+  where x = index `rem` cols
         y = index `div` cols
 
 getCoords = coords cols
