@@ -15,18 +15,25 @@ makePoint :: Int -> Int -> Point
 makePoint x y = Coord (x,y)
 
 left :: Move
-left = Coord (minus1, id)
+left = Coord (rmv, stay)
 
 right :: Move
-right = Coord ((+1), id)
+right = Coord (add, stay)
 
 down :: Move
-down  = Coord (id, minus1)
+down  = Coord (stay, rmv)
 
 up :: Move
-up    = Coord (id, (+1))
+up    = Coord (stay, add)
 
-minus1 = \x -> x - 1
+add :: Int -> Int
+add x = x + 1
+
+rmv :: Int -> Int
+rmv x = x - 1
+
+stay :: Int -> Int
+stay = id
 
 -- instance Show Coord where
 --   show (Coord x y) = "(" ++ show x ++ "," ++ show y ++ ")"
