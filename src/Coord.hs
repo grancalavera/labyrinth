@@ -1,4 +1,6 @@
 module Coord where
+import Data.Bifunctor (bimap)
+import Board (coords)
 
 data Coord a = Coord (a, a) deriving (Eq, Show)
 type Move = Coord (Int -> Int)
@@ -21,20 +23,21 @@ right :: Move
 right = Coord (add, stay)
 
 down :: Move
-down  = Coord (stay, rmv)
+down = Coord (stay, rmv)
 
 up :: Move
-up    = Coord (stay, add)
+up = Coord (stay, add)
 
 add :: Int -> Int
 add x = x + 1
 
+-- https://stackoverflow.com/a/4553701/824779
 rmv :: Int -> Int
 rmv x = x - 1
 
 stay :: Int -> Int
 stay = id
 
--- instance Show Coord where
---   show (Coord x y) = "(" ++ show x ++ "," ++ show y ++ ")"
-
+-- better use a bifunctor, and (,) is already a bifunctor
+original = (map (coords 3) [0..2])
+toRight = map (bimap add stay) original
