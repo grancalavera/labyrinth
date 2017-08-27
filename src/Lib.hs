@@ -1,5 +1,5 @@
 module Lib
   ( module Board
-  , module Coord) where
+  , module Point) where
 import Board
-import Coord
+import Point
