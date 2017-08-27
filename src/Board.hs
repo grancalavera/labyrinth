@@ -37,6 +37,11 @@ pad i = pad' (show i)
 
 padPoint = mapPoint pad
 
+makeRows :: Int -> [a] -> [[a]]
+makeRows cols xs = split (splitAt cols xs)
+  where split ([], _) = []
+        split (xs', ys) = xs': (makeRows cols ys)
+
 toGrid :: Board -> [[Cell]]
 toGrid (Board board) = toGrid' board
   where

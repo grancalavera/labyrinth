@@ -1,6 +1,5 @@
 module Point where
 import Data.Bifunctor (bimap)
-import Board (coords)
 
 type Point = (Int,Int)
 
@@ -14,20 +13,7 @@ up :: Point -> Point
 up = bimap stay rmv
 
 down :: Point -> Point
-
-
--- left = bimap rmv stay
--- left :: Move
--- left = Point (rmv, stay)
-
--- right :: Move
--- right = Point (add, stay)
-
--- down :: Move
--- down = Point (stay, rmv)
-
--- up :: Move
--- up = Point (stay, add)
+down = bimap stay add
 
 add :: Int -> Int
 add x = x + 1
@@ -39,6 +25,8 @@ rmv x = x - 1
 stay :: Int -> Int
 stay = id
 
--- better use a bifunctor, and (,) is already a bifunctor
-original = (map (coords 3) [0..2])
-toRight = map (bimap add stay) original
+fromIndex :: Int -> Int -> Point
+fromIndex cols index = (x, y)
+  where x = index `rem` cols
+        y = index `div` cols
+
