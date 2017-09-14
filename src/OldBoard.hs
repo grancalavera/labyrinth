@@ -1,17 +1,17 @@
-module Board where
+module OldBoard where
 import Data.List (intercalate)
 import Control.Monad (liftM)
 
 printBoard :: IO ()
-printBoard = putStrLn $ show board
+printBoard = putStrLn $ show oldBoard
 
 cols :: Int
 cols = 9
 size :: Int
 size = cols - 1
 
-board :: Board
-board = Board (map toCell [0..(cols*cols)-1])
+oldBoard :: Board
+oldBoard = Board (map toCell [0..(cols*cols)-1])
 
 type Cell = String
 data Board = Board [Cell] deriving Eq
@@ -101,3 +101,4 @@ isRight :: Int -> Bool
 isRight i = isRight' (getCoords i)
   where isRight' (x,y) | x == size = True
                        | otherwise = False
+
