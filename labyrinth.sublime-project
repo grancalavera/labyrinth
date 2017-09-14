@@ -2,10 +2,15 @@
 	"folders":
 	[
 		{
-			"path": ".",
-      "folder_exclude_patterns": [
-        ".stack-work"
-      ]
+			"folder_exclude_patterns":
+			[
+				".stack-work",
+				"dist"
+			],
+			"path": "."
+		},
+		{
+			"path": "/Users/grancalavera/haskell/my-lens-tutorial"
 		}
 	]
 }

@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"molecule",
+				"moleculeX"
+			],
+			[
+				"si",
+				"shiftMoleculeX"
+			],
+			[
+				"Shi",
+				"shiftAtomX"
+			],
+			[
+				"boar",
+				"Board"
+			],
+			[
+				"split",
+				"splitAt"
+			],
+			[
 				"bi",
 				"bifunctor"
 			],
@@ -494,85 +514,11 @@
 			[
 				"voca",
 				"vocabList"
-			],
-			[
-				"em",
-				"email2"
-			],
-			[
-				"sig",
-				"sigma"
-			],
-			[
-				"svm",
-				"svmPredict"
-			],
-			[
-				"si",
-				"sigmacandidate"
-			],
-			[
-				"can",
-				"candidates"
 			]
 		]
 	},
 	"buffers":
 	[
-		{
-			"file": "README.md",
-			"settings":
-			{
-				"buffer_size": 51,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/Lib.hs",
-			"settings":
-			{
-				"buffer_size": 78,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/Coord.hs",
-			"settings":
-			{
-				"buffer_size": 958,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/Board.hs",
-			"settings":
-			{
-				"buffer_size": 2721,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "app/Main.hs",
-			"settings":
-			{
-				"buffer_size": 69,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "labyrinth.cabal",
-			"settings":
-			{
-				"buffer_size": 1184,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -581,17 +527,49 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 223.0,
-		"last_filter": "rename",
+		"height": 357.0,
+		"last_filter": "git s",
 		"selected_items":
 		[
 			[
-				"rename",
-				"File: Rename"
+				"git s",
+				"Git: Status"
+			],
+			[
+				"bo",
+				"Boxy Theme: Activation"
+			],
+			[
+				"ac",
+				"Boxy Theme: Activation"
+			],
+			[
+				"add ",
+				"Project: Add Folder"
 			],
 			[
 				"add f",
 				"Project: Add Folder"
+			],
+			[
+				"sett",
+				"Preferences: Settings"
+			],
+			[
+				"wra",
+				"Word Wrap: Toggle"
+			],
+			[
+				"rena",
+				"File: Rename"
+			],
+			[
+				"ep",
+				"Project: Edit Project"
+			],
+			[
+				"rename",
+				"File: Rename"
 			],
 			[
 				"git diff",
@@ -616,10 +594,6 @@
 			[
 				"ss js",
 				"Set Syntax: JavaScript (Babel)"
-			],
-			[
-				"bo",
-				"Boxy Theme: Activation"
 			],
 			[
 				"boy",
@@ -694,10 +668,6 @@
 				"Set Syntax: HTML"
 			],
 			[
-				"wra",
-				"Word Wrap: Toggle"
-			],
-			[
 				"gif",
 				"Git: Diff Current File"
 			],
@@ -707,10 +677,6 @@
 			],
 			[
 				"addf",
-				"Project: Add Folder"
-			],
-			[
-				"add ",
 				"Project: Add Folder"
 			],
 			[
@@ -736,10 +702,6 @@
 			[
 				"html ",
 				"HTMLBeautify"
-			],
-			[
-				"rena",
-				"File: Rename"
 			],
 			[
 				"js pre",
@@ -1080,22 +1042,6 @@
 			[
 				"ss tex",
 				"Set Syntax: Plain Text"
-			],
-			[
-				"ss js ne",
-				"Set Syntax: JavaScript Next"
-			],
-			[
-				"git commit ",
-				"Git: Commit"
-			],
-			[
-				"git add ",
-				"Git: Add All"
-			],
-			[
-				"git com",
-				"Git: Commit"
 			]
 		],
 		"width": 440.0
@@ -1125,17 +1071,32 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/grancalavera/haskell/labyrinth"
 	],
 	"file_history":
 	[
-		"/Users/grancalavera/haskell/labyrinth/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/my-lens-tutorial/src/Lib.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/LICENSE",
+		"/Users/grancalavera/haskell/labyrinth/src/Labyrinth.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/src/LensTutorial.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/my-lens-tutorial.cabal",
+		"/Users/grancalavera/haskell/my-lens-tutorial/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/my-lens-tutorial/app/Main.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/stack.yaml",
+		"/Users/grancalavera/haskell/lens-tutorial/lens-tutorial.cabal",
+		"/Users/grancalavera/haskell/labyrinth/labyrinth.cabal",
+		"/Users/grancalavera/haskell/labyrinth/src/Lib.hs",
+		"/Users/grancalavera/haskell/labyrinth/src/Direction.hs",
+		"/Users/grancalavera/haskell/labyrinth/README.md",
+		"/Users/grancalavera/haskell/labyrinth/src/Point.hs",
+		"/Users/grancalavera/haskell/labyrinth/stack.yaml",
+		"/Users/grancalavera/haskell/programming-in-haskell/nim/nim.cabal",
 		"/Users/grancalavera/haskell/labyrinth/src/Board.hs",
 		"/Users/grancalavera/haskell/labyrinth/app/Main.hs",
+		"/Users/grancalavera/haskell/labyrinth/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/labyrinth/labyrinth.sublime-project",
 		"/Users/grancalavera/haskell/programming-in-haskell/nim/.git/COMMIT_EDITMSG",
 		"/Users/grancalavera/Desktop/jwt.md",
 		"/Users/grancalavera/haskell/programming-in-haskell/nim/app/Main.hs",
-		"/Users/grancalavera/haskell/programming-in-haskell/nim/nim.cabal",
 		"/Users/grancalavera/haskell/programming-in-haskell/nim/stack.yaml",
 		"/Users/grancalavera/haskell/programming-in-haskell/hangman/src/Lib.hs",
 		"/Users/grancalavera/haskell/programming-in-haskell/hangman/.git/COMMIT_EDITMSG",
@@ -1240,11 +1201,7 @@
 		"/Users/grancalavera/Dropbox/CTOhack/accounts/2935-98.csv",
 		"/Users/grancalavera/Dropbox/CTOhack/accounts/2907-98.csv",
 		"/Users/grancalavera/cto-hackathon/cleanup-dataset/parse-account.js",
-		"/Users/grancalavera/cto-hackathon/./cleanup-dataset/index.js",
-		"/Users/grancalavera/cto-hackathon/2902-98.asc",
-		"/Users/grancalavera/cto-hackathon/node-red-examples/ctohackathonnodered/alexa.txt",
-		"/Users/grancalavera/cto-hackathon/how to structure your pitch.md",
-		"/Users/grancalavera/.diario/20170402.txt"
+		"/Users/grancalavera/cto-hackathon/./cleanup-dataset/index.js"
 	],
 	"find":
 	{
@@ -1255,6 +1212,7 @@
 		"height": 95.0,
 		"where_history":
 		[
+			"<project>",
 			"/Users/grancalavera/rbs/ptapi",
 			"/Users/grancalavera/machine-learning",
 			"<project>",
@@ -1277,6 +1235,12 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"atom1",
+			"9",
+			"Cell",
+			"Board",
+			"(Int,Int)",
+			"Coord",
 			"toGrid",
 			"id",
 			"(+1)",
@@ -1398,13 +1362,7 @@
 			"xs",
 			"zl_xs",
 			"val",
-			"fs",
-			"concat3",
-			"concat2",
-			"('>>>>>",
-			"_xs",
-			"_fs",
-			"_ys.leng"
+			"fs"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1430,185 +1388,8 @@
 	"groups":
 	[
 		{
-			"selected": 2,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "README.md",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 51,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								15,
-								15
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/Markdown/Markdown.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/Lib.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 78,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								78,
-								78
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/Coord.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 958,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								479,
-								479
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "src/Board.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2721,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1115,
-								867
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 694.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "app/Main.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 69,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								61,
-								61
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "labyrinth.cabal",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1184,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								427,
-								427
-							]
-						],
-						"settings":
-						{
-							"apply_syntax_touched": true,
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 90.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -1693,16 +1474,24 @@
 		"selected_items":
 		[
 			[
+				"lab",
+				"labyrinth/src/Labyrinth.hs"
+			],
+			[
+				".cabal",
+				"my-lens-tutorial.cabal"
+			],
+			[
+				"main",
+				"app/Main.hs"
+			],
+			[
 				"ain",
 				"app/Main.hs"
 			],
 			[
 				"bo",
 				"src/Board.hs"
-			],
-			[
-				"main",
-				"app/Main.hs"
 			],
 			[
 				"app/main",
@@ -2195,14 +1984,6 @@
 			[
 				"pruferbi",
 				"prufer/test/prufer-bin.test.js"
-			],
-			[
-				"prufertest",
-				"prufer/test/prufer.test.js"
-			],
-			[
-				"prufer-bin",
-				"prufer/test/prufer-bin.test.js"
 			]
 		],
 		"width": 0.0
@@ -2232,15 +2013,24 @@
 	"selected_group": 0,
 	"settings":
 	{
+		"last_automatic_layout":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		]
 	},
 	"show_minimap": false,
 	"show_open_files": true,
 	"show_tabs": true,
-	"side_bar_visible": false,
-	"side_bar_width": 238.0,
+	"side_bar_visible": true,
+	"side_bar_width": 179.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
-		"max_columns": 1
+		"max_columns": 3
 	}
 }
