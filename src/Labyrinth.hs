@@ -39,17 +39,19 @@ instance Show Board where
   show board = showBoard (view cols board) (view tiles board)
 
 instance Show Tile where
-  show t =     "["
+  show t =     "{"
             ++ (show $ _kind t)
-            ++ pad ' ' 3 (concatMap show (_edges t))
+            ++ ","
+            ++ show (_edges t)
+            ++ ","
             ++ (show $ _coords t)
-            ++ "]"
+            ++ "}"
 
 instance Show Coords where
   show c =    "("
-           ++ pad ' ' 2 (show $ view x c)
+           ++ (show $ view x c)
            ++ ","
-           ++ pad ' ' 2 (show $ view y c)
+           ++ (show $ view y c)
            ++ ")"
 
 coordsFromIndex :: Int -> Int -> Coords
@@ -82,54 +84,25 @@ rotateTileTwice = rotateTileOnce . rotateTileOnce
 rotateTileThrice :: Tile -> Tile
 rotateTileThrice = rotateTileOnce . rotateTileTwice
 
-makeTile :: TileKind -> Coords -> Tile
-makeTile Border c       = Tile { _coords = c
-                               , _kind = Border
-                               , _edges = [North]
-                               }
-makeTile Corner c       = Tile { _coords  = c
-                               , _kind = Corner
-                               , _edges = [North, West]}
-makeTile Gate c         = Tile { _coords = c
-                               , _kind = Gate
-                               , _edges = [North]
-                               }
-makeTile StraightPath c = Tile { _coords = c
-                               , _kind = StraightPath
-                               , _edges = [North, South]
-                               }
-makeTile CornerPath c   = Tile { _coords = c
-                               , _kind = CornerPath
-                               , _edges = [North, West]
-                               }
-makeTile ForkPath c     = Tile { _coords = c
-                               , _kind = ForkPath
-                               , _edges = [West, North, East]
-                               }
+makeTile :: TileKind -> Int -> Int -> Tile
+makeTile tileKind x y = Tile { _coords = makeCoords x y
+                             , _kind = tileKind
+                             , _edges = tileEdges
+                             }
+  where tileEdges = case tileKind of
+                      Border       -> [North]
+                      Corner       -> [North, West]
+                      Gate         -> [North]
+                      StraightPath -> [North, South]
+                      CornerPath   -> [North, West]
+                      ForkPath     -> [West, North, East]
 
-makeBorder = makeTile Border
-makeGate   = makeTile Gate
-makeStraightPath   = makeTile StraightPath
-makeCornerPath = makeTile CornerPath
-makeForkPath   = makeTile ForkPath
-
-gateS = makeTile Gate (makeCoords 0 0)
-gateE = rotateTileOnce gateS
-gateN = rotateTileOnce gateE
-gateW = rotateTileOnce gateN
-
-pathNS = makeTile StraightPath (makeCoords 0 0)
-pathWE = rotateTileOnce pathNS
-
-cornerNW = makeTile CornerPath (makeCoords 0 0)
-cornerSW = rotateTileOnce cornerNW
-cornerSE = rotateTileOnce cornerSW
-cornerNE = rotateTileOnce cornerSE
-
-forkNWE = makeTile ForkPath (makeCoords 0 0)
-forkNWS = rotateTileOnce forkNWE
-forkSWE = rotateTileOnce forkNWS
-forkNES = rotateTileOnce forkSWE
+makeBorder       = makeTile Border
+makeCorner       = makeTile Corner
+makeGate         = makeTile Gate
+makeStraightPath = makeTile StraightPath
+makeCornerPath   = makeTile CornerPath
+makeForkPath     = makeTile ForkPath
 
 -- utilities and stuff
 
@@ -150,7 +123,3 @@ showBoard cols tiles = intercalate "\n"
     $ liftM (intercalate "  ")
       $ splitAll 9
         $ map show tiles
-
-board = Board { _cols=9
-              , _tiles=[makeBorder (coordsFromIndex 9 i) | i <- [0..9*9-1]]
-              }

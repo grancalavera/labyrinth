@@ -1,5 +1,6 @@
 module Tiles where
 import System.Console.ANSI
+import Control.Lens
 
 import Point
 import Labyrinth
@@ -21,49 +22,61 @@ draw = draw' 0
           putStr ln
           draw' (row+1) lns point
 
-drawTile :: Shape -> Point -> IO ()
-drawTile tile (x,y) = draw tile (x*tileWidth,y*tileHeight)
+drawTile :: Tile -> IO ()
+drawTile tile = draw shape (tileX, tileY)
+  where shape = tileShape tile
+        tileX = (view (coords.x) tile) * tileWidth
+        tileY = (view (coords.y) tile) * tileHeight
 
-tileShape :: TileKind -> [Edge] -> Shape
-tileShape Border edges = case edges of
-  [North] -> a
-  [South] -> b
-  [West]  -> c
-  [East]  -> d
-  where
-    a = ["───────",
-         "       ",
-         "       "]
-    b = ["       ",
-         "       ",
-         "───────"]
-    c = ["│      ",
-         "│      ",
-         "│      "]
-    d = ["      │",
-         "      │",
-         "      │"]
-tileShape Corner edges = case edges of
-  [North, West] -> a
-  [West, North] -> a
-  [East, North] -> b
-  [North, East] -> b
-  [South, East] -> c
-  [East, South] -> c
-  [West, South] -> d
-  [South, West] -> d
-  where
-    a = ["┌──────",
-         "│      ",
-         "│      "]
-    b = ["──────┐",
-         "      │",
-         "      │"]
-    c = ["      │",
-         "      │",
-         "──────┘"]
-    d = ["│      ",
-         "│      ",
-         "└──────"]
-
-tileShape _ _ = undefined
+tileShape :: Tile -> Shape
+tileShape tile = case tileKind of
+  Border -> case tileEdges of
+    [North] -> a
+    [South] -> b
+    [West]  -> c
+    [East]  -> d
+    where
+      a = ["───────",
+           "       ",
+           "       "]
+      b = ["       ",
+           "       ",
+           "───────"]
+      c = ["│      ",
+           "│      ",
+           "│      "]
+      d = ["      │",
+           "      │",
+           "      │"]
+  Corner -> case tileEdges of
+    [North, West] -> a
+    [West, North] -> a
+    [East, North] -> b
+    [North, East] -> b
+    [South, East] -> c
+    [East, South] -> c
+    [West, South] -> d
+    [South, West] -> d
+    where
+      a = ["┌──────",
+           "│      ",
+           "│      "]
+      b = ["──────┐",
+           "      │",
+           "      │"]
+      c = ["      │",
+           "      │",
+           "──────┘"]
+      d = ["│      ",
+           "│      ",
+           "└──────"]
+  Gate   -> case tileEdges of
+    _ -> []
+  StraightPath -> case tileEdges of
+    _ -> []
+  CornerPath -> case tileEdges of
+    _ -> []
+  ForkPath -> case tileEdges of
+    _ -> []
+  where tileKind = _kind tile
+        tileEdges = _edges tile
