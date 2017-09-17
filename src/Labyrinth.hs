@@ -18,20 +18,20 @@ instance Show Direction where
 data Rotation =   CW
                 | CCW deriving (Eq, Show)
 
-data TileType =   Border
+data TileKind =   Border
                 | Gate
                 | Path
                 | Corner
                 | Fork deriving (Eq)
 
-instance Show TileType where
+instance Show TileKind where
   show Border = "B"
   show Gate   = "G"
   show Path   = "P"
   show Corner = "C"
   show Fork   = "F"
 
-data Tile = Tile { _kind :: TileType
+data Tile = Tile { _kind :: TileKind
                  , _edges :: [Direction]
                  , _coords :: Coords
                  } deriving (Eq)
@@ -94,7 +94,7 @@ rotateTileTwice = rotateTileOnce . rotateTileOnce
 rotateTileThrice :: Tile -> Tile
 rotateTileThrice = rotateTileOnce . rotateTileTwice
 
-makeTile :: TileType -> Coords -> Tile
+makeTile :: TileKind -> Coords -> Tile
 makeTile Border c = Tile { _coords = c
                          , _kind = Border
                          , _edges = []}
