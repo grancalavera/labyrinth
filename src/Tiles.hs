@@ -6,6 +6,12 @@ import Labyrinth
 
 type Shape = [String]
 
+tileWidth :: Int
+tileWidth = 7
+
+tileHeight :: Int
+tileHeight = 3
+
 draw :: Shape -> Point -> IO ()
 draw = draw' 0
   where draw' :: Int -> Shape -> Point -> IO ()
@@ -14,6 +20,9 @@ draw = draw' 0
           setCursorPosition (row+y) x
           putStr ln
           draw' (row+1) lns point
+
+drawTile :: Shape -> Point -> IO ()
+drawTile tile (x,y) = draw tile (x*tileWidth,y*tileHeight)
 
 tileShape :: TileKind -> [Edge] -> Shape
 tileShape Border edges = case edges of
