@@ -4,35 +4,23 @@ import Data.List (intercalate)
 import Control.Monad (liftM)
 import Control.Lens
 
-data Direction =   North
+data Edge =   North
                  | West
                  | South
-                 | East deriving (Eq)
-
-instance Show Direction where
-  show North = "N"
-  show West  = "W"
-  show South = "S"
-  show East  = "E"
+                 | East deriving (Eq, Show)
 
 data Rotation =   CW
                 | CCW deriving (Eq, Show)
 
 data TileKind =   Border
-                | Gate
-                | Path
                 | Corner
-                | Fork deriving (Eq)
-
-instance Show TileKind where
-  show Border = "B"
-  show Gate   = "G"
-  show Path   = "P"
-  show Corner = "C"
-  show Fork   = "F"
+                | Gate
+                | StraightPath
+                | CornerPath
+                | ForkPath deriving (Eq, Show)
 
 data Tile = Tile { _kind :: TileKind
-                 , _edges :: [Direction]
+                 , _edges :: [Edge]
                  , _coords :: Coords
                  } deriving (Eq)
 
@@ -72,7 +60,7 @@ coordsFromIndex cols index = Coords { _x = x, _y = y}
 makeCoords :: Int -> Int -> Coords
 makeCoords x y = Coords {_x = x, _y = y}
 
-rotate :: Rotation -> Direction -> Direction
+rotate :: Rotation -> Edge -> Edge
 rotate CW  North  = West
 rotate CW  West   = South
 rotate CW  South  = East
@@ -95,42 +83,50 @@ rotateTileThrice :: Tile -> Tile
 rotateTileThrice = rotateTileOnce . rotateTileTwice
 
 makeTile :: TileKind -> Coords -> Tile
-makeTile Border c = Tile { _coords = c
-                         , _kind = Border
-                         , _edges = []}
-makeTile Gate c   = Tile { _coords = c
-                         , _kind = Gate
-                         , _edges = [North]}
-makeTile Path c   = Tile { _coords = c
-                         , _kind = Path
-                         , _edges = [North, South]}
-makeTile Corner c = Tile { _coords = c
-                         , _kind = Corner
-                         , _edges = [North, West]}
-makeTile Fork c   = Tile { _coords = c
-                         , _kind = Fork
-                         , _edges = [West, North, East]}
+makeTile Border c       = Tile { _coords = c
+                               , _kind = Border
+                               , _edges = [North]
+                               }
+makeTile Corner c       = Tile { _coords  = c
+                               , _kind = Corner
+                               , _edges = [North, West]}
+makeTile Gate c         = Tile { _coords = c
+                               , _kind = Gate
+                               , _edges = [North]
+                               }
+makeTile StraightPath c = Tile { _coords = c
+                               , _kind = StraightPath
+                               , _edges = [North, South]
+                               }
+makeTile CornerPath c   = Tile { _coords = c
+                               , _kind = CornerPath
+                               , _edges = [North, West]
+                               }
+makeTile ForkPath c     = Tile { _coords = c
+                               , _kind = ForkPath
+                               , _edges = [West, North, East]
+                               }
 
 makeBorder = makeTile Border
 makeGate   = makeTile Gate
-makePath   = makeTile Path
-makeCorner = makeTile Corner
-makeFork   = makeTile Fork
+makeStraightPath   = makeTile StraightPath
+makeCornerPath = makeTile CornerPath
+makeForkPath   = makeTile ForkPath
 
 gateS = makeTile Gate (makeCoords 0 0)
 gateE = rotateTileOnce gateS
 gateN = rotateTileOnce gateE
 gateW = rotateTileOnce gateN
 
-pathNS = makeTile Path (makeCoords 0 0)
+pathNS = makeTile StraightPath (makeCoords 0 0)
 pathWE = rotateTileOnce pathNS
 
-cornerNW = makeTile Corner (makeCoords 0 0)
+cornerNW = makeTile CornerPath (makeCoords 0 0)
 cornerSW = rotateTileOnce cornerNW
 cornerSE = rotateTileOnce cornerSW
 cornerNE = rotateTileOnce cornerSE
 
-forkNWE = makeTile Fork (makeCoords 0 0)
+forkNWE = makeTile ForkPath (makeCoords 0 0)
 forkNWS = rotateTileOnce forkNWE
 forkSWE = rotateTileOnce forkNWS
 forkNES = rotateTileOnce forkSWE
