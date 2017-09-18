@@ -31,42 +31,18 @@ drawTile tile = draw shape (tileX, tileY)
 
 tileShape :: Tile -> Shape
 tileShape tile = case (tileKind, tileEdges) of
-  (Border, [North]) ->                ["───────",
-                                       "       ",
-                                       "       "]
-  (Border, [South]) ->                ["       ",
-                                       "       ",
-                                       "───────"]
-  (Border, [West]) ->                 ["│      ",
-                                       "│      ",
-                                       "│      "]
-  (Border, [East]) ->                  ["      │",
-                                       "      │",
-                                       "      │"]
-  (Corner, [North, West]) ->          ["┌──────",
-                                       "│      ",
-                                       "│      "]
-  (Corner, [North, East]) ->           ["──────┐",
-                                        "      │",
-                                        "      │"]
-  (Corner, [South, East]) ->           ["      │",
-                                        "      │",
-                                        "──────┘"]
-  (Corner, [West, South]) ->          ["│      ",
-                                       "│      ",
-                                       "└──────"]
   (Gate, [North]) ->                  ["   ▲   ",
                                        "       ",
-                                       "───────"]
-  (Gate, [South]) ->                  ["───────",
+                                       "       "]
+  (Gate, [South]) ->                  ["       ",
                                        "       ",
                                        "   ▼   "]
-  (Gate, [West]) ->                   ["      │",
-                                       "◄     │",
-                                       "      │"]
-  (Gate, [East]) ->                   ["│      ",
-                                       "│     ►",
-                                       "│      "]
+  (Gate, [West]) ->                   ["       ",
+                                       "◄      ",
+                                       "       "]
+  (Gate, [East]) ->                   ["       ",
+                                       "      ►",
+                                       "       "]
   (CornerPath, [North, West]) ->      ["─┘   │ ",
                                        "     │ ",
                                        "─────┘ "]

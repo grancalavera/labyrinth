@@ -22,16 +22,6 @@ forkStops = [3, 5]
 board :: [Tile]
 board = []
 
-        ++ [                   makeCorner 0 0,
-            rotateTileThrice $ makeCorner 8 0,
-            rotateTileOnce   $ makeCorner 0 8,
-            rotateTileTwice  $ makeCorner 8 8]
-
-        ++ map (\x ->                    makeBorder x 0) borderStops
-        ++ map (\x -> rotateTileTwice  $ makeBorder x 8) borderStops
-        ++ map (\y -> rotateTileOnce   $ makeBorder 0 y) borderStops
-        ++ map (\y -> rotateTileThrice $ makeBorder 8 y) borderStops
-
         ++ map (\x -> rotateTileTwice  $ makeGate x 0) gateStops
         ++ map (\x ->                    makeGate x 8) gateStops
         ++ map (\y -> rotateTileThrice $ makeGate 0 y) gateStops
@@ -46,3 +36,8 @@ board = []
         ++ map (\x ->                    makeForkPath x 7) forkStops
         ++ map (\y -> rotateTileThrice $ makeForkPath 1 y) forkStops
         ++ map (\y -> rotateTileOnce   $ makeForkPath 7 y) forkStops
+
+        ++ [rotateTileThrice $ makeForkPath 3 3,
+                               makeForkPath 3 5,
+            rotateTileTwice  $ makeForkPath 5 3,
+            rotateTileOnce   $ makeForkPath 5 5]

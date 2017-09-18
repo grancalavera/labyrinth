@@ -12,9 +12,7 @@ data Edge =   North
 data Rotation =   CW
                 | CCW deriving (Eq, Show)
 
-data TileKind =   Border
-                | Corner
-                | Gate
+data TileKind =   Gate
                 | StraightPath
                 | CornerPath
                 | ForkPath deriving (Eq, Show)
@@ -90,15 +88,11 @@ makeTile tileKind x y = Tile { _coords = makeCoords x y
                              , _edges = tileEdges
                              }
   where tileEdges = case tileKind of
-                      Border       -> [North]
-                      Corner       -> [North, West]
                       Gate         -> [North]
                       StraightPath -> [North, South]
                       CornerPath   -> [North, West]
                       ForkPath     -> [West, North, East]
 
-makeBorder       = makeTile Border
-makeCorner       = makeTile Corner
 makeGate         = makeTile Gate
 makeStraightPath = makeTile StraightPath
 makeCornerPath   = makeTile CornerPath
