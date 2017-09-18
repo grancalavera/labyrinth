@@ -3,6 +3,13 @@ module Main where
 import Lib
 import System.Console.ANSI
 
+main :: IO ()
+main = do
+  clearScreen
+  mapM_ drawTile board
+  setCursorPosition (3*9) 0
+  putStrLn ""
+
 borderStops :: [Int]
 borderStops = [1,3,5,7]
 
@@ -31,10 +38,3 @@ board = []
             rotateTileOnce   $ makeCornerPath 7 1,
             rotateTileThrice $ makeCornerPath 1 7,
                                makeCornerPath 7 7]
-
-main :: IO ()
-main = do
-  clearScreen
-  mapM_ drawTile board
-  setCursorPosition (3*9) 0
-  putStrLn ""
