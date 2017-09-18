@@ -52,19 +52,18 @@ tileShape tile = case tileKind of
     [East, South] -> c
     [West, South] -> d
     [South, West] -> d
-    where
-      a = ["┌──────",
-           "│      ",
-           "│      "]
-      b = ["──────┐",
-           "      │",
-           "      │"]
-      c = ["      │",
-           "      │",
-           "──────┘"]
-      d = ["│      ",
-           "│      ",
-           "└──────"]
+    where a = ["┌──────",
+               "│      ",
+               "│      "]
+          b = ["──────┐",
+               "      │",
+               "      │"]
+          c = ["      │",
+               "      │",
+               "──────┘"]
+          d = ["│      ",
+               "│      ",
+               "└──────"]
   Gate   -> case tileEdges of
     [North] -> ["   ▲   ",
                 "       ",
@@ -78,9 +77,28 @@ tileShape tile = case tileKind of
     [East]  -> ["│      ",
                 "│     ►",
                 "│      "]
-  StraightPath -> case tileEdges of
-    _ -> []
   CornerPath -> case tileEdges of
+    [North, West] -> a
+    [West, North] -> a
+    [East, North] -> b
+    [North, East] -> b
+    [South, East] -> c
+    [East, South] -> c
+    [West, South] -> d
+    [South, West] -> d
+    where a = ["─┘   │ ",
+               "     │ ",
+               "─────┘ "]
+          b = [" │   └─",
+               " │     ",
+               " └─────"]
+          c = [" ┌─────",
+               " │     ",
+               " │   ┌─"]
+          d = ["─────┐ ",
+               "     │ ",
+               "─┐   │ "]
+  StraightPath -> case tileEdges of
     _ -> []
   ForkPath -> case tileEdges of
     _ -> []

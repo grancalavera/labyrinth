@@ -10,10 +10,10 @@ gateStops :: [Int]
 gateStops = [2,4,6]
 
 board :: [Tile]
-board = [                    makeCorner 0 0
-        , rotateTileThrice $ makeCorner 8 0
-        , rotateTileOnce   $ makeCorner 0 8
-        , rotateTileTwice  $ makeCorner 8 8 ]
+board =    [                   makeCorner 0 0,
+            rotateTileThrice $ makeCorner 8 0,
+            rotateTileOnce   $ makeCorner 0 8,
+            rotateTileTwice  $ makeCorner 8 8]
 
         ++ map (\x ->                    makeBorder x 0) borderStops
         ++ map (\x -> rotateTileTwice  $ makeBorder x 8) borderStops
@@ -25,6 +25,10 @@ board = [                    makeCorner 0 0
         ++ map (\y -> rotateTileThrice $ makeGate 0 y) gateStops
         ++ map (\y -> rotateTileOnce   $ makeGate 8 y) gateStops
 
+        ++ [rotateTileTwice  $ makeCornerPath 1 1,
+            rotateTileOnce   $ makeCornerPath 7 1,
+            rotateTileThrice $ makeCornerPath 1 7,
+                               makeCornerPath 7 7]
 
 main :: IO ()
 main = do
