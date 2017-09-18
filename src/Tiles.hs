@@ -31,23 +31,18 @@ drawTile tile = draw shape (tileX, tileY)
 tileShape :: Tile -> Shape
 tileShape tile = case tileKind of
   Border -> case tileEdges of
-    [North] -> a
-    [South] -> b
-    [West]  -> c
-    [East]  -> d
-    where
-      a = ["───────",
-           "       ",
-           "       "]
-      b = ["       ",
-           "       ",
-           "───────"]
-      c = ["│      ",
-           "│      ",
-           "│      "]
-      d = ["      │",
-           "      │",
-           "      │"]
+    [North] -> ["───────",
+                "       ",
+                "       "]
+    [South] -> ["       ",
+                "       ",
+                "───────"]
+    [West]  -> ["│      ",
+                "│      ",
+                "│      "]
+    [East]  -> ["      │",
+                "      │",
+                "      │"]
   Corner -> case tileEdges of
     [North, West] -> a
     [West, North] -> a
@@ -71,7 +66,18 @@ tileShape tile = case tileKind of
            "│      ",
            "└──────"]
   Gate   -> case tileEdges of
-    _ -> []
+    [North] -> ["   ▲   ",
+                "       ",
+                "───────"]
+    [South] -> ["───────",
+                "       ",
+                "   ▼   "]
+    [West]  -> ["      │",
+                "◄     │",
+                "      │"]
+    [East]  -> ["│      ",
+                "│     ►",
+                "│      "]
   StraightPath -> case tileEdges of
     _ -> []
   CornerPath -> case tileEdges of
