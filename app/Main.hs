@@ -16,6 +16,9 @@ borderStops = [1,3,5,7]
 gateStops :: [Int]
 gateStops = [2,4,6]
 
+forkStops :: [Int]
+forkStops = [3, 5]
+
 board :: [Tile]
 board = []
 
@@ -38,3 +41,8 @@ board = []
             rotateTileOnce   $ makeCornerPath 7 1,
             rotateTileThrice $ makeCornerPath 1 7,
                                makeCornerPath 7 7]
+
+        ++ map (\x -> rotateTileTwice  $ makeForkPath x 1) forkStops
+        ++ map (\x ->                    makeForkPath x 7) forkStops
+        ++ map (\y -> rotateTileThrice $ makeForkPath 1 y) forkStops
+        ++ map (\y -> rotateTileOnce   $ makeForkPath 7 y) forkStops
