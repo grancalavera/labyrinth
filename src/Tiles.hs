@@ -30,85 +30,72 @@ drawTile tile = draw shape (tileX, tileY)
         tileY = (view (coords.y) tile) * tileHeight
 
 tileShape :: Tile -> Shape
-tileShape tile = case tileKind of
-
-  Border -> case tileEdges of
-    [North] ->                    ["───────",
-                                   "       ",
-                                   "       "]
-    [South] ->                    ["       ",
-                                   "       ",
-                                   "───────"]
-    [West] ->                     ["│      ",
-                                   "│      ",
-                                   "│      "]
-    [East] ->                     ["      │",
-                                   "      │",
-                                   "      │"]
-
-  Corner -> case tileEdges of
-    [North, West] ->              ["┌──────",
-                                   "│      ",
-                                   "│      "]
-    [North, East] ->               ["──────┐",
-                                    "      │",
-                                    "      │"]
-    [South, East] ->               ["      │",
-                                    "      │",
-                                    "──────┘"]
-    [West, South] ->              ["│      ",
-                                   "│      ",
-                                   "└──────"]
-
-  Gate   -> case tileEdges of
-    [North] ->                    ["   ▲   ",
-                                   "       ",
-                                   "───────"]
-    [South] ->                    ["───────",
-                                   "       ",
-                                   "   ▼   "]
-    [West] ->                     ["      │",
-                                   "◄     │",
-                                   "      │"]
-    [East] ->                     ["│      ",
-                                   "│     ►",
-                                   "│      "]
-
-  CornerPath -> case tileEdges of
-    [North, West] ->              ["─┘   │ ",
-                                   "     │ ",
-                                   "─────┘ "]
-    [North, East] ->              [" │   └─",
-                                   " │     ",
-                                   " └─────"]
-    [South, East] ->              [" ┌─────",
-                                   " │     ",
-                                   " │   ┌─"]
-    [West, South] ->              ["─────┐ ",
-                                   "     │ ",
-                                   "─┐   │ "]
-
-  ForkPath -> case tileEdges of
-    [North, South, East] ->       [" │   └─",
-                                   " │     ",
-                                   " │   ┌─"]
-    [North, West, South] ->       ["─┘   │ ",
-                                   "     │ ",
-                                   "─┐   │ "]
-    [North, West, East] ->        ["─┘   └─",
-                                   "       ",
-                                   "───────"]
-    [West, South, East] ->        ["───────",
-                                   "       ",
-                                   "─┐   ┌─"]
-
-  StraightPath -> case tileEdges of
-    [North, South] ->             [" │   │ ",
-                                   " │   │ ",
-                                   " │   │ "]
-    [West, East] ->               ["───────",
-                                   "       ",
-                                   "───────"]
-
+tileShape tile = case (tileKind, tileEdges) of
+  (Border, [North]) ->                ["───────",
+                                       "       ",
+                                       "       "]
+  (Border, [South]) ->                ["       ",
+                                       "       ",
+                                       "───────"]
+  (Border, [West]) ->                 ["│      ",
+                                       "│      ",
+                                       "│      "]
+  (Border, [East]) ->                  ["      │",
+                                       "      │",
+                                       "      │"]
+  (Corner, [North, West]) ->          ["┌──────",
+                                       "│      ",
+                                       "│      "]
+  (Corner, [North, East]) ->           ["──────┐",
+                                        "      │",
+                                        "      │"]
+  (Corner, [South, East]) ->           ["      │",
+                                        "      │",
+                                        "──────┘"]
+  (Corner, [West, South]) ->          ["│      ",
+                                       "│      ",
+                                       "└──────"]
+  (Gate, [North]) ->                  ["   ▲   ",
+                                       "       ",
+                                       "───────"]
+  (Gate, [South]) ->                  ["───────",
+                                       "       ",
+                                       "   ▼   "]
+  (Gate, [West]) ->                   ["      │",
+                                       "◄     │",
+                                       "      │"]
+  (Gate, [East]) ->                   ["│      ",
+                                       "│     ►",
+                                       "│      "]
+  (CornerPath, [North, West]) ->      ["─┘   │ ",
+                                       "     │ ",
+                                       "─────┘ "]
+  (CornerPath, [North, East]) ->      [" │   └─",
+                                       " │     ",
+                                       " └─────"]
+  (CornerPath, [South, East]) ->      [" ┌─────",
+                                       " │     ",
+                                       " │   ┌─"]
+  (CornerPath, [West, South]) ->      ["─────┐ ",
+                                       "     │ ",
+                                       "─┐   │ "]
+  (ForkPath, [North, South, East]) -> [" │   └─",
+                                       " │     ",
+                                       " │   ┌─"]
+  (ForkPath, [North, West, South]) -> ["─┘   │ ",
+                                       "     │ ",
+                                       "─┐   │ "]
+  (ForkPath, [North, West, East]) ->  ["─┘   └─",
+                                       "       ",
+                                       "───────"]
+  (ForkPath, [West, South, East]) ->  ["───────",
+                                       "       ",
+                                       "─┐   ┌─"]
+  (StraightPath, [North, South]) ->   [" │   │ ",
+                                       " │   │ ",
+                                       " │   │ "]
+  (StraightPath, [West, East]) ->     ["───────",
+                                       "       ",
+                                       "───────"]
   where tileKind = _kind tile
         tileEdges = sort $ _edges tile
