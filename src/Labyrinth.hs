@@ -5,9 +5,9 @@ import Control.Monad (liftM)
 import Control.Lens
 
 data Edge =   North
-                 | West
-                 | South
-                 | East deriving (Eq, Show)
+            | West
+            | South
+            | East deriving (Eq, Show, Ord)
 
 data Rotation =   CW
                 | CCW deriving (Eq, Show)

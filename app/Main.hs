@@ -10,7 +10,9 @@ gateStops :: [Int]
 gateStops = [2,4,6]
 
 board :: [Tile]
-board =    [                   makeCorner 0 0,
+board = []
+
+        ++ [                   makeCorner 0 0,
             rotateTileThrice $ makeCorner 8 0,
             rotateTileOnce   $ makeCorner 0 8,
             rotateTileTwice  $ makeCorner 8 8]
