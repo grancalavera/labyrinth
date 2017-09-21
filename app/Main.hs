@@ -5,22 +5,14 @@ import System.Console.ANSI
 
 main :: IO ()
 main = do
-  drawFixedBoard
-  end
-
-drawFixedBoard :: IO ()
-drawFixedBoard = do
-  clearScreen
-  mapM_ drawTile board
+  quickDraw []
 
 quickDraw :: [Tile] -> IO ()
 quickDraw tiles = do
-  drawFixedBoard
+  clearScreen
+  mapM_ drawTile board
   mapM_ drawTile tiles
-  end
-
-end :: IO ()
-end = setCursorPosition (3*9) 0
+  setCursorPosition (3*9) 0
 
 borderStops :: [Int]
 borderStops = [1,3,5,7]
@@ -33,8 +25,8 @@ forkStops = [3, 5]
 
 randomTileStops :: [(Int,Int)]
 randomTileStops =    []
-              ++ [(x,y) | x <- [2,4,6], y <- [1,3,5,7]]
-              ++ [(x,y) | x <- [1..7], y <- [2,4,6]]
+                  ++ [(x,y) | x <- [2,4,6], y <- [1,3,5,7]]
+                  ++ [(x,y) | x <- [1..7], y <- [2,4,6]]
 
 board :: [Tile]
 board = []
