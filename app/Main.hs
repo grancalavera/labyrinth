@@ -2,6 +2,7 @@ module Main where
 
 import Lib
 import System.Console.ANSI
+import System.Random (randomRIO)
 
 main :: IO ()
 main = do
