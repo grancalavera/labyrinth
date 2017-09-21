@@ -60,3 +60,23 @@ shuffleList list = do
     (before, (x:after)) -> do
       xs <- shuffleList (before ++ after)
       return (x:xs)
+
+rotations :: [(Tile -> Tile)]
+rotations = [id, rotateTileOnce, rotateTileTwice, rotateTileThrice]
+
+randomRotation :: IO (Tile -> Tile)
+randomRotation = do
+  shuffled <- shuffleList rotations
+  return (shuffled !! 0)
+
+rotateTileRandomly :: Tile -> IO Tile
+rotateTileRandomly tile = do
+  rotate <- randomRotation
+  return (rotate tile)
+
+testTileRotation :: Tile -> IO ()
+testTileRotation tile = do
+  tile' <-  rotateTileRandomly tile
+  clearScreen
+  drawTile tile'
+  setCursorPosition 5 0
