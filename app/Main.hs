@@ -51,3 +51,12 @@ board = []
                                makeForkPath 3 5,
             rotateTileTwice  $ makeForkPath 5 3,
             rotateTileOnce   $ makeForkPath 5 5]
+
+shuffleList :: [a] -> IO [a]
+shuffleList [] = return []
+shuffleList list = do
+  i <- randomRIO (0, (length list)-1)
+  case (splitAt i list) of
+    (before, (x:after)) -> do
+      xs <- shuffleList (before ++ after)
+      return (x:xs)
