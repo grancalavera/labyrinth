@@ -33,9 +33,6 @@ makeLenses ''Tile
 makeLenses ''Coords
 makeLenses ''Board
 
-instance Show Board where
-  show board = showBoard (view cols board) (view tiles board)
-
 instance Show Tile where
   show t =     "{"
             ++ (show $ _kind t)
@@ -105,15 +102,3 @@ splitAll at xs = split (splitAt at xs)
   where split :: ([a], [a]) -> [[a]]
         split ([], _) = []
         split (xs', ys) = xs' : (splitAll at ys)
-
-pad :: Char -> Int -> String -> String
-pad p w x = pad' x
-  where pad' s | length s > w = ""
-               | length s == w = s
-               | otherwise = pad' ([p] ++ s)
-
-showBoard :: Int -> [Tile] -> String
-showBoard cols tiles = intercalate "\n"
-    $ liftM (intercalate "  ")
-      $ splitAll 9
-        $ map show tiles
