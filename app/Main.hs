@@ -61,9 +61,6 @@ shuffleList list = do
       xs <- shuffleList (before ++ after)
       return (x:xs)
 
-rotations :: [(Tile -> Tile)]
-rotations = [id, rotateTimes 1, rotateTimes 2, rotateTimes 3]
-
 randomRotation :: IO (Tile -> Tile)
 randomRotation = do
   n <- randomRIO (0, 3)
