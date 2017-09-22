@@ -66,8 +66,8 @@ rotations = [id, rotateTileOnce, rotateTileTwice, rotateTileThrice]
 
 randomRotation :: IO (Tile -> Tile)
 randomRotation = do
-  shuffled <- shuffleList rotations
-  return (shuffled !! 0)
+  i <- randomRIO (0, 3)
+  return (rotations !! i)
 
 rotateTileRandomly :: Tile -> IO Tile
 rotateTileRandomly tile = do
