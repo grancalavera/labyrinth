@@ -32,25 +32,25 @@ randomTileStops =    []
 board :: [Tile]
 board = []
 
-        ++ map (\x -> rotateTileTwice  $ makeGate x 0) gateStops
-        ++ map (\x ->                    makeGate x 8) gateStops
-        ++ map (\y -> rotateTileThrice $ makeGate 0 y) gateStops
-        ++ map (\y -> rotateTileOnce   $ makeGate 8 y) gateStops
+        ++ map (\x -> rotateTimes 2 $ gate x 0) gateStops
+        ++ map (\x ->                 gate x 8) gateStops
+        ++ map (\y -> rotateTimes 3 $ gate 0 y) gateStops
+        ++ map (\y -> rotateTimes 1 $ gate 8 y) gateStops
 
-        ++ [rotateTileTwice  $ makeCornerPath 1 1,
-            rotateTileOnce   $ makeCornerPath 7 1,
-            rotateTileThrice $ makeCornerPath 1 7,
-                               makeCornerPath 7 7]
+        ++ [rotateTimes 2 $ corner 1 1,
+            rotateTimes 1 $ corner 7 1,
+            rotateTimes 3 $ corner 1 7,
+                            corner 7 7]
 
-        ++ map (\x -> rotateTileTwice  $ makeForkPath x 1) forkStops
-        ++ map (\x ->                    makeForkPath x 7) forkStops
-        ++ map (\y -> rotateTileThrice $ makeForkPath 1 y) forkStops
-        ++ map (\y -> rotateTileOnce   $ makeForkPath 7 y) forkStops
+        ++ map (\x -> rotateTimes 2 $ fork x 1) forkStops
+        ++ map (\x ->                 fork x 7) forkStops
+        ++ map (\y -> rotateTimes 3 $ fork 1 y) forkStops
+        ++ map (\y -> rotateTimes 1 $ fork 7 y) forkStops
 
-        ++ [rotateTileThrice $ makeForkPath 3 3,
-                               makeForkPath 3 5,
-            rotateTileTwice  $ makeForkPath 5 3,
-            rotateTileOnce   $ makeForkPath 5 5]
+        ++ [rotateTimes 3 $ fork 3 3,
+                            fork 3 5,
+            rotateTimes 2 $ fork 5 3,
+            rotateTimes 1 $ fork 5 5]
 
 shuffleList :: [a] -> IO [a]
 shuffleList [] = return []
@@ -62,12 +62,12 @@ shuffleList list = do
       return (x:xs)
 
 rotations :: [(Tile -> Tile)]
-rotations = [id, rotateTileOnce, rotateTileTwice, rotateTileThrice]
+rotations = [id, rotateTimes 1, rotateTimes 2, rotateTimes 3]
 
 randomRotation :: IO (Tile -> Tile)
 randomRotation = do
-  i <- randomRIO (0, 3)
-  return (rotations !! i)
+  n <- randomRIO (0, 3)
+  return (rotateTimes n)
 
 rotateTileRandomly :: Tile -> IO Tile
 rotateTileRandomly tile = do
@@ -79,4 +79,10 @@ testTileRotation tile = do
   tile' <-  rotateTileRandomly tile
   clearScreen
   drawTile tile'
+  setCursorPosition 5 0
+
+showTile :: Tile -> IO ()
+showTile tile = do
+  clearScreen
+  drawTile tile
   setCursorPosition 5 0

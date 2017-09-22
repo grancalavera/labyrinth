@@ -13,9 +13,9 @@ data Rotation =   CW
                 | CCW deriving (Eq, Show)
 
 data TileKind =   Gate
-                | StraightPath
-                | CornerPath
-                | ForkPath deriving (Eq, Show)
+                | Path
+                | Corner
+                | Fork deriving (Eq, Show)
 
 data Tile = Tile { _kind :: TileKind
                  , _edges :: [Edge]
@@ -57,27 +57,21 @@ coordsFromIndex cols index = Coords { _x = x, _y = y}
 makeCoords :: Int -> Int -> Coords
 makeCoords x y = Coords {_x = x, _y = y}
 
-rotate :: Rotation -> Edge -> Edge
-rotate CW  North  = West
-rotate CW  West   = South
-rotate CW  South  = East
-rotate CW  East   = North
-rotate CCW North  = East
-rotate CCW West   = North
-rotate CCW South  = West
-rotate CCW East   = South
+rotateEdge :: Rotation -> Edge -> Edge
+rotateEdge CCW North  = West
+rotateEdge CCW West   = South
+rotateEdge CCW South  = East
+rotateEdge CCW East   = North
+rotateEdge CW  North  = East
+rotateEdge CW  West   = North
+rotateEdge CW  South  = West
+rotateEdge CW  East   = South
 
-rotateTile :: Rotation -> Tile -> Tile
-rotateTile r = over (edges . traverse) (rotate r)
+rotate :: Rotation -> Tile -> Tile
+rotate r = over (edges . traverse) (rotateEdge r)
 
-rotateTileOnce :: Tile -> Tile
-rotateTileOnce = rotateTile CW
-
-rotateTileTwice :: Tile -> Tile
-rotateTileTwice = rotateTileOnce . rotateTileOnce
-
-rotateTileThrice :: Tile -> Tile
-rotateTileThrice = rotateTileOnce . rotateTileTwice
+rotateTimes :: Int  -> Tile  -> Tile
+rotateTimes n = foldr (\r -> \r' -> r.r') id (replicate n (rotate CCW))
 
 makeTile :: TileKind -> Int -> Int -> Tile
 makeTile tileKind x y = Tile { _coords = makeCoords x y
@@ -86,14 +80,14 @@ makeTile tileKind x y = Tile { _coords = makeCoords x y
                              }
   where tileEdges = case tileKind of
                       Gate         -> [North]
-                      StraightPath -> [North, South]
-                      CornerPath   -> [North, West]
-                      ForkPath     -> [West, North, East]
+                      Path -> [North, South]
+                      Corner   -> [North, West]
+                      Fork     -> [West, North, East]
 
-makeGate         = makeTile Gate
-makeStraightPath = makeTile StraightPath
-makeCornerPath   = makeTile CornerPath
-makeForkPath     = makeTile ForkPath
+gate   = makeTile Gate
+path   = makeTile Path
+corner = makeTile Corner
+fork   = makeTile Fork
 
 -- utilities and stuff
 

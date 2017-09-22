@@ -31,47 +31,47 @@ drawTile tile = draw shape (tileX, tileY)
 
 tileShape :: Tile -> Shape
 tileShape tile = case (tileKind, tileEdges) of
-  (Gate, [North]) ->                  ["   ▲   ",
-                                       "       ",
-                                       "       "]
-  (Gate, [South]) ->                  ["       ",
-                                       "       ",
-                                       "   ▼   "]
-  (Gate, [West]) ->                   ["       ",
-                                       "◄      ",
-                                       "       "]
-  (Gate, [East]) ->                   ["       ",
-                                       "      ►",
-                                       "       "]
-  (CornerPath, [North, West]) ->      ["─┘   │ ",
-                                       "     │ ",
-                                       "─────┘ "]
-  (CornerPath, [North, East]) ->      [" │   └─",
-                                       " │     ",
-                                       " └─────"]
-  (CornerPath, [South, East]) ->      [" ┌─────",
-                                       " │     ",
-                                       " │   ┌─"]
-  (CornerPath, [West, South]) ->      ["─────┐ ",
-                                       "     │ ",
-                                       "─┐   │ "]
-  (ForkPath, [North, South, East]) -> [" │   └─",
-                                       " │     ",
-                                       " │   ┌─"]
-  (ForkPath, [North, West, South]) -> ["─┘   │ ",
-                                       "     │ ",
-                                       "─┐   │ "]
-  (ForkPath, [North, West, East]) ->  ["─┘   └─",
-                                       "       ",
-                                       "───────"]
-  (ForkPath, [West, South, East]) ->  ["───────",
-                                       "       ",
-                                       "─┐   ┌─"]
-  (StraightPath, [North, South]) ->   [" │   │ ",
-                                       " │   │ ",
-                                       " │   │ "]
-  (StraightPath, [West, East]) ->     ["───────",
-                                       "       ",
-                                       "───────"]
+  (Gate, [North]) ->              ["   ▲   ",
+                                   "       ",
+                                   "       "]
+  (Gate, [South]) ->              ["       ",
+                                   "       ",
+                                   "   ▼   "]
+  (Gate, [West]) ->               ["       ",
+                                   "◄      ",
+                                   "       "]
+  (Gate, [East]) ->               ["       ",
+                                   "      ►",
+                                   "       "]
+  (Corner, [North, West]) ->      ["─┘   │ ",
+                                   "     │ ",
+                                   "─────┘ "]
+  (Corner, [North, East]) ->      [" │   └─",
+                                   " │     ",
+                                   " └─────"]
+  (Corner, [South, East]) ->      [" ┌─────",
+                                   " │     ",
+                                   " │   ┌─"]
+  (Corner, [West, South]) ->      ["─────┐ ",
+                                   "     │ ",
+                                   "─┐   │ "]
+  (Fork, [North, South, East]) -> [" │   └─",
+                                   " │     ",
+                                   " │   ┌─"]
+  (Fork, [North, West, South]) -> ["─┘   │ ",
+                                   "     │ ",
+                                   "─┐   │ "]
+  (Fork, [North, West, East]) ->  ["─┘   └─",
+                                   "       ",
+                                   "───────"]
+  (Fork, [West, South, East]) ->  ["───────",
+                                   "       ",
+                                   "─┐   ┌─"]
+  (Path, [North, South]) ->       [" │   │ ",
+                                   " │   │ ",
+                                   " │   │ "]
+  (Path, [West, East]) ->         ["───────",
+                                   "       ",
+                                   "───────"]
   where tileKind = _kind tile
         tileEdges = sort $ _edges tile
