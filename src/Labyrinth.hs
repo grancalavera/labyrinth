@@ -77,11 +77,3 @@ gate   = makeTile Gate
 path   = makeTile Path
 corner = makeTile Corner
 fork   = makeTile Fork
-
--- utilities and stuff
-
-splitAll :: Int -> [a] -> [[a]]
-splitAll at xs = split (splitAt at xs)
-  where split :: ([a], [a]) -> [[a]]
-        split ([], _) = []
-        split (xs', ys) = xs' : (splitAll at ys)
