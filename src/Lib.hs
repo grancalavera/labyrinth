@@ -1,8 +1,10 @@
 module Lib
-  ( module Labyrinth
+  ( module Tile
   , module Draw
+  , module Board
   )
   where
 
-import Labyrinth
+import Tile
 import Draw
+import Board

@@ -16,8 +16,9 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
-                     , Labyrinth
                      , Draw
+                     , Tile
+                     , Board
   build-depends:       base >= 4.7 && < 5
                      , lens
                      , ansi-terminal
