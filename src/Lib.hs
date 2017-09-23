@@ -1,10 +1,10 @@
 module Lib
   ( module Labyrinth
-  , module Tiles
+  , module Tile
   , module Point
   )
   where
 
 import Labyrinth
-import Tiles
+import Tile
 import Point
