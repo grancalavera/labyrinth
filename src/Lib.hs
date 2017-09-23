@@ -1,8 +1,8 @@
 module Lib
   ( module Labyrinth
-  , module Tile
+  , module Draw
   )
   where
 
 import Labyrinth
-import Tile
+import Draw

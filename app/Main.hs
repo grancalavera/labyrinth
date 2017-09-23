@@ -74,12 +74,4 @@ rotateTileRandomly tile = do
 testTileRotation :: Tile -> IO ()
 testTileRotation tile = do
   tile' <-  rotateTileRandomly tile
-  clearScreen
-  draw tile'
-  setCursorPosition 5 0
-
-showTile :: Tile -> IO ()
-showTile tile = do
-  clearScreen
-  draw tile
-  setCursorPosition 5 0
+  preview tile'
