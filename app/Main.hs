@@ -11,8 +11,8 @@ main = do
 quickDraw :: [Tile] -> IO ()
 quickDraw tiles = do
   clearScreen
-  mapM_ drawTile fixedTiles
-  mapM_ drawTile tiles
+  mapM_ draw fixedTiles
+  mapM_ draw tiles
   setCursorPosition (3*9) 0
 
 borderStops :: [Int]
@@ -75,11 +75,11 @@ testTileRotation :: Tile -> IO ()
 testTileRotation tile = do
   tile' <-  rotateTileRandomly tile
   clearScreen
-  drawTile tile'
+  draw tile'
   setCursorPosition 5 0
 
 showTile :: Tile -> IO ()
 showTile tile = do
   clearScreen
-  drawTile tile
+  draw tile
   setCursorPosition 5 0

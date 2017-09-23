@@ -3,14 +3,14 @@ module Labyrinth where
 
 import Control.Lens
 
-data Edge = North | West | South | East deriving (Eq, Show, Ord)
+data Direction = North | West | South | East deriving (Eq, Show, Ord)
 
 data Rotation = CW | CCW deriving (Eq, Show)
 
 data TileKind = Gate | Path | Corner | Fork deriving (Eq, Show)
 
 data Tile = Tile { _kind :: TileKind
-                 , _edges :: [Edge]
+                 , _edges :: [Direction]
                  , _coords :: Coords
                  } deriving (Eq)
 
@@ -46,7 +46,7 @@ coordsFromIndex cols index = Coords { _x = x, _y = y}
   where x = index `mod` cols
         y = index `div` cols
 
-rotateEdge :: Rotation -> Edge -> Edge
+rotateEdge :: Rotation -> Direction -> Direction
 rotateEdge CCW North  = West
 rotateEdge CCW West   = South
 rotateEdge CCW South  = East
@@ -58,6 +58,18 @@ rotateEdge CW  East   = South
 
 rotate :: Rotation -> Tile -> Tile
 rotate r = over (edges . traverse) (rotateEdge r)
+
+move :: Direction -> Tile -> Tile
+move North = over (coords.y) (\n -> n-1)
+move South = over (coords.y) (+1)
+move West  = over (coords.x) (\n -> n-1)
+move East  = over (coords.x) (+1)
+
+up :: Tile -> Tile
+up    = move North
+down  = move South
+left  = move West
+right = move East
 
 rotateTimes :: Int  -> Tile  -> Tile
 rotateTimes n = foldr (\r -> \r' -> r.r') id (replicate n (rotate CCW))

@@ -4,7 +4,6 @@ import Data.List (sort)
 import System.Console.ANSI
 import Control.Lens
 
-import Point
 import Labyrinth
 
 type Shape = [String]
@@ -15,23 +14,20 @@ tileWidth = 7
 tileHeight :: Int
 tileHeight = 3
 
-draw :: Shape -> Point -> IO ()
-draw = draw' 0
-  where draw' :: Int -> Shape -> Point -> IO ()
-        draw' _ [] _ = return ()
-        draw' row (ln:lns) point@(x,y) = do
-          setCursorPosition (row+y) x
-          putStr ln
-          draw' (row+1) lns point
+draw :: Tile -> IO ()
+draw tile = drawTileRow 0 (shape tile)
+  where drawTileRow :: Int -> Shape -> IO ()
+        drawTileRow _ [] = return ()
+        drawTileRow rowIndex (row:rows) = do
+          setCursorPosition (rowIndex+tileY) tileX
+          putStr row
+          drawTileRow (rowIndex+1) rows
 
-drawTile :: Tile -> IO ()
-drawTile tile = draw shape (tileX, tileY)
-  where shape = tileShape tile
         tileX = (view (coords.x) tile) * tileWidth
         tileY = (view (coords.y) tile) * tileHeight
 
-tileShape :: Tile -> Shape
-tileShape tile = case (tileKind, tileEdges) of
+shape :: Tile -> Shape
+shape tile = case (tileKind, tileEdges) of
   (Gate, [North]) ->              ["   ▲   ",
                                    "       ",
                                    "       "]

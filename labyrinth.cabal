@@ -17,7 +17,6 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Labyrinth
-                     , Point
                      , Tile
   build-depends:       base >= 4.7 && < 5
                      , lens
