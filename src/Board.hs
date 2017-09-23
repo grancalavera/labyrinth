@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Board where
 import Control.Lens
+import System.Random (randomRIO)
 import Tile
 
 data Board = Board { _tiles :: [Tile]
@@ -57,3 +58,23 @@ randomTileStops :: [(Int,Int)]
 randomTileStops =    []
                   ++ [(x,y) | x <- [2,4,6], y <- [1,3,5,7]]
                   ++ [(x,y) | x <- [1..7], y <- [2,4,6]]
+
+shuffleList :: [a] -> IO [a]
+shuffleList [] = return []
+shuffleList list = do
+  i <- randomRIO (0, (length list)-1)
+  case (splitAt i list) of
+    (before, (x:after)) -> do
+      xs <- shuffleList (before ++ after)
+      return (x:xs)
+
+randomRotation :: IO (Tile -> Tile)
+randomRotation = do
+  n <- randomRIO (0, 3)
+  return (rotateTimes n)
+
+rotateTileRandomly :: Tile -> IO Tile
+rotateTileRandomly tile = do
+  rotate <- randomRotation
+  return (rotate tile)
+

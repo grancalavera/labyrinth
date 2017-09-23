@@ -1,4 +1,4 @@
-module Draw (draw, drawBoard, preview) where
+module Draw where
 import Data.List (sort)
 import System.Console.ANSI
 import Control.Lens hiding (preview)
@@ -31,6 +31,11 @@ preview tile = do
   clearScreen
   draw tile
   setCursorPosition (tileY tile * tileHeight + tileHeight + 1) 0
+
+previewRotation :: Tile -> IO ()
+previewRotation tile = do
+  tile' <-  rotateTileRandomly tile
+  preview tile'
 
 tileWidth :: Int
 tileWidth = 7
