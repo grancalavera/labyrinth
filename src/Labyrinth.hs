@@ -1,21 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Labyrinth where
-import Data.List (intercalate)
-import Control.Monad (liftM)
+
 import Control.Lens
 
-data Edge =   North
-            | West
-            | South
-            | East deriving (Eq, Show, Ord)
+data Edge = North | West | South | East deriving (Eq, Show, Ord)
 
-data Rotation =   CW
-                | CCW deriving (Eq, Show)
+data Rotation = CW | CCW deriving (Eq, Show)
 
-data TileKind =   Gate
-                | Path
-                | Corner
-                | Fork deriving (Eq, Show)
+data TileKind = Gate | Path | Corner | Fork deriving (Eq, Show)
 
 data Tile = Tile { _kind :: TileKind
                  , _edges :: [Edge]
@@ -54,9 +46,6 @@ coordsFromIndex cols index = Coords { _x = x, _y = y}
   where x = index `mod` cols
         y = index `div` cols
 
-makeCoords :: Int -> Int -> Coords
-makeCoords x y = Coords {_x = x, _y = y}
-
 rotateEdge :: Rotation -> Edge -> Edge
 rotateEdge CCW North  = West
 rotateEdge CCW West   = South
@@ -74,7 +63,7 @@ rotateTimes :: Int  -> Tile  -> Tile
 rotateTimes n = foldr (\r -> \r' -> r.r') id (replicate n (rotate CCW))
 
 makeTile :: TileKind -> Int -> Int -> Tile
-makeTile tileKind x y = Tile { _coords = makeCoords x y
+makeTile tileKind x y = Tile { _coords = Coords {_x = x, _y = y}
                              , _kind = tileKind
                              , _edges = tileEdges
                              }

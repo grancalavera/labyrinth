@@ -1,4 +1,5 @@
 module Tile where
+
 import Data.List (sort)
 import System.Console.ANSI
 import Control.Lens
