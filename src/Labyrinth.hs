@@ -34,13 +34,13 @@ makeLenses ''Coords
 makeLenses ''Board
 
 instance Show Tile where
-  show t =     "{"
-            ++ (show $ _kind t)
-            ++ ","
-            ++ show (_edges t)
-            ++ ","
-            ++ (show $ _coords t)
-            ++ "}"
+  show t =    "{"
+           ++ (show $ _kind t)
+           ++ ","
+           ++ show (_edges t)
+           ++ ","
+           ++ (show $ _coords t)
+           ++ "}"
 
 instance Show Coords where
   show c =    "("
