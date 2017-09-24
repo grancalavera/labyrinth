@@ -9,5 +9,3 @@ main = do
   drawBoard origin board
 
 origin = Coords {_x = 0, _y = 1}
-
-a = main
