@@ -13,7 +13,7 @@ makeLenses ''Board
 
 initialBoard :: IO Board
 initialBoard = do
-  shufledTiles' <- shufledTiles
+  shufledTiles' <- shuffledTiles
   return Board { _rows = 9
                , _cols = 9
                , _tiles = fixedTiles ++ shufledTiles'
@@ -51,8 +51,11 @@ fixedTiles =    []
                  rotateTimes 2 $ fork 5 3,
                  rotateTimes 1 $ fork 5 5]
 
-shufledTiles :: IO [Tile]
-shufledTiles = return []
+shuffledTiles :: IO [Tile]
+shuffledTiles = do
+  stops <- shuffleList shuffledTileStops
+  (t:ts) <- mapM rotateTileRandomly shuffledTilesTiles
+  return ([set (coords.x) 2 t] ++ map (\(t,c) -> set coords c t) (zip ts stops))
 
 borderStops :: [Int]
 borderStops = [1,3,5,7]
@@ -63,11 +66,16 @@ gateStops = [2,4,6]
 forkStops :: [Int]
 forkStops = [3, 5]
 
-shuffledTileStops :: [(Int,Int)]
+shuffledTileStops :: [Coords]
 shuffledTileStops =    []
-                    ++ [(x,y) | x <- [2,4,6], y <- [1,3,5,7]]
-                    ++ [(x,y) | x <- [1..7], y <- [2,4,6]]
+                    ++ [Coords{_x=x,_y=y} | x <- [2,4,6], y <- [1,3,5,7]]
+                    ++ [Coords{_x=x,_y=y} | x <- [1..7], y <- [2,4,6]]
 
+shuffledTilesTiles :: [Tile]
+shuffledTilesTiles =    []
+                     ++ (replicate 12 $ path 0 0)
+                     ++ (replicate 16 $ corner 0 0)
+                     ++ (replicate 6  $ fork 0 0)
 
 shuffleList :: [a] -> IO [a]
 shuffleList [] = return []

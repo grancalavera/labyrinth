@@ -8,4 +8,6 @@ main = do
   board <- initialBoard
   drawBoard origin board
 
-origin = Coords {_x = 0, _y = 0}
+origin = Coords {_x = 0, _y = 1}
+
+a = main

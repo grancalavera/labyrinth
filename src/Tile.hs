@@ -11,28 +11,12 @@ data TileKind = Gate | Path | Corner | Fork deriving (Eq, Show)
 data Tile = Tile { _kind :: TileKind
                  , _edges :: [Direction]
                  , _coords :: Coords
-                 } deriving (Eq)
+                 } deriving (Show)
 
-data Coords = Coords { _x :: Int, _y :: Int } deriving (Eq)
+data Coords = Coords { _x :: Int, _y :: Int } deriving (Show)
 
 makeLenses ''Tile
 makeLenses ''Coords
-
-instance Show Tile where
-  show t =    "{"
-           ++ (show $ _kind t)
-           ++ ","
-           ++ show (_edges t)
-           ++ ","
-           ++ (show $ _coords t)
-           ++ "}"
-
-instance Show Coords where
-  show c =    "("
-           ++ (show $ view x c)
-           ++ ","
-           ++ (show $ view y c)
-           ++ ")"
 
 coordsFromIndex :: Int -> Int -> Coords
 coordsFromIndex cols index = Coords { _x = x, _y = y}
