@@ -1,8 +1,11 @@
 module Main where
 import Lib
+import Control.Lens
 
 main :: IO ()
 main = do
+  drawBoard origin sillyBoard
   board <- initialBoard
-  drawBoard (Coords {_x=0,_y=0}) board
+  drawBoard origin board
 
+origin = Coords {_x = 0, _y = 0}

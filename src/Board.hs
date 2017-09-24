@@ -19,6 +19,15 @@ initialBoard = do
                , _tiles = fixedTiles ++ shufledTiles'
                }
 
+sillyBoard = Board { _rows = 2
+                   , _cols = 2
+                   , _tiles = [ rotateTimes 2 $ corner 0 0
+                              , rotateTimes 1 $ corner 1 0
+                              , rotateTimes 3 $ corner 0 1
+                              , corner 1 1
+                              ]
+                   }
+
 fixedTiles :: [Tile]
 fixedTiles =    []
 
@@ -54,10 +63,11 @@ gateStops = [2,4,6]
 forkStops :: [Int]
 forkStops = [3, 5]
 
-randomTileStops :: [(Int,Int)]
-randomTileStops =    []
-                  ++ [(x,y) | x <- [2,4,6], y <- [1,3,5,7]]
-                  ++ [(x,y) | x <- [1..7], y <- [2,4,6]]
+shuffledTileStops :: [(Int,Int)]
+shuffledTileStops =    []
+                    ++ [(x,y) | x <- [2,4,6], y <- [1,3,5,7]]
+                    ++ [(x,y) | x <- [1..7], y <- [2,4,6]]
+
 
 shuffleList :: [a] -> IO [a]
 shuffleList [] = return []
@@ -77,4 +87,15 @@ rotateTileRandomly :: Tile -> IO Tile
 rotateTileRandomly tile = do
   rotate <- randomRotation
   return (rotate tile)
+
+toListOfX = toListOf (tiles.traverse.coords.x)
+toListOfY = toListOf (tiles.traverse.coords.y)
+
+toListOfCoords = toListOf (tiles.traverse.coords)
+overCoords = over (tiles.traverse.coords)
+
+moveCoordsBy :: Coords -> Coords -> Coords
+moveCoordsBy byCoords coords = Coords {_x = newX, _y = newY}
+  where newX = view x coords + view x byCoords
+        newY = view y coords + view y byCoords
 

@@ -5,15 +5,15 @@ import Control.Lens hiding (preview)
 import Tile
 import Board
 
-
 drawBoard :: Coords -> Board -> IO ()
 drawBoard position board = do
   clearScreen
-  mapM_ draw $ (view tiles) board
-  setCursorPosition (tileHeight*boardRows) 0
-  where boardRows = view rows $ board
-        boardX = view x $ position
-        boardY = view y $ position
+  mapM_ draw $ (view tiles) board'
+  setCursorPosition cursorY 0
+  where board' = overCoords (moveCoordsBy position) board
+        boardRows = view rows $ board
+        boardY = view y position
+        cursorY = boardRows * tileHeight + boardY * tileHeight
 
 draw :: Tile -> IO ()
 draw tile = drawTileRow 0 (shape tile)
