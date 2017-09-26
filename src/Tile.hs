@@ -6,7 +6,7 @@ data Direction = North | West | South | East deriving (Eq, Show, Ord)
 
 data Rotation = CW | CCW deriving (Eq, Show)
 
-data TileKind = Gate | Path | Corner | Fork deriving (Eq, Show)
+data TileKind = Blank | Gate | Path | Corner | Fork deriving (Eq, Show)
 
 data Tile = Tile { _kind :: TileKind
                  , _edges :: [Direction]
@@ -57,11 +57,13 @@ makeTile tileKind x y = Tile { _coords = Coords {_x = x, _y = y}
                              , _edges = tileEdges
                              }
   where tileEdges = case tileKind of
-                      Gate         -> [North]
-                      Path -> [North, South]
-                      Corner   -> [North, West]
-                      Fork     -> [West, North, East]
+                      Blank  -> []
+                      Gate   -> [North]
+                      Path   -> [North, South]
+                      Corner -> [North, West]
+                      Fork   -> [West, North, East]
 
+blank  = makeTile Blank
 gate   = makeTile Gate
 path   = makeTile Path
 corner = makeTile Corner

@@ -21,7 +21,10 @@ draw tile = drawTileRow 0 (shape tile)
         drawTileRow _ [] = return ()
         drawTileRow rowIndex (row:rows) = do
           setCursorPosition (rowIndex+ty) tx
+          setSGR [SetColor Background Dull Black]
+          setSGR [SetColor Foreground Vivid White]
           putStr row
+          setSGR [Reset]
           drawTileRow (rowIndex+1) rows
         tx = (tileX tile) * tileWidth
         ty = (tileY tile) * tileHeight
@@ -53,6 +56,9 @@ type Shape = [String]
 
 shape :: Tile -> Shape
 shape tile = case (tileKind, tileEdges) of
+  (Blank, []) ->                  ["       ",
+                                   "       ",
+                                   "       "]
   (Gate, [North]) ->              ["       ",
                                    "   ▲   ",
                                    "       "]
