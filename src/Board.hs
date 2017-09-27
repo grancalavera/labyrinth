@@ -109,7 +109,3 @@ moveCoordsBy :: Coords -> Coords -> Coords
 moveCoordsBy byCoords coords = Coords {_x = newX, _y = newY}
   where newX = view x coords + view x byCoords
         newY = view y coords + view y byCoords
-
-blankTiles = map (uncurry blank) stops
-  where stops = [(x,y) | x <- [0, 1, 3, 5, 7, 8], y <- [0,8]] ++
-                [(x,y) | x <- [0, 8], y <- [1, 3, 5, 7]]

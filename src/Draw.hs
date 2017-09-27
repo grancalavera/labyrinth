@@ -56,9 +56,6 @@ type Shape = [String]
 
 shape :: Tile -> Shape
 shape tile = case (tileKind, tileEdges) of
-  (Blank, []) ->                  ["       ",
-                                   "       ",
-                                   "       "]
   (Gate, [North]) ->              ["       ",
                                    "   ▲   ",
                                    "       "]
