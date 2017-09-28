@@ -5,15 +5,20 @@ import System.Console.ANSI
 import Control.Monad (forM_)
 
 main :: IO ()
-main = boardTest
-
-boardTest :: IO ()
-boardTest = do
-  drawBoard origin sillyBoard
+main = do
+  clearScreen
   board <- initialBoard
+  drawBackground
   drawBoard origin board
+  -- this should go eslewhere
+  setCursorPosition gameHeight 0
+  putStrLn $ replicate 80 '-'
 
-origin = Coords {_x = 0, _y = 1}
+-- this coordinates are given in Tile units
+-- it might make sense to use actual columns
+-- and rows for certain operations
+
+origin = Coords {_x = 1, _y = 1}
 
 colors :: [Color]
 colors = [Yellow, Blue, Red, Green]

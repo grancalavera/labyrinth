@@ -5,15 +5,19 @@ import Control.Lens hiding (preview)
 import Tile
 import Board
 
+drawBackground :: IO ()
+drawBackground = do
+  setCursorPosition 0 0
+  setSGR [SetColor Background Dull Black]
+  putStr background
+  setSGR [Reset]
+
 drawBoard :: Coords -> Board -> IO ()
 drawBoard position board = do
-  clearScreen
   mapM_ draw $ (view tiles) board'
-  setCursorPosition cursorY 0
   where board' = overCoords (moveCoordsBy position) board
         boardRows = view rows $ board
         boardY = view y position
-        cursorY = boardRows * tileHeight + boardY * tileHeight
 
 draw :: Tile -> IO ()
 draw tile = drawTileRow 0 (shape tile)
@@ -40,6 +44,17 @@ previewRotation tile = do
   tile' <-  rotateTileRandomly tile
   preview tile'
 
+-- row/col units
+
+gameWidth :: Int
+gameWidth = 77
+
+gameHeight :: Int
+gameHeight = 40
+
+background = unlines $ replicate gameHeight $ replicate gameWidth ' '
+
+-- Tile units
 tileWidth :: Int
 tileWidth = 7
 
