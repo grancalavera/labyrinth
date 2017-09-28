@@ -1,5 +1,6 @@
 module Draw where
 import Data.List (sort)
+import Control.Monad (forM_)
 import System.Console.ANSI
 import Control.Lens hiding (preview)
 import Tile
@@ -115,3 +116,23 @@ shape tile = case (tileKind, tileEdges) of
                                    "───────"]
   where tileKind = _kind tile
         tileEdges = sort $ _edges tile
+
+colors :: [Color]
+colors = [Yellow, Blue, Red, Green]
+
+colorTest :: IO ()
+colorTest = do
+  forM_ colors $ \color -> do
+    setSGR [SetColor Foreground Vivid White]
+    setSGR [SetColor Background Dull color]
+    putStrLn $ show color
+    setSGR [Reset]
+
+-- Black
+-- Red
+-- Green
+-- Yellow
+-- Blue
+-- Magenta
+-- Cyan
+-- White
