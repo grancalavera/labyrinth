@@ -3,6 +3,25 @@ import Lib
 import Control.Lens
 import System.Console.ANSI
 
+{-  game loop sketch
+
+data World = World {}
+
+main :: IO ()
+world <- initialWorld
+tick world
+
+tick :: World -> IO ()
+tick world = do
+  render world
+  input <- processInput world
+  updatedWorld <- update world input
+  case (gameOver world) of
+    True -> endGame
+    False -> tick updatedWorld
+-}
+
+
 main :: IO ()
 main = do
   clearScreen
