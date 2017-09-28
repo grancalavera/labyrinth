@@ -1,0 +1,2036 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"molecule",
+				"moleculeX"
+			],
+			[
+				"si",
+				"shiftMoleculeX"
+			],
+			[
+				"Shi",
+				"shiftAtomX"
+			],
+			[
+				"boar",
+				"Board"
+			],
+			[
+				"split",
+				"splitAt"
+			],
+			[
+				"bi",
+				"bifunctor"
+			],
+			[
+				"is",
+				"isTop"
+			],
+			[
+				"get",
+				"getCoords"
+			],
+			[
+				"gt",
+				"getCoords"
+			],
+			[
+				"pad",
+				"padPoint"
+			],
+			[
+				"printf",
+				"PrintfType"
+			],
+			[
+				"map",
+				"mapPoint"
+			],
+			[
+				"spit",
+				"splitAt"
+			],
+			[
+				"puts",
+				"putStr"
+			],
+			[
+				"putsr",
+				"putStrLn"
+			],
+			[
+				"ba",
+				"BadStars"
+			],
+			[
+				"pl",
+				"player"
+			],
+			[
+				"putst",
+				"putStrLn"
+			],
+			[
+				"put",
+				"putRow"
+			],
+			[
+				"to",
+				"toPutRow"
+			],
+			[
+				"Play",
+				"playAgain"
+			],
+			[
+				"pla",
+				"playAgain"
+			],
+			[
+				"putS",
+				"putStrLn"
+			],
+			[
+				"play",
+				"playAgain"
+			],
+			[
+				"putStr",
+				"putStr"
+			],
+			[
+				"putSt",
+				"putStr"
+			],
+			[
+				"g",
+				"getCh"
+			],
+			[
+				"parser",
+				"Parser"
+			],
+			[
+				"in",
+				"instance\tInstance"
+			],
+			[
+				"boo",
+				"boolFnAppliedThrice"
+			],
+			[
+				"playe",
+				"players"
+			],
+			[
+				"ran",
+				"range"
+			],
+			[
+				"ZipList__",
+				"ZipList__shortLimit"
+			],
+			[
+				"ZipList",
+				"ZipList_zipper"
+			],
+			[
+				"zipper",
+				"zipperLimit"
+			],
+			[
+				"zi",
+				"zipper"
+			],
+			[
+				"Zip",
+				"ZipList_zipper"
+			],
+			[
+				"zipw",
+				"zipWith_limit"
+			],
+			[
+				"ZIp",
+				"ZipList_zipper"
+			],
+			[
+				"zip",
+				"zipWith"
+			],
+			[
+				"left",
+				"left_value"
+			],
+			[
+				"i_",
+				"i_right"
+			],
+			[
+				"ap",
+				"apply_flip_curry"
+			],
+			[
+				"dee",
+				"t.deepEqual"
+			],
+			[
+				"h_",
+				"h_right_gen"
+			],
+			[
+				"ma",
+				"max_iter"
+			],
+			[
+				"next",
+				"next_y"
+			],
+			[
+				"z",
+				"zip3"
+			],
+			[
+				"bala",
+				"balances"
+			],
+			[
+				"bal",
+				"balances"
+			],
+			[
+				"cal",
+				"calculateAverage"
+			],
+			[
+				"rand",
+				"randInt"
+			],
+			[
+				"zp",
+				"zipWithConcat"
+			],
+			[
+				"ca",
+				"calculateWealthFraction"
+			],
+			[
+				"iter",
+				"iteration_"
+			],
+			[
+				"itera",
+				"iteration"
+			],
+			[
+				"iit",
+				"initialBalance"
+			],
+			[
+				"co",
+				"console"
+			],
+			[
+				"ite",
+				"iterate"
+			],
+			[
+				"give",
+				"giveMoney"
+			],
+			[
+				"pair",
+				"pairPlayersRandomly"
+			],
+			[
+				"giver",
+				"giverBalance"
+			],
+			[
+				"randomp",
+				"randomPlayer"
+			],
+			[
+				"random",
+				"randomPairs"
+			],
+			[
+				"gie",
+				"giverBalance"
+			],
+			[
+				"taker",
+				"takerBalance"
+			],
+			[
+				"shu",
+				"shuffledPlayers"
+			],
+			[
+				"player",
+				"playerCount"
+			],
+			[
+				"B",
+				"Bike"
+			],
+			[
+				"Au",
+				"Author"
+			],
+			[
+				"one",
+				"ONE_DAY"
+			],
+			[
+				"loc",
+				"LOCAL_SECONDARY_INDEXES"
+			],
+			[
+				"a",
+				"AttributeType"
+			],
+			[
+				"Rp",
+				"ReplyDateTime"
+			],
+			[
+				"Att",
+				"AttributeName"
+			],
+			[
+				"att",
+				"AttributeName"
+			],
+			[
+				"At",
+				"AttributeName"
+			],
+			[
+				"Fru",
+				"ForumName"
+			],
+			[
+				"Atr",
+				"AttributeName"
+			],
+			[
+				"Attribute",
+				"AttributeName"
+			],
+			[
+				"render",
+				"renderList"
+			],
+			[
+				"filt",
+				"filtered"
+			],
+			[
+				"forma",
+				"formatted"
+			],
+			[
+				"formt",
+				"formatted"
+			],
+			[
+				"auth",
+				"AUTH0_CLIENT_SECRET"
+			],
+			[
+				"AUT",
+				"AUTH0_CLIENT_SECRET"
+			],
+			[
+				"aws",
+				"AWS"
+			],
+			[
+				"add",
+				"add_resource"
+			],
+			[
+				"deplo",
+				"deploymentBucket"
+			],
+			[
+				"princes",
+				"princes-trust-api"
+			],
+			[
+				"op",
+				"OPTIONS"
+			],
+			[
+				"font-s",
+				"font-size"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"class",
+				"className"
+			],
+			[
+				"bx",
+				"box-shadow"
+			],
+			[
+				"clas",
+				"className"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"predict",
+				"prediction"
+			],
+			[
+				"reuq",
+				"require"
+			],
+			[
+				"getda",
+				"getDaysInMonth"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"margin",
+				"margin-right"
+			],
+			[
+				"margi",
+				"margin-top"
+			],
+			[
+				"mar",
+				"marker-end"
+			],
+			[
+				"accoun",
+				"account_id"
+			],
+			[
+				"acc",
+				"account_id"
+			],
+			[
+				"days",
+				"daysInMonth"
+			],
+			[
+				"BL",
+				"BlueGreen"
+			],
+			[
+				"Black",
+				"BlackWhite"
+			],
+			[
+				"The",
+				"Theta_grad"
+			],
+			[
+				"the",
+				"Theta_grad"
+			],
+			[
+				"thet",
+				"Theta"
+			],
+			[
+				"theta",
+				"Theta_grad"
+			],
+			[
+				"num",
+				"num_users"
+			],
+			[
+				"THeta",
+				"Theta"
+			],
+			[
+				"X",
+				"X_grad"
+			],
+			[
+				"Te",
+				"Theta_grad_sum"
+			],
+			[
+				"XG",
+				"X_grad_sum"
+			],
+			[
+				"Thet",
+				"Theta_grad"
+			],
+			[
+				"U",
+				"U_reduce"
+			],
+			[
+				"extra",
+				"extract_rule"
+			],
+			[
+				"proces",
+				"process_ast"
+			],
+			[
+				"proce",
+				"process_ast"
+			],
+			[
+				"sele",
+				"selectors"
+			],
+			[
+				"wor",
+				"word_indices"
+			],
+			[
+				"wo",
+				"word_indices"
+			],
+			[
+				"vocab",
+				"vocabSize"
+			],
+			[
+				"voca",
+				"vocabList"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 357.0,
+		"last_filter": "git s",
+		"selected_items":
+		[
+			[
+				"git s",
+				"Git: Status"
+			],
+			[
+				"bo",
+				"Boxy Theme: Activation"
+			],
+			[
+				"ac",
+				"Boxy Theme: Activation"
+			],
+			[
+				"add ",
+				"Project: Add Folder"
+			],
+			[
+				"add f",
+				"Project: Add Folder"
+			],
+			[
+				"sett",
+				"Preferences: Settings"
+			],
+			[
+				"wra",
+				"Word Wrap: Toggle"
+			],
+			[
+				"rena",
+				"File: Rename"
+			],
+			[
+				"ep",
+				"Project: Edit Project"
+			],
+			[
+				"rename",
+				"File: Rename"
+			],
+			[
+				"git diff",
+				"Git: Diff Current File"
+			],
+			[
+				"acti",
+				"Boxy Theme: Activation"
+			],
+			[
+				"previ",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"boxy",
+				"Boxy Theme: Activation"
+			],
+			[
+				"git chec",
+				"Git: Checkout Current File"
+			],
+			[
+				"ss js",
+				"Set Syntax: JavaScript (Babel)"
+			],
+			[
+				"boy",
+				"Boxy Theme: Activation"
+			],
+			[
+				"ss json",
+				"Set Syntax: JSON"
+			],
+			[
+				"ss haskell",
+				"Set Syntax: Haskell"
+			],
+			[
+				"git che",
+				"Git: Checkout Current File"
+			],
+			[
+				"git ce",
+				"Git: Checkout Current File"
+			],
+			[
+				"git show",
+				"Git: Show Previous Version of Current File"
+			],
+			[
+				"ss ba",
+				"Set Syntax: JavaScript (Babel)"
+			],
+			[
+				"git c",
+				"Git: Checkout Current File"
+			],
+			[
+				"new view",
+				"File: New View into File"
+			],
+			[
+				"fine",
+				"File: New View into File"
+			],
+			[
+				"wrap",
+				"Word Wrap: Toggle"
+			],
+			[
+				"git bl",
+				"Git: Blame"
+			],
+			[
+				"pack ins",
+				"Package Control: Install Package"
+			],
+			[
+				"add",
+				"Project: Add Folder"
+			],
+			[
+				"ss jbab",
+				"Set Syntax: JavaScript (Babel)"
+			],
+			[
+				"pack remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"diff",
+				"Diffy Compare"
+			],
+			[
+				"ss html",
+				"Set Syntax: HTML"
+			],
+			[
+				"gif",
+				"Git: Diff Current File"
+			],
+			[
+				"json for",
+				"Pretty JSON: Format (Pretty Print) JSON"
+			],
+			[
+				"addf",
+				"Project: Add Folder"
+			],
+			[
+				"ssjson",
+				"Pretty JSON: Format and Sort JSON"
+			],
+			[
+				"ss babe",
+				"Set Syntax: JavaScript (Babel)"
+			],
+			[
+				"ma",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"a",
+				"Project: Add Folder"
+			],
+			[
+				"add fo",
+				"Project: Add Folder"
+			],
+			[
+				"html ",
+				"HTMLBeautify"
+			],
+			[
+				"js pre",
+				"Pretty JSON: Format (Pretty Print) JSON"
+			],
+			[
+				"ss json ",
+				"Set Syntax: JSON"
+			],
+			[
+				"ss javas",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"ss react",
+				"Set Syntax: React Templates"
+			],
+			[
+				"pac ins",
+				"Package Control: Install Package"
+			],
+			[
+				"ss jsx",
+				"Set Syntax: JavaScript Next"
+			],
+			[
+				"",
+				"File: Rename"
+			],
+			[
+				"format",
+				"Pretty JSON: Format (Pretty Print) JSON"
+			],
+			[
+				"git bla",
+				"Git: Blame"
+			],
+			[
+				"w",
+				"Word Wrap: Toggle"
+			],
+			[
+				"matl",
+				"Set Syntax: MATLAB"
+			],
+			[
+				"ss css",
+				"Set Syntax: CSS"
+			],
+			[
+				"pack up",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"packa",
+				"Preferences: Browse Packages"
+			],
+			[
+				"s mat",
+				"Set Syntax: MATLAB"
+			],
+			[
+				"git log",
+				"Git: Log Current File"
+			],
+			[
+				"git checkout ",
+				"Git: Checkout Current File"
+			],
+			[
+				"renam",
+				"File: Rename"
+			],
+			[
+				"pre brow",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"pre bv",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"preev b",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"pre",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"prev",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"preview",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"pre b",
+				"Preferences: Browse Packages"
+			],
+			[
+				"pre bro",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"rev",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"ss mat",
+				"Set Syntax: MATLAB"
+			],
+			[
+				"pack in",
+				"Package Control: Install Package"
+			],
+			[
+				"browser",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"review",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"mar",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"greek",
+				"Package Control: Remove Package"
+			],
+			[
+				"ss handl",
+				"Set Syntax: Handlebars"
+			],
+			[
+				"re",
+				"File: Rename"
+			],
+			[
+				"ava",
+				"Snippet: AVA"
+			],
+			[
+				"git check",
+				"Git: Checkout Current File"
+			],
+			[
+				"json pre",
+				"Pretty JSON: Format (Pretty Print) JSON"
+			],
+			[
+				"ss js n",
+				"Set Syntax: JavaScript Next"
+			],
+			[
+				"ss js ",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"git dif",
+				"Git: Diff Current File"
+			],
+			[
+				"git diff ",
+				"Git: Diff Current File"
+			],
+			[
+				"boxi",
+				"Boxy Theme: Activation"
+			],
+			[
+				"rean",
+				"File: Rename"
+			],
+			[
+				"setting",
+				"Preferences: Settings"
+			],
+			[
+				"box a",
+				"Boxy Theme: Activation"
+			],
+			[
+				"wa",
+				"Word Wrap: Toggle"
+			],
+			[
+				"ss li",
+				"Set Syntax: Literate Haskell Bird Style"
+			],
+			[
+				"ss has",
+				"Set Syntax: Haskell Repl"
+			],
+			[
+				"ss liter",
+				"Set Syntax: Literate Haskell Bird Style"
+			],
+			[
+				"rea",
+				"File: Rename"
+			],
+			[
+				"boxi a",
+				"Boxy Theme: Activation"
+			],
+			[
+				"key bindings",
+				"Preferences: Key Bindings"
+			],
+			[
+				"subliha",
+				"SublimeHaskell: Configure"
+			],
+			[
+				"pack re",
+				"Package Control: Remove Package"
+			],
+			[
+				"pack",
+				"Preferences: Browse Packages"
+			],
+			[
+				"ss ha",
+				"Set Syntax: Haskell"
+			],
+			[
+				"pack instal",
+				"Package Control: Install Package"
+			],
+			[
+				"box",
+				"Boxy Theme: Activation"
+			],
+			[
+				"ss bash",
+				"Set Syntax: Shell Script (Bash)"
+			],
+			[
+				"bo a",
+				"Boxy Theme: Activation"
+			],
+			[
+				"key",
+				"Preferences: Key Bindings"
+			],
+			[
+				"build",
+				"SublimeHaskell: Build"
+			],
+			[
+				"haskell",
+				"Preferences: SublimeHaskell Settings – User"
+			],
+			[
+				"ss hs",
+				"Set Syntax: Haskell Symbol Info Panel"
+			],
+			[
+				"ss cabal",
+				"Set Syntax: Cabal"
+			],
+			[
+				"package in",
+				"Package Control: Install Package"
+			],
+			[
+				"ss shc",
+				"Set Syntax: Shell Script (Bash)"
+			],
+			[
+				"bocy ",
+				"Boxy Theme: Activation"
+			],
+			[
+				"box ac",
+				"Boxy Theme: Activation"
+			],
+			[
+				"bocy",
+				"Boxy Theme: Activation"
+			],
+			[
+				"packate lis",
+				"Package Control: List Packages"
+			],
+			[
+				"remove ",
+				"Package Control: Remove Package"
+			],
+			[
+				"git idf c",
+				"Git: Diff Current File"
+			],
+			[
+				"ssjs",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"e p",
+				"Project: Edit Project"
+			],
+			[
+				"boxy con",
+				"Boxy Theme: Configuration"
+			],
+			[
+				"bos",
+				"Boxy Theme: Presets"
+			],
+			[
+				"ss mar",
+				"Set Syntax: Markdown"
+			],
+			[
+				"ssjsn",
+				"Set Syntax: JavaScript Next"
+			],
+			[
+				"s u",
+				"Preferences: Settings - User"
+			],
+			[
+				"ss mark",
+				"Set Syntax: Markdown"
+			],
+			[
+				"ss jsn",
+				"Set Syntax: JavaScript Next"
+			],
+			[
+				"ss js nex",
+				"Set Syntax: JavaScript Next"
+			],
+			[
+				"ss tex",
+				"Set Syntax: Plain Text"
+			]
+		],
+		"width": 440.0
+	},
+	"console":
+	{
+		"height": 117.0,
+		"history":
+		[
+			"map([1,2,3])",
+			"[1,2,3]",
+			"ls",
+			"import Main",
+			":l",
+			"main",
+			"import urllib.request,os; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); open(os.path.join(ipp, pf), 'wb').write(urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ','%20')).read())"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": true,
+		"show_tabs": true,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+	],
+	"file_history":
+	[
+		"/Users/grancalavera/haskell/my-lens-tutorial/src/Lib.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/LICENSE",
+		"/Users/grancalavera/haskell/labyrinth/src/Labyrinth.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/src/LensTutorial.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/my-lens-tutorial.cabal",
+		"/Users/grancalavera/haskell/my-lens-tutorial/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/my-lens-tutorial/app/Main.hs",
+		"/Users/grancalavera/haskell/my-lens-tutorial/stack.yaml",
+		"/Users/grancalavera/haskell/lens-tutorial/lens-tutorial.cabal",
+		"/Users/grancalavera/haskell/labyrinth/labyrinth.cabal",
+		"/Users/grancalavera/haskell/labyrinth/src/Lib.hs",
+		"/Users/grancalavera/haskell/labyrinth/src/Direction.hs",
+		"/Users/grancalavera/haskell/labyrinth/README.md",
+		"/Users/grancalavera/haskell/labyrinth/src/Point.hs",
+		"/Users/grancalavera/haskell/labyrinth/stack.yaml",
+		"/Users/grancalavera/haskell/programming-in-haskell/nim/nim.cabal",
+		"/Users/grancalavera/haskell/labyrinth/src/Board.hs",
+		"/Users/grancalavera/haskell/labyrinth/app/Main.hs",
+		"/Users/grancalavera/haskell/labyrinth/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/labyrinth/labyrinth.sublime-project",
+		"/Users/grancalavera/haskell/programming-in-haskell/nim/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/Desktop/jwt.md",
+		"/Users/grancalavera/haskell/programming-in-haskell/nim/app/Main.hs",
+		"/Users/grancalavera/haskell/programming-in-haskell/nim/stack.yaml",
+		"/Users/grancalavera/haskell/programming-in-haskell/hangman/src/Lib.hs",
+		"/Users/grancalavera/haskell/programming-in-haskell/hangman/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/programming-in-haskell/monadic-parsers/src/Parser.hs",
+		"/Users/grancalavera/haskell/programming-in-haskell/monadic-parsers/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/programming-in-haskell/monadic-parsers/app/Main.hs",
+		"/Users/grancalavera/haskell/programming-in-haskell/monadic-parsers/monadic-parsers.cabal",
+		"/Users/grancalavera/haskell/programming-in-haskell/monadic-parsers/src/Lib.hs",
+		"/Users/grancalavera/.zshrc",
+		"/Users/grancalavera/haskell/advanced-haskell/src/Main.hs",
+		"/Users/grancalavera/haskell/advanced-haskell/src/DejaVu.hs",
+		"/Users/grancalavera/rbs/ptapi/circle.yml",
+		"/Users/grancalavera/rbs/ptapi/package.json",
+		"/Users/grancalavera/sandbox/random-moneys/zip-list.js",
+		"/Users/grancalavera/sandbox/random-moneys/thrush.js",
+		"/Users/grancalavera/sandbox/random-moneys/apply.js",
+		"/Users/grancalavera/sandbox/random-moneys/uncurry.js",
+		"/Users/grancalavera/sandbox/random-moneys/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/sandbox/random-moneys/applicative.js",
+		"/Users/grancalavera/sandbox/random-moneys/zip.js",
+		"/Users/grancalavera/sandbox/random-moneys/pure.js",
+		"/Users/grancalavera/sandbox/random-moneys/ntuple.js",
+		"/Users/grancalavera/sandbox/random-moneys/out",
+		"/Users/grancalavera/Desktop/acloud/dynamodb/uploaddata.php",
+		"/Users/grancalavera/Desktop/acloud/uploaddata.js",
+		"/Users/grancalavera/Desktop/acloud/deletetables.sh",
+		"/Users/grancalavera/Desktop/acloud/date.js",
+		"/Users/grancalavera/Desktop/acloud/createtables.sh",
+		"/Users/grancalavera/Desktop/acloud/uploaddata.sh",
+		"/Users/grancalavera/Desktop/acloud/uploaddata.json",
+		"/tmp/subl stdin Iks4l4.txt",
+		"/Users/grancalavera/Desktop/acloud/multiline.sh",
+		"/Users/grancalavera/Desktop/acloud/dynamodb/deletetables.sh",
+		"/Users/grancalavera/Desktop/acloud/dynamodb/createtables.php",
+		"/Users/grancalavera/Desktop/acloud/attribute-definitions.json",
+		"/Users/grancalavera/Desktop/acloud/ddb.sh",
+		"/Users/grancalavera/rbs/credentials-and-secrets/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/vis/exercise/src/index.js",
+		"/Users/grancalavera/vis/exercise/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/vis/exercise/src/App.css",
+		"/Users/grancalavera/rbs/ptapi/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/Desktop/Princes Trust/credentials-rbsbot.csv",
+		"/Users/grancalavera/.aws/credentials",
+		"/Users/grancalavera/.aws/config",
+		"/Users/grancalavera/Google Drive/2017 exhib site/bafa/students/grace_lee/2.html",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/package.json",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/src/index.html",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/source_code/Icon\r",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/install.sh",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/source_code/index.html",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/source_code/vendor/jquery.min.js",
+		"/Users/grancalavera/Google Drive/2017 exhib site/slideshow/uninstall.sh",
+		"/Users/grancalavera/rbs/ptclient/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/rbs/ptclient/public/favicon.ico",
+		"/Users/grancalavera/rbs/ptclient/.env",
+		"/Users/grancalavera/rbs/ptclient/package.json",
+		"/Users/grancalavera/rbs/ptclient/circle.yml",
+		"/Users/grancalavera/rbs/ptstack/create-stack.sh",
+		"/Users/grancalavera/rbs/ptstack/template.json",
+		"/Users/grancalavera/rbs/ptapi/serverless.yml",
+		"/Users/grancalavera/rbs/ptclient/public/index.html",
+		"/Users/grancalavera/rbs/ptclient/build/index.html",
+		"/Users/grancalavera/rbs/ptclient/src/App.js",
+		"/Users/grancalavera/Desktop/Princes Trust/credentials-ci@princestrust.csv",
+		"/Users/grancalavera/rbs/ptapi/handler.js",
+		"/Users/grancalavera/rbs/ptapi/README.md",
+		"/Users/grancalavera/rbs/ptclient/README.md",
+		"/Users/grancalavera/rbs/ptstack/ptstack.py",
+		"/Users/grancalavera/rbs/ptapi/ciphertext",
+		"/Users/grancalavera/rbs/ptapi/test.js",
+		"/Users/grancalavera/rbs/ptapi/test.sh",
+		"/Users/grancalavera/vis/0/untitled",
+		"/Users/grancalavera/rbs/credentials-and-secrets/README.md",
+		"/Users/grancalavera/rbs/ptapi/.serverless/cloudformation-template-update-stack.json",
+		"/Users/grancalavera/vis/0/package.json",
+		"/Users/grancalavera/vis/0/serverless.yml",
+		"/Users/grancalavera/vis/0/handler.js",
+		"/Users/grancalavera/vis/0/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/vis/0/.gitignore",
+		"/Users/grancalavera/Desktop/appd.md",
+		"/Users/grancalavera/rbs/ptapi/.env",
+		"/Users/grancalavera/rbs/ptclient/src/index.html",
+		"/Users/grancalavera/quiet.works/temp-client/more-stuff",
+		"/Users/grancalavera/quiet.works/scripts/move-to-static.sh",
+		"/Users/grancalavera/quiet.works/quiet.works-api/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/.aws/c",
+		"/Users/grancalavera/quiet.works/quiet.works-api/handler.js",
+		"/Users/grancalavera/rbs/pt/routes and stuff",
+		"/Users/grancalavera/Desktop/Princes Trust/credentials-rbsgrancalavera.csv",
+		"/Users/grancalavera/cto-hackathon/predictive-saver-ui/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/cto-hackathon/cleanup-dataset/accounts/2918-98.json",
+		"/Users/grancalavera/cto-hackathon/cleanup-dataset/accounts/2918-98.csv",
+		"/Users/grancalavera/cto-hackathon/predictive-saver/index.js",
+		"/Users/grancalavera/cto-hackathon/predictive-saver/public/first-run.html",
+		"/Users/grancalavera/cto-hackathon/predictive-saver/public/index.html",
+		"/Users/grancalavera/cto-hackathon/cleanup-dataset/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/Dropbox/CTOhack/accounts/dataset.csv",
+		"/Users/grancalavera/Dropbox/CTOhack/accounts/2869-98.csv",
+		"/Users/grancalavera/Dropbox/CTOhack/accounts/all-accounts.csv",
+		"/tmp/subl stdin OMedSl.txt",
+		"/Users/grancalavera/cto-hackathon/cleanup-dataset/extract-accounts.sh",
+		"/Users/grancalavera/Dropbox/CTOhack/accounts/2935-98.csv",
+		"/Users/grancalavera/Dropbox/CTOhack/accounts/2907-98.csv",
+		"/Users/grancalavera/cto-hackathon/cleanup-dataset/parse-account.js",
+		"/Users/grancalavera/cto-hackathon/./cleanup-dataset/index.js"
+	],
+	"find":
+	{
+		"height": 44.0
+	},
+	"find_in_files":
+	{
+		"height": 95.0,
+		"where_history":
+		[
+			"<project>",
+			"/Users/grancalavera/rbs/ptapi",
+			"/Users/grancalavera/machine-learning",
+			"<project>",
+			"/Users/grancalavera/machine-learning/machine-learning-ex2",
+			"/Users/grancalavera/machine-learning/machine-learning-ex4",
+			"/Users/grancalavera/machine-learning/",
+			"/Users/grancalavera/machine-learning/machine-learning-ex3",
+			"/Users/grancalavera/machine-learning",
+			"/Users/grancalavera/machine-learning/lecture-notes",
+			"/Users/grancalavera/rbs/",
+			"/Users/grancalavera/haskell/usr-lib-hugs",
+			"/Users/grancalavera/haskell/usr-lib-hugs/packages/hugsbase/Hugs",
+			"/Users/grancalavera/haskell/lib-hugs",
+			"/Users/grancalavera/sandbox/prufer/test",
+			"<project>"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"atom1",
+			"9",
+			"Cell",
+			"Board",
+			"(Int,Int)",
+			"Coord",
+			"toGrid",
+			"id",
+			"(+1)",
+			"minus1",
+			"point",
+			"Coord (",
+			" :: Move",
+			"(-1)",
+			"Point",
+			"a",
+			"mapPoint",
+			"x",
+			"isBottom",
+			"isTop",
+			"->",
+			"                        | ",
+			"->",
+			"a",
+			"Integral a =>",
+			"Int",
+			"cols",
+			"Int",
+			"i",
+			"PrintfArg",
+			"b",
+			"a",
+			"Integral",
+			"b",
+			"gggg",
+			"toGrid'",
+			"split",
+			"g",
+			"f",
+			"f ",
+			"=",
+			"toGrid",
+			"cell",
+			"concatMap cell [1..9]",
+			"board",
+			"someFunc",
+			"getDigit",
+			"sleep",
+			"[  ]",
+			"ask",
+			"askAgain",
+			"resetScreen",
+			"badRow",
+			"skpTrn",
+			"num",
+			"row",
+			"putBoard'",
+			"endgame",
+			"putStr",
+			"putStrLn",
+			"ask",
+			"''''",
+			"x",
+			"playAgain",
+			"playAgain'",
+			">>\n",
+			"sleep",
+			"ch",
+			"2",
+			"1",
+			"2",
+			"1",
+			"removeCount",
+			"num",
+			"someFunc",
+			"pseudo",
+			"many",
+			"fromStore",
+			"isSpace",
+			"isNewline",
+			"pARSEtru",
+			"\\n",
+			"\\n\"",
+			"PublicDnsName",
+			"WebServerInstance",
+			"three_ap",
+			"monadic1and3",
+			"applicative1and3",
+			"app1and3",
+			"firstAndThirdApplicative",
+			"imp",
+			"imp ",
+			"imp",
+			"f",
+			"inp",
+			"apply",
+			"thursh",
+			"sum",
+			"peek",
+			"range",
+			"ZipList",
+			"ZipList_zipper",
+			"shortZipper",
+			"ZipList_limit",
+			"ZipList",
+			"zipperLimit",
+			"concat",
+			"zipWith",
+			"range",
+			"replicate(3)",
+			"replicate",
+			" assert.deepEqual",
+			"flip_curry",
+			"replicate",
+			"ZL",
+			"ap(",
+			"ZipList",
+			"val",
+			"zipped",
+			"list",
+			"pure",
+			"ss",
+			"zipWith2",
+			"ys",
+			"xs",
+			"zl_xs",
+			"val",
+			"fs"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"{N: \"$1\"",
+			"N: \"$1\"",
+			":",
+			"\"",
+			"$1",
+			"update",
+			"UPDATE",
+			""
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.elm_type":
+	{
+		"height": 0.0
+	},
+	"output.exec":
+	{
+		"height": 120.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git":
+	{
+		"height": 102.0
+	},
+	"output.haskell_error_checker":
+	{
+		"height": 89.0
+	},
+	"output.haskell_sublime_load":
+	{
+		"height": 90.0
+	},
+	"output.sublime_haskell_build_log_panel":
+	{
+		"height": 118.0
+	},
+	"output.sublime_haskell_error_panel":
+	{
+		"height": 124.0
+	},
+	"output.sublime_haskell_output_panel":
+	{
+		"height": 168.0
+	},
+	"pinned_build_system": "",
+	"project": "labyrinth.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"lab",
+				"labyrinth/src/Labyrinth.hs"
+			],
+			[
+				".cabal",
+				"my-lens-tutorial.cabal"
+			],
+			[
+				"main",
+				"app/Main.hs"
+			],
+			[
+				"ain",
+				"app/Main.hs"
+			],
+			[
+				"bo",
+				"src/Board.hs"
+			],
+			[
+				"app/main",
+				"app/Main.hs"
+			],
+			[
+				"lib",
+				"src/Lib.hs"
+			],
+			[
+				"zip",
+				"zip.js"
+			],
+			[
+				"zi-",
+				"zip-list.js"
+			],
+			[
+				"zi",
+				"zip-with.js"
+			],
+			[
+				"app",
+				"applicative.js"
+			],
+			[
+				"z",
+				"zip-with.js"
+			],
+			[
+				"un",
+				"uncurry.js"
+			],
+			[
+				"pure",
+				"pure.js"
+			],
+			[
+				"crea",
+				"createtables.sh"
+			],
+			[
+				"up",
+				"uploaddata.js"
+			],
+			[
+				"u",
+				"dynamodb/uploaddata.php"
+			],
+			[
+				"dele",
+				"deletetables.sh"
+			],
+			[
+				"pack",
+				"ptapi/package.json"
+			],
+			[
+				"handler.js",
+				"ptapi/handler.js"
+			],
+			[
+				"0/ha",
+				"0/handler.js"
+			],
+			[
+				"read",
+				"README.md"
+			],
+			[
+				"handler",
+				"ptapi/handler.js"
+			],
+			[
+				"packa",
+				"ptclient/package.json"
+			],
+			[
+				"han",
+				"quiet.works-api/handler.js"
+			],
+			[
+				"ex8_co",
+				"machine-learning-ex8/ex8/ex8_cofi.m"
+			],
+			[
+				"cofic",
+				"machine-learning-ex8/ex8/cofiCostFunc.m"
+			],
+			[
+				"cofi",
+				"machine-learning-ex8/ex8/cofiCostFunc.m"
+			],
+			[
+				"ex8_c",
+				"machine-learning-ex8/ex8/ex8_cofi.m"
+			],
+			[
+				"select",
+				"machine-learning-ex8/ex8/selectThreshold.m"
+			],
+			[
+				"estimate",
+				"machine-learning-ex8/ex8/estimateGaussian.m"
+			],
+			[
+				"recover",
+				"machine-learning-ex7/ex7/recoverData.m"
+			],
+			[
+				"project",
+				"machine-learning-ex7/ex7/projectData.m"
+			],
+			[
+				"pca",
+				"machine-learning-ex7/ex7/pca.m"
+			],
+			[
+				"feature",
+				"machine-learning-ex5/ex5/featureNormalize.m"
+			],
+			[
+				"ex7_",
+				"machine-learning-ex7/ex7/ex7_pca.m"
+			],
+			[
+				"kmeains",
+				"machine-learning-ex7/ex7/kMeansInitCentroids.m"
+			],
+			[
+				"runk",
+				"machine-learning-ex7/ex7/runkMeans.m"
+			],
+			[
+				"compute",
+				"machine-learning-ex7/ex7/computeCentroids.m"
+			],
+			[
+				"find",
+				"machine-learning-ex7/ex7/findClosestCentroids.m"
+			],
+			[
+				"pa",
+				"package.json"
+			],
+			[
+				"ex6_s",
+				"machine-learning-ex6/ex6/ex6_spam.m"
+			],
+			[
+				"emailf",
+				"machine-learning-ex6/ex6/emailFeatures.m"
+			],
+			[
+				"voc",
+				"machine-learning-ex6/ex6/vocab.txt"
+			],
+			[
+				"proce",
+				"machine-learning-ex6/ex6/processEmail.m"
+			],
+			[
+				"gau",
+				"machine-learning-ex6/ex6/gaussianKernel.m"
+			],
+			[
+				"datase",
+				"machine-learning-ex6/ex6/dataset3Params.m"
+			],
+			[
+				"svmpre",
+				"machine-learning-ex6/ex6/svmPredict.m"
+			],
+			[
+				"ex6_",
+				"machine-learning-ex6/ex6/ex6_rigs.m"
+			],
+			[
+				"ex6",
+				"machine-learning-ex6/ex6/ex6.m"
+			],
+			[
+				"gauss",
+				"machine-learning-ex6/ex6/gaussianKernel.m"
+			],
+			[
+				"svmtr",
+				"machine-learning-ex6/ex6/svmTrain.m"
+			],
+			[
+				"emailsa",
+				"machine-learning-ex6/ex6/emailSample2.txt"
+			],
+			[
+				"samp",
+				"machine-learning-ex6/ex6/spamSample2.txt"
+			],
+			[
+				"sample",
+				"machine-learning-ex6/ex6/spamSample1.txt"
+			],
+			[
+				"sigmoid.m",
+				"machine-learning-ex4/ex4/sigmoid.m"
+			],
+			[
+				"sig",
+				"machine-learning-ex2/ex2/sigmoid.m"
+			],
+			[
+				"token",
+				"machine-learning-ex4/ex4/token.mat"
+			],
+			[
+				"rand",
+				"machine-learning-ex4/ex4/randInitializeWeights.m"
+			],
+			[
+				"ex2sig",
+				"machine-learning-ex2/ex2/sigmoid.m"
+			],
+			[
+				"ex4sig",
+				"machine-learning-ex4/ex4/sigmoid.m"
+			],
+			[
+				"sigmoid",
+				"machine-learning-ex4/ex4/sigmoidGradient.m"
+			],
+			[
+				"ex4.",
+				"machine-learning-ex4/ex4/ex4.m"
+			],
+			[
+				"displ",
+				"machine-learning-ex3/ex3/displayData.m"
+			],
+			[
+				"ex2_",
+				"machine-learning-ex2/ex2/ex2_reg.m"
+			],
+			[
+				"ex2",
+				"machine-learning-ex2/ex2/ex2.m"
+			],
+			[
+				"plot",
+				"machine-learning-ex1/ex1/plotData.m"
+			],
+			[
+				"logisti",
+				"lecture-notes/03-logistic-regression.md"
+			],
+			[
+				"over",
+				"lecture-notes/03-overfitting.md"
+			],
+			[
+				"01md",
+				"01-liniar-regression-and-notation-in-general.md"
+			],
+			[
+				"01-md",
+				"01-liniar-regression-and-notation-in-general.md"
+			],
+			[
+				"",
+				"01-supervised-unsupervised-learning.md"
+			],
+			[
+				"app.css",
+				"src/app.css"
+			],
+			[
+				"hell",
+				"src/hello-world.css"
+			],
+			[
+				"test.",
+				"test/test-lib.js"
+			],
+			[
+				"src/js/a",
+				"src/js/app.js"
+			],
+			[
+				"roll",
+				"config/rollup.js"
+			],
+			[
+				"js/app",
+				"src/js/app.js"
+			],
+			[
+				"app.js",
+				"dist/app.js"
+			],
+			[
+				"test",
+				"test/test-lib.js"
+			],
+			[
+				"ind",
+				"src/index.html"
+			],
+			[
+				"may",
+				"src/Maybe.hs"
+			],
+			[
+				"comm",
+				"src/Commutativity.hs"
+			],
+			[
+				"srcma",
+				"src/Main.hs"
+			],
+			[
+				"src/",
+				"src/Main.hs"
+			],
+			[
+				"cre",
+				"credentials.csv"
+			],
+			[
+				"paramsmain",
+				"params/src/Main.hs"
+			],
+			[
+				"patat/main",
+				"patat-0.3.3.0/src/Main.hs"
+			],
+			[
+				"transaction-st",
+				"src/stores/transactions-store.js"
+			],
+			[
+				"tran",
+				"src/components/Transactions/Transactions.js"
+			],
+			[
+				"home",
+				"src/components/Home/Home.js"
+			],
+			[
+				"balance",
+				"src/components/Home/BalanceWidget.js"
+			],
+			[
+				"pac",
+				"package.json"
+			],
+			[
+				"config/",
+				"config/webpack.dev.js"
+			],
+			[
+				"route",
+				"src/routes/index.js"
+			],
+			[
+				"bala",
+				"src/stores/balance.js"
+			],
+			[
+				"roeu",
+				"src/routes/index.js"
+			],
+			[
+				"router",
+				"node_modules/http-proxy-middleware/lib/router.js"
+			],
+			[
+				"account",
+				"src/components/Accounts/Accounts.js"
+			],
+			[
+				"header/in",
+				"src/components/Header/index.js"
+			],
+			[
+				"cabal",
+				"patat.cabal"
+			],
+			[
+				"stack",
+				"stack.yaml"
+			],
+			[
+				"ri",
+				"src/Rigs.hs"
+			],
+			[
+				"main.",
+				"src/Main.hs"
+			],
+			[
+				"maybe",
+				"src/Maybe.hs"
+			],
+			[
+				"ma",
+				"src/Maybe.hs"
+			],
+			[
+				"rigs",
+				"src/Rigs.hs"
+			],
+			[
+				"fu",
+				"src/FunctorRecap.hs"
+			],
+			[
+				"systemdire",
+				"usr-lib-hugs/packages/base/System/Directory.hs"
+			],
+			[
+				"systemposix",
+				"usr-lib-hugs/packages/unix/System/Posix/Files.hs"
+			],
+			[
+				"systemposixfi",
+				"usr-lib-hugs/packages/unix/System/Posix/Files.hs"
+			],
+			[
+				"files",
+				"usr-lib-hugs/packages/unix/System/Posix/Files.hs"
+			],
+			[
+				"run",
+				"trimspaces/test/runtest.sh"
+			],
+			[
+				"asser",
+				"trimspaces/test/assert.sh"
+			],
+			[
+				"env",
+				"trimspaces/test/env.sh"
+			],
+			[
+				"mon",
+				"take-one/src/Monoids.hs"
+			],
+			[
+				"mn",
+				"take-one/src/Monoids.hs"
+			],
+			[
+				"mono",
+				"take-one/src/Monoids.hs"
+			],
+			[
+				"v",
+				"Vagrantfile"
+			],
+			[
+				"bin/",
+				"bin/lilex-cli.js"
+			],
+			[
+				"lilex-",
+				"bin/lilex-cli.js"
+			],
+			[
+				"bin/par",
+				"bin/parse.js"
+			],
+			[
+				".es",
+				".eslintrc.js"
+			],
+			[
+				".tra",
+				".travis.yml"
+			],
+			[
+				"random-",
+				"prufer/lib/random-sequence.js"
+			],
+			[
+				"bin/pru",
+				"prufer/bin/prufer"
+			],
+			[
+				"usa",
+				"prufer/bin/usage.txt"
+			],
+			[
+				"pruferbi",
+				"prufer/test/prufer-bin.test.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/sandbox/the-grid/the-grid.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 357.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 374.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+		"last_automatic_layout":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		]
+	},
+	"show_minimap": false,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 179.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+		"max_columns": 3
+	}
+}

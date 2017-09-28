@@ -1,6 +1,10 @@
 module Lib
-    ( someFunc
-    ) where
+  ( module Tile
+  , module Draw
+  , module Board
+  )
+  where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import Tile
+import Draw
+import Board
