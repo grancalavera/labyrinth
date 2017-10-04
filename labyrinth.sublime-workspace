@@ -4,6 +4,150 @@
 		"selected_items":
 		[
 			[
+				"up",
+				"updatedWorld"
+			],
+			[
+				"game",
+				"gameHeight"
+			],
+			[
+				"gahe",
+				"gameWidth"
+			],
+			[
+				"dra",
+				"drawBackground"
+			],
+			[
+				"ga",
+				"gameWidth"
+			],
+			[
+				"shuf",
+				"shuffledTileStops"
+			],
+			[
+				"shuffledt",
+				"shuffledTilesTiles"
+			],
+			[
+				"shuff",
+				"shuffleList"
+			],
+			[
+				"move",
+				"moveToCoord"
+			],
+			[
+				"sh",
+				"shuffledTilesTiles"
+			],
+			[
+				"board",
+				"boardY"
+			],
+			[
+				"tile",
+				"tileHeight"
+			],
+			[
+				"ti",
+				"tileY"
+			],
+			[
+				"dr",
+				"drawTileRow"
+			],
+			[
+				"dw",
+				"drawTileRow"
+			],
+			[
+				"putS",
+				"putStr"
+			],
+			[
+				"dwa",
+				"drawTileRow"
+			],
+			[
+				"d",
+				"drawTileRow"
+			],
+			[
+				"ran",
+				"randomRIO"
+			],
+			[
+				"rotateti",
+				"rotateTileRandomly"
+			],
+			[
+				"rotate",
+				"rotateTileRandomly"
+			],
+			[
+				"su",
+				"shuffled"
+			],
+			[
+				"rotat",
+				"rotations"
+			],
+			[
+				"suff",
+				"shuffleList"
+			],
+			[
+				"map",
+				"mapM_"
+			],
+			[
+				"drw",
+				"drawFixedBoard"
+			],
+			[
+				"r",
+				"rotateTileOnce"
+			],
+			[
+				"ro",
+				"rotateTileThrice"
+			],
+			[
+				"make",
+				"makeCornerPath"
+			],
+			[
+				"makeC",
+				"makeCornerPath"
+			],
+			[
+				"boar",
+				"boardHeight"
+			],
+			[
+				"rtate",
+				"rotateTileOnce"
+			],
+			[
+				"edg",
+				"tileEdges"
+			],
+			[
+				"tle",
+				"tileShape"
+			],
+			[
+				"tie",
+				"tileX"
+			],
+			[
+				"e",
+				"edgeNS"
+			],
+			[
 				"molecule",
 				"moleculeX"
 			],
@@ -14,10 +158,6 @@
 			[
 				"Shi",
 				"shiftAtomX"
-			],
-			[
-				"boar",
-				"Board"
 			],
 			[
 				"split",
@@ -46,10 +186,6 @@
 			[
 				"printf",
 				"PrintfType"
-			],
-			[
-				"map",
-				"mapPoint"
 			],
 			[
 				"spit",
@@ -92,10 +228,6 @@
 				"playAgain"
 			],
 			[
-				"putS",
-				"putStrLn"
-			],
-			[
 				"play",
 				"playAgain"
 			],
@@ -126,10 +258,6 @@
 			[
 				"playe",
 				"players"
-			],
-			[
-				"ran",
-				"range"
 			],
 			[
 				"ZipList__",
@@ -386,139 +514,46 @@
 			[
 				"clas",
 				"className"
-			],
-			[
-				"font",
-				"font-size"
-			],
-			[
-				"predict",
-				"prediction"
-			],
-			[
-				"reuq",
-				"require"
-			],
-			[
-				"getda",
-				"getDaysInMonth"
-			],
-			[
-				"wid",
-				"width"
-			],
-			[
-				"margin",
-				"margin-right"
-			],
-			[
-				"margi",
-				"margin-top"
-			],
-			[
-				"mar",
-				"marker-end"
-			],
-			[
-				"accoun",
-				"account_id"
-			],
-			[
-				"acc",
-				"account_id"
-			],
-			[
-				"days",
-				"daysInMonth"
-			],
-			[
-				"BL",
-				"BlueGreen"
-			],
-			[
-				"Black",
-				"BlackWhite"
-			],
-			[
-				"The",
-				"Theta_grad"
-			],
-			[
-				"the",
-				"Theta_grad"
-			],
-			[
-				"thet",
-				"Theta"
-			],
-			[
-				"theta",
-				"Theta_grad"
-			],
-			[
-				"num",
-				"num_users"
-			],
-			[
-				"THeta",
-				"Theta"
-			],
-			[
-				"X",
-				"X_grad"
-			],
-			[
-				"Te",
-				"Theta_grad_sum"
-			],
-			[
-				"XG",
-				"X_grad_sum"
-			],
-			[
-				"Thet",
-				"Theta_grad"
-			],
-			[
-				"U",
-				"U_reduce"
-			],
-			[
-				"extra",
-				"extract_rule"
-			],
-			[
-				"proces",
-				"process_ast"
-			],
-			[
-				"proce",
-				"process_ast"
-			],
-			[
-				"sele",
-				"selectors"
-			],
-			[
-				"wor",
-				"word_indices"
-			],
-			[
-				"wo",
-				"word_indices"
-			],
-			[
-				"vocab",
-				"vocabSize"
-			],
-			[
-				"voca",
-				"vocabList"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "app/Main.hs",
+			"settings":
+			{
+				"buffer_size": 703,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "labyrinth.cabal",
+			"settings":
+			{
+				"buffer_size": 1438,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/Draw.hs",
+			"settings":
+			{
+				"buffer_size": 4032,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/Tile.hs",
+			"settings":
+			{
+				"buffer_size": 1975,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -527,20 +562,60 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 357.0,
-		"last_filter": "git s",
+		"height": 41.0,
+		"last_filter": "ac",
 		"selected_items":
 		[
+			[
+				"ac",
+				"Boxy Theme: Activation"
+			],
+			[
+				"ss has",
+				"Set Syntax: Haskell"
+			],
+			[
+				"ren",
+				"File: Rename"
+			],
+			[
+				"Snippet: ",
+				"Snippet: hs-major"
+			],
+			[
+				"renae",
+				"File: Rename"
+			],
+			[
+				"git diff",
+				"Git: Diff Current File"
+			],
+			[
+				"acti",
+				"Boxy Theme: Activation"
+			],
+			[
+				"git diff ",
+				"Git: Diff Current File"
+			],
+			[
+				"git chec",
+				"Git: Checkout Current File"
+			],
+			[
+				"re",
+				"File: Rename"
+			],
+			[
+				"rena",
+				"File: Rename"
+			],
 			[
 				"git s",
 				"Git: Status"
 			],
 			[
 				"bo",
-				"Boxy Theme: Activation"
-			],
-			[
-				"ac",
 				"Boxy Theme: Activation"
 			],
 			[
@@ -560,10 +635,6 @@
 				"Word Wrap: Toggle"
 			],
 			[
-				"rena",
-				"File: Rename"
-			],
-			[
 				"ep",
 				"Project: Edit Project"
 			],
@@ -572,24 +643,12 @@
 				"File: Rename"
 			],
 			[
-				"git diff",
-				"Git: Diff Current File"
-			],
-			[
-				"acti",
-				"Boxy Theme: Activation"
-			],
-			[
 				"previ",
 				"Markdown Preview: Preview in Browser"
 			],
 			[
 				"boxy",
 				"Boxy Theme: Activation"
-			],
-			[
-				"git chec",
-				"Git: Checkout Current File"
 			],
 			[
 				"ss js",
@@ -840,10 +899,6 @@
 				"Set Syntax: Handlebars"
 			],
 			[
-				"re",
-				"File: Rename"
-			],
-			[
 				"ava",
 				"Snippet: AVA"
 			],
@@ -865,10 +920,6 @@
 			],
 			[
 				"git dif",
-				"Git: Diff Current File"
-			],
-			[
-				"git diff ",
 				"Git: Diff Current File"
 			],
 			[
@@ -894,10 +945,6 @@
 			[
 				"ss li",
 				"Set Syntax: Literate Haskell Bird Style"
-			],
-			[
-				"ss has",
-				"Set Syntax: Haskell Repl"
 			],
 			[
 				"ss liter",
@@ -1030,21 +1077,9 @@
 			[
 				"ss mark",
 				"Set Syntax: Markdown"
-			],
-			[
-				"ss jsn",
-				"Set Syntax: JavaScript Next"
-			],
-			[
-				"ss js nex",
-				"Set Syntax: JavaScript Next"
-			],
-			[
-				"ss tex",
-				"Set Syntax: Plain Text"
 			]
 		],
-		"width": 440.0
+		"width": 438.0
 	},
 	"console":
 	{
@@ -1071,29 +1106,42 @@
 	},
 	"expanded_folders":
 	[
+		"/Users/grancalavera/haskell/labyrinth"
 	],
 	"file_history":
 	[
+		"/Users/grancalavera/haskell/labyrinth/.git/COMMIT_EDITMSG",
+		"/Users/grancalavera/haskell/labyrinth/src/Draw.hs",
+		"/Users/grancalavera/haskell/labyrinth/src/Lib.hs",
+		"/Users/grancalavera/haskell/labyrinth/src/Board.hs",
+		"/Users/grancalavera/haskell/labyrinth/src/Tile.hs",
+		"/Users/grancalavera/haskell/labyrinth/labyrinth.sublime-project",
+		"/Users/grancalavera/haskell/labyrinth/app/Main.hs",
+		"/Users/grancalavera/haskell/labyrinth/bust-cache.sh",
+		"/tmp/subl stdin atoiV0.txt",
+		"/tmp/subl stdin upkzHc.txt",
+		"/Users/grancalavera/haskell/labyrinth/labyrinth.cabal",
+		"/Users/grancalavera/haskell/labyrinth/stack.yaml",
+		"/Users/grancalavera/haskell/labyrinth/src/Point.hs",
+		"/Users/grancalavera/haskell/labyrinth/src/Labyrinth.hs",
+		"/Users/grancalavera/haskell/labyrinth/.git/rebase-merge/git-rebase-todo",
+		"/Users/grancalavera/haskell/labyrinth/src/Tiles.hs",
+		"/Users/grancalavera/haskell/labyrinth/etc/tiles.txt",
+		"/Users/grancalavera/haskell/labyrinth/Setup.hs",
+		"/Users/grancalavera/.ghci",
+		"/Users/grancalavera/haskell/labyrinth/etc/tiles-option-2.txt",
+		"/Users/grancalavera/haskell/labyrinth/etc/board.txt",
 		"/Users/grancalavera/haskell/my-lens-tutorial/src/Lib.hs",
 		"/Users/grancalavera/haskell/my-lens-tutorial/LICENSE",
-		"/Users/grancalavera/haskell/labyrinth/src/Labyrinth.hs",
 		"/Users/grancalavera/haskell/my-lens-tutorial/src/LensTutorial.hs",
 		"/Users/grancalavera/haskell/my-lens-tutorial/my-lens-tutorial.cabal",
 		"/Users/grancalavera/haskell/my-lens-tutorial/.git/COMMIT_EDITMSG",
 		"/Users/grancalavera/haskell/my-lens-tutorial/app/Main.hs",
 		"/Users/grancalavera/haskell/my-lens-tutorial/stack.yaml",
 		"/Users/grancalavera/haskell/lens-tutorial/lens-tutorial.cabal",
-		"/Users/grancalavera/haskell/labyrinth/labyrinth.cabal",
-		"/Users/grancalavera/haskell/labyrinth/src/Lib.hs",
 		"/Users/grancalavera/haskell/labyrinth/src/Direction.hs",
 		"/Users/grancalavera/haskell/labyrinth/README.md",
-		"/Users/grancalavera/haskell/labyrinth/src/Point.hs",
-		"/Users/grancalavera/haskell/labyrinth/stack.yaml",
 		"/Users/grancalavera/haskell/programming-in-haskell/nim/nim.cabal",
-		"/Users/grancalavera/haskell/labyrinth/src/Board.hs",
-		"/Users/grancalavera/haskell/labyrinth/app/Main.hs",
-		"/Users/grancalavera/haskell/labyrinth/.git/COMMIT_EDITMSG",
-		"/Users/grancalavera/haskell/labyrinth/labyrinth.sublime-project",
 		"/Users/grancalavera/haskell/programming-in-haskell/nim/.git/COMMIT_EDITMSG",
 		"/Users/grancalavera/Desktop/jwt.md",
 		"/Users/grancalavera/haskell/programming-in-haskell/nim/app/Main.hs",
@@ -1189,19 +1237,7 @@
 		"/Users/grancalavera/cto-hackathon/predictive-saver-ui/.git/COMMIT_EDITMSG",
 		"/Users/grancalavera/cto-hackathon/cleanup-dataset/accounts/2918-98.json",
 		"/Users/grancalavera/cto-hackathon/cleanup-dataset/accounts/2918-98.csv",
-		"/Users/grancalavera/cto-hackathon/predictive-saver/index.js",
-		"/Users/grancalavera/cto-hackathon/predictive-saver/public/first-run.html",
-		"/Users/grancalavera/cto-hackathon/predictive-saver/public/index.html",
-		"/Users/grancalavera/cto-hackathon/cleanup-dataset/.git/COMMIT_EDITMSG",
-		"/Users/grancalavera/Dropbox/CTOhack/accounts/dataset.csv",
-		"/Users/grancalavera/Dropbox/CTOhack/accounts/2869-98.csv",
-		"/Users/grancalavera/Dropbox/CTOhack/accounts/all-accounts.csv",
-		"/tmp/subl stdin OMedSl.txt",
-		"/Users/grancalavera/cto-hackathon/cleanup-dataset/extract-accounts.sh",
-		"/Users/grancalavera/Dropbox/CTOhack/accounts/2935-98.csv",
-		"/Users/grancalavera/Dropbox/CTOhack/accounts/2907-98.csv",
-		"/Users/grancalavera/cto-hackathon/cleanup-dataset/parse-account.js",
-		"/Users/grancalavera/cto-hackathon/./cleanup-dataset/index.js"
+		"/Users/grancalavera/cto-hackathon/predictive-saver/index.js"
 	],
 	"find":
 	{
@@ -1209,7 +1245,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 95.0,
+		"height": 118.0,
 		"where_history":
 		[
 			"<project>",
@@ -1235,6 +1271,106 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"tiles'",
+			"tiles' ",
+			"tile",
+			"tiles",
+			"shuffledTiles",
+			"randomTileStops",
+			"testTileRotation",
+			"Labyrinth",
+			"randomRotation",
+			"tileX",
+			"tileY",
+			"tile",
+			"Tile",
+			"(\\W)(Tile)",
+			"i",
+			"drawTile",
+			"Edge",
+			"makeCoords",
+			"liftM",
+			"intercalate",
+			"board",
+			"(\\W)(Tiles)",
+			"\\WTiles",
+			"Tiles",
+			"board",
+			"rotate",
+			"rotations",
+			"showBoard",
+			"pad",
+			"tile",
+			"rotateTileOnce",
+			"rotateTileThrice",
+			"rotateTileTwice",
+			"ForkPath",
+			"CornerPath",
+			"StraightPath",
+			"makeForkPath",
+			"makeCornerPath",
+			"makeStraightPath",
+			"makeGate",
+			"rotateTile",
+			"rotate",
+			"xs",
+			"makeCorner",
+			"│",
+			"\"───────\"",
+			"x",
+			"tileShape",
+			"->",
+			"-",
+			"->",
+			"] ->",
+			"  [",
+			" \",",
+			"[East, South]",
+			" = [",
+			"North, South, East",
+			"] ",
+			"[North, East, South]",
+			"\"]",
+			"]",
+			"boardHeight",
+			"boardWidth",
+			"board",
+			"[1..7]",
+			"1..7",
+			"_ = []",
+			"-> []",
+			"tileCoords",
+			" c ",
+			"_coords = c",
+			"makeCoords",
+			", 3)",
+			"7*",
+			"3*",
+			"*8",
+			"draw ",
+			"0)",
+			"North",
+			"(0",
+			"7",
+			"North",
+			"->",
+			"                   \"\"",
+			"Nort",
+			"undefined",
+			"= ",
+			"Fork",
+			"Corner",
+			"Path",
+			"Direction",
+			"6)",
+			"--------------------------------------------------------------------------------",
+			"TileType",
+			"G ",
+			"               ",
+			".",
+			"└───────┘└───────┘",
+			"││",
+			".",
 			"atom1",
 			"9",
 			"Cell",
@@ -1262,114 +1398,23 @@
 			"Integral a =>",
 			"Int",
 			"cols",
-			"Int",
-			"i",
-			"PrintfArg",
-			"b",
-			"a",
-			"Integral",
-			"b",
-			"gggg",
-			"toGrid'",
-			"split",
-			"g",
-			"f",
-			"f ",
-			"=",
-			"toGrid",
-			"cell",
-			"concatMap cell [1..9]",
-			"board",
-			"someFunc",
-			"getDigit",
-			"sleep",
-			"[  ]",
-			"ask",
-			"askAgain",
-			"resetScreen",
-			"badRow",
-			"skpTrn",
-			"num",
-			"row",
-			"putBoard'",
-			"endgame",
-			"putStr",
-			"putStrLn",
-			"ask",
-			"''''",
-			"x",
-			"playAgain",
-			"playAgain'",
-			">>\n",
-			"sleep",
-			"ch",
-			"2",
-			"1",
-			"2",
-			"1",
-			"removeCount",
-			"num",
-			"someFunc",
-			"pseudo",
-			"many",
-			"fromStore",
-			"isSpace",
-			"isNewline",
-			"pARSEtru",
-			"\\n",
-			"\\n\"",
-			"PublicDnsName",
-			"WebServerInstance",
-			"three_ap",
-			"monadic1and3",
-			"applicative1and3",
-			"app1and3",
-			"firstAndThirdApplicative",
-			"imp",
-			"imp ",
-			"imp",
-			"f",
-			"inp",
-			"apply",
-			"thursh",
-			"sum",
-			"peek",
-			"range",
-			"ZipList",
-			"ZipList_zipper",
-			"shortZipper",
-			"ZipList_limit",
-			"ZipList",
-			"zipperLimit",
-			"concat",
-			"zipWith",
-			"range",
-			"replicate(3)",
-			"replicate",
-			" assert.deepEqual",
-			"flip_curry",
-			"replicate",
-			"ZL",
-			"ap(",
-			"ZipList",
-			"val",
-			"zipped",
-			"list",
-			"pure",
-			"ss",
-			"zipWith2",
-			"ys",
-			"xs",
-			"zl_xs",
-			"val",
-			"fs"
+			"Int"
 		],
 		"highlight": true,
 		"in_selection": false,
 		"preserve_case": false,
-		"regex": false,
+		"regex": true,
 		"replace_history":
 		[
+			"$1Tile",
+			"$Tile",
+			"Fork",
+			"Corner",
+			"Path",
+			"fork",
+			"corner",
+			"path",
+			"gate",
 			"{N: \"$1\"",
 			"N: \"$1\"",
 			":",
@@ -1388,8 +1433,131 @@
 	"groups":
 	[
 		{
+			"selected": 2,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "app/Main.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 703,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								221,
+								221
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/Haskell/Haskell.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "labyrinth.cabal",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1438,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								741,
+								741
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 116.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/Draw.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4032,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								626,
+								626
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/Haskell/Haskell.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/Tile.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1975,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"apply_syntax_touched": true,
+							"syntax": "Packages/Haskell/Haskell.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -1399,7 +1567,7 @@
 	},
 	"input":
 	{
-		"height": 33.0
+		"height": 41.0
 	},
 	"layout":
 	{
@@ -1474,16 +1642,92 @@
 		"selected_items":
 		[
 			[
-				"lab",
-				"labyrinth/src/Labyrinth.hs"
+				"tile.hs",
+				"src/Tile.hs"
 			],
 			[
-				".cabal",
-				"my-lens-tutorial.cabal"
+				"dra",
+				"src/Draw.hs"
+			],
+			[
+				"b",
+				"src/Board.hs"
+			],
+			[
+				"tile",
+				"src/Tile.hs"
 			],
 			[
 				"main",
 				"app/Main.hs"
+			],
+			[
+				"",
+				"labyrinth.sublime-project"
+			],
+			[
+				"caba",
+				"labyrinth.cabal"
+			],
+			[
+				"li",
+				"src/Lib.hs"
+			],
+			[
+				"lib.hs",
+				"src/Lib.hs"
+			],
+			[
+				".ca",
+				"labyrinth.cabal"
+			],
+			[
+				".yaml",
+				"stack.yaml"
+			],
+			[
+				"lab",
+				"src/Labyrinth.hs"
+			],
+			[
+				"p",
+				"src/Point.hs"
+			],
+			[
+				"tile.",
+				"src/Tile.hs"
+			],
+			[
+				"point",
+				"src/Point.hs"
+			],
+			[
+				"po",
+				"labyrinth/src/Point.hs"
+			],
+			[
+				"poin",
+				"labyrinth/src/Point.hs"
+			],
+			[
+				"tiles.hs",
+				"labyrinth/src/Tiles.hs"
+			],
+			[
+				"laby",
+				"labyrinth/src/Labyrinth.hs"
+			],
+			[
+				"etc/t",
+				"labyrinth/etc/tiles.txt"
+			],
+			[
+				"tiles2",
+				"labyrinth/etc/tiles-option-2.txt"
+			],
+			[
+				".cabal",
+				"my-lens-tutorial.cabal"
 			],
 			[
 				"ain",
@@ -1758,10 +2002,6 @@
 				"01-liniar-regression-and-notation-in-general.md"
 			],
 			[
-				"",
-				"01-supervised-unsupervised-learning.md"
-			],
-			[
 				"app.css",
 				"src/app.css"
 			],
@@ -1912,78 +2152,6 @@
 			[
 				"systemposix",
 				"usr-lib-hugs/packages/unix/System/Posix/Files.hs"
-			],
-			[
-				"systemposixfi",
-				"usr-lib-hugs/packages/unix/System/Posix/Files.hs"
-			],
-			[
-				"files",
-				"usr-lib-hugs/packages/unix/System/Posix/Files.hs"
-			],
-			[
-				"run",
-				"trimspaces/test/runtest.sh"
-			],
-			[
-				"asser",
-				"trimspaces/test/assert.sh"
-			],
-			[
-				"env",
-				"trimspaces/test/env.sh"
-			],
-			[
-				"mon",
-				"take-one/src/Monoids.hs"
-			],
-			[
-				"mn",
-				"take-one/src/Monoids.hs"
-			],
-			[
-				"mono",
-				"take-one/src/Monoids.hs"
-			],
-			[
-				"v",
-				"Vagrantfile"
-			],
-			[
-				"bin/",
-				"bin/lilex-cli.js"
-			],
-			[
-				"lilex-",
-				"bin/lilex-cli.js"
-			],
-			[
-				"bin/par",
-				"bin/parse.js"
-			],
-			[
-				".es",
-				".eslintrc.js"
-			],
-			[
-				".tra",
-				".travis.yml"
-			],
-			[
-				"random-",
-				"prufer/lib/random-sequence.js"
-			],
-			[
-				"bin/pru",
-				"prufer/bin/prufer"
-			],
-			[
-				"usa",
-				"prufer/bin/usage.txt"
-			],
-			[
-				"pruferbi",
-				"prufer/test/prufer-bin.test.js"
 			]
 		],
 		"width": 0.0
@@ -2027,10 +2195,10 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 179.0,
+	"side_bar_width": 174.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
-		"max_columns": 3
+		"max_columns": 1
 	}
 }
