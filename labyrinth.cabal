@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     Labyrinth
                      , Draw
                      , Tile
                      , Board
@@ -31,7 +31,6 @@ executable labyrinth-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , labyrinth
-                     , ansi-terminal
   default-language:    Haskell2010
 
 test-suite labyrinth-test
