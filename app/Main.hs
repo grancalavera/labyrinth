@@ -1,6 +1,5 @@
 module Main where
 import Lib
-import Control.Lens
 import System.Console.ANSI
 
 main :: IO ()
@@ -11,7 +10,7 @@ main = do
   board <- initialBoard
   drawBoard origin board
 
-  -- this should go eslewhere
+  -- this should go elsewhere
   setCursorPosition gameHeight 0
 
 -- these coordinates are given in Tile units
