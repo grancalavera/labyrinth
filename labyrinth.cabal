@@ -22,7 +22,14 @@ library
   build-depends:       base >= 4.7 && < 5
                      , lens
                      , ansi-terminal
+                     , brick
+                     , containers
+                     , linear
+                     , microlens
+                     , microlens-th
                      , random
+                     , vty
+
   default-language:    Haskell2010
 
 executable labyrinth-exe
@@ -39,7 +46,6 @@ test-suite labyrinth-test
   main-is:             Spec.hs
   build-depends:       base
                      , labyrinth
-                     , ansi-terminal
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
