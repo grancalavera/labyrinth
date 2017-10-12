@@ -2,6 +2,12 @@
 module Labyrinth where
 
 import Control.Lens
+-- &    reverse application operator
+-- .~   set
+-- %~   over
+-- ^.   view
+-- ^..  traverse
+
 import System.Random (randomRIO)
 
 data Direction = North | West | South | East deriving (Eq, Show, Ord)
@@ -42,13 +48,13 @@ rotateEdge CW  South  = West
 rotateEdge CW  East   = South
 
 rotate :: Rotation -> Tile -> Tile
-rotate r = over (edges . traverse) (rotateEdge r)
+rotate r = edges . traverse %~ (rotateEdge r)
 
 move :: Direction -> Tile -> Tile
-move North = over (coords.y) (\n -> n-1)
-move South = over (coords.y) (+1)
-move West  = over (coords.x) (\n -> n-1)
-move East  = over (coords.x) (+1)
+move North = coords . y %~ (\n -> n-1)
+move South = coords . y %~ (+1)
+move West  = coords . x %~ (\n -> n-1)
+move East  = coords . x %~ (+1)
 
 up :: Tile -> Tile
 up    = move North
@@ -163,13 +169,13 @@ rotateTileRandomly tile = do
   rotate <- randomRotation
   return (rotate tile)
 
-toListOfX = toListOf (tiles.traverse.coords.x)
-toListOfY = toListOf (tiles.traverse.coords.y)
+toListOfX b = b ^.. (tiles.traverse.coords.x)
+toListOfY b = b ^.. (tiles.traverse.coords.y)
 
-toListOfCoords = toListOf (tiles.traverse.coords)
-overCoords = over (tiles.traverse.coords)
+toListOfCoords b = b ^.. (tiles.traverse.coords)
+overCoords = (tiles . traverse . coords %~)
 
 moveCoordsBy :: Coords -> Coords -> Coords
 moveCoordsBy byCoords coords = Coords {_x = newX, _y = newY}
-  where newX = view x coords + view x byCoords
-        newY = view y coords + view y byCoords
+  where newX = coords ^. x + byCoords ^. x
+        newY = coords ^. y + byCoords ^. y
