@@ -1,10 +1,20 @@
-module Draw where
+module UI (main) where
+
+import System.Console.ANSI
 import Data.List (sort)
 import Control.Monad (forM_)
 import System.Console.ANSI
 import Control.Lens hiding (preview)
-import Tile
-import Board
+
+import Labyrinth
+
+main :: IO ()
+main = do
+  clearScreen
+  drawBackground
+  board <- initialBoard
+  drawBoard Coords {_x = 1, _y = 1} board
+  setCursorPosition gameHeight 0
 
 drawBackground :: IO ()
 drawBackground = do

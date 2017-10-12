@@ -1,40 +1,175 @@
-module Labyrinth (main) where
+{-# LANGUAGE TemplateHaskell #-}
+module Labyrinth where
 
-import System.Console.ANSI
-import Tile
-import Draw
-import Board
+import Control.Lens
+import System.Random (randomRIO)
 
-main :: IO ()
-main = do
-  clearScreen
-  drawBackground
+data Direction = North | West | South | East deriving (Eq, Show, Ord)
+data Rotation = CW | CCW deriving (Eq, Show)
+data TileKind = Gate | Path | Corner | Fork deriving (Eq, Show)
 
-  board <- initialBoard
-  drawBoard origin board
+data Tile = Tile { _kind :: TileKind
+                 , _edges :: [Direction]
+                 , _coords :: Coords
+                 } deriving (Show)
 
-  -- this should go elsewhere
-  setCursorPosition gameHeight 0
+data Coords = Coords { _x :: Int, _y :: Int } deriving (Show)
 
--- these coordinates are given in Tile units
--- it might make sense to use actual columns
--- and rows for certain operations
-origin = Coords {_x = 1, _y = 1}
+makeLenses ''Tile
+makeLenses ''Coords
 
-{-  game loop sketch
+data Board = Board { _tiles :: [Tile]
+                   , _cols :: Int
+                   , _rows :: Int
+                   } deriving (Show)
 
-data World = World {}
+makeLenses ''Board
 
-main :: IO ()
-world <- initialWorld
-tick world
 
-tick :: World -> IO ()
-tick world = do
-  render world
-  input <- processInput world
-  updatedWorld <- update world input
-  case (gameOver world) of
-    True -> endGame
-    False -> tick updatedWorld
--}
+coordsFromIndex :: Int -> Int -> Coords
+coordsFromIndex cols index = Coords { _x = x, _y = y}
+  where x = index `mod` cols
+        y = index `div` cols
+
+rotateEdge :: Rotation -> Direction -> Direction
+rotateEdge CCW North  = West
+rotateEdge CCW West   = South
+rotateEdge CCW South  = East
+rotateEdge CCW East   = North
+rotateEdge CW  North  = East
+rotateEdge CW  West   = North
+rotateEdge CW  South  = West
+rotateEdge CW  East   = South
+
+rotate :: Rotation -> Tile -> Tile
+rotate r = over (edges . traverse) (rotateEdge r)
+
+move :: Direction -> Tile -> Tile
+move North = over (coords.y) (\n -> n-1)
+move South = over (coords.y) (+1)
+move West  = over (coords.x) (\n -> n-1)
+move East  = over (coords.x) (+1)
+
+up :: Tile -> Tile
+up    = move North
+down  = move South
+left  = move West
+right = move East
+
+rotateTimes :: Int  -> Tile  -> Tile
+rotateTimes n = foldr (\r -> \r' -> r.r') id (replicate n (rotate CCW))
+
+makeTile :: TileKind -> Int -> Int -> Tile
+makeTile tileKind x y = Tile { _coords = Coords {_x = x, _y = y}
+                             , _kind = tileKind
+                             , _edges = tileEdges
+                             }
+  where tileEdges = case tileKind of
+                      Gate   -> [North]
+                      Path   -> [North, South]
+                      Corner -> [North, West]
+                      Fork   -> [West, North, East]
+
+gate   = makeTile Gate
+path   = makeTile Path
+corner = makeTile Corner
+fork   = makeTile Fork
+
+initialBoard :: IO Board
+initialBoard = do
+  shufledTiles' <- shuffledTiles
+  return Board { _rows = 9
+               , _cols = 9
+               , _tiles = fixedTiles ++ shufledTiles'
+               }
+
+sillyBoard = Board { _rows = 2
+                   , _cols = 2
+                   , _tiles = [ rotateTimes 2 $ corner 0 0
+                              , rotateTimes 1 $ corner 1 0
+                              , rotateTimes 3 $ corner 0 1
+                              , corner 1 1
+                              ]
+                   }
+
+fixedTiles :: [Tile]
+fixedTiles =    []
+
+             ++ map (\x -> rotateTimes 2 $ gate x 0) gateStops
+             ++ map (\x ->                 gate x 8) gateStops
+             ++ map (\y -> rotateTimes 3 $ gate 0 y) gateStops
+             ++ map (\y -> rotateTimes 1 $ gate 8 y) gateStops
+
+             ++ [rotateTimes 2 $ corner 1 1,
+                 rotateTimes 1 $ corner 7 1,
+                 rotateTimes 3 $ corner 1 7,
+                                 corner 7 7]
+
+             ++ map (\x -> rotateTimes 2 $ fork x 1) forkStops
+             ++ map (\x ->                 fork x 7) forkStops
+             ++ map (\y -> rotateTimes 3 $ fork 1 y) forkStops
+             ++ map (\y -> rotateTimes 1 $ fork 7 y) forkStops
+
+             ++ [rotateTimes 3 $ fork 3 3,
+                                 fork 3 5,
+                 rotateTimes 2 $ fork 5 3,
+                 rotateTimes 1 $ fork 5 5]
+
+shuffledTiles :: IO [Tile]
+shuffledTiles = do
+  tiles' <- shuffleList shuffledTilesTiles
+  (t:ts) <- mapM rotateTileRandomly tiles'
+  return (
+       [set (coords.x) 2 t]
+    ++ map (\(c, t) -> set coords c t) (zip shuffledTileStops ts)
+    )
+
+borderStops :: [Int]
+borderStops = [1,3,5,7]
+
+gateStops :: [Int]
+gateStops = [2,4,6]
+
+forkStops :: [Int]
+forkStops = [3, 5]
+
+shuffledTileStops :: [Coords]
+shuffledTileStops =    []
+                    ++ [Coords{_x=x,_y=y} | x <- [2,4,6], y <- [1,3,5,7]]
+                    ++ [Coords{_x=x,_y=y} | x <- [1..7], y <- [2,4,6]]
+
+shuffledTilesTiles :: [Tile]
+shuffledTilesTiles =    []
+                     ++ (replicate 12 $ path 0 0)
+                     ++ (replicate 16 $ corner 0 0)
+                     ++ (replicate 6  $ fork 0 0)
+
+shuffleList :: [a] -> IO [a]
+shuffleList [] = return []
+shuffleList list = do
+  i <- randomRIO (0, (length list)-1)
+  case (splitAt i list) of
+    (before, (x:after)) -> do
+      xs <- shuffleList (before ++ after)
+      return (x:xs)
+
+randomRotation :: IO (Tile -> Tile)
+randomRotation = do
+  n <- randomRIO (0, 3)
+  return (rotateTimes n)
+
+rotateTileRandomly :: Tile -> IO Tile
+rotateTileRandomly tile = do
+  rotate <- randomRotation
+  return (rotate tile)
+
+toListOfX = toListOf (tiles.traverse.coords.x)
+toListOfY = toListOf (tiles.traverse.coords.y)
+
+toListOfCoords = toListOf (tiles.traverse.coords)
+overCoords = over (tiles.traverse.coords)
+
+moveCoordsBy :: Coords -> Coords -> Coords
+moveCoordsBy byCoords coords = Coords {_x = newX, _y = newY}
+  where newX = view x coords + view x byCoords
+        newY = view y coords + view y byCoords
