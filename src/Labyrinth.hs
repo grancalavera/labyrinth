@@ -126,8 +126,8 @@ shuffledTiles = do
   tiles' <- shuffleList shuffledTilesTiles
   (t:ts) <- mapM rotateTileRandomly tiles'
   return (
-       [set (coords.x) 2 t]
-    ++ map (\(c, t) -> set coords c t) (zip shuffledTileStops ts)
+       [t & (coords.x) .~ 2]
+    ++ map (\(c, t) -> t & coords .~ c) (zip shuffledTileStops ts)
     )
 
 borderStops :: [Int]
