@@ -1,14 +1,15 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Labyrinth where
 
-import Control.Lens
+import System.Random (randomRIO)
+import Lens.Micro ((.~), (%~), (^.), (^..), (&))
+import Lens.Micro.TH (makeLenses)
+
 -- &    reverse application operator
 -- .~   set
 -- %~   over
 -- ^.   view
 -- ^..  traverse
-
-import System.Random (randomRIO)
 
 data Direction = North | West | South | East deriving (Eq, Show, Ord)
 data Rotation = CW | CCW deriving (Eq, Show)
