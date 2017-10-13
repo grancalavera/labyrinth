@@ -1,10 +1,20 @@
-module Draw where
+module UI (main) where
+
+import System.Console.ANSI
 import Data.List (sort)
 import Control.Monad (forM_)
 import System.Console.ANSI
-import Control.Lens hiding (preview)
-import Tile
-import Board
+import Lens.Micro ((^.))
+
+import Labyrinth
+
+main :: IO ()
+main = do
+  clearScreen
+  drawBackground
+  board <- initialBoard
+  drawBoard Coords {_x = 1, _y = 1} board
+  setCursorPosition gameHeight 0
 
 drawBackground :: IO ()
 drawBackground = do
@@ -15,10 +25,10 @@ drawBackground = do
 
 drawBoard :: Coords -> Board -> IO ()
 drawBoard position board = do
-  mapM_ draw $ (view tiles) board'
+  mapM_ draw $ board' ^. tiles
   where board' = overCoords (moveCoordsBy position) board
-        boardRows = view rows $ board
-        boardY = view y position
+        boardRows = board ^. rows
+        boardY = position ^. y
 
 draw :: Tile -> IO ()
 draw tile = drawTileRow 0 (shape tile)
@@ -63,10 +73,10 @@ tileHeight :: Int
 tileHeight = 3
 
 tileX :: Tile -> Int
-tileX = view (coords.x)
+tileX t = t ^. coords.x
 
 tileY :: Tile -> Int
-tileY = view (coords.y)
+tileY t = t ^. coords.y
 
 type Shape = [String]
 

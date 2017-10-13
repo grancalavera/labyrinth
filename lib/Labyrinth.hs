@@ -1,8 +1,29 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Board where
-import Control.Lens
+module Labyrinth where
+
 import System.Random (randomRIO)
-import Tile
+import Lens.Micro ((.~), (%~), (^.), (^..), (&))
+import Lens.Micro.TH (makeLenses)
+
+-- &    reverse application operator
+-- .~   set
+-- %~   over
+-- ^.   view
+-- ^..  traverse
+
+data Direction = North | West | South | East deriving (Eq, Show, Ord)
+data Rotation = CW | CCW deriving (Eq, Show)
+data TileKind = Gate | Path | Corner | Fork deriving (Eq, Show)
+
+data Tile = Tile { _kind :: TileKind
+                 , _edges :: [Direction]
+                 , _coords :: Coords
+                 } deriving (Show)
+
+data Coords = Coords { _x :: Int, _y :: Int } deriving (Show)
+
+makeLenses ''Tile
+makeLenses ''Coords
 
 data Board = Board { _tiles :: [Tile]
                    , _cols :: Int
@@ -10,6 +31,55 @@ data Board = Board { _tiles :: [Tile]
                    } deriving (Show)
 
 makeLenses ''Board
+
+coordsFromIndex :: Int -> Int -> Coords
+coordsFromIndex cols index = Coords { _x = x, _y = y}
+  where x = index `mod` cols
+        y = index `div` cols
+
+rotateEdge :: Rotation -> Direction -> Direction
+rotateEdge CCW North  = West
+rotateEdge CCW West   = South
+rotateEdge CCW South  = East
+rotateEdge CCW East   = North
+rotateEdge CW  North  = East
+rotateEdge CW  West   = North
+rotateEdge CW  South  = West
+rotateEdge CW  East   = South
+
+rotate :: Rotation -> Tile -> Tile
+rotate r = edges . traverse %~ (rotateEdge r)
+
+move :: Direction -> Tile -> Tile
+move North = coords . y %~ (\n -> n-1)
+move South = coords . y %~ (+1)
+move West  = coords . x %~ (\n -> n-1)
+move East  = coords . x %~ (+1)
+
+up :: Tile -> Tile
+up    = move North
+down  = move South
+left  = move West
+right = move East
+
+rotateTimes :: Int  -> Tile  -> Tile
+rotateTimes n = foldr (\r -> \r' -> r.r') id (replicate n (rotate CCW))
+
+makeTile :: TileKind -> Int -> Int -> Tile
+makeTile tileKind x y = Tile { _coords = Coords {_x = x, _y = y}
+                             , _kind = tileKind
+                             , _edges = tileEdges
+                             }
+  where tileEdges = case tileKind of
+                      Gate   -> [North]
+                      Path   -> [North, South]
+                      Corner -> [North, West]
+                      Fork   -> [West, North, East]
+
+gate   = makeTile Gate
+path   = makeTile Path
+corner = makeTile Corner
+fork   = makeTile Fork
 
 initialBoard :: IO Board
 initialBoard = do
@@ -56,8 +126,8 @@ shuffledTiles = do
   tiles' <- shuffleList shuffledTilesTiles
   (t:ts) <- mapM rotateTileRandomly tiles'
   return (
-       [set (coords.x) 2 t]
-    ++ map (\(c, t) -> set coords c t) (zip shuffledTileStops ts)
+       [t & (coords.x) .~ 2]
+    ++ map (\(c, t) -> t & coords .~ c) (zip shuffledTileStops ts)
     )
 
 borderStops :: [Int]
@@ -99,13 +169,13 @@ rotateTileRandomly tile = do
   rotate <- randomRotation
   return (rotate tile)
 
-toListOfX = toListOf (tiles.traverse.coords.x)
-toListOfY = toListOf (tiles.traverse.coords.y)
+toListOfX b = b ^.. (tiles.traverse.coords.x)
+toListOfY b = b ^.. (tiles.traverse.coords.y)
 
-toListOfCoords = toListOf (tiles.traverse.coords)
-overCoords = over (tiles.traverse.coords)
+toListOfCoords b = b ^.. (tiles.traverse.coords)
+overCoords = (tiles . traverse . coords %~)
 
 moveCoordsBy :: Coords -> Coords -> Coords
 moveCoordsBy byCoords coords = Coords {_x = newX, _y = newY}
-  where newX = view x coords + view x byCoords
-        newY = view y coords + view y byCoords
+  where newX = coords ^. x + byCoords ^. x
+        newY = coords ^. y + byCoords ^. y
