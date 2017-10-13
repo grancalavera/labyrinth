@@ -32,7 +32,6 @@ data Board = Board { _tiles :: [Tile]
 
 makeLenses ''Board
 
-
 coordsFromIndex :: Int -> Int -> Coords
 coordsFromIndex cols index = Coords { _x = x, _y = y}
   where x = index `mod` cols
