@@ -1,4 +1,4 @@
-module Labyrinth.Player where
+module Labyrinth.Players where
 
 import qualified Data.Map as M
 

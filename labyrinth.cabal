@@ -17,7 +17,7 @@ library
   hs-source-dirs:      lib
   exposed-modules:     Labyrinth
                      , Labyrinth.UI
-                     , Labyrinth.Player
+                     , Labyrinth.Players
   build-depends:       base >= 4.7 && < 5
                      , ansi-terminal
                      , brick
