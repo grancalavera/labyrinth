@@ -1,5 +1,16 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Labyrinth.Players where
+module Labyrinth.Players
+    ( Name
+    , Players
+    , Player (..)
+    , Color (..)
+    , add
+    , addFirst
+    , color
+    , initial
+    , name
+    , next
+    ) where
 
 import Lens.Micro ((^.))
 import Lens.Micro.TH (makeLenses)
@@ -23,14 +34,13 @@ add :: Players -> Player -> Players
 add ps p = M.insert (p ^. color) p ps
 
 addFirst :: Player -> Players
-addFirst = add initial
+addFirst = add M.empty
 
 next :: Players -> Player -> Maybe Player
-next ps currentP = if hasNext
-    then findNext (currentP ^. color)
-    else Nothing
+next ps currentPlayer = if hasNext then next' else Nothing
   where
     hasNext = M.size ps > 1
+    next' = findNext (currentPlayer ^. color)
     findNext c = case M.lookup (nextColor c) ps of
       Just p  -> Just p
       Nothing -> findNext (nextColor c)
