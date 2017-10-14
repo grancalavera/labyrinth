@@ -37,10 +37,11 @@ addFirst :: Player -> Players
 addFirst = add M.empty
 
 next :: Players -> Player -> Maybe Player
-next ps currentPlayer = if hasNext then next' else Nothing
+next ps currentPlayer = case hasNext of
+  False -> Nothing
+  True  -> findNext (currentPlayer ^. color)
   where
     hasNext = M.size ps > 1
-    next' = findNext (currentPlayer ^. color)
     findNext c = case M.lookup (nextColor c) ps of
       Just p  -> Just p
       Nothing -> findNext (nextColor c)
