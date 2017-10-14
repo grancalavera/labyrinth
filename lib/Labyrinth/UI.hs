@@ -1,4 +1,4 @@
-module UI (main) where
+module Labyrinth.UI (main) where
 
 import System.Console.ANSI
 import Data.List (sort)
