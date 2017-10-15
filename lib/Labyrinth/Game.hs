@@ -20,4 +20,4 @@ initial = Game
     }
 
 addPlayer :: Game -> Player -> Game
-addPlayer g p = g & players %~ \ps -> Players.add ps p
+addPlayer g p = g & players %~ (Players.add p)

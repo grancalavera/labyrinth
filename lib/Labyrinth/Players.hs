@@ -30,11 +30,11 @@ makeLenses ''Player
 initial :: Players
 initial = M.empty
 
-add :: Players -> Player -> Players
-add ps p = M.insert (p ^. color) p ps
+add :: Player -> Players -> Players
+add p ps = M.insert (p ^. color) p ps
 
 addFirst :: Player -> Players
-addFirst = add M.empty
+addFirst p = add p M.empty
 
 next :: Players -> Player -> Maybe Player
 next ps currentPlayer = case hasNext of

@@ -11,13 +11,13 @@ p1 :: Players
 p1 = Players.addFirst player1
 
 p1p3 :: Players
-p1p3 = Players.add p1 player3
+p1p3 = Players.add player3 p1
 
 p1p4 :: Players
-p1p4 = Players.add p1 player4
+p1p4 = Players.add player4 p1
 
 allPlayers :: Players
-allPlayers = Players.add (Players.add p1p3 player2) player4
+allPlayers = Players.add player4 (Players.add player2 p1p3)
 
 lookupPlayer :: Player -> Players -> Maybe Player
 lookupPlayer p ps = M.lookup (p ^. color) ps
@@ -26,7 +26,7 @@ lookupPlayerInGame :: Player -> Game -> Maybe Player
 lookupPlayerInGame p g = lookupPlayer p (g ^. Game.players)
 
 replace :: Player -> Maybe Player
-replace p = lookupPlayer p (Players.add p1 p)
+replace p = lookupPlayer p (Players.add p p1)
 
 player1, player2, player3, player4, playerA :: Player
 player1 = Player Yellow "Yellow 1"
