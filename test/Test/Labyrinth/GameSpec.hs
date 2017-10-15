@@ -1,9 +1,8 @@
-module GameSpec where
+module Test.Labyrinth.GameSpec where
 
-import Test.Hspec
-import qualified Data.Map as M
-import Lens.Micro ((^.))
-
+import           Test.Hspec
+import qualified Data.Map       as M
+import           Lens.Micro     ((^.))
 import qualified Labyrinth.Game as Game
 
 spec :: Spec

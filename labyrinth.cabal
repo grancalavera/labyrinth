@@ -45,8 +45,9 @@ test-suite labyrinth-test
   hs-source-dirs:      test
   ghc-options:         -Wall
   main-is:             Spec.hs
-  other-modules:       PlayersSpec
-                     , GameSpec
+  other-modules:       Test.Labyrinth
+                     , Test.Labyrinth.PlayersSpec
+                     , Test.Labyrinth.GameSpec
   build-depends:       base
                      , containers
                      , labyrinth
