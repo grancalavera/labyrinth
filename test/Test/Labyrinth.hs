@@ -4,6 +4,8 @@ import qualified Data.Map           as M
 import           Lens.Micro         ((^.))
 import           Labyrinth.Players  (Player(..), Color(..), Players, color)
 import qualified Labyrinth.Players  as Players
+import           Labyrinth.Game     (Game)
+import qualified Labyrinth.Game     as Game
 
 p1 :: Players
 p1 = Players.addFirst player1
@@ -17,14 +19,14 @@ p1p4 = Players.add p1 player4
 allPlayers :: Players
 allPlayers = Players.add (Players.add p1p3 player2) player4
 
-find :: Player -> Players -> Maybe Player
-find p ps = M.lookup (p ^. color) ps
+lookupPlayer :: Player -> Players -> Maybe Player
+lookupPlayer p ps = M.lookup (p ^. color) ps
 
-addThenFind :: Player -> Maybe Player
-addThenFind p = find p (Players.addFirst p)
+lookupPlayerInGame :: Player -> Game -> Maybe Player
+lookupPlayerInGame p g = lookupPlayer p (g ^. Game.players)
 
 replace :: Player -> Maybe Player
-replace p = find p (Players.add p1 p)
+replace p = lookupPlayer p (Players.add p1 p)
 
 player1, player2, player3, player4, playerA :: Player
 player1 = Player Yellow "Yellow 1"
