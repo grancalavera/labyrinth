@@ -19,5 +19,5 @@ initial = Game
     , _players       = Players.initial
     }
 
-addPlayer :: Game -> Player -> Game
-addPlayer g p = g & players %~ (Players.add p)
+addPlayer ::  Player -> Game -> Game
+addPlayer p g = g & players %~ (Players.add p)
