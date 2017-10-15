@@ -15,6 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      lib
+  ghc-options:         -Wall
   exposed-modules:     Labyrinth
                      , Labyrinth.UI
                      , Labyrinth.Players
