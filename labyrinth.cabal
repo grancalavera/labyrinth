@@ -19,6 +19,7 @@ library
   exposed-modules:     Labyrinth
                      , Labyrinth.UI
                      , Labyrinth.Players
+                     , Labyrinth.Game
   build-depends:       base >= 4.7 && < 5
                      , ansi-terminal
                      , brick
@@ -45,6 +46,7 @@ test-suite labyrinth-test
   ghc-options:         -Wall
   main-is:             Spec.hs
   other-modules:       PlayersSpec
+                     , GameSpec
   build-depends:       base
                      , containers
                      , labyrinth
