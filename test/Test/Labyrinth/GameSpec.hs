@@ -16,7 +16,4 @@ spec = do
 
   describe "Adding players" $ do
     it "should be possible to add players to a new game" $
-      lookupPlayerInGame player1 (Game.addPlayer Game.initial player1) `shouldBe` Just player1
-
-
-
+      lookupPlayerInGame player1 (Game.addPlayer player1 Game.initial) `shouldBe` Just player1
