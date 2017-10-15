@@ -11,7 +11,7 @@ spec = do
     it "should be initially empty" $
         Players.initial `shouldBe`  M.empty
     it "should add a new player" $
-        addThenFind player1 `shouldBe` Just player1
+        lookupPlayer player1 (Players.addFirst player1) `shouldBe` Just player1
     it "should replace an existing player" $
         replace playerA `shouldBe` Just playerA
 
