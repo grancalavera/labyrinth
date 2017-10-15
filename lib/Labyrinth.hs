@@ -160,7 +160,7 @@ shuffleList list = do
     (before, (hd:after)) -> do
       tl <- shuffleList (before ++ after)
       return (hd:tl)
-    (before, []) -> return before
+    _ -> return []
 
 randomRotation :: IO (Tile -> Tile)
 randomRotation = do
