@@ -7,14 +7,14 @@ import qualified Labyrinth.Players  as Players
 import           Labyrinth.Game     (Game)
 import qualified Labyrinth.Game     as Game
 
-p1 :: Players
-p1 = Players.addFirst player1
+singletonPlayers :: Players
+singletonPlayers = Players.addFirst player1
 
-p1p3 :: Players
-p1p3 = Players.add player3 p1
+players1And3 :: Players
+players1And3 = Players.add player1 $ Players.addFirst player3
 
-p1p4 :: Players
-p1p4 = Players.add player4 p1
+players1And4 :: Players
+players1And4 = Players.add player1 $ Players.addFirst player4
 
 allPlayers :: Players
 allPlayers = Players.add player1
@@ -29,7 +29,7 @@ lookupPlayerInGame :: Player -> Game -> Maybe Player
 lookupPlayerInGame p g = lookupPlayer p (g ^. Game.players)
 
 replace :: Player -> Maybe Player
-replace p = lookupPlayer p (Players.add p p1)
+replace p = lookupPlayer p $ Players.add p $ Players.addFirst player1
 
 player1, player2, player3, player4, playerA :: Player
 player1 = Player Yellow "Yellow 1"

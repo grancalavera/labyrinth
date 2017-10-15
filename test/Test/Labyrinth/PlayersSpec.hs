@@ -19,13 +19,13 @@ spec = do
     it "should not be allowed with 0 players" $
         Players.next player1 Players.initial `shouldBe` Nothing
     it "should not be allowed with 1 player" $
-        Players.next player1 p1 `shouldBe` Nothing
+        Players.next player1 singletonPlayers `shouldBe` Nothing
     it "should skip 1 non existing player" $
-        Players.next player1 p1p3 `shouldBe` Just player3
+        Players.next player1 players1And3 `shouldBe` Just player3
     it "should skip 2 non existing players" $
-        Players.next player1 p1p4 `shouldBe` Just player4
+        Players.next player1 players1And4 `shouldBe` Just player4
     it "should go back to first player" $
-        Players.next player3 p1p3 `shouldBe` Just player1
+        Players.next player3 players1And3 `shouldBe` Just player1
     it "should move from Yellow to Blue" $
         Players.next player1 allPlayers `shouldBe` Just player2
     it "should move from Blue to Green" $
