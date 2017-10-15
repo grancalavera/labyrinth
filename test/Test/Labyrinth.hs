@@ -17,7 +17,10 @@ p1p4 :: Players
 p1p4 = Players.add player4 p1
 
 allPlayers :: Players
-allPlayers = Players.add player4 (Players.add player2 p1p3)
+allPlayers = Players.add player1
+  $ Players.add player2
+  $ Players.add player3
+  $ Players.addFirst player4
 
 lookupPlayer :: Player -> Players -> Maybe Player
 lookupPlayer p ps = M.lookup (p ^. color) ps

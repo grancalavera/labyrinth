@@ -17,21 +17,21 @@ spec = do
 
   describe "Turns" $ do
     it "should not be allowed with 0 players" $
-        Players.next Players.initial player1 `shouldBe` Nothing
+        Players.next player1 Players.initial `shouldBe` Nothing
     it "should not be allowed with 1 player" $
-        Players.next p1 player1 `shouldBe` Nothing
+        Players.next player1 p1 `shouldBe` Nothing
     it "should skip 1 non existing player" $
-        Players.next p1p3 player1 `shouldBe` Just player3
+        Players.next player1 p1p3 `shouldBe` Just player3
     it "should skip 2 non existing players" $
-        Players.next p1p4 player1 `shouldBe` Just player4
+        Players.next player1 p1p4 `shouldBe` Just player4
     it "should go back to first player" $
-        Players.next p1p3 player3 `shouldBe` Just player1
+        Players.next player3 p1p3 `shouldBe` Just player1
     it "should move from Yellow to Blue" $
-        Players.next allPlayers player1 `shouldBe` Just player2
+        Players.next player1 allPlayers `shouldBe` Just player2
     it "should move from Blue to Green" $
-        Players.next allPlayers player2 `shouldBe` Just player3
+        Players.next player2 allPlayers `shouldBe` Just player3
     it "should move from Green to Red" $
-        Players.next allPlayers player3 `shouldBe` Just player4
+        Players.next player3 allPlayers `shouldBe` Just player4
     it "should move from Red to Yellow" $
-        Players.next allPlayers player4 `shouldBe` Just player1
+        Players.next player4 allPlayers `shouldBe` Just player1
 
