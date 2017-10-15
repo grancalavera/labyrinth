@@ -1,10 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Labyrinth.Game where
 
-import Lens.Micro.TH (makeLenses)
+import           Lens.Micro         ((%~), (&))
+import           Lens.Micro.TH      (makeLenses)
 
-import Labyrinth.Players (Player(..), Players)
-import qualified Labyrinth.Players as Players
+import           Labyrinth.Players  (Player(..), Players)
+import qualified Labyrinth.Players  as Players
 
 data Game = Game
     { _currentPlayer :: Maybe Player
@@ -19,4 +20,4 @@ initial = Game
     }
 
 addPlayer :: Game -> Player -> Game
-addPlayer = undefined
+addPlayer g p = g & players %~ \ps -> Players.add ps p
