@@ -1,8 +1,9 @@
-module Labyrinth.UI (main) where
+module Labyrinth.UI
+    ( main
+    , previewRotation
+    ) where
 
-import System.Console.ANSI
 import Data.List (sort)
-import Control.Monad (forM_)
 import System.Console.ANSI
 import Lens.Micro ((^.))
 
@@ -27,20 +28,18 @@ drawBoard :: Coords -> Board -> IO ()
 drawBoard position board = do
   mapM_ draw $ board' ^. tiles
   where board' = overCoords (moveCoordsBy position) board
-        boardRows = board ^. rows
-        boardY = position ^. y
 
 draw :: Tile -> IO ()
 draw tile = drawTileRow 0 (shape tile)
   where drawTileRow :: Int -> Shape -> IO ()
         drawTileRow _ [] = return ()
-        drawTileRow rowIndex (row:rows) = do
+        drawTileRow rowIndex (r:rs) = do
           setCursorPosition (rowIndex+ty) tx
           setSGR [SetColor Background Dull Black]
           setSGR [SetColor Foreground Vivid White]
-          putStr row
+          putStr r
           setSGR [Reset]
-          drawTileRow (rowIndex+1) rows
+          drawTileRow (rowIndex+1) rs
         tx = (tileX tile) * tileWidth
         ty = (tileY tile) * tileHeight
 
@@ -64,6 +63,7 @@ gameHeight :: Int
 gameHeight = 40
 
 background = unlines $ replicate gameHeight $ replicate gameWidth ' '
+background :: String
 
 -- Tile units
 tileWidth :: Int
@@ -124,25 +124,6 @@ shape tile = case (tileKind, tileEdges) of
   (Path, [West, East]) ->         ["───────",
                                    "       ",
                                    "───────"]
+  (_, _) ->                       error "unknown tile"
   where tileKind = _kind tile
         tileEdges = sort $ _edges tile
-
-colors :: [Color]
-colors = [Yellow, Blue, Red, Green]
-
-colorTest :: IO ()
-colorTest = do
-  forM_ colors $ \color -> do
-    setSGR [SetColor Foreground Vivid White]
-    setSGR [SetColor Background Dull color]
-    putStrLn $ show color
-    setSGR [Reset]
-
--- Black
--- Red
--- Green
--- Yellow
--- Blue
--- Magenta
--- Cyan
--- White
