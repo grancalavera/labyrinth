@@ -24,6 +24,6 @@ addPlayer p g = g & players %~ (Players.add p)
 
 nextPlayer :: Game -> Maybe Game
 nextPlayer g = do
-  currentP  <- g ^. currentPlayer
-  nextP     <- Players.next currentP (g ^. players)
+  currP <- g ^. currentPlayer
+  nextP <- Players.next currP (g ^. players)
   return (g & currentPlayer .~ (Just nextP))
