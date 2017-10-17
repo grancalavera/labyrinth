@@ -1,9 +1,10 @@
 module Test.Labyrinth.GameSpec where
 
 import           Test.Hspec
-import qualified Data.Map       as M
-import           Lens.Micro     ((^.))
-import qualified Labyrinth.Game as Game
+import qualified Data.Map           as M
+import           Lens.Micro         ((^.))
+import           Labyrinth.Players  (Player)
+import qualified Labyrinth.Game     as Game
 import           Test.Labyrinth
 
 spec :: Spec
@@ -23,3 +24,16 @@ spec = do
       Game.nextPlayer Game.initial `shouldBe` Nothing
     it "should not be allowed with 1 player" $
       Game.nextPlayer singlePlayerGame `shouldBe` Nothing
+    it "should move from player 1 to player 2" $
+      from1to2 `shouldBe` Just player2
+    it "should move from player 2 to player 3" $
+      pendingWith "Need to figure out how to test this"
+    it "should move from player 3 to player 4" $
+      pendingWith "Need to figure out how to test this"
+    it "should move from player 4 to player 1" $
+      pendingWith "Need to figure out how to test this"
+
+from1to2 :: Maybe Player
+from1to2 = do
+  g <- Game.nextPlayer allPlayersGame
+  g ^. Game.currentPlayer
