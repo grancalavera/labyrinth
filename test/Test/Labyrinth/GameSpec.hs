@@ -21,3 +21,5 @@ spec = do
   describe "Turns" $ do
     it "should not be allowed with 0 players" $
       Game.nextPlayer Game.initial `shouldBe` Nothing
+    it "should not be allowed with 1 player" $
+      Game.nextPlayer singlePlayerGame `shouldBe` Nothing
