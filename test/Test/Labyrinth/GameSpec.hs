@@ -17,3 +17,7 @@ spec = do
   describe "Adding players" $ do
     it "should be possible to add players to a new game" $
       lookupPlayerInGame player1 (Game.addPlayer player1 Game.initial) `shouldBe` Just player1
+
+  describe "Turns" $ do
+    it "should not be allowed with 0 players" $
+      Game.nextPlayer Game.initial `shouldBe` Nothing

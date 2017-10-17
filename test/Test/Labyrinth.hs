@@ -7,6 +7,9 @@ import qualified Labyrinth.Players  as Players
 import           Labyrinth.Game     (Game)
 import qualified Labyrinth.Game     as Game
 
+singlePlayerGame :: Game
+singlePlayerGame = Game.addPlayer player1 Game.initial
+
 singletonPlayers :: Players
 singletonPlayers = Players.addFirst player1
 
