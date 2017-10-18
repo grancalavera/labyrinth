@@ -43,11 +43,11 @@ lookupByColor :: Color -> Players -> Maybe Player
 lookupByColor c (Players ps) = M.lookup c ps
 
 next :: Player -> Players -> Maybe Player
-next current players@(Players ps)
-  | M.size ps < 2 = Nothing
-  | otherwise = next' (current ^. color)
+next current ps@(Players psMap)
+  | M.size psMap < 2 = Nothing
+  | otherwise        = next' (current ^. color)
   where
-    next' c = case (lookupByColor (nextColor c) players) of
+    next' c = case (lookupByColor (nextColor c) ps) of
       Just p -> Just p
       _      -> next' (nextColor c)
 
