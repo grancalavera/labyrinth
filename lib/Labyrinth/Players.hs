@@ -47,7 +47,7 @@ next current players@(Players ps)
   | M.size ps < 2 = Nothing
   | otherwise = next' (current ^. color)
   where
-    next' c = case (lookupByColor c players) of
+    next' c = case (lookupByColor (nextColor c) players) of
       Just p -> Just p
       _      -> next' (nextColor c)
 

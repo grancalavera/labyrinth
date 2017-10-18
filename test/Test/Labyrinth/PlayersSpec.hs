@@ -29,12 +29,12 @@ spec = do
           players = Players.fromPlayer player
       Players.next player players `shouldBe` Nothing
 
+    it "should skip 1 non existing player" $ do
+      let currentPlayer = Player Yellow "Foo"
+          nextPlayer    = Player Green "Bar"
+          players       = Players.fromPlayer currentPlayer <> Players.fromPlayer nextPlayer
+      Players.next currentPlayer players `shouldBe` Just nextPlayer
 
-
-  --   it "should not be allowed with 1 player" $
-  --       Players.next player1 singletonPlayers `shouldBe` Nothing
-  --   it "should skip 1 non existing player" $
-  --       Players.next player1 players1And3 `shouldBe` Just player3
   --   it "should skip 2 non existing players" $
   --       Players.next player1 players1And4 `shouldBe` Just player4
   --   it "should go back to first player" $
