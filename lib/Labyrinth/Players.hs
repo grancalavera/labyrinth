@@ -9,6 +9,7 @@ module Labyrinth.Players
     , next
     , fromPlayer
     , lookup
+    , lookupByColor
     ) where
 
 import Prelude hiding (lookup)
@@ -38,16 +39,17 @@ fromPlayer p = Players (M.insert  (p ^. color) p mempty)
 lookup :: Player -> Players -> Maybe Player
 lookup p (Players ps) = M.lookup (p ^. color) ps
 
+lookupByColor :: Color -> Players -> Maybe Player
+lookupByColor c (Players ps) = M.lookup c ps
+
 next :: Player -> Players -> Maybe Player
-next =  undefined
--- next currP ps = case hasNext of
---   False -> Nothing
---   True  -> findNext (currP ^. color)
---   where
---     hasNext = M.size ps > 1
---     findNext c = case M.lookup (nextColor c) ps of
---       Just p  -> Just p
---       Nothing -> findNext (nextColor c)
+next current players@(Players ps)
+  | M.size ps < 2 = Nothing
+  | otherwise = next' (current ^. color)
+  where
+    next' c = case (lookupByColor c players) of
+      Just p -> Just p
+      _      -> next' (nextColor c)
 
 nextColor :: Color -> Color
 nextColor Yellow  = Blue

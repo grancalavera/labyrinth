@@ -1,22 +1,36 @@
 module Test.Labyrinth.PlayersSpec where
 
 import           Test.Hspec
-import qualified Data.Map           as M
-import           Data.Monoid        ((<>))
-import qualified Labyrinth.Players  as Players
-import           Test.Labyrinth
+import           Data.Monoid       ((<>))
+import           Labyrinth.Players (Player(..), Color(..))
+import qualified Labyrinth.Players as Players
 
 spec :: Spec
 spec = do
   describe "Players" $ do
-    it "should be created from a player" $
-        Players.lookup player1 (Players.fromPlayer player1) `shouldBe` Just player1
-    it "should replace the player on an existing `Color`" $
-        Players.lookup playerA (Players.fromPlayer player1 <> Players.fromPlayer playerA) `shouldBe` Just playerA
+    it "should be created from a player" $ do
+      let player  = Player Yellow "Foo"
+          players = Players.fromPlayer player
+      Players.lookupByColor Yellow players `shouldBe` Just player
 
-  -- describe "Turns" $ do
-  --   it "should not be allowed with 0 players" $
-  --       Players.next player1 Players.initial `shouldBe` Nothing
+    it "should replace the player on an existing `Color`" $ do
+      let createdWith = Player Yellow "Foo"
+          updatedWith = Player Yellow "Bar"
+          players = Players.fromPlayer createdWith <> Players.fromPlayer updatedWith
+      Players.lookupByColor Yellow players `shouldBe` Just updatedWith
+
+  describe "Turns" $ do
+    it "should not be allowed with 0 players" $ do
+      let player = Player Yellow "Foo"
+      Players.next player mempty `shouldBe` Nothing
+
+    it "should not be allowed with 1 player" $ do
+      let player  = Player Yellow "Foo"
+          players = Players.fromPlayer player
+      Players.next player players `shouldBe` Nothing
+
+
+
   --   it "should not be allowed with 1 player" $
   --       Players.next player1 singletonPlayers `shouldBe` Nothing
   --   it "should skip 1 non existing player" $

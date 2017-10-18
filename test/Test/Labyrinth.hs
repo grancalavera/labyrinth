@@ -1,9 +1,10 @@
 module Test.Labyrinth where
 
 import qualified Data.Map           as M
-import           Lens.Micro         ((^.), (&), (.~))
+-- import           Lens.Micro         ((^.), (&), (.~))
+import           Lens.Micro         ((^.))
 import           Labyrinth.Players  (Player(..), Color(..), Players(..), color)
-import qualified Labyrinth.Players  as Players
+-- import qualified Labyrinth.Players  as Players
 -- import           Labyrinth.Game     (Game(..), currentPlayer)
 -- import qualified Labyrinth.Game     as Game
 

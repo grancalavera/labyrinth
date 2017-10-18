@@ -1,11 +1,6 @@
 module Test.Labyrinth.GameSpec where
 
 import           Test.Hspec
-import qualified Data.Map           as M
-import           Lens.Micro         ((^.))
-import           Labyrinth.Players  (Player)
-import qualified Labyrinth.Game     as Game
-import           Test.Labyrinth
 
 spec :: Spec
 spec = do
