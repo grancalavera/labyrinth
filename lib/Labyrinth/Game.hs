@@ -13,17 +13,17 @@ data Game = Game
     } deriving (Show, Eq)
 makeLenses ''Game
 
-initial :: Game
-initial = Game
-    { _currentPlayer = Nothing
-    , _players       = Players.initial
-    }
+-- initial :: Game
+-- initial = Game
+--     { _currentPlayer = Nothing
+--     , _players       = Players.initial
+--     }
 
-addPlayer ::  Player -> Game -> Game
-addPlayer p g = g & players %~ (Players.add p)
+-- addPlayer ::  Player -> Game -> Game
+-- addPlayer p g = g & players %~ (Players.add p)
 
-nextPlayer :: Game -> Maybe Game
-nextPlayer g = do
-  currP <- g ^. currentPlayer
-  nextP <- Players.next currP (g ^. players)
-  return (g & currentPlayer .~ (Just nextP))
+-- nextPlayer :: Game -> Maybe Game
+-- nextPlayer g = do
+--   currP <- g ^. currentPlayer
+--   nextP <- Players.next currP (g ^. players)
+--   return (g & currentPlayer .~ (Just nextP))
