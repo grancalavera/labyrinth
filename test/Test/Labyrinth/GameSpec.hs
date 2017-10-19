@@ -45,29 +45,18 @@ spec = do
                   Game.fromPlayer green   <>
                   Game.fromPlayer red
 
-    it "blue should follow yellow" $
-      pending
+    it "blue should follow yellow" $ do
+      let nextGame = Game.nextPlayer $ game <> Game.fromCurrentPlayer yellow
+      nextGame `shouldBe` Just (game <> Game.fromCurrentPlayer blue)
 
-    it "green should follow blue" $
-      pending
+    it "green should follow blue" $ do
+      let nextGame = Game.nextPlayer $ game <> Game.fromCurrentPlayer blue
+      nextGame `shouldBe` Just (game <> Game.fromCurrentPlayer green)
 
-    it "red should follow green" $
-      pending
+    it "red should follow green" $ do
+      let nextGame = Game.nextPlayer $ game <> Game.fromCurrentPlayer green
+      nextGame `shouldBe` Just (game <> Game.fromCurrentPlayer red)
 
-    it "yellow should follow red" $
-      pending
-
-
-  -- describe "Turns" $ do
-  --   it "should not be allowed with 0 players" $
-  --     pending
-  --   it "should not be allowed with 1 player" $
-  --     pending
-  --   it "should move from player 1 to player 2" $
-  --     pending
-  --   it "should move from player 2 to player 3" $
-  --     pendingWith "Need to figure out how to test this"
-  --   it "should move from player 3 to player 4" $
-  --     pendingWith "Need to figure out how to test this"
-  --   it "should move from player 4 to player 1" $
-  --     pendingWith "Need to figure out how to test this"
+    it "yellow should follow red" $ do
+      let nextGame = Game.nextPlayer $ game <> Game.fromCurrentPlayer red
+      nextGame `shouldBe` Just (game <> Game.fromCurrentPlayer yellow)
