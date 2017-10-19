@@ -1,11 +1,20 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Labyrinth.Game where
+module Labyrinth.Game
+    ( Game (..)
+    , currentPlayer
+    , players
+    , playerByColor
+    , fromPlayer
+    , fromCurrentPlayer
+    , nextPlayer
+    ) where
 
+import           Data.Monoid        ((<>))
 -- import           Lens.Micro         ((%~), (&), (^.), (.~))
+import           Lens.Micro         ((^.), (&), (%~), (.~))
 import           Lens.Micro.TH      (makeLenses)
-
-import           Labyrinth.Players  (Player(..), Players)
--- import qualified Labyrinth.Players  as Players
+import           Labyrinth.Players  (Player(..), Color(..), Players(..))
+import qualified Labyrinth.Players as Players
 
 data Game = Game
     { _currentPlayer :: Maybe Player
@@ -13,11 +22,23 @@ data Game = Game
     } deriving (Show, Eq)
 makeLenses ''Game
 
--- initial :: Game
--- initial = Game
---     { _currentPlayer = Nothing
---     , _players       = Players.initial
---     }
+instance Monoid Game where
+  mempty = Game { _currentPlayer = Nothing
+                , _players = mempty
+                }
+  mappend = undefined
+
+playerByColor :: Color -> Game -> Maybe Player
+playerByColor c g = Players.lookupByColor c (g ^. players)
+
+fromPlayer :: Player -> Game
+fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
+
+fromCurrentPlayer :: Player -> Game
+fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
+
+nextPlayer :: Game -> Maybe Game
+nextPlayer _ = Nothing
 
 -- addPlayer ::  Player -> Game -> Game
 -- addPlayer p g = g & players %~ (Players.add p)
