@@ -9,12 +9,12 @@ module Labyrinth.Game
     , nextPlayer
     ) where
 
-import           Data.Monoid        ((<>))
--- import           Lens.Micro         ((%~), (&), (^.), (.~))
-import           Lens.Micro         ((^.), (&), (%~), (.~))
-import           Lens.Micro.TH      (makeLenses)
-import           Labyrinth.Players  (Player(..), Color(..), Players(..))
-import qualified Labyrinth.Players as Players
+import           Data.Monoid          ((<>))
+import           Control.Applicative  ((<|>))
+import           Lens.Micro           ((^.), (&), (%~), (.~))
+import           Lens.Micro.TH        (makeLenses)
+import           Labyrinth.Players    (Player(..), Color(..), Players(..))
+import qualified Labyrinth.Players    as Players
 
 data Game = Game
     { _currentPlayer :: Maybe Player
@@ -23,10 +23,14 @@ data Game = Game
 makeLenses ''Game
 
 instance Monoid Game where
-  mempty = Game { _currentPlayer = Nothing
-                , _players = mempty
-                }
-  mappend = undefined
+  mempty = Game
+    { _currentPlayer = Nothing
+    , _players = mempty
+    }
+  l `mappend` r = Game
+    { _currentPlayer = (r ^. currentPlayer) <|> (l ^. currentPlayer)
+    , _players       = (l ^. players) <> (r ^. players)
+    }
 
 playerByColor :: Color -> Game -> Maybe Player
 playerByColor c g = Players.lookupByColor c (g ^. players)
@@ -38,13 +42,7 @@ fromCurrentPlayer :: Player -> Game
 fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
 
 nextPlayer :: Game -> Maybe Game
-nextPlayer _ = Nothing
-
--- addPlayer ::  Player -> Game -> Game
--- addPlayer p g = g & players %~ (Players.add p)
-
--- nextPlayer :: Game -> Maybe Game
--- nextPlayer g = do
---   currP <- g ^. currentPlayer
---   nextP <- Players.next currP (g ^. players)
---   return (g & currentPlayer .~ (Just nextP))
+nextPlayer g = do
+  currP <- g ^. currentPlayer
+  nextP <- Players.next currP (g ^. players)
+  return (g & currentPlayer .~ (Just nextP))
