@@ -12,10 +12,9 @@ module Labyrinth.Players
     , lookupByColor
     ) where
 
-import Prelude hiding (lookup)
-import Lens.Micro ((^.))
-import Lens.Micro.TH (makeLenses)
-
+import           Prelude hiding (lookup)
+import           Lens.Micro     ((^.))
+import           Lens.Micro.TH  (makeLenses)
 import qualified Data.Map as M
 
 type Name = String
