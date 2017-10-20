@@ -1,25 +1,30 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Labyrinth.Players
     ( Name
-    , Players
+    , Players (..)
     , Player (..)
     , Color (..)
-    , add
-    , addFirst
     , color
-    , initial
     , name
     , next
+    , fromPlayer
+    , lookup
+    , lookupByColor
     ) where
 
-import Lens.Micro ((^.))
-import Lens.Micro.TH (makeLenses)
-
+import           Prelude hiding (lookup)
+import           Lens.Micro     ((^.))
+import           Lens.Micro.TH  (makeLenses)
 import qualified Data.Map as M
 
 type Name = String
-type Players = M.Map Color Player
 data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
+
+data Players = Players (M.Map Color Player) deriving (Show, Eq)
+
+instance Monoid Players where
+  Players l `mappend` Players r = Players (M.union r l)
+  mempty = Players M.empty
 
 data Player = Player
     { _color :: Color
@@ -27,24 +32,23 @@ data Player = Player
     } deriving (Show, Eq)
 makeLenses ''Player
 
-initial :: Players
-initial = M.empty
+fromPlayer :: Player -> Players
+fromPlayer p = Players (M.insert  (p ^. color) p mempty)
 
-add :: Players -> Player -> Players
-add ps p = M.insert (p ^. color) p ps
+lookup :: Player -> Players -> Maybe Player
+lookup p (Players ps) = M.lookup (p ^. color) ps
 
-addFirst :: Player -> Players
-addFirst = add M.empty
+lookupByColor :: Color -> Players -> Maybe Player
+lookupByColor c (Players ps) = M.lookup c ps
 
-next :: Players -> Player -> Maybe Player
-next ps currentPlayer = case hasNext of
-  False -> Nothing
-  True  -> findNext (currentPlayer ^. color)
+next :: Player -> Players -> Maybe Player
+next current ps@(Players psMap)
+  | M.size psMap < 2 = Nothing
+  | otherwise        = next' (current ^. color)
   where
-    hasNext = M.size ps > 1
-    findNext c = case M.lookup (nextColor c) ps of
-      Just p  -> Just p
-      Nothing -> findNext (nextColor c)
+    next' c = case (lookupByColor (nextColor c) ps) of
+      Just p -> Just p
+      _      -> next' (nextColor c)
 
 nextColor :: Color -> Color
 nextColor Yellow  = Blue
