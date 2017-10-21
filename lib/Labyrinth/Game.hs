@@ -20,10 +20,9 @@ import           Lens.Micro.TH        (makeLenses)
 import           Labyrinth.Players    (Player(..), Color(..), Players(..))
 import qualified Labyrinth.Players    as Players
 
-
 -- temp
-type Tile   = ()
-type Board  = ()
+data Tile   = Tile deriving (Show, Eq)
+data Board  = BT Tile | Done deriving (Show, Eq)
 
 data Game = Game
     { _currentPlayer :: Maybe Player
@@ -38,13 +37,13 @@ instance Monoid Game where
     { _currentPlayer  = Nothing
     , _players        = mempty
     , _currentTile    = Nothing
-    , _board          = ()
+    , _board          = Done
     }
   l `mappend` r = Game
     { _currentPlayer  = (r ^. currentPlayer) <|> (l ^. currentPlayer)
     , _players        = (l ^. players) <> (r ^. players)
-    , _currentTile    = Nothing
-    , _board          = ()
+    , _currentTile    = (r ^. currentTile) <|> (l ^. currentTile)
+    , _board          = Done
     }
 
 playerByColor :: Color -> Game -> Maybe Player
@@ -67,4 +66,3 @@ fromBoard = undefined
 
 fromCurrentTile :: Tile -> Game
 fromCurrentTile = undefined
-
