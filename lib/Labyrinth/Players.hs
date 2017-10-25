@@ -17,7 +17,7 @@ import           Prelude hiding (lookup)
 import           Lens.Micro     ((^.))
 import           Lens.Micro.TH  (makeLenses)
 import           Data.Map       (Map)
-import qualified Data.Map       as Map
+import qualified Data.Map       as M
 
 type Name = String
 type PlayerStore = Map Color Player
@@ -36,14 +36,14 @@ instance Monoid Color where
   mempty = Clear
 
 instance Monoid Players where
-  mempty = Players Map.empty
+  mempty = Players M.empty
   Players l `mappend` Players r = Players (mergePlayers l r)
 
 invert :: Players -> Players
-invert (Players ps) = Players (Map.map (const PlayerRemoved) ps)
+invert (Players ps) = Players (M.map (const PlayerRemoved) ps)
 
 mergePlayers :: PlayerStore -> PlayerStore -> PlayerStore
-mergePlayers = Map.mergeWithKey merge id id
+mergePlayers = M.mergeWithKey merge id id
   where
     merge :: Color -> Player -> Player -> Maybe Player
     merge _ PlayerRemoved _             = Nothing
@@ -51,17 +51,17 @@ mergePlayers = Map.mergeWithKey merge id id
     merge _ _             p             = Just p
 
 fromPlayer :: Player -> Players
-fromPlayer p = Players (Map.insert  (p ^. color) p mempty)
+fromPlayer p = Players (M.insert  (p ^. color) p mempty)
 
 lookup :: Player -> Players -> Maybe Player
-lookup p (Players ps) = Map.lookup (p ^. color) ps
+lookup p (Players ps) = M.lookup (p ^. color) ps
 
 lookupByColor :: Color -> Players -> Maybe Player
-lookupByColor c (Players ps) = Map.lookup c ps
+lookupByColor c (Players ps) = M.lookup c ps
 
 next :: Player -> Players -> Maybe Player
 next current ps@(Players psMap)
-  | Map.size psMap < 2 = Nothing
+  | M.size psMap < 2 = Nothing
   | otherwise        = next' (current ^. color)
   where
     next' c = case (lookupByColor (nextColor c) ps) of
