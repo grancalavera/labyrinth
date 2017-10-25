@@ -3,7 +3,7 @@ module Labyrinth.Players
     ( Name
     , Players (..)
     , Player (Player)
-    , Color (..)
+    , Color (Yellow, Blue, Green, Red)
     , color
     , name
     , next
@@ -19,15 +19,25 @@ import           Data.Map       (Map)
 import qualified Data.Map       as Map
 
 type Name = String
-data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
+type PlayerStore = Map Color Player
+data Color = Clear | Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
 
-data Players = Players (Map Color Player) deriving (Show, Eq)
+instance Monoid Color where
+  _ `mappend` r = r
+  mempty = Clear
+
+data Players = Players PlayerStore deriving (Show, Eq)
 
 instance Monoid Players where
-  Players l `mappend` Players r = Players (Map.union r l)
   mempty = Players Map.empty
+  Players l `mappend` Players r = Players (merge l r)
 
-data Player = Player
+merge :: PlayerStore -> PlayerStore -> PlayerStore
+merge = Map.mergeWithKey merge' id id
+  where
+    merge' _ _ r = Just r
+
+data Player = Pempty | Player
     { _color :: Color
     , _name  :: Name
     } deriving (Show, Eq)
