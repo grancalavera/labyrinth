@@ -32,7 +32,7 @@ makeLenses ''Player
 data Players = Players PlayerStore deriving (Show, Eq)
 
 instance Monoid Color where
-  _ `mappend` r = r
+  _ `mappend` c = c
   mempty = Clear
 
 instance Monoid Players where
