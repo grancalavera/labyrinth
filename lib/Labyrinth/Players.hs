@@ -7,6 +7,7 @@ module Labyrinth.Players
     , color
     , name
     , next
+    , invert
     , fromPlayer
     , lookup
     , lookupByColor
@@ -22,26 +23,31 @@ type Name = String
 type PlayerStore = Map Color Player
 data Color = Clear | Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
 
-instance Monoid Color where
-  _ `mappend` r = r
-  mempty = Clear
-
-data Players = Players PlayerStore deriving (Show, Eq)
-
-instance Monoid Players where
-  mempty = Players Map.empty
-  Players l `mappend` Players r = Players (merge l r)
-
-merge :: PlayerStore -> PlayerStore -> PlayerStore
-merge = Map.mergeWithKey merge' id id
-  where
-    merge' _ _ r = Just r
-
-data Player = Pempty | Player
+data Player = PlayerRemoved | Player
     { _color :: Color
     , _name  :: Name
     } deriving (Show, Eq)
 makeLenses ''Player
+
+data Players = Players PlayerStore deriving (Show, Eq)
+
+instance Monoid Color where
+  _ `mappend` r = r
+  mempty = Clear
+
+instance Monoid Players where
+  mempty = Players Map.empty
+  Players l `mappend` Players r = Players (mergePlayers l r)
+
+invert :: Players -> Players
+invert = id
+
+mergePlayers :: PlayerStore -> PlayerStore -> PlayerStore
+mergePlayers = Map.mergeWithKey merge' id id
+  where
+    merge' _ PlayerRemoved  _             = Nothing
+    merge' _ _              PlayerRemoved = Nothing
+    merge' _ _              p             = Just p
 
 fromPlayer :: Player -> Players
 fromPlayer p = Players (Map.insert  (p ^. color) p mempty)
