@@ -7,6 +7,7 @@ import qualified Labyrinth.Players as Players
 
 spec :: Spec
 spec = do
+
   describe "Players" $ do
     it "should be created from a player" $ do
       let player  = Player Yellow "yellow"
