@@ -67,7 +67,7 @@ spec = do
       it "yellow should follow red" $
         Players.next red players `shouldBe` Just yellow
 
-  describe "Inverted players" $ do
+  describe "Inverted `Players`" $ do
     it "should be used to remove players" $ do
       let yellow    = Player Yellow "yellow"
           blue      = Player Blue "blue"
