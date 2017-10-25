@@ -40,14 +40,15 @@ instance Monoid Players where
   Players l `mappend` Players r = Players (mergePlayers l r)
 
 invert :: Players -> Players
-invert = id
+invert (Players ps) = Players (Map.map (const PlayerRemoved) ps)
 
 mergePlayers :: PlayerStore -> PlayerStore -> PlayerStore
-mergePlayers = Map.mergeWithKey merge' id id
+mergePlayers = Map.mergeWithKey merge id id
   where
-    merge' _ PlayerRemoved  _             = Nothing
-    merge' _ _              PlayerRemoved = Nothing
-    merge' _ _              p             = Just p
+    merge :: Color -> Player -> Player -> Maybe Player
+    merge _ PlayerRemoved _             = Nothing
+    merge _ _             PlayerRemoved = Nothing
+    merge _ _             p             = Just p
 
 fromPlayer :: Player -> Players
 fromPlayer p = Players (Map.insert  (p ^. color) p mempty)
