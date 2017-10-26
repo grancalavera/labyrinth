@@ -71,9 +71,6 @@ spec = do
       it "yellow should follow red" $
         Players.next red players `shouldBe` Just yellow
 
-  describe "read" $ do
-    it "is inverse to show" $ property $ \x -> (read . show) x == (x :: Int)
-
   describe "monoid laws" $ do
     it "left identity" $ property prop_leftIdentity
     it "right identity" $ property prop_rightIdentity
