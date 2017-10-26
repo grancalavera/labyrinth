@@ -1,9 +1,12 @@
 module Test.Labyrinth.PlayersSpec where
 
 import           Test.Hspec
-import           Data.Monoid       ((<>))
-import           Labyrinth.Players (Player(..), Color(..))
-import qualified Labyrinth.Players as Players
+import           Test.QuickCheck
+import           Data.Monoid        ((<>))
+import           Labyrinth.Players  (Player(..), Color(..), Players, Name)
+import qualified Labyrinth.Players  as Players
+import           Control.Monad      (replicateM)
+import           Data.List          (intercalate)
 
 spec :: Spec
 spec = do
@@ -67,3 +70,43 @@ spec = do
 
       it "yellow should follow red" $
         Players.next red players `shouldBe` Just yellow
+
+-- Identity laws
+-- x <> mempty = x
+-- mempty <> x = x
+
+-- Associativity
+-- (x <> y) <> z = x <> (y <> z)
+
+genChar :: Gen Char
+genChar = arbitrary
+
+genColor :: Gen Color
+genColor = elements [Yellow, Blue, Green, Red]
+
+genNamePart :: Gen Name
+genNamePart = do
+  i <- choose (1, 10)
+  replicateM i genChar
+
+genName :: Gen Name
+genName = do
+  i     <- choose (1, 4)
+  parts <- replicateM i genNamePart
+  return $ intercalate " "  parts
+
+genPlayer :: Gen Player
+genPlayer = do
+  color <- genColor
+  name  <- genName
+  return $ Player color name
+
+genPlayers :: Gen [Player]
+genPlayers = do
+  i <- choose (1, 4)
+  replicateM i genPlayer
+
+instance Arbitrary Players where
+  arbitrary = do
+    players <- genPlayers
+    return $ foldl (<>) mempty $ map Players.fromPlayer players
