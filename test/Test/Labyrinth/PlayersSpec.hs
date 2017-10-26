@@ -71,12 +71,22 @@ spec = do
       it "yellow should follow red" $
         Players.next red players `shouldBe` Just yellow
 
--- Identity laws
--- x <> mempty = x
--- mempty <> x = x
+  describe "read" $ do
+    it "is inverse to show" $ property $ \x -> (read . show) x == (x :: Int)
 
--- Associativity
--- (x <> y) <> z = x <> (y <> z)
+  describe "monoid laws" $ do
+    it "left identity" $ property prop_leftIdentity
+    it "right identity" $ property prop_rightIdentity
+    it "associativity" $ property prop_associativity
+
+prop_leftIdentity :: Players -> Bool
+prop_leftIdentity p = p <> mempty == p
+
+prop_rightIdentity :: Players -> Bool
+prop_rightIdentity p = mempty <> p == p
+
+prop_associativity :: Players -> Players -> Players -> Bool
+prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
 
 genChar :: Gen Char
 genChar = arbitrary
