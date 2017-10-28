@@ -1,12 +1,16 @@
 module Test.Labyrinth.PlayersSpec where
 
 import           Test.Hspec
-import           Data.Monoid       ((<>))
-import           Labyrinth.Players (Player(..), Color(..))
-import qualified Labyrinth.Players as Players
+import           Test.QuickCheck
+import           Data.Monoid        ((<>))
+import           Labyrinth.Players  (Player(..), Color(..), Players, Name)
+import qualified Labyrinth.Players  as Players
+import           Control.Monad      (replicateM)
+import           Data.List          (intercalate)
 
 spec :: Spec
 spec = do
+
   describe "Players" $ do
     it "should be created from a player" $ do
       let player  = Player Yellow "yellow"
@@ -67,19 +71,49 @@ spec = do
       it "yellow should follow red" $
         Players.next red players `shouldBe` Just yellow
 
-  describe "Inverted `Players`" $ do
-    it "should be used to remove players" $ do
-      let yellow    = Player Yellow "yellow"
-          blue      = Player Blue "blue"
-          green     = Player Green "green"
-          red       = Player Red "red"
-          players   = Players.fromPlayer yellow <>
-                      Players.fromPlayer blue   <>
-                      Players.fromPlayer green  <>
-                      Players.fromPlayer red
-          remove    = Players.fromPlayer blue   <>
-                      Players.fromPlayer green
-          expected  = Players.fromPlayer yellow <>
-                      Players.fromPlayer red
-      players <> (Players.invert remove) `shouldBe` expected
+  describe "monoid laws" $ do
+    it "left identity" $ property prop_leftIdentity
+    it "right identity" $ property prop_rightIdentity
+    it "associativity" $ property prop_associativity
 
+prop_leftIdentity :: Players -> Bool
+prop_leftIdentity p = p <> mempty == p
+
+prop_rightIdentity :: Players -> Bool
+prop_rightIdentity p = mempty <> p == p
+
+prop_associativity :: Players -> Players -> Players -> Bool
+prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
+
+genChar :: Gen Char
+genChar = arbitrary
+
+genColor :: Gen Color
+genColor = elements [Yellow, Blue, Green, Red]
+
+genNamePart :: Gen Name
+genNamePart = do
+  i <- choose (1, 10)
+  replicateM i genChar
+
+genName :: Gen Name
+genName = do
+  i     <- choose (1, 4)
+  parts <- replicateM i genNamePart
+  return $ intercalate " "  parts
+
+genPlayer :: Gen Player
+genPlayer = do
+  color <- genColor
+  name  <- genName
+  return $ Player color name
+
+genPlayers :: Gen [Player]
+genPlayers = do
+  i <- choose (1, 4)
+  replicateM i genPlayer
+
+instance Arbitrary Players where
+  arbitrary = do
+    players <- genPlayers
+    return $ foldl (<>) mempty $ map Players.fromPlayer players
