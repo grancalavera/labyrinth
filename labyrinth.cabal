@@ -45,7 +45,8 @@ test-suite labyrinth-test
   hs-source-dirs:      test
   ghc-options:         -Wall -fno-warn-orphans
   main-is:             Spec.hs
-  other-modules:       Test.Labyrinth.PlayersSpec
+  other-modules:       Test.Labyrinth
+                     , Test.Labyrinth.PlayersSpec
                      , Test.Labyrinth.GameSpec
   build-depends:       base
                      , containers
