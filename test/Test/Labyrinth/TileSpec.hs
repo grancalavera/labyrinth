@@ -2,7 +2,7 @@ module Test.Labyrinth.TileSpec where
 
 import           Test.Hspec
 import qualified Labyrinth.Tile as Tile
-import           Labyrinth.Tile (Tile, Edge (..), Terrain (..))
+import           Labyrinth.Tile (Edge (..), Terrain (..))
 
 spec :: Spec
 spec = do

@@ -6,6 +6,7 @@ module Labyrinth.Tile
     , Terrain (..)
     , edges
     , terrain
+    , pos
     , rotate
     , mirror
     , make
@@ -16,6 +17,9 @@ import qualified Data.Set as Set
 import Data.Set           (Set)
 import Lens.Micro         ((%~))
 import Lens.Micro.TH      (makeLenses)
+import Linear.V2          (V2(..), _x, _y)
+
+type Coord = V2 Int
 
 data Edge = North
           | West
@@ -35,6 +39,7 @@ data Terrain = Blank
 data Tile = Tile
   { _terrain  :: Terrain
   , _edges    :: Edges
+  , _pos      :: Coord
   } deriving (Show, Eq)
 makeLenses ''Tile
 
@@ -43,8 +48,9 @@ fromTerrain t = make t (defaultEdges t)
 
 make :: Terrain -> [Edge] -> Tile
 make t es = Tile
-  { _terrain = t
-  , _edges = Set.fromList es
+  { _terrain  = t
+  , _edges    = Set.fromList es
+  , _pos      = defaultPos
   }
 
 rotate :: Tile -> Tile
@@ -71,3 +77,6 @@ defaultEdges Gate   = [North]
 defaultEdges Path   = [North, South]
 defaultEdges Corner = [North, West]
 defaultEdges Fork   = [North, West, East]
+
+defaultPos :: Coord
+defaultPos = V2 0 0
