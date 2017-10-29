@@ -2,6 +2,7 @@ module Test.Labyrinth.PlayersSpec where
 
 import           Test.Hspec
 import           Test.QuickCheck
+import qualified Test.Labyrinth     as Test
 import           Test.Labyrinth     (Players) -- because we add an `Arbitrary`
                                               -- instance there
 import           Data.Monoid        ((<>))
@@ -72,16 +73,9 @@ spec = do
         Players.next red players `shouldBe` Just yellow
 
   describe "monoid laws" $ do
-    it "left identity" $ property prop_leftIdentity
-    it "right identity" $ property prop_rightIdentity
-    it "associativity" $ property prop_associativity
+    it "left identity" $ property (Test.prop_leftIdentity . idp)
+    it "right identity" $ property (Test.prop_rightIdentity . idp)
+    it "associativity" $ property (Test.prop_associativity . idp)
 
-prop_leftIdentity :: Players -> Bool
-prop_leftIdentity p = p <> mempty == p
-
-prop_rightIdentity :: Players -> Bool
-prop_rightIdentity p = mempty <> p == p
-
-prop_associativity :: Players -> Players -> Players -> Bool
-prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
-
+idp :: Players -> Players
+idp = id
