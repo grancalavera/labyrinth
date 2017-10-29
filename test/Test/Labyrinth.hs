@@ -22,21 +22,20 @@ genName :: Gen Name
 genName = do
   i     <- choose (1, 4)
   parts <- replicateM i genNamePart
-  return $ intercalate " "  parts
+  return (intercalate " "  parts)
 
 genPlayer :: Gen Player
 genPlayer = do
   color <- genColor
   name  <- genName
-  return $ Player color name
+  return (Player color name)
 
-genPlayers :: Gen [Player]
+genPlayers :: Gen [Players]
 genPlayers = do
-  i <- choose (1, 4)
-  replicateM i genPlayer
+  i <- choose (1, 16)
+  replicateM i (Players.fromPlayer <$> genPlayer)
 
 instance Arbitrary Players where
   arbitrary = do
     players <- genPlayers
-    return $ foldl (<>) mempty $ map Players.fromPlayer players
-
+    return $ foldl (<>) mempty players
