@@ -31,4 +31,3 @@ spec = do
       let original    = Tile Fork (Set.fromList [North, West, East])
           rotatedCCW  = Tile Fork (Set.fromList [East, North, South])
       (Tile.rotate . Tile.mirror) original `shouldBe` rotatedCCW
-

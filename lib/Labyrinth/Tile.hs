@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Labyrinth.Tile
     ( Edge (..)
+    , Edges
     , Tile (..)
     , Terrain (..)
     , edges
@@ -20,6 +21,8 @@ data Edge = North
           | East
           deriving (Show, Eq, Ord)
 
+type Edges = Set Edge
+
 data Terrain = Blank
              | Gate
              | Path
@@ -29,7 +32,7 @@ data Terrain = Blank
 
 data Tile = Tile
   { _terrain  :: Terrain
-  , _edges    :: Set Edge
+  , _edges    :: Edges
   } deriving (Show, Eq)
 makeLenses ''Tile
 
