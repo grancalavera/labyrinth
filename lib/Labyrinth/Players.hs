@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Labyrinth.Players
     ( Name
     , Players (..)

@@ -1,12 +1,17 @@
 module Test.Labyrinth.PlayersSpec where
 
 import           Test.Hspec
-import           Data.Monoid       ((<>))
-import           Labyrinth.Players (Player(..), Color(..))
-import qualified Labyrinth.Players as Players
+import           Test.QuickCheck
+import qualified Test.Labyrinth     as Test
+import           Test.Labyrinth     (Players) -- because we add an `Arbitrary`
+                                              -- instance there
+import           Data.Monoid        ((<>))
+import           Labyrinth.Players  (Player(..), Color(..))
+import qualified Labyrinth.Players  as Players
 
 spec :: Spec
 spec = do
+
   describe "Players" $ do
     it "should be created from a player" $ do
       let player  = Player Yellow "yellow"
@@ -66,3 +71,11 @@ spec = do
 
       it "yellow should follow red" $
         Players.next red players `shouldBe` Just yellow
+
+  describe "monoid laws" $ do
+    it "left identity" $ property (Test.prop_leftIdentity . idp)
+    it "right identity" $ property (Test.prop_rightIdentity . idp)
+    it "associativity" $ property (Test.prop_associativity . idp)
+
+idp :: Players -> Players
+idp = id
