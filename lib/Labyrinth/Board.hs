@@ -1,0 +1,2 @@
+module Labyrinth.Board where
+

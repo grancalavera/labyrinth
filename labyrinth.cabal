@@ -20,6 +20,7 @@ library
                      , Labyrinth.Players
                      , Labyrinth.Game
                      , Labyrinth.Tile
+g                     , Labyrinth.Board
   build-depends:       base >= 4.7 && < 5
                      , ansi-terminal
                      , brick
