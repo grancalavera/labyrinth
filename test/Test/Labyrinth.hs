@@ -7,12 +7,12 @@ module Test.Labyrinth
     ) where
 
 import           Test.QuickCheck
-import           Labyrinth.Players  (Player(..), Color(..), Players, Name)
-import           Labyrinth.Game     (Game(..))
-import qualified Labyrinth.Players  as Players
 import           Control.Monad      (replicateM)
 import           Data.List          (intercalate)
 import           Data.Monoid        ((<>))
+import           Labyrinth.Players  (Player(..), Color(..), Players, Name)
+import qualified Labyrinth.Players  as Players
+import           Labyrinth.Game     (Game(..))
 
 instance Arbitrary Players where
   arbitrary = do
@@ -20,7 +20,13 @@ instance Arbitrary Players where
     return $ foldl (<>) mempty players
 
 instance Arbitrary Game where
-  arbitrary = undefined
+  arbitrary = do
+    ps <- arbitrary
+    p  <- genChoosePlayer ps
+    return Game
+      { _currentPlayer = p
+      , _players = ps
+      }
 
 prop_leftIdentity :: (Monoid a, Eq a) => a -> Bool
 prop_leftIdentity p = p <> mempty == p
@@ -30,6 +36,11 @@ prop_rightIdentity p = mempty <> p == p
 
 prop_associativity :: (Monoid a, Eq a) => a -> a -> a -> Bool
 prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
+
+genChoosePlayer :: Players -> Gen (Maybe Player)
+genChoosePlayer ps = do
+  c <- genColor
+  return (Players.lookupByColor c ps)
 
 genChar :: Gen Char
 genChar = arbitrary
@@ -50,9 +61,12 @@ genName = do
 
 genPlayer :: Gen Player
 genPlayer = do
-  color <- genColor
-  name  <- genName
-  return (Player color name)
+  c <- genColor
+  n <- genName
+  return Player
+    { _color = c
+    , _name = n
+    }
 
 genPlayers :: Gen [Players]
 genPlayers = do
