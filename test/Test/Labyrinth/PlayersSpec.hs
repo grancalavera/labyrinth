@@ -2,11 +2,11 @@ module Test.Labyrinth.PlayersSpec where
 
 import           Test.Hspec
 import           Test.QuickCheck
+import           Test.Labyrinth     (Players) -- because we add an `Arbitrary`
+                                              -- instance there
 import           Data.Monoid        ((<>))
-import           Labyrinth.Players  (Player(..), Color(..), Players, Name)
+import           Labyrinth.Players  (Player(..), Color(..))
 import qualified Labyrinth.Players  as Players
-import           Control.Monad      (replicateM)
-import           Data.List          (intercalate)
 
 spec :: Spec
 spec = do
@@ -85,35 +85,3 @@ prop_rightIdentity p = mempty <> p == p
 prop_associativity :: Players -> Players -> Players -> Bool
 prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
 
-genChar :: Gen Char
-genChar = arbitrary
-
-genColor :: Gen Color
-genColor = elements [Yellow, Blue, Green, Red]
-
-genNamePart :: Gen Name
-genNamePart = do
-  i <- choose (1, 10)
-  replicateM i genChar
-
-genName :: Gen Name
-genName = do
-  i     <- choose (1, 4)
-  parts <- replicateM i genNamePart
-  return $ intercalate " "  parts
-
-genPlayer :: Gen Player
-genPlayer = do
-  color <- genColor
-  name  <- genName
-  return $ Player color name
-
-genPlayers :: Gen [Player]
-genPlayers = do
-  i <- choose (1, 4)
-  replicateM i genPlayer
-
-instance Arbitrary Players where
-  arbitrary = do
-    players <- genPlayers
-    return $ foldl (<>) mempty $ map Players.fromPlayer players
