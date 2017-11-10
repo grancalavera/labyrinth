@@ -24,12 +24,12 @@ makeLenses ''Game
 
 instance Monoid Game where
   mempty = Game
-    { _currentPlayer = Nothing
-    , _players = mempty
+    { _currentPlayer  = Nothing
+    , _players        = mempty
     }
   l `mappend` r = Game
-    { _currentPlayer = (r ^. currentPlayer) <|> (l ^. currentPlayer)
-    , _players       = (l ^. players) <> (r ^. players)
+    { _currentPlayer  = (r ^. currentPlayer) <|> (l ^. currentPlayer)
+    , _players        = (l ^. players) <> (r ^. players)
     }
 
 playerByColor :: Color -> Game -> Maybe Player
@@ -45,4 +45,4 @@ nextPlayer :: Game -> Maybe Game
 nextPlayer g = do
   currP <- g ^. currentPlayer
   nextP <- Players.next currP (g ^. players)
-  return (g & currentPlayer .~ (Just nextP))
+  return $ g & currentPlayer .~ (Just nextP)

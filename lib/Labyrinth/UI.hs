@@ -1,5 +1,5 @@
 module Labyrinth.UI
-    ( main
+    ( ui
     , previewRotation
     ) where
 
@@ -9,8 +9,8 @@ import Lens.Micro ((^.))
 
 import Labyrinth
 
-main :: IO ()
-main = do
+ui :: IO ()
+ui = do
   clearScreen
   drawBackground
   board <- initialBoard

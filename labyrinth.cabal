@@ -17,9 +17,10 @@ library
   hs-source-dirs:      lib
   ghc-options:         -Wall
   exposed-modules:     Labyrinth
-                     , Labyrinth.UI
                      , Labyrinth.Players
                      , Labyrinth.Game
+                     , Labyrinth.Tile
+                     , Labyrinth.Board
   build-depends:       base >= 4.7 && < 5
                      , ansi-terminal
                      , brick
@@ -48,6 +49,7 @@ test-suite labyrinth-test
   other-modules:       Test.Labyrinth
                      , Test.Labyrinth.PlayersSpec
                      , Test.Labyrinth.GameSpec
+                     , Test.Labyrinth.TileSpec
   build-depends:       base
                      , containers
                      , labyrinth
