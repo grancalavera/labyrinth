@@ -11,6 +11,7 @@ module Labyrinth.Tile
     , mirror
     , make
     , fromTerrain
+    , origin
     ) where
 
 import qualified Data.Set as Set
@@ -44,13 +45,13 @@ data Tile = Tile
 makeLenses ''Tile
 
 fromTerrain :: Terrain -> Tile
-fromTerrain t = make t (defaultEdges t)
+fromTerrain t = make t (defaultEdges t) origin
 
-make :: Terrain -> [Edge] -> Tile
-make t es = Tile
+make :: Terrain -> [Edge] -> Coord -> Tile
+make t es c = Tile
   { _terrain  = t
   , _edges    = Set.fromList es
-  , _pos      = defaultPos
+  , _pos      = c
   }
 
 rotate :: Tile -> Tile
@@ -78,5 +79,5 @@ defaultEdges Path   = [North, South]
 defaultEdges Corner = [North, West]
 defaultEdges Fork   = [North, West, East]
 
-defaultPos :: Coord
-defaultPos = V2 0 0
+origin :: Coord
+origin = V2 0 0
