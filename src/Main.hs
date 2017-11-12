@@ -1,4 +1,5 @@
 module Main where
+import qualified Labyrinth.UI as Labyrinth
 
 main :: IO ()
-main = putStrLn "Main"
+main = Labyrinth.main

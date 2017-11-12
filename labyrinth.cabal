@@ -22,6 +22,7 @@ library
     Labyrinth.Game
     Labyrinth.Tile
     Labyrinth.Board
+    Labyrinth.UI
   build-depends:
     base >= 4.7 && < 5,
     brick,
