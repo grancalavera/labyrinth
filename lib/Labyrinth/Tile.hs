@@ -8,7 +8,6 @@ module Labyrinth.Tile
     , terrain
     , rotate
     , mirror
-    , make
     , fromTerrain
     ) where
 
