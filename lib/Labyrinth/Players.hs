@@ -16,16 +16,17 @@ module Labyrinth.Players
 import           Prelude hiding (lookup)
 import           Lens.Micro     ((^.))
 import           Lens.Micro.TH  (makeLenses)
-import qualified Data.Map as Map
+import           Data.Map       (Map)
+import qualified Data.Map       as Map
 
 type Name = String
 data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
 
-data Players = Players (Map.Map Color Player) deriving (Show, Eq)
+data Players = Players (Map Color Player) deriving (Show, Eq)
 
 instance Monoid Players where
   Players l `mappend` Players r = Players (Map.union r l)
-  mempty = Players Map.empty
+  mempty = Players mempty
 
 data Player = Player
     { _color :: Color
