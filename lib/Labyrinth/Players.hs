@@ -16,16 +16,16 @@ module Labyrinth.Players
 import           Prelude hiding (lookup)
 import           Lens.Micro     ((^.))
 import           Lens.Micro.TH  (makeLenses)
-import qualified Data.Map as M
+import qualified Data.Map as Map
 
 type Name = String
 data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
 
-data Players = Players (M.Map Color Player) deriving (Show, Eq)
+data Players = Players (Map.Map Color Player) deriving (Show, Eq)
 
 instance Monoid Players where
-  Players l `mappend` Players r = Players (M.union r l)
-  mempty = Players M.empty
+  Players l `mappend` Players r = Players (Map.union r l)
+  mempty = Players Map.empty
 
 data Player = Player
     { _color :: Color
@@ -34,17 +34,17 @@ data Player = Player
 makeLenses ''Player
 
 fromPlayer :: Player -> Players
-fromPlayer p = Players (M.insert  (p ^. color) p mempty)
+fromPlayer p = Players (Map.insert  (p ^. color) p mempty)
 
 lookup :: Player -> Players -> Maybe Player
-lookup p (Players ps) = M.lookup (p ^. color) ps
+lookup p (Players ps) = Map.lookup (p ^. color) ps
 
 lookupByColor :: Color -> Players -> Maybe Player
-lookupByColor c (Players ps) = M.lookup c ps
+lookupByColor c (Players ps) = Map.lookup c ps
 
 next :: Player -> Players -> Maybe Player
 next current ps@(Players psMap)
-  | M.size psMap < 2 = Nothing
+  | Map.size psMap < 2 = Nothing
   | otherwise        = next' (current ^. color)
   where
     next' c = case (lookupByColor (nextColor c) ps) of

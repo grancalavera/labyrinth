@@ -11,7 +11,7 @@ import qualified Labyrinth.Tile     as Tile
 import           Labyrinth.Tile     ( Tile
                                     , Terrain(..)
                                     , Edge(..)
-                                    ,terrain
+                                    , terrain
                                     , edges
                                     )
 
