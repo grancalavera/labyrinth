@@ -11,10 +11,10 @@ module Labyrinth.Tile
     , fromTerrain
     ) where
 
-import qualified Data.Set as Set
-import Data.Set           (Set)
-import Lens.Micro         ((%~))
-import Lens.Micro.TH      (makeLenses)
+import qualified Data.Set       as Set
+import           Data.Set       (Set)
+import           Lens.Micro     ((%~))
+import           Lens.Micro.TH  (makeLenses)
 
 data Edge = North
           | West
