@@ -1,8 +1,8 @@
 module Labyrinth.UI where
 
-import           Brick.Widgets.Core (str)
+import           Brick.Widgets.Core (str, translateBy)
 import           Brick.Main         (simpleMain)
-import           Brick.Types        (Widget)
+import           Brick.Types        (Widget, Location(..))
 import           Data.List          (intercalate)
 import           Lens.Micro         ((^.))
 import qualified Data.Set           as Set
@@ -16,7 +16,7 @@ import           Labyrinth.Tile     ( Tile
                                     )
 
 main :: IO ()
-main = simpleMain $ fromTile $ Tile.fork
+main = simpleMain $ (translateBy (Location (10,10))) $ fromTile $ Tile.fork
 
 fromTile :: Tile -> Widget ()
 fromTile t = str $ intercalate "\n" $ case (tileTerrain, tileEdges) of
