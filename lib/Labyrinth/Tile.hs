@@ -8,7 +8,11 @@ module Labyrinth.Tile
     , terrain
     , rotate
     , mirror
-    , fromTerrain
+    , blank
+    , gate
+    , path
+    , corner
+    , fork
     ) where
 
 import qualified Data.Set       as Set
@@ -36,6 +40,13 @@ data Tile = Tile
   , _edges    :: Edges
   } deriving (Show, Eq)
 makeLenses ''Tile
+
+blank, gate, path, corner, fork :: Tile
+blank = fromTerrain Blank
+gate = fromTerrain Gate
+path = fromTerrain Path
+corner = fromTerrain Corner
+fork = fromTerrain Fork
 
 fromTerrain :: Terrain -> Tile
 fromTerrain t = make t (defaultEdges t)

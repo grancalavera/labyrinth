@@ -16,7 +16,7 @@ import           Labyrinth.Tile     ( Tile
                                     )
 
 main :: IO ()
-main = simpleMain $ fromTile $ Tile.fromTerrain Fork
+main = simpleMain $ fromTile $ Tile.fork
 
 fromTile :: Tile -> Widget ()
 fromTile t = str $ intercalate "\n" $ case (tileTerrain, tileEdges) of
