@@ -7,6 +7,7 @@ module Labyrinth.Tile
     , edges
     , terrain
     , rotate
+    , rotate'
     , mirror
     , blank
     , gate
@@ -59,6 +60,9 @@ make t es = Tile
 
 rotate :: Tile -> Tile
 rotate = edges %~ (Set.map nextEdge)
+
+rotate' :: Tile -> Tile
+rotate' = mirror . rotate
 
 mirror :: Tile -> Tile
 mirror = edges %~ (Set.map oppositeEdge)

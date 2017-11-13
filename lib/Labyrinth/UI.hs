@@ -1,22 +1,39 @@
 module Labyrinth.UI where
 
 import           Brick.Widgets.Core (str, translateBy)
-import           Brick.Main         (simpleMain)
+import           Brick.Main         (App(..), defaultMain, resizeOrQuit, neverShowCursor)
 import           Brick.Types        (Widget, Location(..))
+import           Brick.AttrMap      (attrMap)
+import qualified Graphics.Vty       as V
 import           Data.List          (intercalate)
 import           Lens.Micro         ((^.))
 import qualified Data.Set           as Set
 
-import qualified Labyrinth.Tile     as Tile
 import           Labyrinth.Tile     ( Tile
                                     , Terrain(..)
                                     , Edge(..)
                                     , terrain
                                     , edges
                                     )
+import qualified Labyrinth.Board    as Board
+import           Labyrinth.Board    (Position)
 
 main :: IO ()
-main = simpleMain $ (translateBy (Location (10,10))) $ fromTile $ Tile.fork
+main = defaultMain app ()
+
+app :: App () e ()
+app = App { appDraw = const ui
+          , appHandleEvent = resizeOrQuit
+          , appStartEvent = return
+          , appAttrMap = const $ attrMap V.defAttr []
+          , appChooseCursor = neverShowCursor
+          }
+
+ui :: [Widget ()]
+ui = map toTile (Board.toList Board.fixedTiles)
+  where
+    toTile :: (Position, Tile) -> Widget ()
+    toTile ((x, y), tile) = translateBy (Location (x*7, y*3)) (fromTile tile)
 
 fromTile :: Tile -> Widget ()
 fromTile t = str $ intercalate "\n" $ case (tileTerrain, tileEdges) of
