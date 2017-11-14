@@ -11,12 +11,12 @@ spec = do
   describe "Transforming tiles" $ do
 
     it "should rotate a tile" $ do
-      let original  = Tile.path
-          rotated   = Set.fromList [West, East]
+      let original = Tile.path
+          rotated = Set.fromList [West, East]
       Tile.rotate original ^. edges `shouldBe` rotated
 
     it "a mirrored path is the same path" $ do
-      let path  = Tile.path
+      let path = Tile.path
       Tile.mirror path `shouldBe` path
 
     it "should mirror forks" $ do
@@ -24,8 +24,7 @@ spec = do
           mirrored = Set.fromList [South, East, West]
       Tile.mirror original ^. edges `shouldBe` mirrored
 
-    it "rotate . mirror is rotate counter clock wise" $ do
-      let original    = Tile.fork
-          rotatedCCW  = Set.fromList [East, North, South]
-      (Tile.rotate . Tile.mirror) original ^. edges `shouldBe` rotatedCCW
-
+    it "rotate . mirror is rotate clockwise" $ do
+      let original = Tile.fork
+          rotated' = Set.fromList [East, North, South]
+      (Tile.rotate . Tile.mirror) original ^. edges `shouldBe` rotated'
