@@ -3,11 +3,12 @@
 module Labyrinth.Players
     ( Name
     , Players (..)
-    , Player (..)
-    , Color (..)
+    , Player (Player)
+    , Color (Yellow, Blue, Green, Red)
     , color
     , name
     , next
+    , invert
     , fromPlayer
     , lookup
     , lookupByColor
@@ -16,22 +17,39 @@ module Labyrinth.Players
 import           Prelude hiding (lookup)
 import           Lens.Micro     ((^.))
 import           Lens.Micro.TH  (makeLenses)
-import qualified Data.Map as M
+import           Data.Map       (Map)
+import qualified Data.Map       as M
 
 type Name = String
-data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
+type PlayerStore = Map Color Player
+data Color = Clear | Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
 
-data Players = Players (M.Map Color Player) deriving (Show, Eq)
-
-instance Monoid Players where
-  Players l `mappend` Players r = Players (M.union r l)
-  mempty = Players M.empty
-
-data Player = Player
+data Player = PlayerRemoved | Player
     { _color :: Color
     , _name  :: Name
     } deriving (Show, Eq)
 makeLenses ''Player
+
+data Players = Players PlayerStore deriving (Show, Eq)
+
+instance Monoid Color where
+  _ `mappend` c = c
+  mempty = Clear
+
+instance Monoid Players where
+  mempty = Players M.empty
+  Players l `mappend` Players r = Players (mergePlayers l r)
+
+invert :: Players -> Players
+invert (Players ps) = Players (M.map (const PlayerRemoved) ps)
+
+mergePlayers :: PlayerStore -> PlayerStore -> PlayerStore
+mergePlayers = M.mergeWithKey merge id id
+  where
+    merge :: Color -> Player -> Player -> Maybe Player
+    merge _ PlayerRemoved _             = Nothing
+    merge _ _             PlayerRemoved = Nothing
+    merge _ _             p             = Just p
 
 fromPlayer :: Player -> Players
 fromPlayer p = Players (M.insert  (p ^. color) p mempty)
