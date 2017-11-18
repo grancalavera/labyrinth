@@ -7,15 +7,19 @@ module Labyrinth.Tile
     , edges
     , terrain
     , rotate
+    , rotate'
     , mirror
-    , make
-    , fromTerrain
+    , blank
+    , gate
+    , path
+    , corner
+    , fork
     ) where
 
-import qualified Data.Set as Set
-import Data.Set           (Set)
-import Lens.Micro         ((%~))
-import Lens.Micro.TH      (makeLenses)
+import qualified Data.Set       as Set
+import           Data.Set       (Set)
+import           Lens.Micro     ((%~))
+import           Lens.Micro.TH  (makeLenses)
 
 data Edge = North
           | West
@@ -38,6 +42,13 @@ data Tile = Tile
   } deriving (Show, Eq)
 makeLenses ''Tile
 
+blank, gate, path, corner, fork :: Tile
+blank = fromTerrain Blank
+gate = fromTerrain Gate
+path = fromTerrain Path
+corner = fromTerrain Corner
+fork = fromTerrain Fork
+
 fromTerrain :: Terrain -> Tile
 fromTerrain t = make t (defaultEdges t)
 
@@ -49,6 +60,9 @@ make t es = Tile
 
 rotate :: Tile -> Tile
 rotate = edges %~ (Set.map nextEdge)
+
+rotate' :: Tile -> Tile
+rotate' = mirror . rotate
 
 mirror :: Tile -> Tile
 mirror = edges %~ (Set.map oppositeEdge)

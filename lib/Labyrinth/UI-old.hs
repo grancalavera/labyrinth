@@ -1,46 +1,87 @@
-module Labyrinth.UI where
+module Labyrinth.UI
+    ( ui
+    , previewRotation
+    ) where
 
-import           Brick.Widgets.Core (str, translateBy)
-import           Brick.Main         (App(..), defaultMain, resizeOrQuit, neverShowCursor)
-import           Brick.Types        (Widget, Location(..))
-import           Brick.AttrMap      (attrMap)
-import qualified Graphics.Vty       as V
-import           Data.List          (intercalate)
-import           Lens.Micro         ((^.))
-import qualified Data.Set           as Set
+import Data.List (sort)
+import System.Console.ANSI
+import Lens.Micro ((^.))
 
-import           Labyrinth.Tile     ( Tile
-                                    , Terrain(..)
-                                    , Edge(..)
-                                    , terrain
-                                    , edges
-                                    )
-import qualified Labyrinth.Board    as Board
-import           Labyrinth.Board    (Position)
+import Labyrinth
 
-main :: IO ()
-main = defaultMain app ()
+ui :: IO ()
+ui = do
+  clearScreen
+  drawBackground
+  board <- initialBoard
+  drawBoard Coords {_x = 1, _y = 1} board
+  setCursorPosition gameHeight 0
 
-app :: App () e ()
-app = App { appDraw = const ui
-          , appHandleEvent = resizeOrQuit
-          -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#starting-up-appstartevent
-          , appStartEvent = return
-          , appAttrMap = const $ attrMap V.defAttr []
-          , appChooseCursor = neverShowCursor
-          }
+drawBackground :: IO ()
+drawBackground = do
+  setCursorPosition 0 0
+  setSGR [SetColor Background Dull Black]
+  putStr background
+  setSGR [Reset]
 
-ui :: [Widget ()]
-ui = map toTile (Board.toList Board.fixedTiles)
-  where
-    toTile :: (Position, Tile) -> Widget ()
-    toTile ((x, y), tile) = translateBy (Location (x*7, y*3)) (fromTile tile)
+drawBoard :: Coords -> Board -> IO ()
+drawBoard position board = do
+  mapM_ draw $ board' ^. tiles
+  where board' = overCoords (moveCoordsBy position) board
 
-fromTile :: Tile -> Widget ()
-fromTile t = str $ intercalate "\n" $ case (tileTerrain, tileEdges) of
-  (Blank, _) ->                   ["       ",
-                                   "       ",
-                                   "       "]
+draw :: Tile -> IO ()
+draw tile = drawTileRow 0 (shape tile)
+  where drawTileRow :: Int -> Shape -> IO ()
+        drawTileRow _ [] = return ()
+        drawTileRow rowIndex (r:rs) = do
+          setCursorPosition (rowIndex+ty) tx
+          setSGR [SetColor Background Dull Black]
+          setSGR [SetColor Foreground Vivid White]
+          putStr r
+          setSGR [Reset]
+          drawTileRow (rowIndex+1) rs
+        tx = (tileX tile) * tileWidth
+        ty = (tileY tile) * tileHeight
+
+preview :: Tile -> IO ()
+preview tile = do
+  clearScreen
+  draw tile
+  setCursorPosition (tileY tile * tileHeight + tileHeight + 1) 0
+
+previewRotation :: Tile -> IO ()
+previewRotation tile = do
+  tile' <-  rotateTileRandomly tile
+  preview tile'
+
+-- row/col units
+
+gameWidth :: Int
+gameWidth = 77
+
+gameHeight :: Int
+gameHeight = 40
+
+background = unlines $ replicate gameHeight $ replicate gameWidth ' '
+background :: String
+
+-- Tile units
+tileWidth :: Int
+tileWidth = 7
+
+tileHeight :: Int
+tileHeight = 3
+
+tileX :: Tile -> Int
+tileX t = t ^. coords.x
+
+tileY :: Tile -> Int
+tileY t = t ^. coords.y
+
+type Shape = [String]
+
+shape :: Tile -> Shape
+shape tile = case (tileKind, tileEdges) of
   (Gate, [North]) ->              ["       ",
                                    "   ▲   ",
                                    "       "]
@@ -84,6 +125,5 @@ fromTile t = str $ intercalate "\n" $ case (tileTerrain, tileEdges) of
                                    "       ",
                                    "───────"]
   (_, _) ->                       error "unknown tile"
-  where
-    tileTerrain = t ^. terrain
-    tileEdges   = Set.toList (t ^. edges)
+  where tileKind = _kind tile
+        tileEdges = sort $ _edges tile
