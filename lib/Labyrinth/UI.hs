@@ -24,6 +24,7 @@ main = defaultMain app ()
 app :: App () e ()
 app = App { appDraw = const ui
           , appHandleEvent = resizeOrQuit
+          -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#starting-up-appstartevent
           , appStartEvent = return
           , appAttrMap = const $ attrMap V.defAttr []
           , appChooseCursor = neverShowCursor
