@@ -27,10 +27,9 @@ main = void $ defaultMain app mempty
 
 app :: App Game e ()
 app = App { appDraw = drawUI
-          , appHandleEvent = resizeOrQuit
-          -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#starting-up-appstartevent
-          , appStartEvent = startEvent
-          , appAttrMap = const $ attrMap V.defAttr []
+          , appHandleEvent  = resizeOrQuit
+          , appStartEvent   = startEvent
+          , appAttrMap      = const $ attrMap V.defAttr []
           , appChooseCursor = neverShowCursor
           }
 
