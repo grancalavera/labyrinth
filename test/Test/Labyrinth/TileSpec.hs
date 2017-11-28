@@ -6,9 +6,9 @@ import           Labyrinth.Tile (Tile(..), Terrain(..), Direction(..))
 
 spec :: Spec
 spec = do
-  describe "Transforming tiles" $ do
+  describe "Rotating tiles" $ do
 
-    it "should rotate a tile" $ do
+    it "rotate is rotate counterclockwise" $ do
       let original = Tile Path North
           rotated = Tile Path West
       Tile.rotate original `shouldBe` rotated
