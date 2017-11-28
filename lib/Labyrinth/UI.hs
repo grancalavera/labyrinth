@@ -1,6 +1,6 @@
 module Labyrinth.UI where
 
--- import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void)
 import           Lens.Micro             ((^.))
 import           Brick.Widgets.Core     (str, translateBy)
@@ -34,7 +34,10 @@ app = App { appDraw = drawUI
           }
 
 startEvent :: Game -> EventM () Game
-startEvent _ = return $ (Game.fromBoard Board.fixedTiles)
+startEvent _ = liftIO initialGame
+
+initialGame :: IO Game
+initialGame = return (Game.fromBoard Board.fixedTiles)
 
 drawUI :: Game -> [Widget ()]
 drawUI g = map toTile (Board.toList $ g ^. board)
