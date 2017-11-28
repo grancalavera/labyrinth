@@ -12,7 +12,7 @@ import           Labyrinth.Tile   (Tile(..), Terrain(..), Direction(..))
 
 type Position = (Int, Int)
 data Cell a = Cell Position a
-data Board a = Board (Map Position a) deriving (Show)
+data Board a = Board (Map Position a) deriving (Show, Eq)
 
 instance Monoid (Board a) where
   mempty = Board mempty

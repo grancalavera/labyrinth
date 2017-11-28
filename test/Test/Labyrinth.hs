@@ -24,8 +24,9 @@ instance Arbitrary Game where
     ps <- arbitrary
     p  <- genChoosePlayer ps
     return Game
-      { _currentPlayer = p
-      , _players = ps
+      { _currentPlayer  = p
+      , _players        = ps
+      , _board          = mempty -- for the time being
       }
 
 prop_leftIdentity :: (Monoid a, Eq a) => a -> Bool

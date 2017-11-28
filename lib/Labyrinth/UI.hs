@@ -1,24 +1,29 @@
 module Labyrinth.UI where
 
-import           Brick.Widgets.Core (str, translateBy)
-import           Brick.Main         (App(..), defaultMain, resizeOrQuit, neverShowCursor)
-import           Brick.Types        (Widget, Location(..))
-import           Brick.AttrMap      (attrMap)
-import qualified Graphics.Vty       as V
-import           Data.List          (intercalate)
-
-import           Labyrinth.Tile     ( Tile(..)
-                                    , Terrain(..)
-                                    , Direction(..)
-                                    )
-import qualified Labyrinth.Board    as Board
-import           Labyrinth.Board    (Position)
+-- import           Control.Monad.IO.Class (liftIO)
+import           Brick.Widgets.Core     (str, translateBy)
+import           Brick.Main             ( App(..)
+                                        , defaultMain
+                                        , resizeOrQuit
+                                        , neverShowCursor
+                                        )
+import           Brick.Types            (Widget, Location(..), EventM)
+import           Brick.AttrMap          (attrMap)
+import qualified Graphics.Vty           as V
+import           Data.List              (intercalate)
+import           Labyrinth.Tile         ( Tile(..)
+                                        , Terrain(..)
+                                        , Direction(..)
+                                        )
+import qualified Labyrinth.Board        as Board
+import           Labyrinth.Board        (Position)
+import           Labyrinth.Game         (Game)
 
 main :: IO ()
 main = defaultMain app ()
 
 app :: App () e ()
-app = App { appDraw = const ui
+app = App { appDraw = drawUI
           , appHandleEvent = resizeOrQuit
           -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#starting-up-appstartevent
           , appStartEvent = return
@@ -26,15 +31,17 @@ app = App { appDraw = const ui
           , appChooseCursor = neverShowCursor
           }
 
-ui :: [Widget ()]
-ui = map toTile (Board.toList Board.fixedTiles)
+startEvent :: Game -> EventM () Game
+startEvent _ = return $ (mempty :: Game)
+
+drawUI :: () -> [Widget ()]
+drawUI _ = map toTile (Board.toList Board.fixedTiles)
   where
     toTile :: (Position, Tile) -> Widget ()
     toTile ((x, y), tile) = translateBy (Location (x*7, y*3)) (fromTile tile)
 
 fromTile :: Tile -> Widget ()
 fromTile tile = str $ intercalate "\n" $ case tile of
-
   Tile Gate North   ->  ["       ",
                          "   ▲   ",
                          "       "]

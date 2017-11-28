@@ -3,6 +3,7 @@ module Labyrinth.Game
     ( Game (..)
     , currentPlayer
     , players
+    , board
     , playerByColor
     , fromPlayer
     , fromCurrentPlayer
@@ -15,10 +16,13 @@ import           Lens.Micro           ((^.), (&), (%~), (.~))
 import           Lens.Micro.TH        (makeLenses)
 import           Labyrinth.Players    (Player(..), Color(..), Players(..))
 import qualified Labyrinth.Players    as Players
+import           Labyrinth.Board      (Board)
+import           Labyrinth.Tile       (Tile(..))
 
 data Game = Game
-    { _currentPlayer :: Maybe Player
-    , _players :: Players
+    { _currentPlayer  :: Maybe Player
+    , _players        :: Players
+    , _board          :: Board Tile
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -26,10 +30,12 @@ instance Monoid Game where
   mempty = Game
     { _currentPlayer  = Nothing
     , _players        = mempty
+    , _board          = mempty
     }
   l `mappend` r = Game
     { _currentPlayer  = (r ^. currentPlayer) <|> (l ^. currentPlayer)
     , _players        = (l ^. players) <> (r ^. players)
+    , _board          = (l ^. board) <> (r ^. board)
     }
 
 playerByColor :: Color -> Game -> Maybe Player
