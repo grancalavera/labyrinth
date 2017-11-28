@@ -1,30 +1,19 @@
 module Test.Labyrinth.TileSpec where
 
 import           Test.Hspec
-import qualified Data.Set       as Set
-import           Lens.Micro     ((^.))
 import qualified Labyrinth.Tile as Tile
-import           Labyrinth.Tile (Edge (..), edges)
+import           Labyrinth.Tile (Tile(..), Terrain(..), Direction(..))
 
 spec :: Spec
 spec = do
-  describe "Transforming tiles" $ do
+  describe "Rotating tiles" $ do
 
-    it "should rotate a tile" $ do
-      let original = Tile.path
-          rotated = Set.fromList [West, East]
-      Tile.rotate original ^. edges `shouldBe` rotated
+    it "rotate is rotate counterclockwise" $ do
+      let original = Tile Path North
+          rotated = Tile Path West
+      Tile.rotate original `shouldBe` rotated
 
-    it "a mirrored path is the same path" $ do
-      let path = Tile.path
-      Tile.mirror path `shouldBe` path
-
-    it "should mirror forks" $ do
-      let original = Tile.fork
-          mirrored = Set.fromList [South, East, West]
-      Tile.mirror original ^. edges `shouldBe` mirrored
-
-    it "rotate . mirror is rotate clockwise" $ do
-      let original = Tile.fork
-          rotated' = Set.fromList [East, North, South]
-      (Tile.rotate . Tile.mirror) original ^. edges `shouldBe` rotated'
+    it "rotate' is rotate clockwise" $ do
+      let original = Tile Path North
+          rotated' = Tile Path East
+      Tile.rotate' original `shouldBe` rotated'

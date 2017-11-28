@@ -1,87 +1,39 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Labyrinth.Tile
-    ( Edge (..)
-    , Edges
-    , Tile
-    , Terrain (..)
-    , edges
-    , terrain
+    ( Tile(..)
+    , Direction(..)
+    , Terrain(..)
     , rotate
     , rotate'
-    , mirror
-    , blank
-    , gate
-    , path
-    , corner
-    , fork
     ) where
 
-import qualified Data.Set       as Set
-import           Data.Set       (Set)
-import           Lens.Micro     ((%~))
-import           Lens.Micro.TH  (makeLenses)
+data Direction =  North
+                | West
+                | South
+                | East
+                deriving (Show, Eq, Ord)
 
-data Edge = North
-          | West
-          | South
-          | East
-          deriving (Show, Eq, Ord)
-
-type Edges = Set Edge
-
-data Terrain = Blank
-             | Gate
+data Terrain = Gate
              | Path
              | Corner
              | Fork
              deriving (Show, Eq)
 
-data Tile = Tile
-  { _terrain  :: Terrain
-  , _edges    :: Edges
-  } deriving (Show, Eq)
-makeLenses ''Tile
-
-blank, gate, path, corner, fork :: Tile
-blank = fromTerrain Blank
-gate = fromTerrain Gate
-path = fromTerrain Path
-corner = fromTerrain Corner
-fork = fromTerrain Fork
-
-fromTerrain :: Terrain -> Tile
-fromTerrain t = make t (defaultEdges t)
-
-make :: Terrain -> [Edge] -> Tile
-make t es = Tile
-  { _terrain  = t
-  , _edges    = Set.fromList es
-  }
+data Tile = Tile Terrain Direction deriving (Show, Eq)
 
 rotate :: Tile -> Tile
-rotate = edges %~ (Set.map nextEdge)
+rotate (Tile t d) = Tile t (nextDirection d)
+
+mirror :: Tile -> Tile
+mirror (Tile t d) = Tile t (oppositeDirection d)
 
 rotate' :: Tile -> Tile
 rotate' = mirror . rotate
 
-mirror :: Tile -> Tile
-mirror = edges %~ (Set.map oppositeEdge)
+nextDirection :: Direction -> Direction
+nextDirection North  = West
+nextDirection West   = South
+nextDirection South  = East
+nextDirection East   = North
 
-nextEdge :: Edge -> Edge
-nextEdge North  = West
-nextEdge West   = South
-nextEdge South  = East
-nextEdge East   = North
-
-oppositeEdge :: Edge -> Edge
-oppositeEdge North  = South
-oppositeEdge West   = East
-oppositeEdge South  = North
-oppositeEdge East   = West
-
-defaultEdges :: Terrain -> [Edge]
-defaultEdges Blank  = []
-defaultEdges Gate   = [North]
-defaultEdges Path   = [North, South]
-defaultEdges Corner = [North, West]
-defaultEdges Fork   = [North, West, East]
+oppositeDirection :: Direction -> Direction
+oppositeDirection = nextDirection . nextDirection
