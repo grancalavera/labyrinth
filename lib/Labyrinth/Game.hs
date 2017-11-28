@@ -4,6 +4,7 @@ module Labyrinth.Game
     , currentPlayer
     , players
     , board
+    , fromBoard
     , playerByColor
     , fromPlayer
     , fromCurrentPlayer
@@ -38,14 +39,17 @@ instance Monoid Game where
     , _board          = (l ^. board) <> (r ^. board)
     }
 
-playerByColor :: Color -> Game -> Maybe Player
-playerByColor c g = Players.lookupByColor c (g ^. players)
-
 fromPlayer :: Player -> Game
 fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
 
 fromCurrentPlayer :: Player -> Game
 fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
+
+fromBoard :: Board Tile -> Game
+fromBoard b = mempty & board .~ b
+
+playerByColor :: Color -> Game -> Maybe Player
+playerByColor c g = Players.lookupByColor c (g ^. players)
 
 nextPlayer :: Game -> Maybe Game
 nextPlayer g = do

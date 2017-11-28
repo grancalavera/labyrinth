@@ -1,6 +1,8 @@
 module Labyrinth.UI where
 
 -- import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad          (void)
+import           Lens.Micro             ((^.))
 import           Brick.Widgets.Core     (str, translateBy)
 import           Brick.Main             ( App(..)
                                         , defaultMain
@@ -17,25 +19,26 @@ import           Labyrinth.Tile         ( Tile(..)
                                         )
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Position)
-import           Labyrinth.Game         (Game)
+import           Labyrinth.Game         (Game, board)
+import qualified Labyrinth.Game         as Game
 
 main :: IO ()
-main = defaultMain app ()
+main = void $ defaultMain app mempty
 
-app :: App () e ()
+app :: App Game e ()
 app = App { appDraw = drawUI
           , appHandleEvent = resizeOrQuit
           -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#starting-up-appstartevent
-          , appStartEvent = return
+          , appStartEvent = startEvent
           , appAttrMap = const $ attrMap V.defAttr []
           , appChooseCursor = neverShowCursor
           }
 
 startEvent :: Game -> EventM () Game
-startEvent _ = return $ (mempty :: Game)
+startEvent _ = return $ (Game.fromBoard Board.fixedTiles)
 
-drawUI :: () -> [Widget ()]
-drawUI _ = map toTile (Board.toList Board.fixedTiles)
+drawUI :: Game -> [Widget ()]
+drawUI g = map toTile (Board.toList $ g ^. board)
   where
     toTile :: (Position, Tile) -> Widget ()
     toTile ((x, y), tile) = translateBy (Location (x*7, y*3)) (fromTile tile)
