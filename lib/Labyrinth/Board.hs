@@ -3,8 +3,13 @@ module Labyrinth.Board
     , Position
     , fixedTiles
     , toList
+    , shuffle
     ) where
 
+import           System.Random    (randomRIO)
+import           Control.Monad    (forM)
+import qualified Data.Array.IO    as ArrayIO
+import           Data.Array.IO    (IOArray)
 import qualified Data.Map         as Map
 import           Data.Map         (Map)
 import           Data.Monoid      ((<>))
@@ -58,3 +63,28 @@ fixedTiles = fromCells
   , Cell (3, 5) (Tile Fork North)
   , Cell (5, 5) (Tile Fork West)
   ]
+
+movableTiles :: [Tile]
+movableTiles =
+  replicate 12 (Tile Path North) ++
+  replicate 16 (Tile Corner North) ++
+  replicate 6  (Tile Fork North)
+
+movablePositions :: [Position]
+movablePositions =
+  [(x,y) | x <- [2,4,6], y <- [1,3,5,7]] ++
+  [(x,y) | x <- [1..7], y <- [2, 4, 6]]
+
+shuffle :: [a] -> IO [a]
+shuffle xs = do
+  ar <- newArray n xs
+  forM [1..n] $ \i -> do
+    j <- randomRIO (i, n)
+    vi <- ArrayIO.readArray ar i
+    vj <- ArrayIO.readArray ar j
+    ArrayIO.writeArray ar j vi
+    return vj
+  where
+    n = length xs
+    newArray :: Int -> [a] -> IO (IOArray Int a)
+    newArray n xs' = ArrayIO.newListArray (1, n) xs'
