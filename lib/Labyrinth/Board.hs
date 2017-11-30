@@ -87,4 +87,4 @@ shuffle xs = do
   where
     n = length xs
     newArray :: Int -> [a] -> IO (IOArray Int a)
-    newArray n xs' = ArrayIO.newListArray (1, n) xs'
+    newArray n' xs' = ArrayIO.newListArray (1, n') xs'
