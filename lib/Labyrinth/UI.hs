@@ -34,10 +34,7 @@ app = App { appDraw = drawUI
           }
 
 startEvent :: Game -> EventM () Game
-startEvent _ = liftIO initialGame
-
-initialGame :: IO Game
-initialGame = return (Game.fromBoard Board.fixedTiles)
+startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g = map toTile (Board.toList $ g ^. board)
