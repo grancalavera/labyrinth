@@ -16,7 +16,8 @@ data Direction =  North
                 | East
                 deriving (Show, Eq, Ord)
 
-data Terrain = Gate
+data Terrain = Blank
+             | Gate
              | Path
              | Corner
              | Fork

@@ -45,6 +45,9 @@ drawUI g = map toTile (Board.toList $ g ^. board)
 
 fromTile :: Tile -> Widget ()
 fromTile t = str $ intercalate "\n" $ case t of
+  Tile Blank _      ->  ["       ",
+                         "       ",
+                         "       "]
   Tile Gate North   ->  ["       ",
                          "   ▲   ",
                          "       "]
