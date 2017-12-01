@@ -32,6 +32,7 @@ data Game = Game
     , _players             :: Players
     , _board               :: Board
     , _gates               :: Board
+    , _openGates           :: Board
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -42,6 +43,7 @@ instance Monoid Game where
     , _players             = mempty
     , _board               = mempty
     , _gates               = mempty
+    , _openGates           = mempty
     }
   l `mappend` r = Game
     { _currentPlayer       = (r ^. currentPlayer) <|> (l ^. currentPlayer)
@@ -49,6 +51,7 @@ instance Monoid Game where
     , _players             = (l ^. players) <> (r ^. players)
     , _board               = (l ^. board) <> (r ^. board)
     , _gates               = (l ^. gates) <> (r ^. gates)
+    , _openGates           = (l ^. openGates) <> (r ^. openGates)
     }
 
 --------------------------------------------------------------------------------
