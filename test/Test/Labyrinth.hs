@@ -26,7 +26,12 @@ instance Arbitrary Game where
     return Game
       { _currentPlayer  = p
       , _players        = ps
-      , _board          = mempty -- for the time being
+
+      -- temp
+      , _board          = mempty
+      , _gates          = mempty
+      , _currentCell    = Nothing
+      -- temp
       }
 
 prop_leftIdentity :: (Monoid a, Eq a) => a -> Bool

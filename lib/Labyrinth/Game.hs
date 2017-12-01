@@ -4,6 +4,7 @@ module Labyrinth.Game
     , currentPlayer
     , players
     , board
+    , gates
     , fromBoard
     , playerByColor
     , fromPlayer
@@ -11,10 +12,9 @@ module Labyrinth.Game
     , nextPlayer
     , initialGame
 
-    -- temp
-    , movableCells
-    , movablePositions
-    -- temp
+    , gateTiles
+    , tileToCell
+    , fromGates
 
     ) where
 
@@ -35,23 +35,55 @@ import qualified Labyrinth.Cell      as Cell
 import           Labyrinth.Cell      (Cell)
 
 data Game = Game
-    { _currentPlayer  :: Maybe Player
-    , _players        :: Players
-    , _board          :: Board
+    { _currentPlayer :: Maybe Player
+    , _currentCell   :: Maybe (Position, Cell)
+    , _players       :: Players
+    , _board         :: Board
+    , _gates         :: Board
     } deriving (Show, Eq)
 makeLenses ''Game
 
 instance Monoid Game where
   mempty = Game
-    { _currentPlayer  = Nothing
-    , _players        = mempty
-    , _board          = mempty
+    { _currentPlayer = Nothing
+    , _currentCell   = Nothing
+    , _players       = mempty
+    , _board         = mempty
+    , _gates         = mempty
     }
   l `mappend` r = Game
-    { _currentPlayer  = (r ^. currentPlayer) <|> (l ^. currentPlayer)
-    , _players        = (l ^. players) <> (r ^. players)
-    , _board          = (l ^. board) <> (r ^. board)
+    { _currentPlayer = (r ^. currentPlayer) <|> (l ^. currentPlayer)
+    , _currentCell   = (r ^. currentCell) <|> (l ^. currentCell)
+    , _players       = (l ^. players) <> (r ^. players)
+    , _board         = (l ^. board) <> (r ^. board)
+    , _gates         = (l ^. gates) <> (r ^. gates)
     }
+
+--------------------------------------------------------------------------------
+-- games
+--------------------------------------------------------------------------------
+
+initialGame :: IO Game
+initialGame = do
+  ps      <- shuffle movablePositions
+  (c:cs)  <- shuffle movableCells
+
+  let fixed   = fixedPositionsAndTiles
+      movable = zip ps cs
+      board'  = Board.fromList (map tileToCell (fixed ++ movable))
+      gates'  = Board.fromList (map tileToCell gateTiles)
+
+  putStrLn $ show gates'
+
+  return $ fromBoard board' <>
+           fromGates gates' <>
+           fromCurrentCell ((2,0), Cell.fromTile c)
+
+fromGates :: Board -> Game
+fromGates g = mempty & gates .~ g
+
+fromBoard :: Board -> Game
+fromBoard b = mempty & board .~ b
 
 fromPlayer :: Player -> Game
 fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
@@ -59,8 +91,12 @@ fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
 fromCurrentPlayer :: Player -> Game
 fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
 
-fromBoard :: Board -> Game
-fromBoard b = mempty & board .~ b
+fromCurrentCell :: (Position, Cell) -> Game
+fromCurrentCell c = mempty & currentCell .~ (Just c)
+
+--------------------------------------------------------------------------------
+-- players
+--------------------------------------------------------------------------------
 
 playerByColor :: Color -> Game -> Maybe Player
 playerByColor c g = Players.lookupByColor c (g ^. players)
@@ -71,53 +107,46 @@ nextPlayer g = do
   nextP <- Players.next currP (g ^. players)
   return $ g & currentPlayer .~ (Just nextP)
 
-initialGame :: IO Game
-initialGame = do
-  b <- initialBoard
-  return (fromBoard b)
-
-initialBoard :: IO Board
-initialBoard = do
-  ps      <- shuffle movablePositions
-  (_:cs)  <- shuffle movableCells
-  let fixed       = fixedPositionsAndTiles
-      movable     = zip ps cs
-      positioned  = map tileToCell (fixed ++ movable)
-  return (Board.fromList positioned)
+--------------------------------------------------------------------------------
+-- boards
+--------------------------------------------------------------------------------
 
 tileToCell :: (Position, Tile) -> (Position, Cell)
 tileToCell (p, t) = (p, Cell.fromTile t)
 
+gateTiles :: [(Position, Tile)]
+gateTiles = [ ((2, 0), Tile Gate South)
+            , ((4, 0), Tile Gate South)
+            , ((6, 0), Tile Gate South)
+            , ((0, 2), Tile Gate East)
+            , ((0, 4), Tile Gate East)
+            , ((0, 6), Tile Gate East)
+            , ((8, 2), Tile Gate West)
+            , ((8, 4), Tile Gate West)
+            , ((8, 6), Tile Gate West)
+            , ((2, 8), Tile Gate North)
+            , ((4, 8), Tile Gate North)
+            , ((6, 8), Tile Gate North)
+            ]
+
 fixedPositionsAndTiles :: [(Position, Tile)]
-fixedPositionsAndTiles =  [ ((2, 0), Tile Gate South)
-                          , ((4, 0), Tile Gate South)
-                          , ((6, 0), Tile Gate South)
-                          , ((0, 2), Tile Gate East)
-                          , ((0, 4), Tile Gate East)
-                          , ((0, 6), Tile Gate East)
-                          , ((8, 2), Tile Gate West)
-                          , ((8, 4), Tile Gate West)
-                          , ((8, 6), Tile Gate West)
-                          , ((2, 8), Tile Gate North)
-                          , ((4, 8), Tile Gate North)
-                          , ((6, 8), Tile Gate North)
-                          , ((1, 1), Tile Corner South)
-                          , ((7, 1), Tile Corner West)
-                          , ((1, 7), Tile Corner East)
-                          , ((7, 7), Tile Corner North)
-                          , ((3, 1), Tile Fork South)
-                          , ((5, 1), Tile Fork South)
-                          , ((1, 3), Tile Fork East)
-                          , ((1, 5), Tile Fork East)
-                          , ((7, 3), Tile Fork West)
-                          , ((7, 5), Tile Fork West)
-                          , ((3, 7), Tile Fork North)
-                          , ((5, 7), Tile Fork North)
-                          , ((3, 3), Tile Fork East)
-                          , ((5, 3), Tile Fork South)
-                          , ((3, 5), Tile Fork North)
-                          , ((5, 5), Tile Fork West)
-                          ]
+fixedPositionsAndTiles = [ ((1, 1), Tile Corner South)
+                         , ((7, 1), Tile Corner West)
+                         , ((1, 7), Tile Corner East)
+                         , ((7, 7), Tile Corner North)
+                         , ((3, 1), Tile Fork South)
+                         , ((5, 1), Tile Fork South)
+                         , ((1, 3), Tile Fork East)
+                         , ((1, 5), Tile Fork East)
+                         , ((7, 3), Tile Fork West)
+                         , ((7, 5), Tile Fork West)
+                         , ((3, 7), Tile Fork North)
+                         , ((5, 7), Tile Fork North)
+                         , ((3, 3), Tile Fork East)
+                         , ((5, 3), Tile Fork South)
+                         , ((3, 5), Tile Fork North)
+                         , ((5, 5), Tile Fork West)
+                         ]
 
 movableCells :: [Tile]
 movableCells =
