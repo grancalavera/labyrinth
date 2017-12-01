@@ -19,8 +19,9 @@ import           Labyrinth.Tile         ( Tile(..)
                                         )
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Position)
-import           Labyrinth.Game         (Game, board)
 import qualified Labyrinth.Game         as Game
+import           Labyrinth.Game         (Game, board)
+import           Labyrinth.Cell         (Cell, tile)
 
 main :: IO ()
 main = void $ defaultMain app mempty
@@ -39,11 +40,11 @@ startEvent _ = liftIO Game.initialGame
 drawUI :: Game -> [Widget ()]
 drawUI g = map toTile (Board.toList $ g ^. board)
   where
-    toTile :: (Position, Tile) -> Widget ()
-    toTile ((x, y), tile) = translateBy (Location (x*7, y*3)) (fromTile tile)
+    toTile :: (Position, Cell) -> Widget ()
+    toTile ((x, y), c) = translateBy (Location (x*7, y*3)) (fromTile $ c ^. tile)
 
 fromTile :: Tile -> Widget ()
-fromTile tile = str $ intercalate "\n" $ case tile of
+fromTile t = str $ intercalate "\n" $ case t of
   Tile Gate North   ->  ["       ",
                          "   ▲   ",
                          "       "]
