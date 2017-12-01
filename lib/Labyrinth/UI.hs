@@ -39,8 +39,8 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  map toTile (Board.toList $ g ^. gates) ++
-  map toTile (Board.toList $ g ^. board)
+  map toTile (Board.toList $ g ^. board) ++
+  map toTile (Board.toList $ g ^. gates)
   where
     toTile :: (Position, Cell) -> Widget ()
     toTile ((x, y), c) = translateBy (Location (x*7, y*3)) (fromTile $ c ^. tile)
