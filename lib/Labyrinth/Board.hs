@@ -1,22 +1,15 @@
 module Labyrinth.Board
     ( Board
     , Position
-
-    -- temp
-    , Cell (..)
-    , fromCells
     , toList
-    -- temp
-
+    , fromList
     ) where
 
-import           Control.Monad    (forM)
 import qualified Data.Map         as Map
 import           Data.Map         (Map)
 import           Data.Monoid      ((<>))
 
 type Position = (Int, Int)
-data Cell a = Cell Position a
 data Board a = Board (Map Position a) deriving (Show, Eq)
 
 instance Monoid (Board a) where
@@ -26,9 +19,5 @@ instance Monoid (Board a) where
 toList :: Board a -> [(Position, a)]
 toList (Board m) = Map.toList m
 
-fromCell :: Cell a -> Board a
-fromCell (Cell p x) = Board (Map.insert p x mempty)
-
-fromCells :: [Cell a] -> Board a
-fromCells cs = foldl (<>) mempty (map fromCell cs)
-
+fromList :: [(Position, a)] -> Board a
+fromList ls = Board (Map.fromList ls)
