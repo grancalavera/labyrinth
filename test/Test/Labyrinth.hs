@@ -7,12 +7,12 @@ module Test.Labyrinth
     ) where
 
 import           Test.QuickCheck
-import           Control.Monad      (replicateM)
-import           Data.List          (intercalate)
-import           Data.Monoid        ((<>))
-import           Labyrinth.Players  (Player(..), Color(..), Players, Name)
-import qualified Labyrinth.Players  as Players
-import           Labyrinth.Game     (Game(..))
+import           Control.Monad     (replicateM)
+import           Data.List         (intercalate)
+import           Data.Monoid       ((<>))
+import qualified Labyrinth.Players as Players
+import           Labyrinth.Players (Player(..), Color(..), Players, Name)
+import           Labyrinth.Game    (Game(..))
 
 instance Arbitrary Players where
   arbitrary = do
