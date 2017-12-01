@@ -20,7 +20,7 @@ import           Labyrinth.Tile         ( Tile(..)
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Position)
 import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         (Game, gates)
+import           Labyrinth.Game         (Game, board, gates)
 import           Labyrinth.Cell         (Cell, tile)
 
 main :: IO ()
@@ -39,7 +39,8 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  map toTile (Board.toList $ g ^. gates)
+  map toTile (Board.toList $ g ^. gates) ++
+  map toTile (Board.toList $ g ^. board)
   where
     toTile :: (Position, Cell) -> Widget ()
     toTile ((x, y), c) = translateBy (Location (x*7, y*3)) (fromTile $ c ^. tile)
