@@ -11,21 +11,13 @@ module Labyrinth.Game
     , fromCurrentPlayer
     , nextPlayer
     , initialGame
-
-    , gateTiles
-    , tileToCell
-    , fromGates
-
     ) where
 
 import           Data.Monoid         ((<>))
 import           Control.Applicative ((<|>))
 import           Lens.Micro          ((^.), (&), (%~), (.~))
 import           Lens.Micro.TH       (makeLenses)
-import qualified Data.Array.IO       as AIO
-import           Data.Array.IO       (IOArray)
-import           Control.Monad       (forM)
-import           System.Random       (randomRIO)
+import qualified Labyrinth           as Labyrinth
 import qualified Labyrinth.Players   as Players
 import           Labyrinth.Players   (Player(..), Color(..), Players(..))
 import qualified Labyrinth.Board     as Board
@@ -65,12 +57,11 @@ instance Monoid Game where
 
 initialGame :: IO Game
 initialGame = do
-  ps <- shuffle movablePositions
-  ts <- shuffle movableTiles
+  ps <- Labyrinth.shuffle movablePositions
+  ts <- Labyrinth.shuffle movableTiles
 
-  let fixed   = fixedPositionsAndTiles
-      movable = zip (defaultCellCurrentPosition:ps) ts
-      board'  = Board.fromList (map tileToCell (fixed ++ movable))
+  let movable = zip (defaultCellCurrentPosition:ps) ts
+      board'  = Board.fromList (map tileToCell (fixedTiles ++ movable))
       gates'  = Board.fromList (map tileToCell gateTiles)
 
   return $ fromBoard board' <>
@@ -130,24 +121,24 @@ gateTiles = [ ((2, 0), Tile Gate South)
             , ((6, 8), Tile Gate North)
             ]
 
-fixedPositionsAndTiles :: [(Position, Tile)]
-fixedPositionsAndTiles = [ ((1, 1), Tile Corner South)
-                         , ((7, 1), Tile Corner West)
-                         , ((1, 7), Tile Corner East)
-                         , ((7, 7), Tile Corner North)
-                         , ((3, 1), Tile Fork South)
-                         , ((5, 1), Tile Fork South)
-                         , ((1, 3), Tile Fork East)
-                         , ((1, 5), Tile Fork East)
-                         , ((7, 3), Tile Fork West)
-                         , ((7, 5), Tile Fork West)
-                         , ((3, 7), Tile Fork North)
-                         , ((5, 7), Tile Fork North)
-                         , ((3, 3), Tile Fork East)
-                         , ((5, 3), Tile Fork South)
-                         , ((3, 5), Tile Fork North)
-                         , ((5, 5), Tile Fork West)
-                         ]
+fixedTiles :: [(Position, Tile)]
+fixedTiles = [ ((1, 1), Tile Corner South)
+             , ((7, 1), Tile Corner West)
+             , ((1, 7), Tile Corner East)
+             , ((7, 7), Tile Corner North)
+             , ((3, 1), Tile Fork South)
+             , ((5, 1), Tile Fork South)
+             , ((1, 3), Tile Fork East)
+             , ((1, 5), Tile Fork East)
+             , ((7, 3), Tile Fork West)
+             , ((7, 5), Tile Fork West)
+             , ((3, 7), Tile Fork North)
+             , ((5, 7), Tile Fork North)
+             , ((3, 3), Tile Fork East)
+             , ((5, 3), Tile Fork South)
+             , ((3, 5), Tile Fork North)
+             , ((5, 5), Tile Fork West)
+             ]
 
 movableTiles :: [Tile]
 movableTiles =
@@ -159,17 +150,3 @@ movablePositions :: [Position]
 movablePositions =
   [(x,y) | x <- [2,4,6], y <- [1,3,5,7]] ++
   [(x,y) | x <- [1..7], y <- [2, 4, 6]]
-
-shuffle :: [a] -> IO [a]
-shuffle xs = do
-  ar <- newArray n xs
-  forM [1..n] $ \i -> do
-    j <- randomRIO (i, n)
-    vi <- AIO.readArray ar i
-    vj <- AIO.readArray ar j
-    AIO.writeArray ar j vi
-    return vj
-  where
-    n = length xs
-    newArray :: Int -> [a] -> IO (IOArray Int a)
-    newArray n' xs' = AIO.newListArray (1, n') xs'
