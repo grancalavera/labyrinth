@@ -80,11 +80,10 @@ initialBoard :: IO Board
 initialBoard = do
   ps      <- shuffle movablePositions
   (_:cs)  <- shuffle movableCells
-  do
-    let fixed       = fixedPositionsAndTiles
-        movable     = zip ps cs
-        positioned  = map tileToCell (fixed ++ movable)
-    return (Board.fromList positioned)
+  let fixed       = fixedPositionsAndTiles
+      movable     = zip ps cs
+      positioned  = map tileToCell (fixed ++ movable)
+  return (Board.fromList positioned)
 
 tileToCell :: (Position, Tile) -> (Position, Cell)
 tileToCell (p, t) = (p, Cell.fromTile t)
