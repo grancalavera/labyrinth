@@ -24,13 +24,12 @@ instance Arbitrary Game where
     ps <- arbitrary
     p  <- genChoosePlayer ps
     return Game
-      { _currentPlayer  = p
-      , _players        = ps
-
+      { _currentPlayer       = p
+      , _players             = ps
       -- temp
-      , _board          = mempty
-      , _gates          = mempty
-      , _currentCell    = Nothing
+      , _board               = mempty
+      , _gates               = mempty
+      , _currentCellPosition = Nothing
       -- temp
       }
 

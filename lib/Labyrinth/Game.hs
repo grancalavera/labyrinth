@@ -35,28 +35,28 @@ import qualified Labyrinth.Cell      as Cell
 import           Labyrinth.Cell      (Cell)
 
 data Game = Game
-    { _currentPlayer :: Maybe Player
-    , _currentCell   :: Maybe (Position, Cell)
-    , _players       :: Players
-    , _board         :: Board
-    , _gates         :: Board
+    { _currentPlayer       :: Maybe Player
+    , _currentCellPosition :: Maybe Position
+    , _players             :: Players
+    , _board               :: Board
+    , _gates               :: Board
     } deriving (Show, Eq)
 makeLenses ''Game
 
 instance Monoid Game where
   mempty = Game
-    { _currentPlayer = Nothing
-    , _currentCell   = Nothing
-    , _players       = mempty
-    , _board         = mempty
-    , _gates         = mempty
+    { _currentPlayer       = Nothing
+    , _currentCellPosition = Nothing
+    , _players             = mempty
+    , _board               = mempty
+    , _gates               = mempty
     }
   l `mappend` r = Game
-    { _currentPlayer = (r ^. currentPlayer) <|> (l ^. currentPlayer)
-    , _currentCell   = (r ^. currentCell) <|> (l ^. currentCell)
-    , _players       = (l ^. players) <> (r ^. players)
-    , _board         = (l ^. board) <> (r ^. board)
-    , _gates         = (l ^. gates) <> (r ^. gates)
+    { _currentPlayer       = (r ^. currentPlayer) <|> (l ^. currentPlayer)
+    , _currentCellPosition = (r ^. currentCellPosition) <|> (l ^. currentCellPosition)
+    , _players             = (l ^. players) <> (r ^. players)
+    , _board               = (l ^. board) <> (r ^. board)
+    , _gates               = (l ^. gates) <> (r ^. gates)
     }
 
 --------------------------------------------------------------------------------
@@ -65,17 +65,17 @@ instance Monoid Game where
 
 initialGame :: IO Game
 initialGame = do
-  ps      <- shuffle movablePositions
-  (c:cs)  <- shuffle movableCells
+  ps <- shuffle movablePositions
+  ts <- shuffle movableTiles
 
   let fixed   = fixedPositionsAndTiles
-      movable = zip ps cs
+      movable = zip (defaultCellCurrentPosition:ps) ts
       board'  = Board.fromList (map tileToCell (fixed ++ movable))
       gates'  = Board.fromList (map tileToCell gateTiles)
 
   return $ fromBoard board' <>
            fromGates gates' <>
-           fromCurrentCell ((2,0), Cell.fromTile c)
+           fromCurrentCellPosition defaultCellCurrentPosition
 
 fromGates :: Board -> Game
 fromGates g = mempty & gates .~ g
@@ -89,8 +89,8 @@ fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
 fromCurrentPlayer :: Player -> Game
 fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
 
-fromCurrentCell :: (Position, Cell) -> Game
-fromCurrentCell c = mempty & currentCell .~ (Just c)
+fromCurrentCellPosition :: Position -> Game
+fromCurrentCellPosition p = mempty & currentCellPosition .~ (Just p)
 
 --------------------------------------------------------------------------------
 -- players
@@ -108,6 +108,9 @@ nextPlayer g = do
 --------------------------------------------------------------------------------
 -- boards
 --------------------------------------------------------------------------------
+
+defaultCellCurrentPosition :: Position
+defaultCellCurrentPosition = (2,0)
 
 tileToCell :: (Position, Tile) -> (Position, Cell)
 tileToCell (p, t) = (p, Cell.fromTile t)
@@ -146,8 +149,8 @@ fixedPositionsAndTiles = [ ((1, 1), Tile Corner South)
                          , ((5, 5), Tile Fork West)
                          ]
 
-movableCells :: [Tile]
-movableCells =
+movableTiles :: [Tile]
+movableTiles =
   replicate 12 (Tile Path North) ++
   replicate 16 (Tile Corner North) ++
   replicate 6  (Tile Fork North)
