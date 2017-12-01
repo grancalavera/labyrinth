@@ -21,6 +21,7 @@ library
     Labyrinth.Players
     Labyrinth.Game
     Labyrinth.Tile
+    Labyrinth.Cell
     Labyrinth.Board
     Labyrinth.UI
   build-depends:
