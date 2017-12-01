@@ -73,8 +73,6 @@ initialGame = do
       board'  = Board.fromList (map tileToCell (fixed ++ movable))
       gates'  = Board.fromList (map tileToCell gateTiles)
 
-  putStrLn $ show gates'
-
   return $ fromBoard board' <>
            fromGates gates' <>
            fromCurrentCell ((2,0), Cell.fromTile c)
