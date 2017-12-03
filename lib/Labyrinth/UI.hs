@@ -1,7 +1,7 @@
 module Labyrinth.UI where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad          (void)
+import           Control.Monad          (void, forM)
 import           Lens.Micro             ((^.))
 import           Brick.Widgets.Core     (str, translateBy)
 import           Brick.Main             ( App(..)
@@ -9,6 +9,7 @@ import           Brick.Main             ( App(..)
                                         , resizeOrQuit
                                         , neverShowCursor
                                         )
+import qualified Brick                  as Brick
 import           Brick.Types            (Widget, Location(..), EventM)
 import           Brick.AttrMap          (attrMap)
 import qualified Graphics.Vty           as V
@@ -18,10 +19,15 @@ import           Labyrinth.Tile         ( Tile(..)
                                         , Direction(..)
                                         )
 import qualified Labyrinth.Board        as Board
-import           Labyrinth.Board        (Position)
+import           Labyrinth.Board        (Board, Position)
 import qualified Labyrinth.Game         as Game
 import           Labyrinth.Game         (Game, board, gates)
 import           Labyrinth.Cell         (Cell, tile)
+
+
+import qualified Data.Map as Map
+import Data.Map (Map)
+
 
 main :: IO ()
 main = void $ defaultMain app mempty
@@ -39,14 +45,21 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  map toTile (Board.toList $ g ^. board) ++
-  map toTile (Board.toList $ g ^. gates)
-  where
-    toTile :: (Position, Cell) -> Widget ()
-    toTile ((x, y), c) = translateBy (Location (x*7, y*3)) (fromTile $ c ^. tile)
+  [ Brick.vBox $ boardToWidgetRows $ g ^. board
+  , Brick.vBox $ boardToWidgetRows $ g ^. gates
+  ]
 
-fromTile :: Tile -> Widget ()
-fromTile t = str $ intercalate "\n" $ case t of
+boardToWidgetRows :: Board -> [Widget ()]
+boardToWidgetRows b = map (toWidgetRow b) [0..8]
+
+toWidgetRow :: Board -> Int -> Widget ()
+toWidgetRow b r = Brick.hBox $ map toWidget $ Board.toListByRow r b
+
+toWidget :: (Position, Cell) -> Widget ()
+toWidget ((x, y), c) = widgetFromTile $ c ^. tile
+
+widgetFromTile :: Tile -> Widget ()
+widgetFromTile t = str $ intercalate "\n" $ case t of
   Tile Blank _      ->  ["       ",
                          "       ",
                          "       "]

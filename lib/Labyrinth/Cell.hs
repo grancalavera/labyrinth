@@ -4,6 +4,7 @@ module Labyrinth.Cell
     ( Cell
     , tile
     , fromTile
+    , blank
     ) where
 
 import Lens.Micro     ((^.), (.~), (&))
@@ -25,3 +26,6 @@ instance Monoid Cell where
 
 fromTile :: Tile -> Cell
 fromTile t = mempty & tile .~ t
+
+blank :: Cell
+blank = mempty

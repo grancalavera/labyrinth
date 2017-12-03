@@ -64,8 +64,8 @@ initialGame = do
   ts <- Labyrinth.shuffle movableTiles
 
   let movable = zip (defaultCellCurrentPosition:ps) ts
-      board'  = Board.fromList (map tileToCell (fixedTiles ++ movable))
-      gates'  = Board.fromList (map tileToCell gateTiles)
+      board'  = blankBoard <> Board.fromList (map tileToCell (fixedTiles ++ movable))
+      gates'  = blankBoard <> Board.fromList (map tileToCell gateTiles)
 
   return $ fromBoard board' <>
            fromGates gates' <>
@@ -102,6 +102,14 @@ nextPlayer g = do
 --------------------------------------------------------------------------------
 -- boards
 --------------------------------------------------------------------------------
+
+blankBoard :: Board
+blankBoard = Board.fromList [((x, y), Cell.blank) | x <- wRange, y <- hRange]
+  where
+    wRange :: [Int]
+    wRange = [0..8]
+    hRange :: [Int]
+    hRange = [0..8]
 
 defaultCellCurrentPosition :: Position
 defaultCellCurrentPosition = (2,0)

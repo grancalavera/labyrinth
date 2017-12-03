@@ -3,6 +3,7 @@ module Labyrinth.Board
     , Position
     , toList
     , fromList
+    , toListByRow
     ) where
 
 import qualified Data.Map       as Map
@@ -19,5 +20,14 @@ instance Monoid Board where
 toList :: Board -> [(Position, Cell)]
 toList (Board m) = Map.toList m
 
+toListByRow :: Int -> Board -> [(Position, Cell)]
+toListByRow r = toList . (filterByRow r)
+
 fromList :: [(Position, Cell)] -> Board
 fromList ls = Board (Map.fromList ls)
+
+filterByRow :: Int -> Board -> Board
+filterByRow r (Board m) = Board (Map.filterWithKey byRow m)
+  where
+    byRow :: Position -> Cell -> Bool
+    byRow (_, i) _ = r == i
