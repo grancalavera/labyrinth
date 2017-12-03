@@ -52,7 +52,7 @@ toWidget :: (Position, Cell) -> Widget ()
 toWidget (_, c) = widgetFromTile $ c ^. tile
 
 widgetFromTile :: Tile -> Widget ()
-widgetFromTile t = str $ intercalate "\n" $ case t of
+widgetFromTile t = Brick.str $ intercalate "\n" $ case t of
   Tile Blank _      ->  ["       ",
                          "       ",
                          "       "]
