@@ -1,17 +1,15 @@
 module Labyrinth.UI where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad          (void, forM)
+import           Control.Monad          (void)
 import           Lens.Micro             ((^.))
-import           Brick.Widgets.Core     (str, translateBy)
 import           Brick.Main             ( App(..)
                                         , defaultMain
                                         , resizeOrQuit
                                         , neverShowCursor
                                         )
 import qualified Brick                  as Brick
-import           Brick.Types            (Widget, Location(..), EventM)
-import           Brick.AttrMap          (attrMap)
+import           Brick                  (Widget, EventM, attrMap)
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import           Labyrinth.Tile         ( Tile(..)
@@ -23,11 +21,6 @@ import           Labyrinth.Board        (Board, Position)
 import qualified Labyrinth.Game         as Game
 import           Labyrinth.Game         (Game, board, gates)
 import           Labyrinth.Cell         (Cell, tile)
-
-
-import qualified Data.Map as Map
-import Data.Map (Map)
-
 
 main :: IO ()
 main = void $ defaultMain app mempty
@@ -56,7 +49,7 @@ toWidgetRow :: Board -> Int -> Widget ()
 toWidgetRow b r = Brick.hBox $ map toWidget $ Board.toListByRow r b
 
 toWidget :: (Position, Cell) -> Widget ()
-toWidget ((x, y), c) = widgetFromTile $ c ^. tile
+toWidget (_, c) = widgetFromTile $ c ^. tile
 
 widgetFromTile :: Tile -> Widget ()
 widgetFromTile t = str $ intercalate "\n" $ case t of
