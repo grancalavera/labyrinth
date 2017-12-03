@@ -11,6 +11,7 @@ module Labyrinth.Game
     , fromCurrentPlayer
     , nextPlayer
     , initialGame
+    , blankBoard
     ) where
 
 import           Data.Monoid         ((<>))
@@ -64,8 +65,8 @@ initialGame = do
   ts <- Labyrinth.shuffle movableTiles
 
   let movable = zip (defaultCellCurrentPosition:ps) ts
-      board'  = blankBoard <> Board.fromList (map tileToCell (fixedTiles ++ movable))
-      gates'  = blankBoard <> Board.fromList (map tileToCell gateTiles)
+      board'  = Board.fromList (map tileToCell (fixedTiles ++ movable))
+      gates'  = Board.fromList (map tileToCell gateTiles)
 
   return $ fromBoard board' <>
            fromGates gates' <>

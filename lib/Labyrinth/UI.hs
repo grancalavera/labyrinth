@@ -2,6 +2,7 @@ module Labyrinth.UI where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void)
+import           Data.Monoid            ((<>))
 import           Lens.Micro             ((^.))
 import           Brick.Main             ( App(..)
                                         , defaultMain
@@ -38,9 +39,10 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  [ Brick.vBox $ boardToWidgetRows $ g ^. board
-  , Brick.vBox $ boardToWidgetRows $ g ^. gates
+  [ Brick.vBox $ boardToWidgetRows $ board'
   ]
+  where
+    board' = Game.blankBoard <> g ^. gates <> g ^. board
 
 boardToWidgetRows :: Board -> [Widget ()]
 boardToWidgetRows b = map (toWidgetRow b) [0..8]
