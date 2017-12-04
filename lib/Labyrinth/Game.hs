@@ -105,7 +105,7 @@ nextPlayer g = do
 --------------------------------------------------------------------------------
 
 blankBoard :: Board
-blankBoard = Board.fromList [((x, y), Cell.blank) | x <- wRange, y <- hRange]
+blankBoard = Board.fromList [((x, y), mempty) | x <- wRange, y <- hRange]
   where
     wRange :: [Int]
     wRange = [0..8]
