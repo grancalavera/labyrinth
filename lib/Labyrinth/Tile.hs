@@ -33,6 +33,7 @@ rotate' = mirror . rotate
 
 edges :: Tile -> Set Direction
 edges t = Set.fromList $ case t of
+  Tile Blank _      -> []
   Tile Gate North   -> [North]
   Tile Gate South   -> [South]
   Tile Gate West    -> [West]
@@ -41,6 +42,7 @@ edges t = Set.fromList $ case t of
   Tile Corner West  -> [West, South]
   Tile Corner East  -> [East, North]
   Tile Corner South -> [South, East]
+  Tile Fork North   -> [North, West, East]
   Tile Fork East    -> [North, South, East]
   Tile Fork West    -> [North, West, South]
   Tile Fork South   -> [West, South, East]
