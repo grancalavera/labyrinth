@@ -2,11 +2,11 @@ module Labyrinth
   ( shuffle
   ) where
 
-import qualified Data.Array.IO       as AIO
-import           Data.Array.IO       (IOArray)
-import           Control.Monad       (forM)
-import           System.Random       (randomRIO)
-
+import qualified Data.Array.IO  as AIO
+import           Data.Array.IO  (IOArray)
+import           Control.Monad  (forM)
+import           System.Random  (randomRIO)
+  
 shuffle :: [a] -> IO [a]
 shuffle xs = do
   ar <- newArray n xs
