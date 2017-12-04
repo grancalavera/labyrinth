@@ -11,6 +11,7 @@ module Labyrinth.Game
     , fromCurrentPlayer
     , nextPlayer
     , initialGame
+    , blankBoard
     ) where
 
 import           Data.Monoid         ((<>))
@@ -102,6 +103,14 @@ nextPlayer g = do
 --------------------------------------------------------------------------------
 -- boards
 --------------------------------------------------------------------------------
+
+blankBoard :: Board
+blankBoard = Board.fromList [((x, y), mempty) | x <- wRange, y <- hRange]
+  where
+    wRange :: [Int]
+    wRange = [0..8]
+    hRange :: [Int]
+    hRange = [0..8]
 
 defaultCellCurrentPosition :: Position
 defaultCellCurrentPosition = (2,0)
