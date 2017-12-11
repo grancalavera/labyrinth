@@ -4,13 +4,11 @@ import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void)
 import           Data.Monoid            ((<>))
 import           Lens.Micro             ((^.))
-import           Brick.Main             ( App(..)
-                                        , defaultMain
-                                        , resizeOrQuit
-                                        , neverShowCursor
-                                        )
 import qualified Brick                  as Brick
-import           Brick                  (Widget, EventM, attrMap)
+import           Brick                  ( App(..)
+                                        , Widget
+                                        , EventM
+                                        )
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import           Labyrinth.Tile         ( Tile(..)
@@ -24,14 +22,14 @@ import           Labyrinth.Game         (Game, board, gates)
 import           Labyrinth.Cell         (Cell, tile)
 
 main :: IO ()
-main = void $ defaultMain app mempty
+main = void $ Brick.defaultMain app mempty
 
 app :: App Game e ()
 app = App { appDraw = drawUI
-          , appHandleEvent  = resizeOrQuit
+          , appHandleEvent  = Brick.resizeOrQuit
           , appStartEvent   = startEvent
-          , appAttrMap      = const $ attrMap V.defAttr []
-          , appChooseCursor = neverShowCursor
+          , appAttrMap      = const $ Brick.attrMap V.defAttr []
+          , appChooseCursor = Brick.neverShowCursor
           }
 
 startEvent :: Game -> EventM () Game
@@ -51,10 +49,10 @@ toWidgetRow :: Board -> Int -> Widget ()
 toWidgetRow b r = Brick.hBox $ map toWidget $ Board.toListByRow r b
 
 toWidget :: (Position, Cell) -> Widget ()
-toWidget (_, c) = widgetFromTile $ c ^. tile
+toWidget (_, c) = widgetFromCell c
 
-widgetFromTile :: Tile -> Widget ()
-widgetFromTile t = Brick.str $ intercalate "\n" $ case t of
+widgetFromCell :: Cell -> Widget ()
+widgetFromCell c = Brick.str $ intercalate "\n" $ case tile' of
   Tile Blank _      ->  ["       ",
                          "       ",
                          "       "]
@@ -99,6 +97,7 @@ widgetFromTile t = Brick.str $ intercalate "\n" $ case t of
   Tile Path West  -> hpath
   Tile Path East  -> hpath
   where
+    tile' = c ^. tile
     vpath =             [" │   │ ",
                          " │   │ ",
                          " │   │ "]
