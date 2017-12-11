@@ -62,7 +62,7 @@ instance Monoid Game where
 initialGame :: IO Game
 initialGame = do
   ps <- Labyrinth.shuffle movablePositions
-  ts <- Labyrinth.shuffle movableTiles
+  ts <- Labyrinth.shuffle movableTiles >>= mapM Labyrinth.rotateRandom
 
   let movable = zip (defaultCellCurrentPosition:ps) ts
       board'  = Board.fromList (map tileToCell (fixedTiles ++ movable))
