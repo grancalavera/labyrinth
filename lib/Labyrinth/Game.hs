@@ -3,7 +3,7 @@ module Labyrinth.Game
     ( Game (..)
     , currentPlayer
     , players
-    , board
+    , tiles
     , gates
     , fromTiles
     , playerByColor

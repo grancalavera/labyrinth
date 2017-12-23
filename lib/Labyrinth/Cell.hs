@@ -8,11 +8,17 @@ module Labyrinth.Cell
     ) where
 
 import           System.Random       (randomRIO)
-import qualified Labyrinth           as Labyrinth
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Direction as Direction
 
 data Cell a = Empty | Cell Direction a deriving (Show, Eq)
+
+-- this is probable just Alternative...
+instance Monoid (Cell a) where
+  mempty = Empty
+  Empty `mappend` c = c
+  c `mappend` Empty = c
+  _ `mappend` c = c
 
 rotate :: Cell a -> Cell a
 rotate = rotateWith Direction.next
