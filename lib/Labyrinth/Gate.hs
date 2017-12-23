@@ -11,4 +11,4 @@ type Open = Bool
 data Gate = Gate Direction Open deriving (Eq, Show)
 
 instance Transitable Gate where
-  exits d _ = Set.singleton d
+  exits _ = Set.singleton

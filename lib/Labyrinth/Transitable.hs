@@ -7,4 +7,4 @@ import Labyrinth.Direction (Direction)
 import Data.Set (Set)
 
 class Transitable a where
-  exits :: Direction -> a -> Set Direction
+  exits :: a -> Direction -> Set Direction

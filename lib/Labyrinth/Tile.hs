@@ -12,7 +12,7 @@ data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile Terrain (Maybe Goal) deriving (Show, Eq)
 
 instance Transitable Tile where
-  exits d (Tile t _) = Set.fromList $ case (t, d) of
+  exits (Tile t _) d = Set.fromList $ case (t, d) of
     (Path, North)   -> [North, South]
     (Path, South)   -> [North, South]
     (Path, West)    -> [West, East]
