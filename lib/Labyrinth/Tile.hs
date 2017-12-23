@@ -25,8 +25,3 @@ instance Transitable Tile where
     (Fork, West)    -> [North, West, South]
     (Fork, South)   -> [West, South, East]
     (Fork, East)    -> [South, East, North]
-
-  -- Tile Gate North   -> [North]
-  -- Tile Gate South   -> [South]
-  -- Tile Gate West    -> [West]
-  -- Tile Gate East    -> [East]
