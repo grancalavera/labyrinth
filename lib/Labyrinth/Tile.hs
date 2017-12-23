@@ -1,6 +1,8 @@
 module Labyrinth.Tile
     ( Tile(..)
     , Terrain(..)
+    , exits
+    , fromTerrain
     ) where
 
 import qualified Data.Set              as Set
@@ -10,6 +12,9 @@ import           Labyrinth.Goal        (Goal(..))
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile Terrain (Maybe Goal) deriving (Show, Eq)
+
+fromTerrain :: Terrain -> Tile
+fromTerrain t = Tile t Nothing
 
 instance Transitable Tile where
   exits (Tile t _) d = Set.fromList $ case (t, d) of
