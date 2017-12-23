@@ -8,26 +8,26 @@ module Labyrinth.Board
 
 import qualified Data.Map       as Map
 import           Data.Map       (Map)
-import           Labyrinth.Cell (Cell)
+import           Labyrinth.Cell (Cell(..))
 
 type Position = (Int, Int)
-data Board = Board (Map Position Cell) deriving (Show, Eq)
+data Board a = Board (Map Position (Cell a)) deriving (Show, Eq)
 
-instance Monoid Board where
+instance Monoid (Board a) where
   mempty = Board mempty
   Board l `mappend` Board r = Board (Map.union r l)
 
-toList :: Board -> [(Position, Cell)]
+toList :: Board a -> [(Position, Cell a)]
 toList (Board m) = Map.toList m
 
-toListByRow :: Int -> Board -> [(Position, Cell)]
+toListByRow :: Int -> Board a -> [(Position, Cell a)]
 toListByRow r = toList . (filterByRow r)
 
-fromList :: [(Position, Cell)] -> Board
+fromList :: [(Position, Cell a)] -> Board a
 fromList ls = Board (Map.fromList ls)
 
-filterByRow :: Int -> Board -> Board
+filterByRow :: Int -> Board a -> Board a
 filterByRow r (Board m) = Board (Map.filterWithKey byRow m)
   where
-    byRow :: Position -> Cell -> Bool
+    byRow :: Position -> Cell a -> Bool
     byRow (_, i) _ = r == i

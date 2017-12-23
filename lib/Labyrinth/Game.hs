@@ -23,7 +23,8 @@ import qualified Labyrinth.Players   as Players
 import           Labyrinth.Players   (Player(..), Color(..), Players(..))
 import qualified Labyrinth.Board     as Board
 import           Labyrinth.Board     (Board, Position)
-import           Labyrinth.Tile      (Tile(..), Terrain(..), Direction(..))
+import           Labyrinth.Direction (Direction(..))
+import           Labyrinth.Tile      (Tile(..), Terrain(..))
 import qualified Labyrinth.Cell      as Cell
 import           Labyrinth.Cell      (Cell)
 
@@ -31,9 +32,8 @@ data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentCellPosition :: Maybe Position
     , _players             :: Players
-    , _board               :: Board
-    , _gates               :: Board
-    , _openGates           :: Board
+    , _tiles               :: Board Tile
+    , _gates               :: Board Gate
     } deriving (Show, Eq)
 makeLenses ''Game
 

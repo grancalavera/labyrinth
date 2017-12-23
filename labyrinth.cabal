@@ -24,6 +24,10 @@ library
     Labyrinth.Cell
     Labyrinth.Board
     Labyrinth.UI
+    Labyrinth.Goal
+    Labyrinth.Direction
+    Labyrinth.Transitable
+    Labyrinth.Gate
     Labyrinth
   build-depends:
     base >= 4.7 && < 5,

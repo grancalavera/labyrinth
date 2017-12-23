@@ -1,27 +1,22 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Cell
-    ( Cell
-    , tile
-    , fromTile
+    ( Cell(..)
+    , rotate
+    , rotate'
     ) where
 
-import Lens.Micro     ((^.), (.~), (&))
-import Lens.Micro.TH  (makeLenses)
-import Labyrinth.Tile (Tile (..), Terrain (..), Direction (..))
+import           Labyrinth.Direction (Direction(..))
+import qualified Labyrinth.Direction as Direction
 
-data Cell = Cell
-  { _tile :: Tile
-  } deriving (Show, Eq)
-makeLenses ''Cell
+data Cell a = Empty | Cell Direction a deriving (Show, Eq)
 
-instance Monoid Cell where
-  mempty = Cell
-    { _tile = Tile Blank North
-    }
-  _ `mappend` r = Cell
-    { _tile = r ^. tile
-    }
+rotate :: Cell a -> Cell a
+rotate = rotateWith Direction.next
 
-fromTile :: Tile -> Cell
-fromTile t = mempty & tile .~ t
+rotate' :: Cell a -> Cell a
+rotate' = rotateWith Direction.previous
+
+rotateWith :: (Direction -> Direction) -> Cell a -> Cell a
+rotateWith _ Empty      = Empty
+rotateWith f (Cell d x) = Cell (f d) x

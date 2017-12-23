@@ -11,9 +11,9 @@ import           Brick                  ( App(..)
                                         )
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
+import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Tile         ( Tile(..)
                                         , Terrain(..)
-                                        , Direction(..)
                                         )
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Board, Position)
