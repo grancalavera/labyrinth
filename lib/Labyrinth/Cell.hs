@@ -13,7 +13,6 @@ import qualified Labyrinth.Direction as Direction
 
 data Cell a = Empty | Cell Direction a deriving (Show, Eq)
 
--- this is probable just Alternative...
 instance Monoid (Cell a) where
   mempty = Empty
   Empty `mappend` c = c

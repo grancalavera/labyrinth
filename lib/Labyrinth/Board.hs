@@ -1,11 +1,15 @@
 module Labyrinth.Board
     ( Board
     , Position
+    , blank
     , toList
     , fromList
     , toListByRow
+    , map
+    , toMap
     ) where
 
+import           Prelude hiding (map)
 import qualified Data.Map       as Map
 import           Data.Map       (Map)
 import           Labyrinth.Cell (Cell(..))
@@ -16,6 +20,18 @@ data Board a = Board (Map Position (Cell a)) deriving (Show, Eq)
 instance Monoid (Board a) where
   mempty = Board mempty
   Board l `mappend` Board r = Board (Map.union r l)
+
+map :: (Cell a -> Cell b) -> Board a -> Board b
+map f (Board m) = Board (Map.map f m)
+
+toMap :: Board a -> Map Position (Cell a)
+toMap (Board m) = m
+
+blank :: Board a
+blank = fromList [((x, y), mempty) | x <- size, y <- size]
+  where
+    size :: [Int]
+    size = [0..8]
 
 toList :: Board a -> [(Position, Cell a)]
 toList (Board m) = Map.toList m

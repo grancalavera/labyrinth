@@ -19,8 +19,8 @@ fromTerrain t = Tile t Nothing
 instance Transitable Tile where
   exits (Tile t _) d = Set.fromList $ case (t, d) of
     (Path, North)   -> [North, South]
-    (Path, South)   -> [North, South]
     (Path, West)    -> [West, East]
+    (Path, South)   -> [North, South]
     (Path, East)    -> [West, East]
     (Corner, North) -> [North, West]
     (Corner, West)  -> [West, South]
