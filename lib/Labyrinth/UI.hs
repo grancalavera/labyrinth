@@ -129,3 +129,16 @@ empty = fromRaw $ replicate 3 "       "
 fromRaw :: [String] -> Widget ()
 fromRaw r = Brick.str (intercalate "\n" r)
 
+choose :: Char -> Char -> Char
+choose ' ' c   = c
+choose c   ' ' = c
+choose _   c   = c
+
+mergeRows :: String -> String -> String
+mergeRows = mergeWith choose
+
+mergeTiles :: [String] -> [String] -> [String]
+mergeTiles = mergeWith mergeRows
+
+mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
+mergeWith f xs ys = [ f x y | (x, y) <- zip xs ys]
