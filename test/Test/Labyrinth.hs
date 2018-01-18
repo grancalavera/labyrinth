@@ -28,9 +28,8 @@ instance Arbitrary Game where
       { _currentPlayer       = p
       , _players             = ps
       -- temp
-      , _board               = mempty
+      , _tiles               = mempty
       , _gates               = mempty
-      , _openGates           = mempty
       , _currentCellPosition = Nothing
       -- temp
       }
