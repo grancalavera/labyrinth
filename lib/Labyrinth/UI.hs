@@ -141,4 +141,4 @@ mergeTiles :: [String] -> [String] -> [String]
 mergeTiles = mergeWith mergeRows
 
 mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
-mergeWith f xs ys = [ f x y | (x, y) <- zip xs ys]
+mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
