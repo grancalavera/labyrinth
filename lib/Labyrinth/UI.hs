@@ -5,7 +5,9 @@ import           Data.Map               (Map)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void)
 -- import           Data.Monoid            ((<>))
--- import           Lens.Micro             ((^.))
+import           Data.Maybe             (fromMaybe)
+
+import           Lens.Micro             ((^.))
 import qualified Brick                  as Brick
 import           Brick                  ( App(..)
                                         , Widget
@@ -22,7 +24,7 @@ import           Labyrinth.Tile         ( Tile(..)
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Board, Position)
 import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         (Game)--, tiles, gates)
+import           Labyrinth.Game         (Game, gates)--, tiles)
 
 main :: IO ()
 main = void $ Brick.defaultMain app mempty
@@ -39,7 +41,40 @@ startEvent :: Game -> EventM () Game
 startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
-drawUI = undefined
+drawUI g =
+  [ Brick.vBox $ map toWidgetRow (toRows board')
+  ]
+  where
+    gates' :: Map Position [String]
+    gates' = Map.mapWithKey rawFromPosAndGate (g ^. gates)
+    board' :: Map Position [String]
+    board' = Map.union gates' rawEmptyBoard
+
+toWidgetRow :: [(Position, [String])] -> Widget ()
+toWidgetRow r = Brick.hBox $ map (fromRaw . snd) r
+-- toWidgetRow r = Brick.hBox $ map (\ _ -> Brick.str " cell ") r
+
+toRows :: Map Position a -> [[(Position, a)]]
+toRows m = map (Map.toList . (filterByRow m)) (rowSpread m)
+
+rowSpread :: (Map Position a) -> [Int]
+rowSpread m = fromMaybe [] $ do
+  mn <- rowMin m
+  mx <- rowMax m
+  return [mn..mx]
+
+rowMax :: (Map Position a) -> Maybe Int
+rowMax m = do
+  (((_, r), _), _) <- Map.maxViewWithKey m
+  return r
+
+rowMin :: (Map Position a) -> Maybe Int
+rowMin m = do
+  (((_, r), _), _) <- Map.minViewWithKey m
+  return r
+
+filterByRow :: Map Position a -> Int -> Map Position a
+filterByRow m r = Map.filterWithKey (\(_, i) ->  \_ -> r == i) m
 
 -- drawUI g =
 --   [ Brick.vBox $ boardToWidgetRows $ board'
@@ -56,75 +91,80 @@ drawUI = undefined
 -- toWidget :: (Position, Cell) -> Widget ()
 -- toWidget (_, c) = widgetFromCell c
 
-type WMap = Map Position (Widget ())
+rawFromPosAndGate :: Position -> Gate -> [String]
+rawFromPosAndGate _ _ = ["       ",
+                         "   ▲   ",
+                         "       "]
 
-toGateMap :: Board Gate -> WMap
-toGateMap = toWidgetMap widgetFromGate
+-- type WMap = Map Position (Widget ())
 
-toTileMap :: Board Tile -> WMap
-toTileMap = toWidgetMap widgetFromTile
+-- toGateMap :: Board Gate -> WMap
+-- toGateMap = toWidgetMap widgetFromGate
 
-toWidgetMap :: (Cell a -> Widget()) -> Board a -> WMap
-toWidgetMap f b = Map.map f (Board.toMap b)
+-- toTileMap :: Board Tile -> WMap
+-- toTileMap = toWidgetMap widgetFromTile
 
-widgetFromGate :: Cell Gate -> Widget ()
-widgetFromGate Empty = empty
-widgetFromGate (Cell d _) = fromRaw $ case d of
-  North -> ["       ",
-            "   ▲   ",
-            "       "]
-  West  -> ["       ",
-            "  ◄    ",
-            "       "]
-  South -> ["       ",
-            "   ▼   ",
-            "       "]
-  East  -> ["       ",
-            "    ►  ",
-            "       "]
+-- toWidgetMap :: (Cell a -> Widget()) -> Board a -> WMap
+-- toWidgetMap f b = Map.map f (Board.toMap b)
 
-widgetFromTile :: Cell Tile -> Widget ()
-widgetFromTile Empty = empty
-widgetFromTile (Cell d (Tile t _)) = fromRaw $ case (t, d) of
-  (Path, North)   -> [" │   │ ",
-                      " │   │ ",
-                      " │   │ "]
-  (Path, West)    -> ["───────",
-                      "       ",
-                      "───────"]
-  (Path, South)   -> [" │   │ ",
-                      " │   │ ",
-                      " │   │ "]
-  (Path, East)    -> ["───────",
-                      "       ",
-                      "───────"]
-  (Corner, North) -> ["─┘   │ ",
-                      "     │ ",
-                      "─────┘ "]
-  (Corner, West)  -> ["─────┐ ",
-                      "     │ ",
-                      "─┐   │ "]
-  (Corner, South) -> [" ┌─────",
-                      " │     ",
-                      " │   ┌─"]
-  (Corner, East)  -> [" │   └─",
-                      " │     ",
-                      " │   ┌─"]
-  (Fork, North)   -> ["─┘   └─",
-                      "       ",
-                      "───────"]
-  (Fork, West)    -> ["─┘   │ ",
-                      "     │ ",
-                      "─┐   │ "]
-  (Fork, South)   -> ["───────",
-                      "       ",
-                      "─┐   ┌─"]
-  (Fork, East)    -> [" │   └─",
-                      " │     ",
-                      " │   ┌─"]
+-- widgetFromGate :: Cell Gate -> Widget ()
+-- widgetFromGate Empty = empty
+-- widgetFromGate (Cell d _) = fromRaw $ case d of
+--   North -> ["       ",
+--             "   ▲   ",
+--             "       "]
+--   West  -> ["       ",
+--             "  ◄    ",
+--             "       "]
+--   South -> ["       ",
+--             "   ▼   ",
+--             "       "]
+--   East  -> ["       ",
+--             "    ►  ",
+--             "       "]
+
+-- widgetFromTile :: Cell Tile -> Widget ()
+-- widgetFromTile Empty = empty
+-- widgetFromTile (Cell d (Tile t _)) = fromRaw $ case (t, d) of
+--   (Path, North)   -> [" │   │ ",
+--                       " │   │ ",
+--                       " │   │ "]
+--   (Path, West)    -> ["───────",
+--                       "       ",
+--                       "───────"]
+--   (Path, South)   -> [" │   │ ",
+--                       " │   │ ",
+--                       " │   │ "]
+--   (Path, East)    -> ["───────",
+--                       "       ",
+--                       "───────"]
+--   (Corner, North) -> ["─┘   │ ",
+--                       "     │ ",
+--                       "─────┘ "]
+--   (Corner, West)  -> ["─────┐ ",
+--                       "     │ ",
+--                       "─┐   │ "]
+--   (Corner, South) -> [" ┌─────",
+--                       " │     ",
+--                       " │   ┌─"]
+--   (Corner, East)  -> [" │   └─",
+--                       " │     ",
+--                       " │   ┌─"]
+--   (Fork, North)   -> ["─┘   └─",
+--                       "       ",
+--                       "───────"]
+--   (Fork, West)    -> ["─┘   │ ",
+--                       "     │ ",
+--                       "─┐   │ "]
+--   (Fork, South)   -> ["───────",
+--                       "       ",
+--                       "─┐   ┌─"]
+--   (Fork, East)    -> [" │   └─",
+--                       " │     ",
+--                       " │   ┌─"]
 
 empty :: Widget ()
-empty = fromRaw $ replicate 3 "       "
+empty = fromRaw rawEmpty
 
 fromRaw :: [String] -> Widget ()
 fromRaw r = Brick.str (intercalate "\n" r)
@@ -142,3 +182,12 @@ mergeTiles = mergeWith mergeRows
 
 mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
 mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
+
+rawEmpty :: [String]
+rawEmpty = replicate 3 "       "
+
+rawEmptyBoard :: Map Position [String]
+rawEmptyBoard = Map.fromList [((x,y), rawEmpty) | x <- size, y <- size]
+  where
+    size :: [Int]
+    size = [0..8]

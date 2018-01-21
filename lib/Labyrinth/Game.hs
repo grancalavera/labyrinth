@@ -25,17 +25,19 @@ import           Labyrinth.Board     (Board, Position)
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
 import           Labyrinth.Tile      (Tile(..), Terrain(..))
-import qualified Labyrinth.Gate      as Gate
 import           Labyrinth.Gate      (Gate(..))
 import qualified Labyrinth.Cell      as Cell
 import           Labyrinth.Cell      (Cell(..))
+
+import           Data.Map            (Map)
+import qualified Data.Map            as Map
 
 data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentCellPosition :: Maybe Position
     , _players             :: Players
     , _tiles               :: Board Tile
-    , _gates               :: Board Gate
+    , _gates               :: Map Position Gate
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -66,13 +68,13 @@ initialGame = do
 
   let movingCells' = zip (defaultCellCurrentPosition:ps) ts
       tiles'       = Board.fromList (fixedCells ++ movingCells')
-      gates'       = Board.fromList gateCells
+      gates'       = Map.fromList gateCells
 
   return $ fromTiles tiles' <>
            fromGates gates' <>
            fromCurrentCellPosition defaultCellCurrentPosition
 
-fromGates :: Board Gate -> Game
+fromGates :: Map Position Gate -> Game
 fromGates g = mempty & gates .~ g
 
 fromTiles :: Board Tile -> Game
@@ -107,19 +109,19 @@ nextPlayer g = do
 defaultCellCurrentPosition :: Position
 defaultCellCurrentPosition = (2,0)
 
-gateCells :: [(Position, Cell Gate)]
-gateCells = [ ((2, 0), Cell South Gate.open)
-            , ((4, 0), Cell South Gate.open)
-            , ((6, 0), Cell South Gate.open)
-            , ((0, 2), Cell East Gate.open)
-            , ((0, 4), Cell East Gate.open)
-            , ((0, 6), Cell East Gate.open)
-            , ((8, 2), Cell West Gate.open)
-            , ((8, 4), Cell West Gate.open)
-            , ((8, 6), Cell West Gate.open)
-            , ((2, 8), Cell North Gate.open)
-            , ((4, 8), Cell North Gate.open)
-            , ((6, 8), Cell North Gate.open)
+gateCells :: [(Position, Gate)]
+gateCells = [ ((2, 0), Open)
+            , ((4, 0), Open)
+            , ((6, 0), Open)
+            , ((0, 2), Open)
+            , ((0, 4), Open)
+            , ((0, 6), Open)
+            , ((8, 2), Open)
+            , ((8, 4), Open)
+            , ((8, 6), Open)
+            , ((2, 8), Open)
+            , ((4, 8), Open)
+            , ((6, 8), Open)
             ]
 
 fixedCells :: [(Position, Cell Tile)]
