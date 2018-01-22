@@ -16,6 +16,7 @@ import           Brick                  ( App(..)
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import           Labyrinth.Direction    (Direction(..))
+import           Labyrinth.Gate         (Gate(..))
 import           Labyrinth.Cell         (Cell(..))
 import           Labyrinth.Gate         (Gate)
 import           Labyrinth.Tile         ( Tile(..)
@@ -46,13 +47,12 @@ drawUI g =
   ]
   where
     gates' :: Map Position [String]
-    gates' = Map.mapWithKey rawFromPosAndGate (g ^. gates)
+    gates' = Map.map toRawGate (g ^. gates)
     board' :: Map Position [String]
     board' = Map.union gates' rawEmptyBoard
 
 toWidgetRow :: [(Position, [String])] -> Widget ()
 toWidgetRow r = Brick.hBox $ map (fromRaw . snd) r
--- toWidgetRow r = Brick.hBox $ map (\ _ -> Brick.str " cell ") r
 
 toRows :: Map Position a -> [[(Position, a)]]
 toRows m = map (Map.toList . (filterByRow m)) (rowSpread m)
@@ -65,36 +65,40 @@ rowSpread m = fromMaybe [] $ do
 
 rowMax :: (Map Position a) -> Maybe Int
 rowMax m = do
-  (((_, r), _), _) <- Map.maxViewWithKey m
-  return r
+  (((_, i), _), _) <- Map.maxViewWithKey m
+  return i
 
 rowMin :: (Map Position a) -> Maybe Int
 rowMin m = do
-  (((_, r), _), _) <- Map.minViewWithKey m
-  return r
+  (((_, i), _), _) <- Map.minViewWithKey m
+  return i
+
+colMax :: (Map Position a) -> Maybe Int
+colMax m = do
+  (((i, _), _), _) <- Map.maxViewWithKey m
+  return i
+
+colMin :: (Map Position a) -> Maybe Int
+colMin m = do
+  (((i, _), _), _) <- Map.minViewWithKey m
+  return i
 
 filterByRow :: Map Position a -> Int -> Map Position a
 filterByRow m r = Map.filterWithKey (\(_, i) ->  \_ -> r == i) m
 
--- drawUI g =
---   [ Brick.vBox $ boardToWidgetRows $ board'
---   ]
---   where
---     board' = Game.blankBoard <> g ^. gates <> g ^. board
-
--- boardToWidgetRows :: (Cell a -> Widget()) -> Board a -> [Widget ()]
--- boardToWidgetRows toWidget b = map (toWidgetRow b) [0..8]
---   where
---     toWidgetRow :: Board a -> Int -> Widget ()
---     toWidgetRow b r = Brick.hBox $ map toWidget $ Board.toListByRow r b
-
--- toWidget :: (Position, Cell) -> Widget ()
--- toWidget (_, c) = widgetFromCell c
-
-rawFromPosAndGate :: Position -> Gate -> [String]
-rawFromPosAndGate _ _ = ["       ",
-                         "   ▲   ",
-                         "       "]
+toRawGate :: Gate -> [String]
+toRawGate (Gate North _) = ["       ",
+                            "   ▲   ",
+                            "       "]
+toRawGate (Gate West _)  = ["       ",
+                            "  ◄    ",
+                            "       "]
+toRawGate (Gate South _) = ["       ",
+                            "   ▼   ",
+                            "       "]
+toRawGate (Gate East _)  = ["       ",
+                            "    ►  ",
+                            "       "]
 
 -- type WMap = Map Position (Widget ())
 

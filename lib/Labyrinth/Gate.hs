@@ -1,4 +1,5 @@
 module Labyrinth.Gate
     ( Gate (..)
     ) where
-data Gate = Open | Closed deriving (Eq, Show)
+import Labyrinth.Direction (Direction)
+data Gate = Gate Direction Bool deriving (Eq, Show)

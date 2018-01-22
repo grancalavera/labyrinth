@@ -110,18 +110,18 @@ defaultCellCurrentPosition :: Position
 defaultCellCurrentPosition = (2,0)
 
 gateCells :: [(Position, Gate)]
-gateCells = [ ((2, 0), Open)
-            , ((4, 0), Open)
-            , ((6, 0), Open)
-            , ((0, 2), Open)
-            , ((0, 4), Open)
-            , ((0, 6), Open)
-            , ((8, 2), Open)
-            , ((8, 4), Open)
-            , ((8, 6), Open)
-            , ((2, 8), Open)
-            , ((4, 8), Open)
-            , ((6, 8), Open)
+gateCells = [ ((2, 0), Gate South True)
+            , ((4, 0), Gate South True)
+            , ((6, 0), Gate South True)
+            , ((0, 2), Gate East True)
+            , ((0, 4), Gate East True)
+            , ((0, 6), Gate East True)
+            , ((8, 2), Gate West True)
+            , ((8, 4), Gate West True)
+            , ((8, 6), Gate West True)
+            , ((2, 8), Gate North True)
+            , ((4, 8), Gate North True)
+            , ((6, 8), Gate North True)
             ]
 
 fixedCells :: [(Position, Cell Tile)]
