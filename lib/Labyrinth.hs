@@ -1,11 +1,14 @@
 module Labyrinth
   ( shuffle
+  , Position
   ) where
 
 import qualified Data.Array.IO  as AIO
 import           Data.Array.IO  (IOArray)
 import           Control.Monad  (forM)
 import           System.Random  (randomRIO)
+
+type Position = (Int, Int)
 
 shuffle :: [a] -> IO [a]
 shuffle xs = do

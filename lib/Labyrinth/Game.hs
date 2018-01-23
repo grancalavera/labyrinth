@@ -26,8 +26,6 @@ import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
 import           Labyrinth.Tile      (Tile(..), Terrain(..))
 import           Labyrinth.Gate      (Gate(..))
-import qualified Labyrinth.Cell      as Cell
-import           Labyrinth.Cell      (Cell(..))
 
 import           Data.Map            (Map)
 import qualified Data.Map            as Map
@@ -53,8 +51,8 @@ instance Monoid Game where
     { _currentPlayer       = (r ^. currentPlayer) <|> (l ^. currentPlayer)
     , _currentCellPosition = (r ^. currentCellPosition) <|> (l ^. currentCellPosition)
     , _players             = (l ^. players) <> (r ^. players)
-    , _tiles               = (l ^. tiles) <> (r ^. tiles)
-    , _gates               = (l ^. gates) <> (r ^. gates)
+    , _tiles               = (r ^. tiles) <> (l ^. tiles)
+    , _gates               = (r ^. gates) <> (l ^. gates)
     }
 
 --------------------------------------------------------------------------------
@@ -64,7 +62,7 @@ instance Monoid Game where
 initialGame :: IO Game
 initialGame = do
   ps <- Labyrinth.shuffle movingPositions
-  ts <- Labyrinth.shuffle movingCells >>= mapM Cell.randomRotate
+  ts <- Labyrinth.shuffle movingCells >>= mapM Tile.randomRotate
 
   let movingCells' = zip (defaultCellCurrentPosition:ps) ts
       tiles'       = Board.fromList (fixedCells ++ movingCells')
@@ -124,29 +122,29 @@ gateCells = [ ((2, 0), Gate South True)
             , ((6, 8), Gate North True)
             ]
 
-fixedCells :: [(Position, Cell Tile)]
-fixedCells = [ ((1, 1), Cell South (Tile.fromTerrain Corner))
-             , ((7, 1), Cell West (Tile.fromTerrain Corner))
-             , ((1, 7), Cell East (Tile.fromTerrain Corner))
-             , ((7, 7), Cell North (Tile.fromTerrain Corner))
-             , ((3, 1), Cell South (Tile.fromTerrain Fork))
-             , ((5, 1), Cell South (Tile.fromTerrain Fork))
-             , ((1, 3), Cell East (Tile.fromTerrain Fork))
-             , ((1, 5), Cell East (Tile.fromTerrain Fork))
-             , ((7, 3), Cell West (Tile.fromTerrain Fork))
-             , ((7, 5), Cell West (Tile.fromTerrain Fork))
-             , ((3, 7), Cell North (Tile.fromTerrain Fork))
-             , ((5, 7), Cell North (Tile.fromTerrain Fork))
-             , ((3, 3), Cell East (Tile.fromTerrain Fork))
-             , ((5, 3), Cell South (Tile.fromTerrain Fork))
-             , ((3, 5), Cell North (Tile.fromTerrain Fork))
-             , ((5, 5), Cell West (Tile.fromTerrain Fork))
+fixedCells :: [(Position, Tile)]
+fixedCells = [ ((1, 1), Tile Corner South Nothing)
+             , ((7, 1), Tile Corner West Nothing)
+             , ((1, 7), Tile Corner East Nothing)
+             , ((7, 7), Tile Corner North Nothing)
+             , ((3, 1), Tile Fork South Nothing)
+             , ((5, 1), Tile Fork South Nothing)
+             , ((1, 3), Tile Fork East Nothing)
+             , ((1, 5), Tile Fork East Nothing)
+             , ((7, 3), Tile Fork West Nothing)
+             , ((7, 5), Tile Fork West Nothing)
+             , ((3, 7), Tile Fork North Nothing)
+             , ((5, 7), Tile Fork North Nothing)
+             , ((3, 3), Tile Fork East Nothing)
+             , ((5, 3), Tile Fork South Nothing)
+             , ((3, 5), Tile Fork North Nothing)
+             , ((5, 5), Tile Fork West Nothing)
              ]
 
-movingCells :: [Cell Tile]
-movingCells = replicate 12 (Cell North (Tile.fromTerrain Path)) ++
-              replicate 16 (Cell North (Tile.fromTerrain Corner)) ++
-              replicate 6  (Cell North (Tile.fromTerrain Fork))
+movingCells :: [Tile]
+movingCells = replicate 12 (Tile Path North Nothing) ++
+              replicate 16 (Tile Corner North Nothing) ++
+              replicate 6  (Tile Fork North Nothing)
 
 movingPositions :: [Position]
 movingPositions =

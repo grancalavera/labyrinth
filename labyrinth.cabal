@@ -21,12 +21,10 @@ library
     Labyrinth.Players
     Labyrinth.Game
     Labyrinth.Tile
-    Labyrinth.Cell
     Labyrinth.Board
     Labyrinth.UI
     Labyrinth.Goal
     Labyrinth.Direction
-    Labyrinth.Transitable
     Labyrinth.Gate
     Labyrinth
   build-depends:
