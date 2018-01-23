@@ -17,15 +17,9 @@ import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
-import           Labyrinth.Cell         (Cell(..))
-import           Labyrinth.Gate         (Gate)
-import           Labyrinth.Tile         ( Tile(..)
-                                        , Terrain(..)
-                                        )
-import qualified Labyrinth.Board        as Board
-import           Labyrinth.Board        (Board, Position)
 import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         (Game, gates)--, tiles)
+import           Labyrinth.Game         (Game, gates)
+import           Labyrinth.Board        (Position)
 
 main :: IO ()
 main = void $ Brick.defaultMain app mempty
@@ -43,16 +37,13 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  [ Brick.vBox $ map toWidgetRow (toRows board')
+  [ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (toRows board')
   ]
   where
     gates' :: Map Position [String]
     gates' = Map.map toRawGate (g ^. gates)
     board' :: Map Position [String]
     board' = Map.union gates' rawEmptyBoard
-
-toWidgetRow :: [(Position, [String])] -> Widget ()
-toWidgetRow r = Brick.hBox $ map (fromRaw . snd) r
 
 toRows :: Map Position a -> [[(Position, a)]]
 toRows m = map (Map.toList . (filterByRow m)) (rowSpread m)
@@ -99,33 +90,6 @@ toRawGate (Gate South _) = ["       ",
 toRawGate (Gate East _)  = ["       ",
                             "    ►  ",
                             "       "]
-
--- type WMap = Map Position (Widget ())
-
--- toGateMap :: Board Gate -> WMap
--- toGateMap = toWidgetMap widgetFromGate
-
--- toTileMap :: Board Tile -> WMap
--- toTileMap = toWidgetMap widgetFromTile
-
--- toWidgetMap :: (Cell a -> Widget()) -> Board a -> WMap
--- toWidgetMap f b = Map.map f (Board.toMap b)
-
--- widgetFromGate :: Cell Gate -> Widget ()
--- widgetFromGate Empty = empty
--- widgetFromGate (Cell d _) = fromRaw $ case d of
---   North -> ["       ",
---             "   ▲   ",
---             "       "]
---   West  -> ["       ",
---             "  ◄    ",
---             "       "]
---   South -> ["       ",
---             "   ▼   ",
---             "       "]
---   East  -> ["       ",
---             "    ►  ",
---             "       "]
 
 -- widgetFromTile :: Cell Tile -> Widget ()
 -- widgetFromTile Empty = empty
