@@ -99,7 +99,7 @@ toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
                       " │   ┌─"]
   (Corner, East)  -> [" │   └─",
                       " │     ",
-                      " │   ┌─"]
+                      " └─────"]
   (Fork, North)   -> ["─┘   └─",
                       "       ",
                       "───────"]
