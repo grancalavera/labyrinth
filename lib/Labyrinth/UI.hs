@@ -1,12 +1,8 @@
 module Labyrinth.UI where
 
-import qualified Data.Map               as Map
-import           Data.Map               (Map)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void)
--- import           Data.Monoid            ((<>))
-import           Data.Maybe             (fromMaybe)
-
+import           Data.Monoid            ((<>))
 import           Lens.Micro             ((^.))
 import qualified Brick                  as Brick
 import           Brick                  ( App(..)
@@ -19,7 +15,8 @@ import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
 import qualified Labyrinth.Game         as Game
 import           Labyrinth.Game         (Game, gates)
-import           Labyrinth.Board        (Position)
+import qualified Labyrinth.Board        as Board
+import           Labyrinth.Board        (Board)
 
 main :: IO ()
 main = void $ Brick.defaultMain app mempty
@@ -37,45 +34,13 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  [ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (toRows board')
+  [ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
   ]
   where
-    gates' :: Map Position [String]
-    gates' = Map.map toRawGate (g ^. gates)
-    board' :: Map Position [String]
-    board' = Map.union gates' rawEmptyBoard
-
-toRows :: Map Position a -> [[(Position, a)]]
-toRows m = map (Map.toList . (filterByRow m)) (rowSpread m)
-
-rowSpread :: (Map Position a) -> [Int]
-rowSpread m = fromMaybe [] $ do
-  mn <- rowMin m
-  mx <- rowMax m
-  return [mn..mx]
-
-rowMax :: (Map Position a) -> Maybe Int
-rowMax m = do
-  (((_, i), _), _) <- Map.maxViewWithKey m
-  return i
-
-rowMin :: (Map Position a) -> Maybe Int
-rowMin m = do
-  (((_, i), _), _) <- Map.minViewWithKey m
-  return i
-
-colMax :: (Map Position a) -> Maybe Int
-colMax m = do
-  (((i, _), _), _) <- Map.maxViewWithKey m
-  return i
-
-colMin :: (Map Position a) -> Maybe Int
-colMin m = do
-  (((i, _), _), _) <- Map.minViewWithKey m
-  return i
-
-filterByRow :: Map Position a -> Int -> Map Position a
-filterByRow m r = Map.filterWithKey (\(_, i) ->  \_ -> r == i) m
+    gates' :: Board [String]
+    gates' = Board.map toRawGate (g ^. gates)
+    board' :: Board [String]
+    board' = gates' <> rawEmptyBoard
 
 toRawGate :: Gate -> [String]
 toRawGate (Gate North _) = ["       ",
@@ -154,8 +119,8 @@ mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
 rawEmpty :: [String]
 rawEmpty = replicate 3 "       "
 
-rawEmptyBoard :: Map Position [String]
-rawEmptyBoard = Map.fromList [((x,y), rawEmpty) | x <- size, y <- size]
+rawEmptyBoard :: Board [String]
+rawEmptyBoard = Board.fromList [((x,y), rawEmpty) | x <- size, y <- size]
   where
     size :: [Int]
     size = [0..8]

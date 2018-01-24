@@ -27,15 +27,12 @@ import qualified Labyrinth.Tile      as Tile
 import           Labyrinth.Tile      (Tile(..), Terrain(..))
 import           Labyrinth.Gate      (Gate(..))
 
-import           Data.Map            (Map)
-import qualified Data.Map            as Map
-
 data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentCellPosition :: Maybe Position
     , _players             :: Players
     , _tiles               :: Board Tile
-    , _gates               :: Map Position Gate
+    , _gates               :: Board Gate
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -66,13 +63,13 @@ initialGame = do
 
   let movingCells' = zip (defaultCellCurrentPosition:ps) ts
       tiles'       = Board.fromList (fixedCells ++ movingCells')
-      gates'       = Map.fromList gateCells
+      gates'       = Board.fromList gateCells
 
   return $ fromTiles tiles' <>
            fromGates gates' <>
            fromCurrentCellPosition defaultCellCurrentPosition
 
-fromGates :: Map Position Gate -> Game
+fromGates :: Board Gate -> Game
 fromGates g = mempty & gates .~ g
 
 fromTiles :: Board Tile -> Game
