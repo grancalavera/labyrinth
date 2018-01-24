@@ -3,6 +3,7 @@ module Labyrinth.Goal (
   , Found
   , Treasure (..)
   , treasures
+  , fromTreasure
   ) where
 
 data Treasure = Bat |  Beetle | Book | Chandelier | Chest | Crown | Dragon
@@ -12,6 +13,9 @@ data Treasure = Bat |  Beetle | Book | Chandelier | Chest | Crown | Dragon
 
 type Found = Bool
 data Goal = Goal Treasure Found deriving (Eq, Show)
+
+fromTreasure :: Treasure -> Goal
+fromTreasure t = Goal t False
 
 treasures :: [Treasure]
 treasures = [Bat ..]

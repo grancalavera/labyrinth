@@ -1,5 +1,6 @@
 module Labyrinth
   ( shuffle
+  , halve
   , Position
   ) where
 
@@ -23,3 +24,10 @@ shuffle xs = do
     n = length xs
     newArray :: Int -> [a] -> IO (IOArray Int a)
     newArray n' xs' = AIO.newListArray (1, n') xs'
+
+halve :: [a] -> ([a],[a])
+halve [] = ([], [])
+halve ls = (take half ls, drop half ls)
+  where
+    half :: Int
+    half = length ls `div` 2

@@ -24,8 +24,10 @@ import qualified Labyrinth.Board     as Board
 import           Labyrinth.Board     (Board, Position)
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
-import           Labyrinth.Tile      (Tile(..), Terrain(..))
+import           Labyrinth.Tile      (Tile(..), Terrain(..), goal)
 import           Labyrinth.Gate      (Gate(..))
+import qualified Labyrinth.Goal      as Goal
+import           Labyrinth.Goal      (Goal)
 
 data Game = Game
     { _currentPlayer       :: Maybe Player
@@ -59,15 +61,40 @@ instance Monoid Game where
 initialGame :: IO Game
 initialGame = do
   ps <- Labyrinth.shuffle movingPositions
-  ts <- Labyrinth.shuffle movingCells >>= mapM Tile.randomRotate
+  mt <- Labyrinth.shuffle movingTiles >>= mapM Tile.randomRotate
+  ts <- Labyrinth.shuffle Goal.treasures
 
-  let movingCells' = zip (defaultCellCurrentPosition:ps) ts
-      tiles'       = Board.fromList (fixedCells ++ movingCells')
-      gates'       = Board.fromList gateCells
+  let gatesBoard       = Board.fromList gateList
+      goals            = map Goal.fromTreasure ts
+      fixedTilesBoard  = Board.fromList tileList
+      movingTilesBoard   = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
 
-  return $ fromTiles tiles' <>
-           fromGates gates' <>
+      (fixedGoals, movingGoals) = Labyrinth.halve goals
+      (cornerGoals, forkGoals)  = Labyrinth.halve movingGoals
+
+      fixedGoalTilesBoard = Board.filterByPositions fixedGoalPositions fixedTilesBoard
+      movingCornersBoard = filterByTerrain Corner movingTilesBoard
+      movingForksBoard   = filterByTerrain Corner movingTilesBoard
+
+      b1 = addGoals fixedGoalTilesBoard fixedGoals
+      b2 = addGoals movingCornersBoard cornerGoals
+      b3 = addGoals movingForksBoard forkGoals
+
+  return $ fromTiles (b1 <> b2 <> b3 <> fixedTilesBoard <> movingTilesBoard) <>
+           fromGates gatesBoard <>
            fromCurrentCellPosition defaultCellCurrentPosition
+
+addGoals :: Board Tile -> [Goal] -> Board Tile
+addGoals b gs = Board.fromList $ map addGoal $ zip (Board.toList b) gs
+  where
+    addGoal :: ((Position, Tile), Goal) -> (Position, Tile)
+    addGoal ((p, t), g) = (p, t & goal .~ Just g)
+
+filterByTerrain :: Terrain -> Board Tile -> Board Tile
+filterByTerrain t = Board.filter byTerrain
+  where
+    byTerrain :: Tile -> Bool
+    byTerrain (Tile t' _ _) = t == t'
 
 fromGates :: Board Gate -> Game
 fromGates g = mempty & gates .~ g
@@ -104,8 +131,8 @@ nextPlayer g = do
 defaultCellCurrentPosition :: Position
 defaultCellCurrentPosition = (2,0)
 
-gateCells :: [(Position, Gate)]
-gateCells = [ ((2, 0), Gate South True)
+gateList :: [(Position, Gate)]
+gateList = [ ((2, 0), Gate South True)
             , ((4, 0), Gate South True)
             , ((6, 0), Gate South True)
             , ((0, 2), Gate East True)
@@ -119,8 +146,8 @@ gateCells = [ ((2, 0), Gate South True)
             , ((6, 8), Gate North True)
             ]
 
-fixedCells :: [(Position, Tile)]
-fixedCells = [ ((1, 1), Tile Corner South Nothing)
+tileList :: [(Position, Tile)]
+tileList = [ ((1, 1), Tile Corner South Nothing)
              , ((7, 1), Tile Corner West Nothing)
              , ((1, 7), Tile Corner East Nothing)
              , ((7, 7), Tile Corner North Nothing)
@@ -138,8 +165,8 @@ fixedCells = [ ((1, 1), Tile Corner South Nothing)
              , ((5, 5), Tile Fork West Nothing)
              ]
 
-movingCells :: [Tile]
-movingCells = replicate 12 (Tile Path North Nothing) ++
+movingTiles :: [Tile]
+movingTiles = replicate 12 (Tile Path North Nothing) ++
               replicate 16 (Tile Corner North Nothing) ++
               replicate 6  (Tile Fork North Nothing)
 
@@ -147,3 +174,17 @@ movingPositions :: [Position]
 movingPositions =
   [(x,y) | x <- [2,4,6], y <- [1,3,5,7]] ++
   [(x,y) | x <- [1..7], y <- [2, 4, 6]]
+
+fixedGoalPositions :: [Position]
+fixedGoalPositions = [ (3, 1)
+                     , (5, 1)
+                     , (1, 3)
+                     , (3, 3)
+                     , (5, 3)
+                     , (7, 3)
+                     , (3, 5)
+                     , (5, 5)
+                     , (7, 5)
+                     , (3, 7)
+                     , (5, 7)
+                     ]

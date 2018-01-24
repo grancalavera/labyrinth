@@ -2,12 +2,15 @@ module Labyrinth.Board
     ( Board
     , Position
     , fromList
+    , toList
     , filterByRow
     , toRows
     , map
+    , filter
+    , filterByPositions
     ) where
 
-import           Prelude        hiding (map)
+import           Prelude        hiding (map, filter)
 import qualified Prelude        as Prel
 import           Data.Monoid    ((<>))
 import qualified Data.Map       as Map
@@ -30,10 +33,22 @@ map :: (a -> b) -> Board a -> Board b
 map f (Board m) = Board $ Map.map f m
 
 toRows :: Board a -> [[(Position, a)]]
-toRows b = Prel.map (toList . (filterByRow b)) (rowSpread b)
+toRows b = Prel.map (toList . (flip filterByRow b)) (rowSpread b)
 
-filterByRow :: Board a -> Int -> Board a
-filterByRow (Board m) r = Board $ Map.filterWithKey (\(_, i) -> \_ -> r == i) m
+filter :: (a -> Bool) -> Board a -> Board a
+filter f (Board m) = Board $ Map.filter f m
+
+filterByRow :: Int -> Board a -> Board a
+filterByRow r (Board m) = Board $ Map.filterWithKey byRow m
+  where
+    byRow :: Position -> a -> Bool
+    byRow (_, i) _ = i == r
+
+filterByPositions :: [Position] -> Board a -> Board a
+filterByPositions ps (Board m) = Board $ Map.filterWithKey byPositions m
+  where
+    byPositions :: Position -> a -> Bool
+    byPositions p _ = p `elem` ps
 
 rowMin :: Board a -> Maybe Int
 rowMin (Board b) = do
