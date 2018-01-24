@@ -13,7 +13,11 @@ import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
-import           Labyrinth.Tile         (Tile(..), Terrain(..), direction, terrain)
+import           Labyrinth.Tile         ( Tile(..)
+                                        , Terrain(..)
+                                        , direction
+                                        , terrain
+                                        )
 import qualified Labyrinth.Game         as Game
 import           Labyrinth.Game         (Game, gates, tiles)
 import qualified Labyrinth.Board        as Board
