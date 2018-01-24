@@ -13,8 +13,9 @@ import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
+import           Labyrinth.Tile         (Tile(..), Terrain(..), direction, terrain)
 import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         (Game, gates)
+import           Labyrinth.Game         (Game, gates, tiles)
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Board)
 
@@ -39,8 +40,10 @@ drawUI g =
   where
     gates' :: Board [String]
     gates' = Board.map toRawGate (g ^. gates)
+    tiles' :: Board [String]
+    tiles' = Board.map toRawTile (g ^. tiles)
     board' :: Board [String]
-    board' = gates' <> rawEmptyBoard
+    board' = tiles' <> gates' <> rawEmptyBoard
 
 toRawGate :: Gate -> [String]
 toRawGate (Gate North _) = ["       ",
@@ -56,45 +59,44 @@ toRawGate (Gate East _)  = ["       ",
                             "    ►  ",
                             "       "]
 
--- widgetFromTile :: Cell Tile -> Widget ()
--- widgetFromTile Empty = empty
--- widgetFromTile (Cell d (Tile t _)) = fromRaw $ case (t, d) of
---   (Path, North)   -> [" │   │ ",
---                       " │   │ ",
---                       " │   │ "]
---   (Path, West)    -> ["───────",
---                       "       ",
---                       "───────"]
---   (Path, South)   -> [" │   │ ",
---                       " │   │ ",
---                       " │   │ "]
---   (Path, East)    -> ["───────",
---                       "       ",
---                       "───────"]
---   (Corner, North) -> ["─┘   │ ",
---                       "     │ ",
---                       "─────┘ "]
---   (Corner, West)  -> ["─────┐ ",
---                       "     │ ",
---                       "─┐   │ "]
---   (Corner, South) -> [" ┌─────",
---                       " │     ",
---                       " │   ┌─"]
---   (Corner, East)  -> [" │   └─",
---                       " │     ",
---                       " │   ┌─"]
---   (Fork, North)   -> ["─┘   └─",
---                       "       ",
---                       "───────"]
---   (Fork, West)    -> ["─┘   │ ",
---                       "     │ ",
---                       "─┐   │ "]
---   (Fork, South)   -> ["───────",
---                       "       ",
---                       "─┐   ┌─"]
---   (Fork, East)    -> [" │   └─",
---                       " │     ",
---                       " │   ┌─"]
+toRawTile :: Tile -> [String]
+toRawTile t = case (t ^. terrain, t ^. direction) of
+  (Path, North)   -> [" │   │ ",
+                      " │   │ ",
+                      " │   │ "]
+  (Path, West)    -> ["───────",
+                      "       ",
+                      "───────"]
+  (Path, South)   -> [" │   │ ",
+                      " │   │ ",
+                      " │   │ "]
+  (Path, East)    -> ["───────",
+                      "       ",
+                      "───────"]
+  (Corner, North) -> ["─┘   │ ",
+                      "     │ ",
+                      "─────┘ "]
+  (Corner, West)  -> ["─────┐ ",
+                      "     │ ",
+                      "─┐   │ "]
+  (Corner, South) -> [" ┌─────",
+                      " │     ",
+                      " │   ┌─"]
+  (Corner, East)  -> [" │   └─",
+                      " │     ",
+                      " │   ┌─"]
+  (Fork, North)   -> ["─┘   └─",
+                      "       ",
+                      "───────"]
+  (Fork, West)    -> ["─┘   │ ",
+                      "     │ ",
+                      "─┐   │ "]
+  (Fork, South)   -> ["───────",
+                      "       ",
+                      "─┐   ┌─"]
+  (Fork, East)    -> [" │   └─",
+                      " │     ",
+                      " │   ┌─"]
 
 empty :: Widget ()
 empty = fromRaw rawEmpty
