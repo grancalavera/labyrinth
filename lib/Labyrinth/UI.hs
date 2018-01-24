@@ -3,6 +3,7 @@ module Labyrinth.UI where
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void)
 import           Data.Monoid            ((<>))
+import           Data.Maybe             (fromMaybe)
 import           Lens.Micro             ((^.))
 import qualified Brick                  as Brick
 import           Brick                  ( App(..)
@@ -42,29 +43,39 @@ drawUI g =
   [ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
   ]
   where
-    gates' :: Board [String]
+    gates' :: Board RawCell
     gates' = Board.map toRawGate (g ^. gates)
-    tiles' :: Board [String]
+    tiles' :: Board RawCell
     tiles' = Board.map toRawTile (g ^. tiles)
-    board' :: Board [String]
+    board' :: Board RawCell
     board' = tiles' <> gates' <> rawEmptyBoard
 
-toRawGate :: Gate -> [String]
-toRawGate (Gate North _) = ["       ",
-                            "   ▲   ",
-                            "       "]
-toRawGate (Gate West _)  = ["       ",
-                            "  ◄    ",
-                            "       "]
-toRawGate (Gate South _) = ["       ",
-                            "   ▼   ",
-                            "       "]
-toRawGate (Gate East _)  = ["       ",
-                            "    ►  ",
-                            "       "]
+toRawGate :: Gate -> RawCell
+toRawGate (Gate d _) = RawCell $ case d of
+  North -> ["       ",
+            "   ▲   ",
+            "       "]
+  West  -> ["       ",
+            "  ◄    ",
+            "       "]
+  South -> ["       ",
+            "   ▼   ",
+            "       "]
+  East  -> ["       ",
+            "    ►  ",
+            "       "]
 
-toRawTile :: Tile -> [String]
-toRawTile t = case (t ^. terrain, t ^. direction) of
+toRawTile :: Tile -> RawCell
+toRawTile t = toRawTreasure t <> toRawFound t <> toRawTerrain t
+
+toRawTreasure :: Tile -> RawCell
+toRawTreasure _ = fromMaybe mempty Nothing
+
+toRawFound :: Tile -> RawCell
+toRawFound _ = fromMaybe mempty Nothing
+
+toRawTerrain :: Tile -> RawCell
+toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
   (Path, North)   -> [" │   │ ",
                       " │   │ ",
                       " │   │ "]
@@ -102,16 +113,19 @@ toRawTile t = case (t ^. terrain, t ^. direction) of
                       " │     ",
                       " │   ┌─"]
 
-empty :: Widget ()
-empty = fromRaw rawEmpty
+data RawCell = RawCell [String]
 
-fromRaw :: [String] -> Widget ()
-fromRaw r = Brick.str (intercalate "\n" r)
+instance Monoid RawCell where
+  mempty = RawCell $ replicate 3 "       "
+  RawCell l `mappend` RawCell r = RawCell $ mergeTiles l r
+
+fromRaw :: RawCell -> Widget ()
+fromRaw (RawCell r) = Brick.str (intercalate "\n" r)
 
 choose :: Char -> Char -> Char
 choose ' ' c   = c
 choose c   ' ' = c
-choose _   c   = c
+choose c   _   = c
 
 mergeRows :: String -> String -> String
 mergeRows = mergeWith choose
@@ -122,11 +136,8 @@ mergeTiles = mergeWith mergeRows
 mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
 mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
 
-rawEmpty :: [String]
-rawEmpty = replicate 3 "       "
-
-rawEmptyBoard :: Board [String]
-rawEmptyBoard = Board.fromList [((x,y), rawEmpty) | x <- size, y <- size]
+rawEmptyBoard :: Board RawCell
+rawEmptyBoard = Board.fromList [((x,y), mempty) | x <- size, y <- size]
   where
     size :: [Int]
     size = [0..8]
