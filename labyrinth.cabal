@@ -59,7 +59,6 @@ test-suite labyrinth-test
     Test.Labyrinth
     Test.Labyrinth.PlayersSpec
     Test.Labyrinth.GameSpec
-    Test.Labyrinth.TileSpec
 
   build-depends:
     base,
