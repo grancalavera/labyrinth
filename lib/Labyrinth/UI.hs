@@ -1,9 +1,11 @@
-module Labyrinth.UI where
+module Labyrinth.UI (main) where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad          (void)
+import           Control.Monad          (void, guard)
 import           Data.Monoid            ((<>))
 import           Data.Maybe             (fromMaybe)
+import qualified Data.Map               as Map
+import           Data.Map               (Map)
 import           Lens.Micro             ((^.))
 import qualified Brick                  as Brick
 import           Brick                  ( App(..)
@@ -18,11 +20,14 @@ import           Labyrinth.Tile         ( Tile(..)
                                         , Terrain(..)
                                         , direction
                                         , terrain
+                                        , goal
                                         )
 import qualified Labyrinth.Game         as Game
 import           Labyrinth.Game         (Game, gates, tiles)
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Board)
+import qualified Labyrinth.Goal         as Goal
+import           Labyrinth.Goal         (Goal(..), Treasure(..))
 
 main :: IO ()
 main = void $ Brick.defaultMain app mempty
@@ -66,13 +71,26 @@ toRawGate (Gate d _) = RawCell $ case d of
             "       "]
 
 toRawTile :: Tile -> RawCell
-toRawTile t = toRawTreasure t <> toRawFound t <> toRawTerrain t
+toRawTile t = toRawFound t <> toRawTreasure t <> toRawTerrain t
 
 toRawTreasure :: Tile -> RawCell
-toRawTreasure _ = fromMaybe mempty Nothing
+toRawTreasure t = fromMaybe mempty $ do
+  (Goal t' _) <- t ^. goal
+  c           <- Map.lookup t' treasureMap
+  return $ RawCell ["       ",
+                    "   " ++ [c] ++ "   ",
+                    "       "]
+
+treasureMap :: Map Treasure Char
+treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
 
 toRawFound :: Tile -> RawCell
-toRawFound _ = fromMaybe mempty Nothing
+toRawFound t = fromMaybe mempty $ do
+  (Goal _ isFound) <- t ^. goal
+  guard isFound
+  return $ RawCell ["       ",
+                    "   ✓   ",
+                    "       "]
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
