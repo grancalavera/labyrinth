@@ -64,31 +64,32 @@ initialGame = do
   mt <- Labyrinth.shuffle movingTiles >>= mapM Tile.randomRotate
   ts <- Labyrinth.shuffle Goal.treasures
 
-  let gatesBoard       = Board.fromList gateList
-      goals            = map Goal.fromTreasure ts
-      fixedTilesBoard  = Board.fromList tileList
-      movingTilesBoard   = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
+  let fixedTiles = Board.fromList tileList
+      movingTiles' = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
+      (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
-      (fixedGoals, movingGoals) = Labyrinth.halve goals
-      (cornerGoals, forkGoals)  = Labyrinth.halve movingGoals
+      tiles' = fromTiles $
+        addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1 <>
+        addGoals (filterByTerrain Corner movingTiles') goals2 <>
+        addGoals (filterByTerrain Fork movingTiles') goals3 <>
+        fixedTiles <> movingTiles'
 
-      fixedGoalTilesBoard = Board.filterByPositions fixedGoalPositions fixedTilesBoard
-      movingCornersBoard = filterByTerrain Corner movingTilesBoard
-      movingForksBoard   = filterByTerrain Corner movingTilesBoard
+      gates' = fromGates $ Board.fromList gateList
+      currentCellPosition' = fromCurrentCellPosition defaultCellCurrentPosition
 
-      b1 = addGoals fixedGoalTilesBoard fixedGoals
-      b2 = addGoals movingCornersBoard cornerGoals
-      b3 = addGoals movingForksBoard forkGoals
-
-  return $ fromTiles (b1 <> b2 <> b3 <> fixedTilesBoard <> movingTilesBoard) <>
-           fromGates gatesBoard <>
-           fromCurrentCellPosition defaultCellCurrentPosition
+  return $ gates' <> currentCellPosition' <> tiles'
 
 addGoals :: Board Tile -> [Goal] -> Board Tile
 addGoals b gs = Board.fromList $ map addGoal $ zip (Board.toList b) gs
   where
     addGoal :: ((Position, Tile), Goal) -> (Position, Tile)
     addGoal ((p, t), g) = (p, t & goal .~ Just g)
+
+distribute :: [a] -> ([a], [a], [a])
+distribute gs = (x, y, z)
+  where
+    (x, x') = Labyrinth.halve gs
+    (y, z)  = Labyrinth.halve x'
 
 filterByTerrain :: Terrain -> Board Tile -> Board Tile
 filterByTerrain t = Board.filter byTerrain
