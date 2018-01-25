@@ -8,6 +8,7 @@ import qualified Data.Map               as Map
 import           Data.Map               (Map)
 import           Lens.Micro             ((^.))
 import qualified Brick                  as Brick
+import qualified Brick.Widgets.Center   as C
 import           Brick                  ( App(..)
                                         , Widget
                                         , EventM
@@ -45,7 +46,7 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  [ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
+  [ C.vCenter $ C.hCenter $ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
   ]
   where
     gates' :: Board RawCell
