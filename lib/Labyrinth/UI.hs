@@ -46,7 +46,9 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  [ C.vCenter $ C.hCenter $ Brick.vBox $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
+  [ C.vCenter $ C.hCenter
+              $ Brick.vBox
+              $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
   ]
   where
     gates' :: Board RawCell
