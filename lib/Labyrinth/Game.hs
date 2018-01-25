@@ -68,11 +68,12 @@ initialGame = do
       movingTiles' = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
       (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
-      tiles' = fromTiles $
-        addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1 <>
-        addGoals (filterByTerrain Corner movingTiles') goals2 <>
-        addGoals (filterByTerrain Fork movingTiles') goals3 <>
-        fixedTiles <> movingTiles'
+      tiles' = fromTiles $ mempty
+        <> addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1
+        <> addGoals (filterByTerrain Corner movingTiles') goals2
+        <> addGoals (filterByTerrain Fork movingTiles') goals3
+        <> fixedTiles
+        <> movingTiles'
 
       gates' = fromGates $ Board.fromList gateList
       currentCellPosition' = fromCurrentCellPosition defaultCellCurrentPosition
