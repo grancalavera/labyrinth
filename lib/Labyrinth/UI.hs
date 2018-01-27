@@ -1,25 +1,39 @@
-module Labyrinth.UI where
+module Labyrinth.UI (main) where
 
 import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad          (void)
+import           Control.Monad          (void, guard)
 import           Data.Monoid            ((<>))
+import           Data.Maybe             (fromMaybe)
+import qualified Data.Map               as Map
+import           Data.Map               (Map)
 import           Lens.Micro             ((^.))
 import qualified Brick                  as Brick
+import qualified Brick.Widgets.Center   as C
 import           Brick                  ( App(..)
                                         , Widget
                                         , EventM
                                         )
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
+import           Labyrinth.Direction    (Direction(..))
+import           Labyrinth.Gate         (Gate(..))
 import           Labyrinth.Tile         ( Tile(..)
                                         , Terrain(..)
-                                        , Direction(..)
+                                        , direction
+                                        , terrain
+                                        , goal
+                                        )
+import qualified Labyrinth.Game         as Game
+import           Labyrinth.Game         ( Game
+                                        , gates
+                                        , tiles
+                                        , rowSpread
+                                        , colSpread
                                         )
 import qualified Labyrinth.Board        as Board
-import           Labyrinth.Board        (Board, Position)
-import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         (Game, board, gates)
-import           Labyrinth.Cell         (Cell, tile)
+import           Labyrinth.Board        (Board)
+import qualified Labyrinth.Goal         as Goal
+import           Labyrinth.Goal         (Goal(..), Treasure(..))
 
 main :: IO ()
 main = void $ Brick.defaultMain app mempty
@@ -37,70 +51,118 @@ startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =
-  [ Brick.vBox $ boardToWidgetRows $ board'
+  [ C.vCenter $ C.hCenter
+              $ Brick.vBox
+              $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
   ]
   where
-    board' = Game.blankBoard <> g ^. gates <> g ^. board
+    gates' :: Board RawCell
+    gates' = Board.map toRawGate (g ^. gates)
+    tiles' :: Board RawCell
+    tiles' = Board.map toRawTile (g ^. tiles)
+    board' :: Board RawCell
+    board' = tiles' <> gates' <> (rawEmptyBoard (g ^. rowSpread) (g ^. colSpread))
 
-boardToWidgetRows :: Board -> [Widget ()]
-boardToWidgetRows b = map (toWidgetRow b) [0..8]
+toRawGate :: Gate -> RawCell
+toRawGate (Gate d _) = RawCell $ case d of
+  North -> ["       ",
+            "   ▲   ",
+            "       "]
+  West  -> ["       ",
+            "  ◄    ",
+            "       "]
+  South -> ["       ",
+            "   ▼   ",
+            "       "]
+  East  -> ["       ",
+            "    ►  ",
+            "       "]
 
-toWidgetRow :: Board -> Int -> Widget ()
-toWidgetRow b r = Brick.hBox $ map toWidget $ Board.toListByRow r b
+toRawTile :: Tile -> RawCell
+toRawTile t = toRawFound t <> toRawTreasure t <> toRawTerrain t
 
-toWidget :: (Position, Cell) -> Widget ()
-toWidget (_, c) = widgetFromCell c
+toRawTreasure :: Tile -> RawCell
+toRawTreasure t = fromMaybe mempty $ do
+  (Goal t' _) <- t ^. goal
+  c           <- Map.lookup t' treasureMap
+  return $ RawCell ["       ",
+                    "   " ++ [c] ++ "   ",
+                    "       "]
 
-widgetFromCell :: Cell -> Widget ()
-widgetFromCell c = Brick.str $ intercalate "\n" $ case tile' of
-  Tile Blank _      ->  ["       ",
-                         "       ",
-                         "       "]
-  Tile Gate North   ->  ["       ",
-                         "   ▲   ",
-                         "       "]
-  Tile Gate South   ->  ["       ",
-                         "   ▼   ",
-                         "       "]
-  Tile Gate West    ->  ["       ",
-                         "  ◄    ",
-                         "       "]
-  Tile Gate East    ->  ["       ",
-                         "    ►  ",
-                         "       "]
-  Tile Corner North ->  ["─┘   │ ",
-                         "     │ ",
-                         "─────┘ "]
-  Tile Corner West  ->  ["─────┐ ",
-                         "     │ ",
-                         "─┐   │ "]
-  Tile Corner East  ->  [" │   └─",
-                         " │     ",
-                         " └─────"]
-  Tile Corner South ->  [" ┌─────",
-                         " │     ",
-                         " │   ┌─"]
-  Tile Fork East    ->  [" │   └─",
-                         " │     ",
-                         " │   ┌─"]
-  Tile Fork West    ->  ["─┘   │ ",
-                         "     │ ",
-                         "─┐   │ "]
-  Tile Fork North   ->  ["─┘   └─",
-                         "       ",
-                         "───────"]
-  Tile Fork South   ->  ["───────",
-                         "       ",
-                         "─┐   ┌─"]
-  Tile Path North -> vpath
-  Tile Path South -> vpath
-  Tile Path West  -> hpath
-  Tile Path East  -> hpath
-  where
-    tile' = c ^. tile
-    vpath =             [" │   │ ",
-                         " │   │ ",
-                         " │   │ "]
-    hpath =             ["───────",
-                         "       ",
-                         "───────"]
+treasureMap :: Map Treasure Char
+treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
+
+toRawFound :: Tile -> RawCell
+toRawFound t = fromMaybe mempty $ do
+  (Goal _ isFound) <- t ^. goal
+  guard isFound
+  return $ RawCell ["       ",
+                    "   ✓   ",
+                    "       "]
+
+toRawTerrain :: Tile -> RawCell
+toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
+  (Path, North)   -> [" │   │ ",
+                      " │   │ ",
+                      " │   │ "]
+  (Path, West)    -> ["───────",
+                      "       ",
+                      "───────"]
+  (Path, South)   -> [" │   │ ",
+                      " │   │ ",
+                      " │   │ "]
+  (Path, East)    -> ["───────",
+                      "       ",
+                      "───────"]
+  (Corner, North) -> ["─┘   │ ",
+                      "     │ ",
+                      "─────┘ "]
+  (Corner, West)  -> ["─────┐ ",
+                      "     │ ",
+                      "─┐   │ "]
+  (Corner, South) -> [" ┌─────",
+                      " │     ",
+                      " │   ┌─"]
+  (Corner, East)  -> [" │   └─",
+                      " │     ",
+                      " └─────"]
+  (Fork, North)   -> ["─┘   └─",
+                      "       ",
+                      "───────"]
+  (Fork, West)    -> ["─┘   │ ",
+                      "     │ ",
+                      "─┐   │ "]
+  (Fork, South)   -> ["───────",
+                      "       ",
+                      "─┐   ┌─"]
+  (Fork, East)    -> [" │   └─",
+                      " │     ",
+                      " │   ┌─"]
+
+data RawCell = RawCell [String]
+
+instance Monoid RawCell where
+  mempty = RawCell ["       ",
+                    "       ",
+                    "       "]
+  RawCell l `mappend` RawCell r = RawCell $ mergeTiles l r
+
+fromRaw :: RawCell -> Widget ()
+fromRaw (RawCell r) = Brick.str (intercalate "\n" r)
+
+choose :: Char -> Char -> Char
+choose ' ' c   = c
+choose c   ' ' = c
+choose c   _   = c
+
+mergeRows :: String -> String -> String
+mergeRows = mergeWith choose
+
+mergeTiles :: [String] -> [String] -> [String]
+mergeTiles = mergeWith mergeRows
+
+mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
+mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
+
+rawEmptyBoard :: [Int] -> [Int] -> Board RawCell
+rawEmptyBoard rs cs = Board.fromList [((x,y), mempty) | x <- rs, y <- cs]

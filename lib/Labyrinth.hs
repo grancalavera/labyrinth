@@ -1,14 +1,15 @@
 module Labyrinth
   ( shuffle
-  , rotateRandom
+  , halve
+  , Position
   ) where
 
 import qualified Data.Array.IO  as AIO
 import           Data.Array.IO  (IOArray)
 import           Control.Monad  (forM)
 import           System.Random  (randomRIO)
-import qualified Labyrinth.Tile as Tile
-import           Labyrinth.Tile (Tile)
+
+type Position = (Int, Int)
 
 shuffle :: [a] -> IO [a]
 shuffle xs = do
@@ -24,8 +25,9 @@ shuffle xs = do
     newArray :: Int -> [a] -> IO (IOArray Int a)
     newArray n' xs' = AIO.newListArray (1, n') xs'
 
-rotateRandom :: Tile -> IO Tile
-rotateRandom t  = do
-  i <- randomRIO (0, 3)
-  let r = foldl (.) id $ replicate i Tile.rotate
-  return $ r t
+halve :: [a] -> ([a],[a])
+halve [] = ([], [])
+halve ls = (take half ls, drop half ls)
+  where
+    half :: Int
+    half = length ls `div` 2

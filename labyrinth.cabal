@@ -21,9 +21,11 @@ library
     Labyrinth.Players
     Labyrinth.Game
     Labyrinth.Tile
-    Labyrinth.Cell
     Labyrinth.Board
     Labyrinth.UI
+    Labyrinth.Goal
+    Labyrinth.Direction
+    Labyrinth.Gate
     Labyrinth
   build-depends:
     base >= 4.7 && < 5,
@@ -57,7 +59,6 @@ test-suite labyrinth-test
     Test.Labyrinth
     Test.Labyrinth.PlayersSpec
     Test.Labyrinth.GameSpec
-    Test.Labyrinth.TileSpec
 
   build-depends:
     base,

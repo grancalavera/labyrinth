@@ -10,9 +10,11 @@ import           Test.QuickCheck
 import           Control.Monad     (replicateM)
 import           Data.List         (intercalate)
 import           Data.Monoid       ((<>))
+import           Lens.Micro        ((&), (.~))
 import qualified Labyrinth.Players as Players
 import           Labyrinth.Players (Player(..), Color(..), Players, Name)
 import           Labyrinth.Game    (Game(..))
+import qualified Labyrinth.Game    as Game
 
 instance Arbitrary Players where
   arbitrary = do
@@ -23,17 +25,9 @@ instance Arbitrary Game where
   arbitrary = do
     ps <- arbitrary
     p  <- genChoosePlayer ps
-
-    return Game
-      { _currentPlayer       = p
-      , _players             = ps
-      -- temp
-      , _board               = mempty
-      , _gates               = mempty
-      , _openGates           = mempty
-      , _currentCellPosition = Nothing
-      -- temp
-      }
+    return $ mempty
+      <> (Game.fromPlayers ps)
+      <> (mempty & Game.currentPlayer .~ p)
 
 prop_leftIdentity :: (Monoid a, Eq a) => a -> Bool
 prop_leftIdentity p = p <> mempty == p
