@@ -34,6 +34,8 @@ data Game = Game
     , _players             :: Players
     , _tiles               :: Board Tile
     , _gates               :: Board Gate
+    , _rowSpread           :: [Int]
+    , _colSpread           :: [Int]
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -44,14 +46,23 @@ instance Monoid Game where
     , _players             = mempty
     , _tiles               = mempty
     , _gates               = mempty
+    , _rowSpread           = []
+    , _colSpread           = []
     }
   l `mappend` r = Game
-    { _currentPlayer       = (r ^. currentPlayer) <|> (l ^. currentPlayer)
-    , _currentCellPosition = (r ^. currentCellPosition) <|> (l ^. currentCellPosition)
+    { _currentPlayer       = (l ^. currentPlayer) <|> (r ^. currentPlayer)
+    , _currentCellPosition = (l ^. currentCellPosition) <|> (r ^. currentCellPosition)
     , _players             = (l ^. players) <> (r ^. players)
-    , _tiles               = (r ^. tiles) <> (l ^. tiles)
-    , _gates               = (r ^. gates) <> (l ^. gates)
+    , _tiles               = (l ^. tiles) <> (r ^. tiles)
+    , _gates               = (l ^. gates) <> (r ^. gates)
+    , _rowSpread           = chooseNonEmpty (l ^. rowSpread) (r ^. rowSpread)
+    , _colSpread           = chooseNonEmpty (l ^. colSpread) (r ^. colSpread)
     }
+
+chooseNonEmpty :: [a] -> [a] -> [a]
+chooseNonEmpty [] x = x
+chooseNonEmpty x [] = x
+chooseNonEmpty x _ = x
 
 --------------------------------------------------------------------------------
 -- games

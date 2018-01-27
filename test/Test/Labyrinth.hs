@@ -30,6 +30,8 @@ instance Arbitrary Game where
       -- temp
       , _tiles               = mempty
       , _gates               = mempty
+      , _rowSpread           = mempty
+      , _colSpread           = mempty
       , _currentCellPosition = Nothing
       -- temp
       }
