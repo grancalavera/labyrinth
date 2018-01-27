@@ -5,7 +5,6 @@ module Labyrinth.Game
     , players
     , tiles
     , gates
-    , fromTiles
     , playerByColor
     , fromPlayer
     , fromCurrentPlayer
