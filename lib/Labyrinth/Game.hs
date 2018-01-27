@@ -9,6 +9,7 @@ module Labyrinth.Game
     , colSpread
     , playerByColor
     , fromPlayer
+    , fromPlayers
     , fromCurrentPlayer
     , nextPlayer
     , initialGame
@@ -119,6 +120,9 @@ fromTiles t = mempty & tiles .~ t
 
 fromPlayer :: Player -> Game
 fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
+
+fromPlayers :: Players -> Game
+fromPlayers ps = mempty $ players .~ ps
 
 fromCurrentPlayer :: Player -> Game
 fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
