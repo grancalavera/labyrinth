@@ -5,6 +5,8 @@ module Labyrinth.Game
     , players
     , tiles
     , gates
+    , rowSpread
+    , colSpread
     , playerByColor
     , fromPlayer
     , fromCurrentPlayer
@@ -78,17 +80,18 @@ initialGame = do
       movingTiles' = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
       (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
-      tiles' = fromTiles $ mempty
-        <> addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1
-        <> addGoals (filterByTerrain Corner movingTiles') goals2
-        <> addGoals (filterByTerrain Fork movingTiles') goals3
-        <> fixedTiles
-        <> movingTiles'
-
-      gates' = fromGates $ Board.fromList gateList
-      currentCellPosition' = fromCurrentCellPosition defaultCellCurrentPosition
-
-  return $ gates' <> currentCellPosition' <> tiles'
+  return $ mempty
+    <> (fromGates $ Board.fromList gateList)
+    <> (fromCurrentCellPosition defaultCellCurrentPosition)
+    <> (mempty & rowSpread .~ [0..8])
+    <> (mempty & colSpread .~ [0..8])
+    <> (fromTiles $ mempty
+       <> addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1
+       <> addGoals (filterByTerrain Corner movingTiles') goals2
+       <> addGoals (filterByTerrain Fork movingTiles') goals3
+       <> fixedTiles
+       <> movingTiles'
+       )
 
 addGoals :: Board Tile -> [Goal] -> Board Tile
 addGoals b gs = Board.fromList $ map addGoal $ zip (Board.toList b) gs

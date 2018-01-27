@@ -24,7 +24,12 @@ import           Labyrinth.Tile         ( Tile(..)
                                         , goal
                                         )
 import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         (Game, gates, tiles)
+import           Labyrinth.Game         ( Game
+                                        , gates
+                                        , tiles
+                                        , rowSpread
+                                        , colSpread
+                                        )
 import qualified Labyrinth.Board        as Board
 import           Labyrinth.Board        (Board)
 import qualified Labyrinth.Goal         as Goal
@@ -56,7 +61,7 @@ drawUI g =
     tiles' :: Board RawCell
     tiles' = Board.map toRawTile (g ^. tiles)
     board' :: Board RawCell
-    board' = tiles' <> gates' <> rawEmptyBoard
+    board' = tiles' <> gates' <> (rawEmptyBoard (g ^. rowSpread) (g ^. colSpread))
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate d _) = RawCell $ case d of
@@ -159,8 +164,5 @@ mergeTiles = mergeWith mergeRows
 mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
 mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
 
-rawEmptyBoard :: Board RawCell
-rawEmptyBoard = Board.fromList [((x,y), mempty) | x <- size, y <- size]
-  where
-    size :: [Int]
-    size = [0..8]
+rawEmptyBoard :: [Int] -> [Int] -> Board RawCell
+rawEmptyBoard rs cs = Board.fromList [((x,y), mempty) | x <- rs, y <- cs]
