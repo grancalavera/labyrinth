@@ -137,7 +137,9 @@ toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
 data RawCell = RawCell [String]
 
 instance Monoid RawCell where
-  mempty = RawCell $ replicate 3 "       "
+  mempty = RawCell ["       ",
+                    "       ",
+                    "       "]
   RawCell l `mappend` RawCell r = RawCell $ mergeTiles l r
 
 fromRaw :: RawCell -> Widget ()
