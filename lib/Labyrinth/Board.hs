@@ -33,7 +33,7 @@ map :: (a -> b) -> Board a -> Board b
 map f (Board m) = Board $ Map.map f m
 
 toRows :: Board a -> [[(Position, a)]]
-toRows b = Prel.map (toList . (flip filterByRow b)) (rowSpread b)
+toRows b = Prel.map (toList . (`filterByRow` b)) (rowSpread b)
 
 filter :: (a -> Bool) -> Board a -> Board a
 filter f (Board m) = Board $ Map.filter f m
