@@ -1,5 +1,7 @@
 module Main where
-import Labyrinth.UI.Game (playGame)
+import Labyrinth.UI (addPlayers, playGame)
 
 main :: IO ()
-main = playGame
+main = do
+  players <- addPlayers
+  playGame players

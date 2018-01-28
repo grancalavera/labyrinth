@@ -71,17 +71,20 @@ chooseNonEmpty x _ = x
 -- games
 --------------------------------------------------------------------------------
 
-initialGame :: IO Game
-initialGame = do
+initialGame :: Players -> IO Game
+initialGame pls = do
   ps <- Labyrinth.shuffle movingPositions
   mt <- Labyrinth.shuffle movingTiles >>= mapM Tile.randomRotate
   ts <- Labyrinth.shuffle Goal.treasures
+  sp <- Labyrinth.shuffle $ Players.toList pls
 
   let fixedTiles = Board.fromList tileList
       movingTiles' = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
       (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
   return $ mempty
+    <> (fromPlayers pls)
+    <> (fromCurrentPlayer $ snd (sp !! 0))
     <> (fromGates $ Board.fromList gateList)
     <> (fromCurrentCellPosition defaultCellCurrentPosition)
     <> (mempty & rowSpread .~ [0..8])

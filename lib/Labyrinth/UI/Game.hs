@@ -1,6 +1,5 @@
 module Labyrinth.UI.Game (playGame) where
 
-import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void, guard)
 import           Data.Monoid            ((<>))
 import           Data.Maybe             (fromMaybe)
@@ -11,10 +10,10 @@ import qualified Brick                  as Brick
 import qualified Brick.Widgets.Center   as C
 import           Brick                  ( App(..)
                                         , Widget
-                                        , EventM
                                         )
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
+import           Labyrinth.Players      (Players)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
 import           Labyrinth.Tile         ( Tile(..)
@@ -35,19 +34,18 @@ import           Labyrinth.Board        (Board)
 import qualified Labyrinth.Goal         as Goal
 import           Labyrinth.Goal         (Goal(..), Treasure(..))
 
-playGame :: IO ()
-playGame = void $ Brick.defaultMain app mempty
+playGame :: Players -> IO ()
+playGame ps = do
+  g <- Game.initialGame ps
+  void $ Brick.defaultMain app g
 
 app :: App Game e ()
 app = App { appDraw = drawUI
           , appHandleEvent  = Brick.resizeOrQuit
-          , appStartEvent   = startEvent
+          , appStartEvent   = return
           , appAttrMap      = const $ Brick.attrMap V.defAttr []
           , appChooseCursor = Brick.neverShowCursor
           }
-
-startEvent :: Game -> EventM () Game
-startEvent _ = liftIO Game.initialGame
 
 drawUI :: Game -> [Widget ()]
 drawUI g =

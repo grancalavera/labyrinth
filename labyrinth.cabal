@@ -26,6 +26,7 @@ library
     Labyrinth.Direction
     Labyrinth.Gate
     Labyrinth
+    Labyrinth.UI
     Labyrinth.UI.Game
     Labyrinth.UI.Players
   build-depends:

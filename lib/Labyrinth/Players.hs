@@ -11,6 +11,7 @@ module Labyrinth.Players
     , fromPlayer
     , lookup
     , lookupByColor
+    , toList
     ) where
 
 import           Prelude hiding (lookup)
@@ -42,6 +43,9 @@ lookup p (Players ps) = Map.lookup (p ^. color) ps
 
 lookupByColor :: Color -> Players -> Maybe Player
 lookupByColor c (Players ps) = Map.lookup c ps
+
+toList :: Players -> [(Color, Player)]
+toList (Players m) = Map.toList m
 
 next :: Player -> Players -> Maybe Player
 next current ps@(Players psMap)
