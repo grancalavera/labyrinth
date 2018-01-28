@@ -21,8 +21,8 @@ spec = do
     it "should replace the player on an existing `Color`" $ do
       let createdWith = Player Yellow "yellow 1"
           updatedWith = Player Yellow "yellow 2"
-          players = Players.fromPlayer createdWith <>
-                    Players.fromPlayer updatedWith
+          players = Players.fromPlayer updatedWith <>
+                    Players.fromPlayer createdWith
       Players.lookupByColor Yellow players `shouldBe` Just updatedWith
 
   describe "Turns" $ do

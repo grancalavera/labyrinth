@@ -22,11 +22,12 @@ library
     Labyrinth.Game
     Labyrinth.Tile
     Labyrinth.Board
-    Labyrinth.UI.Game
     Labyrinth.Goal
     Labyrinth.Direction
     Labyrinth.Gate
     Labyrinth
+    Labyrinth.UI.Game
+    Labyrinth.UI.Players
   build-depends:
     base >= 4.7 && < 5,
     brick,

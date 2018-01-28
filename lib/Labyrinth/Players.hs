@@ -25,7 +25,7 @@ data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord, Enum)
 data Players = Players (Map Color Player) deriving (Show, Eq)
 
 instance Monoid Players where
-  Players l `mappend` Players r = Players (Map.union r l)
+  Players l `mappend` Players r = Players (l `mappend` r)
   mempty = Players mempty
 
 data Player = Player
