@@ -20,7 +20,7 @@ import           Data.Map       (Map)
 import qualified Data.Map       as Map
 
 type Name = String
-data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord)
+data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord, Enum)
 
 data Players = Players (Map Color Player) deriving (Show, Eq)
 
@@ -53,7 +53,4 @@ next current ps@(Players psMap)
       _      -> next' (nextColor c)
 
 nextColor :: Color -> Color
-nextColor Yellow  = Blue
-nextColor Blue    = Green
-nextColor Green   = Red
-nextColor Red     = Yellow
+nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length [Yellow ..]))
