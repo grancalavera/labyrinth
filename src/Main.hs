@@ -1,5 +1,5 @@
 module Main where
-import qualified Labyrinth.UI as Labyrinth
+import Labyrinth.UI (playGame)
 
 main :: IO ()
-main = Labyrinth.main
+main = playGame

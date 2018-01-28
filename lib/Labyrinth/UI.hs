@@ -1,4 +1,4 @@
-module Labyrinth.UI (main) where
+module Labyrinth.UI (playGame) where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void, guard)
@@ -35,8 +35,8 @@ import           Labyrinth.Board        (Board)
 import qualified Labyrinth.Goal         as Goal
 import           Labyrinth.Goal         (Goal(..), Treasure(..))
 
-main :: IO ()
-main = void $ Brick.defaultMain app mempty
+playGame :: IO ()
+playGame = void $ Brick.defaultMain app mempty
 
 app :: App Game e ()
 app = App { appDraw = drawUI
