@@ -33,7 +33,7 @@ import           Labyrinth.Goal      (Goal)
 
 data Game = Game
     { _currentPlayer       :: Maybe Player
-    , _currentCellPosition :: Maybe Position
+    , _currentTilePosition :: Maybe Position
     , _players             :: Players
     , _tiles               :: Board Tile
     , _gates               :: Board Gate
@@ -45,7 +45,7 @@ makeLenses ''Game
 instance Monoid Game where
   mempty = Game
     { _currentPlayer       = Nothing
-    , _currentCellPosition = Nothing
+    , _currentTilePosition = Nothing
     , _players             = mempty
     , _tiles               = mempty
     , _gates               = mempty
@@ -54,7 +54,7 @@ instance Monoid Game where
     }
   l `mappend` r = Game
     { _currentPlayer       = (l ^. currentPlayer) <|> (r ^. currentPlayer)
-    , _currentCellPosition = (l ^. currentCellPosition) <|> (r ^. currentCellPosition)
+    , _currentTilePosition = (l ^. currentTilePosition) <|> (r ^. currentTilePosition)
     , _players             = (l ^. players) <> (r ^. players)
     , _tiles               = (l ^. tiles) <> (r ^. tiles)
     , _gates               = (l ^. gates) <> (r ^. gates)
@@ -79,14 +79,14 @@ initialGame pls = do
   sp <- Labyrinth.shuffle $ Players.toList pls
 
   let fixedTiles = Board.fromList tileList
-      movingTiles' = Board.fromList $ zip (defaultCellCurrentPosition:ps) mt
+      movingTiles' = Board.fromList $ zip (defaultCurrentTilePosition:ps) mt
       (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
   return $ mempty
     <> (fromPlayers pls)
     <> (fromCurrentPlayer $ snd (sp !! 0))
     <> (fromGates $ Board.fromList gateList)
-    <> (fromCurrentCellPosition defaultCellCurrentPosition)
+    <> (fromCurrentTilePosition defaultCurrentTilePosition)
     <> (mempty & rowSpread .~ [0..8])
     <> (mempty & colSpread .~ [0..8])
     <> (fromTiles $ mempty
@@ -130,8 +130,8 @@ fromPlayers ps = mempty $ players .~ ps
 fromCurrentPlayer :: Player -> Game
 fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
 
-fromCurrentCellPosition :: Position -> Game
-fromCurrentCellPosition p = mempty & currentCellPosition .~ (Just p)
+fromCurrentTilePosition :: Position -> Game
+fromCurrentTilePosition p = mempty & currentTilePosition .~ (Just p)
 
 --------------------------------------------------------------------------------
 -- players
@@ -150,8 +150,8 @@ nextPlayer g = do
 -- boards
 --------------------------------------------------------------------------------
 
-defaultCellCurrentPosition :: Position
-defaultCellCurrentPosition = (2,0)
+defaultCurrentTilePosition :: Position
+defaultCurrentTilePosition = (2,0)
 
 gateList :: [(Position, Gate)]
 gateList = [ ((2, 0), Gate South True)
