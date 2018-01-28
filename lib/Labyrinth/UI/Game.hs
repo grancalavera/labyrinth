@@ -1,4 +1,4 @@
-module Labyrinth.UI (playGame) where
+module Labyrinth.UI.Game (playGame) where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad          (void, guard)

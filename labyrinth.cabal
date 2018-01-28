@@ -22,7 +22,7 @@ library
     Labyrinth.Game
     Labyrinth.Tile
     Labyrinth.Board
-    Labyrinth.UI
+    Labyrinth.UI.Game
     Labyrinth.Goal
     Labyrinth.Direction
     Labyrinth.Gate
