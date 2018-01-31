@@ -6,6 +6,7 @@ module Labyrinth.Players
     , Player (..)
     , Color (..)
     , color
+    , colors
     , name
     , next
     , fromPlayer
@@ -57,4 +58,7 @@ next current ps@(Players psMap)
       _      -> next' (nextColor c)
 
 nextColor :: Color -> Color
-nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length [Yellow ..]))
+nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length colors))
+
+colors :: [Color]
+colors = [(toEnum 0::Color) ..]
