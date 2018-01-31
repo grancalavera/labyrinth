@@ -13,10 +13,13 @@ module Labyrinth.Game
     , fromCurrentPlayer
     , nextPlayer
     , initialGame
+    , playerInitPos
     ) where
 
 import           Data.Monoid         ((<>))
 import           Control.Applicative ((<|>))
+import qualified Data.Map            as Map
+import           Data.Map            (Map)
 import           Lens.Micro          ((^.), (&), (%~), (.~))
 import           Lens.Micro.TH       (makeLenses)
 import qualified Labyrinth           as Labyrinth
@@ -26,7 +29,7 @@ import qualified Labyrinth.Board     as Board
 import           Labyrinth.Board     (Board, Position)
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
-import           Labyrinth.Tile      (Tile(..), Terrain(..), goal)
+import           Labyrinth.Tile      (Tile(..), Terrain(..), goal, terrain)
 import           Labyrinth.Gate      (Gate(..))
 import qualified Labyrinth.Goal      as Goal
 import           Labyrinth.Goal      (Goal)
@@ -110,10 +113,10 @@ distribute gs = (x, y, z)
     (y, z)  = Labyrinth.halve x'
 
 filterByTerrain :: Terrain -> Board Tile -> Board Tile
-filterByTerrain t = Board.filter byTerrain
+filterByTerrain trn = Board.filter byTerrain
   where
     byTerrain :: Tile -> Bool
-    byTerrain (Tile t' _ _) = t == t'
+    byTerrain t = trn == t ^. terrain
 
 fromGates :: Board Gate -> Game
 fromGates g = mempty & gates .~ g
@@ -169,28 +172,28 @@ gateList = [ ((2, 0), Gate South True)
             ]
 
 tileList :: [(Position, Tile)]
-tileList = [ ((1, 1), Tile Corner South Nothing)
-             , ((7, 1), Tile Corner West Nothing)
-             , ((1, 7), Tile Corner East Nothing)
-             , ((7, 7), Tile Corner North Nothing)
-             , ((3, 1), Tile Fork South Nothing)
-             , ((5, 1), Tile Fork South Nothing)
-             , ((1, 3), Tile Fork East Nothing)
-             , ((1, 5), Tile Fork East Nothing)
-             , ((7, 3), Tile Fork West Nothing)
-             , ((7, 5), Tile Fork West Nothing)
-             , ((3, 7), Tile Fork North Nothing)
-             , ((5, 7), Tile Fork North Nothing)
-             , ((3, 3), Tile Fork East Nothing)
-             , ((5, 3), Tile Fork South Nothing)
-             , ((3, 5), Tile Fork North Nothing)
-             , ((5, 5), Tile Fork West Nothing)
+tileList = [ ((1, 1), Tile Corner South Nothing Nothing)
+             , ((7, 1), Tile Corner West Nothing Nothing)
+             , ((1, 7), Tile Corner East Nothing Nothing)
+             , ((7, 7), Tile Corner North Nothing Nothing)
+             , ((3, 1), Tile Fork South Nothing Nothing)
+             , ((5, 1), Tile Fork South Nothing Nothing)
+             , ((1, 3), Tile Fork East Nothing Nothing)
+             , ((1, 5), Tile Fork East Nothing Nothing)
+             , ((7, 3), Tile Fork West Nothing Nothing)
+             , ((7, 5), Tile Fork West Nothing Nothing)
+             , ((3, 7), Tile Fork North Nothing Nothing)
+             , ((5, 7), Tile Fork North Nothing Nothing)
+             , ((3, 3), Tile Fork East Nothing Nothing)
+             , ((5, 3), Tile Fork South Nothing Nothing)
+             , ((3, 5), Tile Fork North Nothing Nothing)
+             , ((5, 5), Tile Fork West Nothing Nothing)
              ]
 
 movingTiles :: [Tile]
-movingTiles = replicate 12 (Tile Path North Nothing) ++
-              replicate 16 (Tile Corner North Nothing) ++
-              replicate 6  (Tile Fork North Nothing)
+movingTiles = replicate 12 (Tile Path North Nothing Nothing) ++
+              replicate 16 (Tile Corner North Nothing Nothing) ++
+              replicate 6  (Tile Fork North Nothing Nothing)
 
 movingPositions :: [Position]
 movingPositions =
@@ -211,3 +214,6 @@ fixedGoalPositions = [ (3, 1)
                      , (3, 7)
                      , (5, 7)
                      ]
+
+playerInitPos :: Map Color Position
+playerInitPos = Map.fromList $ zip [Yellow ..] [(1,1), (7,1), (7,7), (1,7)]

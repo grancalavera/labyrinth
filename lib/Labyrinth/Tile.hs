@@ -7,6 +7,7 @@ module Labyrinth.Tile
     , direction
     , terrain
     , goal
+    , player
     , rotate
     , rotate'
     , edges
@@ -15,22 +16,24 @@ module Labyrinth.Tile
 import qualified Data.Set              as Set
 import           Data.Set              (Set)
 import           Lens.Micro.TH         (makeLenses)
-import           Lens.Micro            ((%~))
+import           Lens.Micro            ((%~), (^.))
 import           System.Random         (randomRIO)
 import           Labyrinth.Direction   (Direction(..))
 import qualified Labyrinth.Direction   as Direction
 import           Labyrinth.Goal        (Goal(..))
+import           Labyrinth.Players     (Player(..))
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile
   { _terrain :: Terrain
   , _direction :: Direction
   , _goal :: Maybe Goal
+  , _player :: Maybe Player
   } deriving (Eq, Show)
 makeLenses ''Tile
 
 edges :: Tile -> Set Direction
-edges (Tile t d _) = Set.fromList $ case (t, d) of
+edges t = Set.fromList $ case (t ^. terrain, t ^. direction) of
   (Path, North)   -> [North, South]
   (Path, West)    -> [West, East]
   (Path, South)   -> [North, South]
