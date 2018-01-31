@@ -13,7 +13,6 @@ module Labyrinth.Board
 
 import           Prelude        hiding (map, filter, lookup)
 import qualified Prelude        as Prel
-import           Data.Monoid    ((<>))
 import qualified Data.Map       as Map
 import           Data.Map       (Map)
 import           Data.Maybe     (fromMaybe)
@@ -22,7 +21,7 @@ import           Labyrinth      (Position)
 data Board a = Board (Map Position a) deriving (Show, Eq)
 instance Monoid (Board a) where
   mempty = Board mempty
-  Board l `mappend` Board r = Board (l <> r)
+  Board l `mappend` Board r = Board (l `mappend` r)
 
 fromList :: [(Position, a)] -> Board a
 fromList ls = Board (Map.fromList ls)
