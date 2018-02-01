@@ -6,9 +6,11 @@ module Labyrinth.Board
     , filterByRow
     , toRows
     , map
+    , mapWithKey
     , filter
     , filterByPositions
     , lookup
+    , insert
     ) where
 
 import           Prelude        hiding (map, filter, lookup)
@@ -32,11 +34,17 @@ toList (Board m) = Map.toList m
 map :: (a -> b) -> Board a -> Board b
 map f (Board m) = Board $ Map.map f m
 
+mapWithKey :: (Position -> a -> b) -> Board a -> Board b
+mapWithKey f (Board m) = Board $ Map.mapWithKey f m
+
 toRows :: Board a -> [[(Position, a)]]
 toRows b = Prel.map (toList . (`filterByRow` b)) (rowSpread b)
 
 filter :: (a -> Bool) -> Board a -> Board a
 filter f (Board m) = Board $ Map.filter f m
+
+insert :: Position -> a -> Board a -> Board a
+insert k x (Board m) = Board $ Map.insert k x m
 
 -- i need lookup to place players in the initial corners
 lookup :: Position -> (Board a) -> Maybe a

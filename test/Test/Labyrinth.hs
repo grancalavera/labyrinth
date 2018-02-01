@@ -26,8 +26,8 @@ instance Arbitrary Game where
     ps <- arbitrary
     p  <- genChoosePlayer ps
     return $ mempty
-      <> (Game.fromPlayers ps)
-      <> (mempty & Game.currentPlayer .~ p)
+      & Game.players .~ ps
+      & Game.currentPlayer .~ p
 
 prop_leftIdentity :: (Monoid a, Eq a) => a -> Bool
 prop_leftIdentity p = p <> mempty == p

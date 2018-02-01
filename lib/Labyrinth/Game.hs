@@ -8,9 +8,6 @@ module Labyrinth.Game
     , rowSpread
     , colSpread
     , playerByColor
-    , fromPlayer
-    , fromPlayers
-    , fromCurrentPlayer
     , nextPlayer
     , initialGame
     , playerInitPos
@@ -20,7 +17,7 @@ import           Data.Monoid         ((<>))
 import           Control.Applicative ((<|>))
 import qualified Data.Map            as Map
 import           Data.Map            (Map)
-import           Lens.Micro          ((^.), (&), (%~), (.~))
+import           Lens.Micro          ((^.), (&), (.~))
 import           Lens.Micro.TH       (makeLenses)
 import qualified Labyrinth           as Labyrinth
 import qualified Labyrinth.Players   as Players
@@ -29,7 +26,11 @@ import qualified Labyrinth.Board     as Board
 import           Labyrinth.Board     (Board, Position)
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
-import           Labyrinth.Tile      (Tile(..), Terrain(..), goal, terrain)
+import           Labyrinth.Tile      ( Tile(..)
+                                     , Terrain(..)
+                                     , goal
+                                     , terrain
+                                     )
 import           Labyrinth.Gate      (Gate(..))
 import qualified Labyrinth.Goal      as Goal
 import           Labyrinth.Goal      (Goal)
@@ -85,20 +86,20 @@ initialGame pls = do
       movingTiles' = Board.fromList $ zip (defaultCurrentTilePosition:ps) mt
       (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
-  return $ mempty
-    <> (fromPlayers pls)
-    <> (fromCurrentPlayer $ snd (sp !! 0))
-    <> (fromGates $ Board.fromList gateList)
-    <> (fromCurrentTilePosition defaultCurrentTilePosition)
-    <> (mempty & rowSpread .~ [0..8])
-    <> (mempty & colSpread .~ [0..8])
-    <> (fromTiles $ mempty
-       <> addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1
-       <> addGoals (filterByTerrain Corner movingTiles') goals2
-       <> addGoals (filterByTerrain Fork movingTiles') goals3
-       <> fixedTiles
-       <> movingTiles'
-       )
+  return $ Game
+    { _players = pls
+    , _currentPlayer = Just (snd (sp !! 0))
+    , _rowSpread = [0..8]
+    , _colSpread = [0..8]
+    , _gates = Board.fromList gateList
+    , _currentTilePosition = Just defaultCurrentTilePosition
+    , _tiles = mempty
+        <> addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1
+        <> addGoals (filterByTerrain Corner movingTiles') goals2
+        <> addGoals (filterByTerrain Fork movingTiles') goals3
+        <> fixedTiles
+        <> movingTiles'
+    }
 
 addGoals :: Board Tile -> [Goal] -> Board Tile
 addGoals b gs = Board.fromList $ map addGoal $ zip (Board.toList b) gs
@@ -117,24 +118,6 @@ filterByTerrain trn = Board.filter byTerrain
   where
     byTerrain :: Tile -> Bool
     byTerrain t = trn == t ^. terrain
-
-fromGates :: Board Gate -> Game
-fromGates g = mempty & gates .~ g
-
-fromTiles :: Board Tile -> Game
-fromTiles t = mempty & tiles .~ t
-
-fromPlayer :: Player -> Game
-fromPlayer p = mempty & players %~ (<> Players.fromPlayer p)
-
-fromPlayers :: Players -> Game
-fromPlayers ps = mempty $ players .~ ps
-
-fromCurrentPlayer :: Player -> Game
-fromCurrentPlayer p = mempty & currentPlayer .~ (Just p)
-
-fromCurrentTilePosition :: Position -> Game
-fromCurrentTilePosition p = mempty & currentTilePosition .~ (Just p)
 
 --------------------------------------------------------------------------------
 -- players
@@ -216,4 +199,4 @@ fixedGoalPositions = [ (3, 1)
                      ]
 
 playerInitPos :: Map Color Position
-playerInitPos = Map.fromList $ zip [Yellow ..] [(1,1), (7,1), (7,7), (1,7)]
+playerInitPos = Map.fromList $ zip Players.colors [(1,1), (7,1), (7,7), (1,7)]
