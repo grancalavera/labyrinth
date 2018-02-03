@@ -20,10 +20,9 @@ import           Data.Map            (Map)
 import           Lens.Micro          ((^.), (&), (.~))
 import           Lens.Micro.TH       (makeLenses)
 import qualified Labyrinth           as Labyrinth
+import           Labyrinth           (Position)
 import qualified Labyrinth.Players   as Players
 import           Labyrinth.Players   (Player(..), Color(..), Players(..))
-import qualified Labyrinth.Board     as Board
-import           Labyrinth.Board     (Board, Position)
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
 import           Labyrinth.Tile      ( Tile(..)
@@ -39,8 +38,8 @@ data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentTilePosition :: Maybe Position
     , _players             :: Players
-    , _tiles               :: Board Tile
-    , _gates               :: Board Gate
+    , _tiles               :: Map Position Tile
+    , _gates               :: Map Position Gate
     , _rowSpread           :: [Int]
     , _colSpread           :: [Int]
     } deriving (Show, Eq)
@@ -82,8 +81,8 @@ initialGame pls = do
   ts <- Labyrinth.shuffle Goal.treasures
   sp <- Labyrinth.shuffle $ Players.toList pls
 
-  let fixedTiles = Board.fromList tileList
-      movingTiles' = Board.fromList $ zip (defaultCurrentTilePosition:ps) mt
+  let fixedTiles = Map.fromList tileList
+      movingTiles' = Map.fromList $ zip (defaultCurrentTilePosition:ps) mt
       (goals1, goals2, goals3) = distribute $ map Goal.fromTreasure ts
 
   return $ Game
@@ -91,18 +90,18 @@ initialGame pls = do
     , _currentPlayer = Just (snd (sp !! 0))
     , _rowSpread = [0..8]
     , _colSpread = [0..8]
-    , _gates = Board.fromList gateList
+    , _gates = Map.fromList gateList
     , _currentTilePosition = Just defaultCurrentTilePosition
     , _tiles = mempty
-        <> addGoals (Board.filterByPositions fixedGoalPositions fixedTiles) goals1
+        <> addGoals (Labyrinth.filterByPositions fixedGoalPositions fixedTiles) goals1
         <> addGoals (filterByTerrain Corner movingTiles') goals2
         <> addGoals (filterByTerrain Fork movingTiles') goals3
         <> fixedTiles
         <> movingTiles'
     }
 
-addGoals :: Board Tile -> [Goal] -> Board Tile
-addGoals b gs = Board.fromList $ map addGoal $ zip (Board.toList b) gs
+addGoals :: Map Position Tile -> [Goal] -> Map Position Tile
+addGoals m gs = Map.fromList $ map addGoal $ zip (Map.toList m) gs
   where
     addGoal :: ((Position, Tile), Goal) -> (Position, Tile)
     addGoal ((p, t), g) = (p, t & goal .~ Just g)
@@ -113,8 +112,8 @@ distribute gs = (x, y, z)
     (x, x') = Labyrinth.halve gs
     (y, z)  = Labyrinth.halve x'
 
-filterByTerrain :: Terrain -> Board Tile -> Board Tile
-filterByTerrain trn = Board.filter byTerrain
+filterByTerrain :: Terrain -> Map Position Tile -> Map Position Tile
+filterByTerrain trn = Map.filter byTerrain
   where
     byTerrain :: Tile -> Bool
     byTerrain t = trn == t ^. terrain

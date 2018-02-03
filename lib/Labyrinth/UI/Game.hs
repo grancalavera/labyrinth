@@ -13,6 +13,8 @@ import           Brick                  ( App(..)
                                         )
 import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
+import qualified Labyrinth              as Labyrinth
+import           Labyrinth              (Position)
 import           Labyrinth.Players      (Players)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
@@ -29,8 +31,6 @@ import           Labyrinth.Game         ( Game
                                         , rowSpread
                                         , colSpread
                                         )
-import qualified Labyrinth.Board        as Board
-import           Labyrinth.Board        (Board)
 import qualified Labyrinth.Goal         as Goal
 import           Labyrinth.Goal         (Goal(..), Treasure(..))
 
@@ -51,14 +51,14 @@ drawUI :: Game -> [Widget ()]
 drawUI g =
   [ C.vCenter $ C.hCenter
               $ Brick.vBox
-              $ map (Brick.hBox . (map (fromRaw . snd))) (Board.toRows board')
+              $ map (Brick.hBox . (map (fromRaw . snd))) (Labyrinth.toRows board')
   ]
   where
-    gates' :: Board RawCell
-    gates' = Board.map toRawGate (g ^. gates)
-    tiles' :: Board RawCell
-    tiles' = Board.map toRawTile (g ^. tiles)
-    board' :: Board RawCell
+    gates' :: Map Position RawCell
+    gates' = Map.map toRawGate (g ^. gates)
+    tiles' :: Map Position RawCell
+    tiles' = Map.map toRawTile (g ^. tiles)
+    board' :: Map Position RawCell
     board' = tiles' <> gates' <> (rawEmptyBoard (g ^. rowSpread) (g ^. colSpread))
 
 toRawGate :: Gate -> RawCell
@@ -162,5 +162,5 @@ mergeTiles = mergeWith mergeRows
 mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
 mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
 
-rawEmptyBoard :: [Int] -> [Int] -> Board RawCell
-rawEmptyBoard rs cs = Board.fromList [((x,y), mempty) | x <- rs, y <- cs]
+rawEmptyBoard :: [Int] -> [Int] -> Map Position RawCell
+rawEmptyBoard rs cs = Map.fromList [((x,y), mempty) | x <- rs, y <- cs]
