@@ -25,10 +25,10 @@ import           Labyrinth.Players     (Player(..))
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile
-  { _terrain :: Terrain
-  , _direction :: Direction
-  , _goal :: Maybe Goal
-  , _player :: Maybe Player
+  { _terrain    :: Terrain
+  , _direction  :: Direction
+  , _goal       :: Maybe Goal
+  , _player     :: Maybe Player
   } deriving (Eq, Show)
 makeLenses ''Tile
 

@@ -41,7 +41,7 @@ prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
 genChoosePlayer :: Players -> Gen (Maybe Player)
 genChoosePlayer ps = do
   c <- genColor
-  return (Players.lookupByColor c ps)
+  return (Players.lookup c ps)
 
 genChar :: Gen Char
 genChar = arbitrary

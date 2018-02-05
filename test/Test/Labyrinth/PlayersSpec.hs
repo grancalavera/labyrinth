@@ -16,14 +16,14 @@ spec = do
     it "should be created from a player" $ do
       let player  = Player Yellow "yellow"
           players = Players.fromPlayer player
-      Players.lookupByColor Yellow players `shouldBe` Just player
+      Players.lookup Yellow players `shouldBe` Just player
 
     it "should replace the player on an existing `Color`" $ do
       let createdWith = Player Yellow "yellow 1"
           updatedWith = Player Yellow "yellow 2"
           players = Players.fromPlayer updatedWith <>
                     Players.fromPlayer createdWith
-      Players.lookupByColor Yellow players `shouldBe` Just updatedWith
+      Players.lookup Yellow players `shouldBe` Just updatedWith
 
   describe "Turns" $ do
     context "when there are less than 2 players" $ do

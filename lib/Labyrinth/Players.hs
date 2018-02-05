@@ -11,7 +11,6 @@ module Labyrinth.Players
     , next
     , fromPlayer
     , lookup
-    , lookupByColor
     , toList
     ) where
 
@@ -39,11 +38,11 @@ makeLenses ''Player
 fromPlayer :: Player -> Players
 fromPlayer p = Players (Map.insert  (p ^. color) p mempty)
 
-lookup :: Player -> Players -> Maybe Player
-lookup p (Players ps) = Map.lookup (p ^. color) ps
+-- lookup :: Player -> Players -> Maybe Player
+-- lookup p (Players ps) = Map.lookup (p ^. color) ps
 
-lookupByColor :: Color -> Players -> Maybe Player
-lookupByColor c (Players ps) = Map.lookup c ps
+lookup :: Color -> Players -> Maybe Player
+lookup c (Players ps) = Map.lookup c ps
 
 toList :: Players -> [(Color, Player)]
 toList (Players m) = Map.toList m
@@ -53,7 +52,7 @@ next current ps@(Players psMap)
   | Map.size psMap < 2 = Nothing
   | otherwise        = next' (current ^. color)
   where
-    next' c = case (lookupByColor (nextColor c) ps) of
+    next' c = case (lookup (nextColor c) ps) of
       Just p -> Just p
       _      -> next' (nextColor c)
 
