@@ -218,7 +218,9 @@ fixedGoalPositions = [ (3, 1)
                      , (5, 7)
                      ]
 
+-- tile description: know Tile or Random Tile
 data TD = T Terrain Direction | RT deriving (Show)
+-- goal description: Goal, No Goal, Maybe Goal
 data GD = G | MG | NG deriving (Show)
 type Instruction = (TD, GD, [Color])
 
