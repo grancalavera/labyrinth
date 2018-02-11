@@ -7,7 +7,7 @@ module Labyrinth.Tile
     , direction
     , terrain
     , goal
-    , player
+    , tenants
     , rotate
     , rotate'
     , edges
@@ -28,7 +28,7 @@ data Tile = Tile
   { _terrain    :: Terrain
   , _direction  :: Direction
   , _goal       :: Maybe Goal
-  , _player     :: Maybe Player
+  , _tenants    :: [Player]
   } deriving (Eq, Show)
 makeLenses ''Tile
 
