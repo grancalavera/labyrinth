@@ -10,11 +10,24 @@ module Labyrinth.Game
     , nextPlayer
     , initialGame
     , playerColorByDefaultPosition
+    -- temp
     , instructions
+    , makeEnv
+    , eCornerGoals
+    , eShuffledTiles
+    , eSetGoals
+    , eForkGoals
+    , ePlayers
+    , eColors
+    , execute
+    , chooseGoal
+    , choosePlayer
+    -- temp
     ) where
 
 import           Data.Monoid         ((<>))
 import           Control.Applicative ((<|>))
+import           Control.Monad       (mapM)
 import qualified Data.Map.Strict     as Map
 import           Data.Map.Strict     (Map)
 import           Data.Maybe          (fromMaybe)
@@ -24,6 +37,7 @@ import qualified Labyrinth           as Labyrinth
 import           Labyrinth           (Position)
 import qualified Labyrinth.Players   as Players
 import           Labyrinth.Players   (Player(..), Color(..), Players(..))
+import qualified Labyrinth.Direction as Direction
 import           Labyrinth.Direction (Direction(..))
 import qualified Labyrinth.Tile      as Tile
 import           Labyrinth.Tile      ( Tile(..)
@@ -130,12 +144,6 @@ addGoals m gs = Map.fromList $ map addGoal $ zip (Map.toList m) gs
     addGoal :: ((Position, Tile), Goal) -> (Position, Tile)
     addGoal ((p, t), g) = (p, t & goal .~ Just g)
 
-distribute :: [a] -> ([a], [a], [a])
-distribute gs = (x, y, z)
-  where
-    (x, x') = Labyrinth.halve gs
-    (y, z)  = Labyrinth.halve x'
-
 filterByTerrain :: Terrain -> Map Position Tile -> Map Position Tile
 filterByTerrain trn = Map.filter byTerrain
   where
@@ -219,34 +227,110 @@ fixedGoalPositions = [ (3, 1)
                      ]
 
 -- tile description: know Tile or Random Tile
-data TD = T Terrain Direction | RT deriving (Show)
+data TD = T (Terrain, Direction, GD, PD) | RT (GD, PD) deriving (Show)
 -- goal description: Goal, No Goal, Maybe Goal
 data GD = G | MG | NG deriving (Show)
-type Instruction = (TD, GD, [Color])
+data PD = P | NP deriving (Show)
+type Instruction = (Position, TD)
 
-instructions :: Map Position Instruction
-instructions = (Map.fromList
+instructions :: [Instruction]
+instructions = Map.toList $ (Map.fromList
+  -- first fill the rows we know
   -- row 1
-  [ ((1,1), (T Corner South, NG, [Yellow]))
-  , ((3,1), (T Fork East, G, []))
-  , ((5,1), (T Fork East, G, []))
-  , ((7,1), (T Corner West, NG, [Red]))
+  [ ((1,1), T (Corner, South, NG, P))
+  , ((3,1), T (Fork, East, G, NP))
+  , ((5,1), T (Fork, East, G, NP))
+  , ((7,1), T (Corner, West, NG, P))
   -- row 3
-  , ((1,3), (T Fork East, G, []))
-  , ((3,3), (T Fork East, G, []))
-  , ((5,3), (T Fork South, G, []))
-  , ((7,3), (T Fork West, G, []))
+  , ((1,3), T (Fork, East, G, NP))
+  , ((3,3), T (Fork, East, G, NP))
+  , ((5,3), T (Fork, South, G, NP))
+  , ((7,3), T (Fork, West, G, NP))
   -- row 5
-  , ((1,5), (T Fork East, G, []))
-  , ((3,5), (T Fork North, G, []))
-  , ((5,5), (T Fork West, G, []))
-  , ((7,5), (T Fork West, G, []))
+  , ((1,5), T (Fork, East, G, NP))
+  , ((3,5), T (Fork, North, G, NP))
+  , ((5,5), T (Fork, West, G, NP))
+  , ((7,5), T (Fork, West, G, NP))
   -- row 7
-  , ((1,7), (T Corner East, NG, [Green]))
-  , ((3,7), (T Fork North, NG, []))
-  , ((5,7), (T Fork North, NG, []))
-  , ((7,7), (T Corner North, NG, [Blue]))
+  , ((1,7), T (Corner, East, NG, P))
+  , ((3,7), T (Fork, North, NG, NP))
+  , ((5,7), T (Fork, North, NG, NP))
+  , ((7,7), T (Corner, North, NG, P))
   ])
-  -- fill the rest randomly
-  <> (Map.fromList $ rt (2,0) : [ rt (x,y) | x <- [1..7], y <- [1..7]])
-  where rt p = (p, (RT, MG, []))
+  -- then fill the rest randomly
+  <> (Map.fromList $ rt (2,0) : [rt (x,y) | x <- [1..7], y <- [1..7]])
+  where rt p = (p, RT (MG, NP))
+
+distribute :: [a] -> ([a], [a], [a])
+distribute gs = (x, y, z)
+  where
+    (x, x') = Labyrinth.halve gs
+    (y, z)  = Labyrinth.halve x'
+
+data Environment = E
+  { _eShuffledTiles :: [(Terrain, Direction)]
+  , _eSetGoals      :: [Maybe Goal]
+  , _eCornerGoals   :: [Maybe Goal]
+  , _eForkGoals     :: [Maybe Goal]
+  , _eColors        :: [Color]
+  , _ePlayers       :: Players
+  } deriving (Show)
+makeLenses ''Environment
+
+makeEnv :: Players -> IO Environment
+makeEnv plys = do
+  ts <- Labyrinth.shuffle $ replicate ps Path ++
+                            replicate cs Corner ++
+                            replicate fs Fork
+  ds <- mapM (const Direction.random) [1..(cs+fs+ps)]
+  gs <- Labyrinth.shuffle $ map (Just . Goal.fromTreasure) Goal.treasures
+  cl <- Labyrinth.shuffle $ Players.colors
+
+  let (sg, cg, fg) = distribute gs
+
+  -- only 6 corners have goals so we fill the remaining 6 with Nothing
+  -- so that we can just pick them one by one without worrying they
+  -- might be empty, and shuffle again
+  cg' <- Labyrinth.shuffle $ cg ++ replicate 6 Nothing
+
+  return $ E
+    { _eShuffledTiles = zip ts ds
+    , _eSetGoals      = sg
+    , _eCornerGoals   = cg'
+    , _eForkGoals     = fg
+    , _eColors        = cl
+    , _ePlayers       = plys
+    }
+
+  where
+    cs, fs, ps :: Int
+    cs = 16
+    fs = 6
+    ps = 12
+
+execute :: Environment -> [Instruction] -> [(Position, Tile)]
+execute _ [] = []
+-- known tile
+execute env ((pos, (T desc)):rest) = undefined
+-- random tile
+execute env ((pos, (RT desc)):rest) = undefined
+
+chooseGoal :: Environment -> Terrain -> GD -> (Environment, Maybe Goal)
+chooseGoal env _ G = case (env ^. eSetGoals) of
+  []     -> (env, Nothing)
+  (g:gs) -> (env & eSetGoals .~ gs, g)
+chooseGoal env Corner MG = case (env ^. eCornerGoals) of
+  []     -> (env, Nothing)
+  (g:gs) -> (env & eCornerGoals .~ gs, g)
+chooseGoal env Fork MG = case (env ^. eForkGoals) of
+  []     -> (env, Nothing)
+  (g:gs) -> (env & eForkGoals .~ gs, g)
+chooseGoal env _ _ = (env, Nothing)
+
+choosePlayer :: Environment -> PD -> (Environment, [Player])
+choosePlayer env P = case (env ^. eColors) of
+  []     -> (env, [])
+  (c:cs) -> (env & eColors .~ cs, fromMaybe [] $ do
+    p <- Players.lookup c (env ^. ePlayers)
+    return [p])
+choosePlayer env _ = (env, [])
