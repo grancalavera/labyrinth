@@ -1,0 +1,65 @@
+name: labyrinth
+version: '0.1.0.0'
+category: Web
+author: Leon Coto
+maintainer: leoncoto@gmail.com
+copyright: Leon Coto
+license: BSD3
+github: grancalavera/labyrinth
+extra-source-files:
+- README.md
+library:
+  source-dirs:
+  - lib
+  ghc-options:
+  - -Wall
+  exposed-modules:
+  - Labyrinth.Players
+  - Labyrinth.Game
+  - Labyrinth.Tile
+  - Labyrinth.Board
+  - Labyrinth.UI
+  - Labyrinth.Goal
+  - Labyrinth.Direction
+  - Labyrinth.Gate
+  - Labyrinth
+  dependencies:
+  - base >=4.7 && <5
+  - brick
+  - containers
+  - linear
+  - microlens
+  - microlens-th
+  - random
+  - vty
+  - array
+executables:
+  labyrinth:
+    main: Main.hs
+    source-dirs: src
+    ghc-options:
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - labyrinth
+tests:
+  labyrinth-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -Wall
+    - -fno-warn-orphans
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - containers
+    - labyrinth
+    - hspec
+    - hspec-discover
+    - microlens
+    - QuickCheck
