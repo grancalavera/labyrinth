@@ -11,17 +11,16 @@ module Labyrinth.Game
     , initialGame
     , playerColorByDefaultPosition
     -- temp
+    , mkBoard
+    , mkEnv
     , instructions
-    , makeEnv
     , eCornerGoals
     , eShuffledTiles
     , eSetGoals
     , eForkGoals
     , ePlayers
     , eColors
-    , execute
-    , chooseGoal
-    , choosePlayer
+    , eval
     -- temp
     ) where
 
@@ -50,6 +49,7 @@ import           Labyrinth.Gate      (Gate(..))
 import qualified Labyrinth.Goal      as Goal
 import           Labyrinth.Goal      (Goal)
 
+import Control.Monad.State           (StateT, evalStateT)
 data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentTilePosition :: Maybe Position
@@ -127,6 +127,12 @@ basicGame pls = do
         <> fixedTiles
         <> movingTiles'
     }
+
+distribute :: [a] -> ([a], [a], [a])
+distribute gs = (x, y, z)
+  where
+    (x, x') = Labyrinth.halve gs
+    (y, z)  = Labyrinth.halve x'
 
 insertPlayer :: Position -> Players -> Map Position Tile -> Map Position Tile
 insertPlayer pos pls board = fromMaybe board $ do
@@ -226,12 +232,52 @@ fixedGoalPositions = [ (3, 1)
                      , (5, 7)
                      ]
 
+
+
+
+
+
+--------------------------------------------------------------------------------
+-- StateT based game
+--------------------------------------------------------------------------------
+
+data Env = E
+  { _eShuffledTiles :: [(Terrain, Direction)]
+  , _eSetGoals      :: [Maybe Goal]
+  , _eCornerGoals   :: [Maybe Goal]
+  , _eForkGoals     :: [Maybe Goal]
+  , _eColors        :: [Color]
+  , _ePlayers       :: Players
+  } deriving (Show)
+makeLenses ''Env
+
+type Eval a = StateT Env IO a
+type Instruction = (Position, TD)
+
 -- tile description: know Tile or Random Tile
 data TD = T (Terrain, Direction, GD, PD) | RT (GD, PD) deriving (Show)
 -- goal description: Goal, No Goal, Maybe Goal
 data GD = G | MG | NG deriving (Show)
 data PD = P | NP deriving (Show)
-type Instruction = (Position, TD)
+
+
+
+
+
+eval :: [Instruction] -> Eval [(Position, Tile)]
+eval = mapM (\(p, i) -> case i of
+    T _  -> return $ (p, Tile Path North Nothing [])
+    RT _ -> return $ (p, Tile Corner South Nothing [])
+  )
+
+
+
+
+
+
+
+
+
 
 instructions :: [Instruction]
 instructions = Map.toList $ (Map.fromList
@@ -258,27 +304,17 @@ instructions = Map.toList $ (Map.fromList
   , ((7,7), T (Corner, North, NG, P))
   ])
   -- then fill the rest randomly
+  -- notice the first tile is placed
+  -- on a set position, this is the
+  -- tile that will be played first
   <> (Map.fromList $ rt (2,0) : [rt (x,y) | x <- [1..7], y <- [1..7]])
   where rt p = (p, RT (MG, NP))
 
-distribute :: [a] -> ([a], [a], [a])
-distribute gs = (x, y, z)
-  where
-    (x, x') = Labyrinth.halve gs
-    (y, z)  = Labyrinth.halve x'
+mkBoard :: Players -> IO [(Position, Tile)]
+mkBoard plys = mkEnv plys >>= \ env -> evalStateT (eval instructions) env
 
-data Environment = E
-  { _eShuffledTiles :: [(Terrain, Direction)]
-  , _eSetGoals      :: [Maybe Goal]
-  , _eCornerGoals   :: [Maybe Goal]
-  , _eForkGoals     :: [Maybe Goal]
-  , _eColors        :: [Color]
-  , _ePlayers       :: Players
-  } deriving (Show)
-makeLenses ''Environment
-
-makeEnv :: Players -> IO Environment
-makeEnv plys = do
+mkEnv :: Players -> IO Env
+mkEnv plys = do
   ts <- Labyrinth.shuffle $ replicate ps Path ++
                             replicate cs Corner ++
                             replicate fs Fork
@@ -307,30 +343,3 @@ makeEnv plys = do
     cs = 16
     fs = 6
     ps = 12
-
-execute :: Environment -> [Instruction] -> [(Position, Tile)]
-execute _ [] = []
--- known tile
-execute env ((pos, (T desc)):rest) = undefined
--- random tile
-execute env ((pos, (RT desc)):rest) = undefined
-
-chooseGoal :: Environment -> Terrain -> GD -> (Environment, Maybe Goal)
-chooseGoal env _ G = case (env ^. eSetGoals) of
-  []     -> (env, Nothing)
-  (g:gs) -> (env & eSetGoals .~ gs, g)
-chooseGoal env Corner MG = case (env ^. eCornerGoals) of
-  []     -> (env, Nothing)
-  (g:gs) -> (env & eCornerGoals .~ gs, g)
-chooseGoal env Fork MG = case (env ^. eForkGoals) of
-  []     -> (env, Nothing)
-  (g:gs) -> (env & eForkGoals .~ gs, g)
-chooseGoal env _ _ = (env, Nothing)
-
-choosePlayer :: Environment -> PD -> (Environment, [Player])
-choosePlayer env P = case (env ^. eColors) of
-  []     -> (env, [])
-  (c:cs) -> (env & eColors .~ cs, fromMaybe [] $ do
-    p <- Players.lookup c (env ^. ePlayers)
-    return [p])
-choosePlayer env _ = (env, [])
