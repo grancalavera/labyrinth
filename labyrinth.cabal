@@ -2,11 +2,11 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0c48e29f5973e362bda6793d5b00399e2437335ee10de4e3502d9be6a0d1beca
+-- hash: 5e5e679ba452cabe32aa62386dc3f4ea16abc623f496e502086ac7442a46cf18
 
 name:           labyrinth
 version:        0.1.0.0
-category:       Web
+category:       Game
 homepage:       https://github.com/grancalavera/labyrinth#readme
 bug-reports:    https://github.com/grancalavera/labyrinth/issues
 author:         Leon Coto
@@ -36,6 +36,7 @@ library
     , linear
     , microlens
     , microlens-th
+    , mtl
     , random
     , vty
   exposed-modules:

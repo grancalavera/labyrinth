@@ -34,6 +34,7 @@ library:
   - random
   - vty
   - array
+  - mtl
 executables:
   labyrinth:
     main: Main.hs
