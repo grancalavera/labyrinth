@@ -49,7 +49,7 @@ import           Labyrinth.Gate      (Gate(..))
 import qualified Labyrinth.Goal      as Goal
 import           Labyrinth.Goal      (Goal)
 
-import Control.Monad.State           (StateT, evalStateT)
+import Control.Monad.State           (StateT, evalStateT, get, put)
 data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentTilePosition :: Maybe Position
@@ -258,35 +258,69 @@ type Instruction = (Position, TD)
 data TD = T (Terrain, Direction, GD, PD) | RT (GD, PD) deriving (Show)
 -- goal description: Goal, No Goal, Maybe Goal
 data GD = G | MG | NG deriving (Show)
-data PD = P | NP deriving (Show)
-
-
-
-
+-- player description: Yellow Player, Green Player, Blue Player, Red Player, No Player
+data PD = P Color | NP deriving (Show)
 
 eval :: [Instruction] -> Eval [(Position, Tile)]
-eval = mapM (\(p, i) -> case i of
-    T _  -> return $ (p, Tile Path North Nothing [])
-    RT _ -> return $ (p, Tile Corner South Nothing [])
+eval = mapM (\(pos, instruction) -> case instruction of
+    T desc  -> do
+      t <- evalTile desc
+      return $ (pos, t)
+    RT desc -> do
+      t <- evalRandomTile desc
+      return $ (pos, t)
   )
 
+evalTile :: (Terrain, Direction, GD, PD) -> Eval Tile
+evalTile (terrain', direction', goalDesc, playerDesc) = do
+  goal' <- evalGoal terrain' goalDesc
+  player' <- evalPlayer playerDesc
+  return $ Tile terrain' direction' goal' player'
 
+evalRandomTile :: (GD, PD) -> Eval Tile
+evalRandomTile (goalDesc, playerDesc) = do
+  env <- get
+  let ((terrain', direction'):ts) = env ^. eShuffledTiles
+  put (env & eShuffledTiles .~ ts)
+  goal' <- evalGoal terrain' goalDesc
+  player' <- evalPlayer playerDesc
+  return $ Tile terrain' direction' goal' player'
 
+evalGoal :: Terrain -> GD -> Eval (Maybe Goal)
+evalGoal _ NG = return Nothing
+evalGoal _ G  = do
+  env <- get
+  case (env ^. eSetGoals) of
+    []     -> return Nothing
+    (g:gs) -> put (env & eSetGoals .~ gs) >> return g
+evalGoal Corner MG = do
+  env <- get
+  case (env ^. eCornerGoals) of
+    []     -> return Nothing
+    (g:gs) -> put (env & eCornerGoals .~ gs) >> return g
+evalGoal Fork   MG = do
+  env <- get
+  case (env ^. eForkGoals) of
+    []     -> return Nothing
+    (g:gs) -> put (env & eForkGoals .~ gs) >> return g
+evalGoal _      MG = return Nothing
 
-
-
-
-
-
+evalPlayer :: PD -> Eval [Player]
+evalPlayer NP = return []
+evalPlayer (P color') = do
+  env <- get
+  case (Players.lookup color' (env ^. ePlayers)) of
+    Just plyr  -> return [plyr]
+    Nothing -> return []
 
 instructions :: [Instruction]
 instructions = Map.toList $ (Map.fromList
   -- first fill the rows we know
   -- row 1
-  [ ((1,1), T (Corner, South, NG, P))
+  [ ((1,1), T (Corner, South, NG, P Yellow))
   , ((3,1), T (Fork, East, G, NP))
   , ((5,1), T (Fork, East, G, NP))
-  , ((7,1), T (Corner, West, NG, P))
+  , ((7,1), T (Corner, West, NG, P Red))
   -- row 3
   , ((1,3), T (Fork, East, G, NP))
   , ((3,3), T (Fork, East, G, NP))
@@ -298,10 +332,10 @@ instructions = Map.toList $ (Map.fromList
   , ((5,5), T (Fork, West, G, NP))
   , ((7,5), T (Fork, West, G, NP))
   -- row 7
-  , ((1,7), T (Corner, East, NG, P))
+  , ((1,7), T (Corner, East, NG, P Green))
   , ((3,7), T (Fork, North, NG, NP))
   , ((5,7), T (Fork, North, NG, NP))
-  , ((7,7), T (Corner, North, NG, P))
+  , ((7,7), T (Corner, North, NG, P Blue))
   ])
   -- then fill the rest randomly
   -- notice the first tile is placed
