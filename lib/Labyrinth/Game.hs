@@ -2,6 +2,7 @@
 module Labyrinth.Game
     ( Game (..)
     , currentPlayer
+    , currentTilePosition
     , players
     , tiles
     , gates
@@ -9,22 +10,9 @@ module Labyrinth.Game
     , colSpread
     , nextPlayer
     , initialGame
-    -- temp
-    , mkBoard
-    , mkEnv
-    , instructions
-    , eCornerGoals
-    , eShuffledTiles
-    , eSetGoals
-    , eForkGoals
-    , ePlayers
-    , eColors
-    , eval
-    -- temp
     ) where
 
 import           Data.Monoid         ((<>))
-import           Control.Applicative ((<|>))
 import           Control.Monad       (mapM)
 import qualified Data.Map.Strict     as Map
 import           Data.Map.Strict     (Map)
@@ -33,7 +21,7 @@ import           Lens.Micro.TH       (makeLenses)
 import qualified Labyrinth           as Labyrinth
 import           Labyrinth           (Position)
 import qualified Labyrinth.Players   as Players
-import           Labyrinth.Players   (Player(..), Color(..), Players(..))
+import           Labyrinth.Players   (Player(..), Color(..), Players(..), firstPlayer)
 import qualified Labyrinth.Direction as Direction
 import           Labyrinth.Direction (Direction(..))
 import           Labyrinth.Tile      ( Tile(..)
@@ -44,9 +32,10 @@ import qualified Labyrinth.Goal      as Goal
 import           Labyrinth.Goal      (Goal)
 
 import Control.Monad.State           (StateT, evalStateT, get, put)
+
 data Game = Game
     { _currentPlayer       :: Maybe Player
-    , _currentTilePosition :: Maybe Position
+    , _currentTilePosition :: Position
     , _players             :: Players
     , _tiles               :: Map Position Tile
     , _gates               :: Map Position Gate
@@ -54,31 +43,6 @@ data Game = Game
     , _colSpread           :: [Int]
     } deriving (Show, Eq)
 makeLenses ''Game
-
-instance Monoid Game where
-  mempty = Game
-    { _currentPlayer       = Nothing
-    , _currentTilePosition = Nothing
-    , _players             = mempty
-    , _tiles               = mempty
-    , _gates               = mempty
-    , _rowSpread           = []
-    , _colSpread           = []
-    }
-  l `mappend` r = Game
-    { _currentPlayer       = (l ^. currentPlayer) <|> (r ^. currentPlayer)
-    , _currentTilePosition = (l ^. currentTilePosition) <|> (r ^. currentTilePosition)
-    , _players             = (l ^. players) <> (r ^. players)
-    , _tiles               = (l ^. tiles) <> (r ^. tiles)
-    , _gates               = (l ^. gates) <> (r ^. gates)
-    , _rowSpread           = chooseNonEmpty (l ^. rowSpread) (r ^. rowSpread)
-    , _colSpread           = chooseNonEmpty (l ^. colSpread) (r ^. colSpread)
-    }
-
-chooseNonEmpty :: [a] -> [a] -> [a]
-chooseNonEmpty [] x = x
-chooseNonEmpty x [] = x
-chooseNonEmpty x _ = x
 
 distribute :: [a] -> ([a], [a], [a])
 distribute gs = (x, y, z)
@@ -91,10 +55,11 @@ distribute gs = (x, y, z)
 --------------------------------------------------------------------------------
 
 nextPlayer :: Game -> Maybe Game
-nextPlayer g = do
-  currP <- g ^. currentPlayer
-  nextP <- Players.next currP (g ^. players)
-  return $ g & currentPlayer .~ (Just nextP)
+nextPlayer = undefined
+-- nextPlayer g = do
+--   currP <- g ^. currentPlayer
+--   nextP <- Players.next currP (g ^. players)
+--   return $ g & currentPlayer .~ (Just nextP)
 
 --------------------------------------------------------------------------------
 -- boards
@@ -124,7 +89,6 @@ data Env = E
   , _eSetGoals      :: [Maybe Goal]
   , _eCornerGoals   :: [Maybe Goal]
   , _eForkGoals     :: [Maybe Goal]
-  , _eColors        :: [Color]
   , _ePlayers       :: Players
   } deriving (Show)
 makeLenses ''Env
@@ -232,7 +196,6 @@ mkEnv plys = do
                             replicate fs Fork
   ds <- mapM (const Direction.random) [1..(cs+fs+ps)]
   gs <- Labyrinth.shuffle $ map (Just . Goal.fromTreasure) Goal.treasures
-  cl <- Labyrinth.shuffle $ Players.colors
 
   let (sg, cg, fg) = distribute gs
 
@@ -246,7 +209,6 @@ mkEnv plys = do
     , _eSetGoals      = sg
     , _eCornerGoals   = cg'
     , _eForkGoals     = fg
-    , _eColors        = cl
     , _ePlayers       = plys
     }
 
@@ -262,13 +224,14 @@ mkEnv plys = do
 
 initialGame :: Players -> IO Game
 initialGame players' = do
-  tiles' <- mkBoard players'
+  tiles'         <- mkBoard players'
+  currentPlayer' <- firstPlayer players'
   return $ Game
-    { _players = players'
+    { _currentPlayer = currentPlayer'
+    , _currentTilePosition = (2,0)
+    , _players = players'
     , _gates = Map.fromList gateList
     , _tiles = Map.fromList tiles'
-    , _currentPlayer = Nothing
     , _rowSpread = [0..8]
     , _colSpread = [0..8]
-    , _currentTilePosition = Just (2,0)
     }

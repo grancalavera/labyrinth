@@ -12,6 +12,7 @@ module Labyrinth.Players
     , fromPlayer
     , lookup
     , toList
+    , firstPlayer
     ) where
 
 import           Prelude hiding (lookup)
@@ -19,6 +20,7 @@ import           Lens.Micro     ((^.))
 import           Lens.Micro.TH  (makeLenses)
 import           Data.Map       (Map)
 import qualified Data.Map       as Map
+import           System.Random  (randomRIO)
 
 type Name = String
 data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord, Enum)
@@ -37,9 +39,6 @@ makeLenses ''Player
 
 fromPlayer :: Player -> Players
 fromPlayer p = Players (Map.insert  (p ^. color) p mempty)
-
--- lookup :: Player -> Players -> Maybe Player
--- lookup p (Players ps) = Map.lookup (p ^. color) ps
 
 lookup :: Color -> Players -> Maybe Player
 lookup c (Players ps) = Map.lookup c ps
@@ -61,3 +60,10 @@ nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length colors))
 
 colors :: [Color]
 colors = [(toEnum 0::Color) ..]
+
+firstPlayer :: Players -> IO (Maybe Player)
+firstPlayer players = case (toList players) of
+  []       -> return Nothing
+  players' -> do
+    i <- randomRIO (0, length players')
+    return $ Just (snd (players' !! i))

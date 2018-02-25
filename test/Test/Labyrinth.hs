@@ -1,6 +1,5 @@
 module Test.Labyrinth
     ( Players
-    , Game
     , prop_associativity
     , prop_leftIdentity
     , prop_rightIdentity
@@ -10,24 +9,13 @@ import           Test.QuickCheck
 import           Control.Monad     (replicateM)
 import           Data.List         (intercalate)
 import           Data.Monoid       ((<>))
-import           Lens.Micro        ((&), (.~))
 import qualified Labyrinth.Players as Players
 import           Labyrinth.Players (Player(..), Color(..), Players, Name)
-import           Labyrinth.Game    (Game(..))
-import qualified Labyrinth.Game    as Game
 
 instance Arbitrary Players where
   arbitrary = do
     players <- genPlayers
     return $ foldl (<>) mempty players
-
-instance Arbitrary Game where
-  arbitrary = do
-    ps <- arbitrary
-    p  <- genChoosePlayer ps
-    return $ mempty
-      & Game.players .~ ps
-      & Game.currentPlayer .~ p
 
 prop_leftIdentity :: (Monoid a, Eq a) => a -> Bool
 prop_leftIdentity p = p <> mempty == p
@@ -37,11 +25,6 @@ prop_rightIdentity p = mempty <> p == p
 
 prop_associativity :: (Monoid a, Eq a) => a -> a -> a -> Bool
 prop_associativity x y z = (x <> y) <> z == x <> (y <> z)
-
-genChoosePlayer :: Players -> Gen (Maybe Player)
-genChoosePlayer ps = do
-  c <- genColor
-  return (Players.lookup c ps)
 
 genChar :: Gen Char
 genChar = arbitrary
