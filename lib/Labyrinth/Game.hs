@@ -111,8 +111,8 @@ gateList =
   , ((6, 8), Gate North True)
   ]
 
-tilesDescription :: [TileDescription]
-tilesDescription = Map.toList $ (Map.fromList
+tileDescriptions :: [TileDescription]
+tileDescriptions = Map.toList $ (Map.fromList
   -- first fill the rows we know
   -- row 1
   [ ((1,1), T (Corner, South, NG, P Yellow))
@@ -131,8 +131,8 @@ tilesDescription = Map.toList $ (Map.fromList
   , ((7,5), T (Fork, West, G, NP))
   -- row 7
   , ((1,7), T (Corner, East, NG, P Green))
-  , ((3,7), T (Fork, North, NG, NP))
-  , ((5,7), T (Fork, North, NG, NP))
+  , ((3,7), T (Fork, North, G, NP))
+  , ((5,7), T (Fork, North, G, NP))
   , ((7,7), T (Corner, North, NG, P Blue))
   ])
   -- then fill the rest randomly
@@ -144,7 +144,7 @@ tilesDescription = Map.toList $ (Map.fromList
 --------------------------------------------------------------------------------
 
 mkTiles :: Players -> IO [(Position, Tile)]
-mkTiles players' = mkEnv players' >>= \ env -> evalStateT (eval tilesDescription) env
+mkTiles players' = mkEnv players' >>= \ env -> evalStateT (eval tileDescriptions) env
 
 mkEnv :: Players -> IO Env
 mkEnv players' = do
@@ -157,7 +157,7 @@ mkEnv players' = do
   let (sg, cg, fg) = distribute gs
 
   -- only 6 corners have goals so we fill the remaining 6 with Nothing
-  -- so that we can just pick them one by one without worrying they
+  -- so that we can just pick thaem one by one without worrying they
   -- might be empty, and shuffle again
   cg' <- Labyrinth.shuffle $ cg ++ replicate 6 Nothing
 

@@ -17,6 +17,7 @@ library:
   - Labyrinth.Players
   - Labyrinth.Game
   - Labyrinth.Tile
+  - Labyrinth.GameDescription
   - Labyrinth.Goal
   - Labyrinth.Direction
   - Labyrinth.Gate
