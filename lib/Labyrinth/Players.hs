@@ -12,7 +12,7 @@ module Labyrinth.Players
     , fromPlayer
     , lookup
     , toList
-    , firstPlayer
+    , first
     ) where
 
 import           Prelude hiding (lookup)
@@ -61,8 +61,8 @@ nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length colors))
 colors :: [Color]
 colors = [(toEnum 0::Color) ..]
 
-firstPlayer :: Players -> IO (Maybe Player)
-firstPlayer players = case (toList players) of
+first :: Players -> IO (Maybe Player)
+first players = case (toList players) of
   []       -> return Nothing
   players' -> do
     i <- randomRIO (0, length players')

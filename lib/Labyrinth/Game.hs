@@ -24,7 +24,6 @@ import qualified Labyrinth.Players   as Players
 import           Labyrinth.Players   ( Player(..)
                                      , Color(..)
                                      , Players(..)
-                                     , firstPlayer
                                      )
 import qualified Labyrinth.Direction as Direction
 import           Labyrinth.Direction (Direction(..))
@@ -74,7 +73,7 @@ data PD = P Color | NP deriving (Show)
 initialGame :: Players -> IO Game
 initialGame players' = do
   tiles'         <- mkTiles players'
-  currentPlayer' <- firstPlayer players'
+  currentPlayer' <- Players.first players'
   return $ Game
     { _currentPlayer = currentPlayer'
     , _currentTilePosition = (2,0)
