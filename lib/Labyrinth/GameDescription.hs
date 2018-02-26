@@ -2,167 +2,49 @@
 
 module Labyrinth.GameDescription
     ( mkGame
-    , GameDescription(..)
     , TileDescription(..)
-    , GoalDescription(..)
-    , dTiles
-    , dPlayers
-
-    -- temp
-    , dPosition
-    , dTerrain
-    , dDirection
-    , dPlayer
-    , dGoal
-
-    , eTerrains
-    , eSetGoals
-    , eForkGoals
-    , eCornerGoals
-    , ePlayers
-
-    , mkEnv
-    , eval
-    , evalTerrain
-    , evalDirection
-    , evalGoal
-    -- temp
+    , GameDescription(..)
     ) where
 
 import           Control.Monad        (forM)
-import           Control.Monad.State  (StateT, evalStateT, get, put)
+import           Control.Monad.State  (StateT, evalStateT, get, put, liftIO)
+import           Data.Maybe           (isJust, fromJust)
 import           Lens.Micro.TH        (makeLenses)
-import           Lens.Micro           ((^.), (.~), (&), (%~))
+import           Lens.Micro           ((^.), (.~), (&))
 import qualified Labyrinth            as Labyrinth
 import           Labyrinth            (Position)
 import           Labyrinth.Tile       (Tile(..), Terrain(..))
+import qualified Labyrinth.Direction  as Direction
 import           Labyrinth.Direction  (Direction(..))
+import qualified Labyrinth.Players    as Players
 import           Labyrinth.Players    (Players, Player, Color(..))
 import qualified Labyrinth.Goal       as Goal
-import           Labyrinth.Goal       (Treasure(..), Goal)
-
---------------------------------------------------------------------------------
--- A
---------------------------------------------------------------------------------
-
-data GoalDescription = AddGoal | MaybeGoal | NoGoal deriving (Show)
-
-{-
-data TileDescription = TD
-  { _dPosition  :: Maybe Position
-  , _dTerrain   :: Terrain
-  , _dDirection :: Maybe Direction
-  , _dTreasure  :: Maybe Treasure
-  , _dPlayer    :: Maybe Player
-  }
-
---------------------------------------------------------------------------------
--- 16 fully known tiles
---------------------------------------------------------------------------------
- 1 TD (Just (1,1)) Corner  (Just South)  False (Just Yellow)
- 2 TD (Just (3,1)) Fork    (Just East)   True  Nothing
- 3 TD (Just (5,1)) Fork    (Just East)   True  Nothing
- 4 TD (Just (7,1)) Corner  (Just West)   False (Just Red)
- 5 TD (Just (1,3)) Fork    (Just East)   True  Nothing
- 6 TD (Just (3,3)) Fork    (Just East)   True  Nothing
- 7 TD (Just (5,3)) Fork    (Just South)  True  Nothing
- 8 TD (Just (7,3)) Fork    (Just West)   True  Nothing
- 9 TD (Just (1,5)) Fork    (Just East)   True  Nothing
-10 TD (Just (3,5)) Fork    (Just North)  True  Nothing
-11 TD (Just (5,5)) Fork    (Just West)   True  Nothing
-12 TD (Just (7,5)) Fork    (Just West)   True  Nothing
-13 TD (Just (1,7)) Corner  (Just East)   False (Just Green)
-14 TD (Just (3,7)) Fork    (Just North)  True  Nothing
-15 TD (Just (5,7)) Fork    (Just North)  True  Nothing
-16 TD (Just (7,7)) Corner  (Just North)  False (Just Blue)
---------------------------------------------------------------------------------
--- 12 randomly placed paths
---------------------------------------------------------------------------------
-17 TD Nothing      Path    Nothing       False Nothing
-18 TD Nothing      Path    Nothing       False Nothing
-19 TD Nothing      Path    Nothing       False Nothing
-20 TD Nothing      Path    Nothing       False Nothing
-21 TD Nothing      Path    Nothing       False Nothing
-22 TD Nothing      Path    Nothing       False Nothing
-23 TD Nothing      Path    Nothing       False Nothing
-24 TD Nothing      Path    Nothing       False Nothing
-25 TD Nothing      Path    Nothing       False Nothing
-26 TD Nothing      Path    Nothing       False Nothing
-27 TD Nothing      Path    Nothing       False Nothing
-28 TD Nothing      Path    Nothing       False Nothing
---------------------------------------------------------------------------------
--- 6 randomly placed corners with treasures
---------------------------------------------------------------------------------
-29 TD Nothing      Corner  Nothing       True  Nothing
-30 TD Nothing      Corner  Nothing       True  Nothing
-31 TD Nothing      Corner  Nothing       True  Nothing
-32 TD Nothing      Corner  Nothing       True  Nothing
-33 TD Nothing      Corner  Nothing       True  Nothing
-34 TD Nothing      Corner  Nothing       True  Nothing
---------------------------------------------------------------------------------
--- 10 randomly placed corners
---------------------------------------------------------------------------------
-35 TD Nothing      Corner  Nothing       False Nothing
-36 TD Nothing      Corner  Nothing       False Nothing
-37 TD Nothing      Corner  Nothing       False Nothing
-38 TD Nothing      Corner  Nothing       False Nothing
-39 TD Nothing      Corner  Nothing       False Nothing
-40 TD Nothing      Corner  Nothing       False Nothing
-41 TD Nothing      Corner  Nothing       False Nothing
-42 TD Nothing      Corner  Nothing       False Nothing
-43 TD Nothing      Corner  Nothing       False Nothing
-44 TD Nothing      Corner  Nothing       False Nothing
---------------------------------------------------------------------------------
--- 6 randomly placed forks with treasures
---------------------------------------------------------------------------------
-45 TD Nothing      Fork    Nothing       True  Nothing
-46 TD Nothing      Fork    Nothing       True  Nothing
-47 TD Nothing      Fork    Nothing       True  Nothing
-48 TD Nothing      Fork    Nothing       True  Nothing
-49 TD Nothing      Fork    Nothing       True  Nothing
-50 TD Nothing      Fork    Nothing       True  Nothing
-
-1. start by listing all the positions [(x,y)|x<-[1..7], y<-[1..7]]++[(2,0)]
-2. filter out the positions of the known tiles
-3. shuffle the resulting positions
-4. fill the blanks tile description by tile description, tearing out
-   1 shuffled position at a time from the Env
--}
+import           Labyrinth.Goal       (Goal)
 
 data TileDescription = TD
-  { _dPosition  :: Position
-  , _dTerrain   :: Maybe Terrain
+  { _dTerrain   :: Terrain
+  , _dPosition  :: Maybe Position
   , _dDirection :: Maybe Direction
-  , _dGoal      :: GoalDescription
+  , _dGoal      :: Bool
   , _dPlayer    :: Maybe Color
   } deriving (Show)
 makeLenses ''TileDescription
 
 data GameDescription = GD
-  { _dTiles             :: [TileDescription]
-  , _dPlayers           :: Players
+  { _dTiles     :: [TileDescription]
+  , _dPositions :: [Position]
+  , _dPlayers   :: Players
   } deriving (Show)
 makeLenses ''GameDescription
 
 data Env = Env
-  { _eTerrains    :: [Terrain]
-  , _eSetGoals    :: [Maybe Goal]
-  , _eForkGoals   :: [Maybe Goal]
-  , _eCornerGoals :: [Maybe Goal]
+  { _ePositions   :: [Position]
+  , _eGoals       :: [Goal]
   , _ePlayers     :: Players
   } deriving (Show)
 makeLenses ''Env
 
 type Eval a = StateT Env IO a
-
---------------------------------------------------------------------------------
--- B
---------------------------------------------------------------------------------
-
--- 24 goals:
--- 12 set goals
--- 6 corner goals
--- 6 fork goals
 
 mkGame :: GameDescription -> IO [(Position, Tile)]
 mkGame gameDesc = do
@@ -171,49 +53,139 @@ mkGame gameDesc = do
 
 mkEnv :: GameDescription -> IO Env
 mkEnv gameDesc = do
-  terrains <- Labyrinth.shuffle $ replicate shuffledPaths   Path   ++
-                                  replicate shuffledCorners Corner ++
-                                  replicate shuffledForks   Fork
-  goals    <- Labyrinth.shuffle $ map (Just . Goal.fromTreasure) Goal.treasures
-
-  let (setGoals, cornerGoals', forkGoals) = distribute goals
-  -- there aren't enough corner goals
-  cornerGoals <- Labyrinth.shuffle $ cornerGoals' ++ (replicate 6 Nothing)
+  positions <- Labyrinth.shuffle $ unknownPositions gameDesc
+  goals     <- Labyrinth.shuffle $ map Goal.fromTreasure Goal.treasures
 
   return $ Env
-    { _eTerrains    = terrains
-    , _eSetGoals    = setGoals
-    , _eCornerGoals = cornerGoals
-    , _eForkGoals   = forkGoals
-    , _ePlayers     = gameDesc ^. dPlayers
+    { _ePositions = positions
+    , _eGoals     = goals
+    , _ePlayers   = gameDesc ^. dPlayers
     }
 
+unknownPositions :: GameDescription -> [Position]
+unknownPositions gameDesc = filter removeKnown (gameDesc ^. dPositions)
   where
-    shuffledPaths   = 12
-    shuffledCorners = 16
-    shuffledForks   = 6
-    distribute goals' = (x, y, z)
-      where
-        (x, x') = Labyrinth.halve goals'
-        (y, z)  = Labyrinth.halve x'
+    removeKnown = not . (`elem` known)
+    known = map fromJust $
+            filter isJust $
+            map ((^. dPosition)) (gameDesc ^. dTiles)
 
 eval :: GameDescription -> Eval [(Position, Tile)]
 eval gameDesc = forM (gameDesc ^. dTiles) (\tileDesc -> do
-    terrain'    <- evalTerrain tileDesc
-    direction'  <- evalDirection tileDesc
-    goal'       <- evalGoal terrain' tileDesc
-    player'     <- evalPlayer tileDesc
-    return $ (tileDesc ^. dPosition, Tile terrain' direction' goal' player')
+    position  <- getPosition tileDesc
+    direction <- getDirection tileDesc
+    goal      <- getGoal tileDesc
+    player    <- getPlayer tileDesc
+    let tile = Tile (tileDesc ^. dTerrain) direction goal player
+    return $ (position, tile)
   )
 
-evalTerrain :: TileDescription -> Eval Terrain
-evalTerrain = undefined
+getPosition :: TileDescription -> Eval Position
+getPosition tileDesc = case (tileDesc ^. dPosition) of
+  Just position -> return position
+  _             -> do
+    env <- get
+    case (env ^. ePositions) of
+      []      -> return (-1,-1) -- something went wrong, we should have enough
+      (x:xs)  -> put (env & ePositions .~ xs) >> return x
 
-evalDirection :: TileDescription -> Eval Direction
-evalDirection = undefined
+getDirection :: TileDescription -> Eval Direction
+getDirection tileDesc = case (tileDesc ^. dDirection) of
+  Just direction -> return direction
+  _              -> do
+    direction' <- liftIO (Direction.random)
+    return direction'
 
-evalGoal :: Terrain -> TileDescription -> Eval (Maybe Goal)
-evalGoal = undefined
+getGoal :: TileDescription -> Eval (Maybe Goal)
+getGoal tileDesc = case (tileDesc ^. dGoal) of
+  False -> return Nothing
+  _     -> do
+    env <- get
+    case (env ^. eGoals) of
+      []      -> return Nothing -- something went wrong, we should have enough
+      (x:xs)  -> put (env & eGoals .~ xs) >> return (Just x)
 
-evalPlayer :: TileDescription -> Eval [Player]
-evalPlayer = undefined
+getPlayer :: TileDescription -> Eval [Player]
+getPlayer tileDesc = case (tileDesc ^. dPlayer) of
+  Nothing    -> return []
+  Just color -> do
+    env <- get
+    case (Players.lookup color (env ^. ePlayers)) of
+      Nothing -> return []
+      Just player -> return [player]
+
+{-
+--------------------------------------------------------------------------------
+-- 16 fully known tiles
+--------------------------------------------------------------------------------
+ 1 TD Corner  (Just (1,1)) (Just South)  False (Just Yellow)
+ 2 TD Fork    (Just (3,1)) (Just East)   True  Nothing
+ 3 TD Fork    (Just (5,1)) (Just East)   True  Nothing
+ 4 TD Corner  (Just (7,1)) (Just West)   False (Just Red)
+ 5 TD Fork    (Just (1,3)) (Just East)   True  Nothing
+ 6 TD Fork    (Just (3,3)) (Just East)   True  Nothing
+ 7 TD Fork    (Just (5,3)) (Just South)  True  Nothing
+ 8 TD Fork    (Just (7,3)) (Just West)   True  Nothing
+ 9 TD Fork    (Just (1,5)) (Just East)   True  Nothing
+10 TD Fork    (Just (3,5)) (Just North)  True  Nothing
+11 TD Fork    (Just (5,5)) (Just West)   True  Nothing
+12 TD Fork    (Just (7,5)) (Just West)   True  Nothing
+13 TD Corner  (Just (1,7)) (Just East)   False (Just Green)
+14 TD Fork    (Just (3,7)) (Just North)  True  Nothing
+15 TD Fork    (Just (5,7)) (Just North)  True  Nothing
+16 TD Corner  (Just (7,7)) (Just North)  False (Just Blue)
+--------------------------------------------------------------------------------
+-- 12 randomly placed paths
+--------------------------------------------------------------------------------
+17 TD Path    Nothing      Nothing       False Nothing
+18 TD Path    Nothing      Nothing       False Nothing
+19 TD Path    Nothing      Nothing       False Nothing
+20 TD Path    Nothing      Nothing       False Nothing
+21 TD Path    Nothing      Nothing       False Nothing
+22 TD Path    Nothing      Nothing       False Nothing
+23 TD Path    Nothing      Nothing       False Nothing
+24 TD Path    Nothing      Nothing       False Nothing
+25 TD Path    Nothing      Nothing       False Nothing
+26 TD Path    Nothing      Nothing       False Nothing
+27 TD Path    Nothing      Nothing       False Nothing
+28 TD Path    Nothing      Nothing       False Nothing
+--------------------------------------------------------------------------------
+-- 6 randomly placed corners with treasures
+--------------------------------------------------------------------------------
+29 TD Corner  Nothing      Nothing       True  Nothing
+30 TD Corner  Nothing      Nothing       True  Nothing
+31 TD Corner  Nothing      Nothing       True  Nothing
+32 TD Corner  Nothing      Nothing       True  Nothing
+33 TD Corner  Nothing      Nothing       True  Nothing
+34 TD Corner  Nothing      Nothing       True  Nothing
+--------------------------------------------------------------------------------
+-- 10 randomly placed corners
+--------------------------------------------------------------------------------
+35 TD Corner  Nothing      Nothing       False Nothing
+36 TD Corner  Nothing      Nothing       False Nothing
+37 TD Corner  Nothing      Nothing       False Nothing
+38 TD Corner  Nothing      Nothing       False Nothing
+39 TD Corner  Nothing      Nothing       False Nothing
+40 TD Corner  Nothing      Nothing       False Nothing
+41 TD Corner  Nothing      Nothing       False Nothing
+42 TD Corner  Nothing      Nothing       False Nothing
+43 TD Corner  Nothing      Nothing       False Nothing
+44 TD Corner  Nothing      Nothing       False Nothing
+--------------------------------------------------------------------------------
+-- 6 randomly placed forks with treasures
+--------------------------------------------------------------------------------
+45 TD Fork    Nothing      Nothing       True  Nothing
+46 TD Fork    Nothing      Nothing       True  Nothing
+47 TD Fork    Nothing      Nothing       True  Nothing
+48 TD Fork    Nothing      Nothing       True  Nothing
+49 TD Fork    Nothing      Nothing       True  Nothing
+50 TD Fork    Nothing      Nothing       True  Nothing
+--------------------------------------------------------------------------------
+-- algorithm
+--------------------------------------------------------------------------------
+1. start by listing all the positions [(x,y)|x<-[1..7], y<-[1..7]]++[(2,0)]
+2. filter out the positions of the known tiles
+3. shuffle the resulting positions
+4. fill the blanks tile description by tile description, tearing out
+   1 shuffled position at a time from the Env
+-}
