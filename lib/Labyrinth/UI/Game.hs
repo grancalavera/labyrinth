@@ -63,18 +63,22 @@ drawUI g =
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate d _) = RawCell $ case d of
-  North -> ["       ",
-            "   ▲   ",
-            "       "]
-  West  -> ["       ",
-            "  ◄    ",
-            "       "]
-  South -> ["       ",
-            "   ▼   ",
-            "       "]
-  East  -> ["       ",
-            "    ►  ",
-            "       "]
+  North -> ["         ",
+            "   ▲ ▲   ",
+            "         ",
+            "         "]
+  West  -> ["         ",
+            "   ◄     ",
+            "   ◄     ",
+            "         "]
+  South -> ["         ",
+            "         ",
+            "   ▼ ▼   ",
+            "         "]
+  East  -> ["         ",
+            "     ►   ",
+            "     ►   ",
+            "         "]
 
 toRawTile :: Tile -> RawCell
 toRawTile t = toRawFound t <> toRawTreasure t <> toRawTerrain t
@@ -83,9 +87,10 @@ toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
   (Goal t' _) <- t ^. goal
   c           <- Map.lookup t' treasureMap
-  return $ RawCell ["       ",
-                    "   " ++ [c] ++ "   ",
-                    "       "]
+  return $ RawCell ["         ",
+                    "         ",
+                    "    " ++ [c] ++ "    ",
+                    "         "]
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
@@ -94,55 +99,69 @@ toRawFound :: Tile -> RawCell
 toRawFound t = fromMaybe mempty $ do
   (Goal _ isFound) <- t ^. goal
   guard isFound
-  return $ RawCell ["       ",
-                    "   ✓   ",
-                    "       "]
+  return $ RawCell ["         ",
+                    "         ",
+                    "    ✓    ",
+                    "         "]
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
-  (Path, North)   -> [" │   │ ",
-                      " │   │ ",
-                      " │   │ "]
-  (Path, West)    -> ["───────",
-                      "       ",
-                      "───────"]
-  (Path, South)   -> [" │   │ ",
-                      " │   │ ",
-                      " │   │ "]
-  (Path, East)    -> ["───────",
-                      "       ",
-                      "───────"]
-  (Corner, North) -> ["─┘   │ ",
-                      "     │ ",
-                      "─────┘ "]
-  (Corner, West)  -> ["─────┐ ",
-                      "     │ ",
-                      "─┐   │ "]
-  (Corner, South) -> [" ┌─────",
-                      " │     ",
-                      " │   ┌─"]
-  (Corner, East)  -> [" │   └─",
-                      " │     ",
-                      " └─────"]
-  (Fork, North)   -> ["─┘   └─",
-                      "       ",
-                      "───────"]
-  (Fork, West)    -> ["─┘   │ ",
-                      "     │ ",
-                      "─┐   │ "]
-  (Fork, South)   -> ["───────",
-                      "       ",
-                      "─┐   ┌─"]
-  (Fork, East)    -> [" │   └─",
-                      " │     ",
-                      " │   ┌─"]
+  (Path, North)   -> [" │     │ ",
+                      " │     │ ",
+                      " │     │ ",
+                      " │     │ "]
+  (Path, West)    -> ["─────────",
+                      "         ",
+                      "         ",
+                      "─────────"]
+  (Path, South)   -> [" │     │ ",
+                      " │     │ ",
+                      " │     │ ",
+                      " │     │ "]
+  (Path, East)    -> ["─────────",
+                      "         ",
+                      "         ",
+                      "─────────"]
+  (Corner, North) -> ["─┘     │ ",
+                      "       │ ",
+                      "       │ ",
+                      "───────┘ "]
+  (Corner, West)  -> ["───────┐ ",
+                      "       │ ",
+                      "       │ ",
+                      "─┐     │ "]
+  (Corner, South) -> [" ┌───────",
+                      " │       ",
+                      " │       ",
+                      " │     ┌─"]
+  (Corner, East)  -> [" │     └─",
+                      " │       ",
+                      " │       ",
+                      " └───────"]
+  (Fork, North)   -> ["─┘     └─",
+                      "         ",
+                      "         ",
+                      "─────────"]
+  (Fork, West)    -> ["─┘     │ ",
+                      "       │ ",
+                      "       │ ",
+                      "─┐     │ "]
+  (Fork, South)   -> ["─────────",
+                      "         ",
+                      "         ",
+                      "─┐     ┌─"]
+  (Fork, East)    -> [" │     └─",
+                      " │       ",
+                      " │       ",
+                      " │     ┌─"]
 
 data RawCell = RawCell [String]
 
 instance Monoid RawCell where
-  mempty = RawCell ["       ",
-                    "       ",
-                    "       "]
+  mempty = RawCell ["         ",
+                    "         ",
+                    "         ",
+                    "         "]
   RawCell l `mappend` RawCell r = RawCell $ mergeTiles l r
 
 fromRaw :: RawCell -> Widget ()
