@@ -55,10 +55,10 @@ initialGame players' = do
     { _currentPlayer = currentPlayer'
     , _currentTilePosition = (2,0)
     , _players = players'
-    , _gates = Map.fromList gates'
-    , _tiles = Map.fromList tiles'
     , _rowSpread = [0..8]
     , _colSpread = [0..8]
+    , _gates = Map.fromList gates'
+    , _tiles = Map.fromList tiles'
     }
 
   where
@@ -77,9 +77,6 @@ initialGame players' = do
       , ((6, 8), Gate North True)
       ]
     tiles'' =
-      ----------------------------------------
-      -- 16 fully known tiles
-      ----------------------------------------
       [ TD Corner  (Just (1,1)) (Just South)  False (Just Yellow)
       , TD Fork    (Just (3,1)) (Just East)   True  Nothing
       , TD Fork    (Just (5,1)) (Just East)   True  Nothing
@@ -96,53 +93,11 @@ initialGame players' = do
       , TD Fork    (Just (3,7)) (Just North)  True  Nothing
       , TD Fork    (Just (5,7)) (Just North)  True  Nothing
       , TD Corner  (Just (7,7)) (Just North)  False (Just Blue)
-      ----------------------------------------
-      -- 12 randomly placed paths
-      ----------------------------------------
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      , TD Path    Nothing      Nothing       False Nothing
-      ----------------------------------------
-      -- 6 randomly placed corners with treasures
-      ----------------------------------------
-      , TD Corner  Nothing      Nothing       True  Nothing
-      , TD Corner  Nothing      Nothing       True  Nothing
-      , TD Corner  Nothing      Nothing       True  Nothing
-      , TD Corner  Nothing      Nothing       True  Nothing
-      , TD Corner  Nothing      Nothing       True  Nothing
-      , TD Corner  Nothing      Nothing       True  Nothing
-      ----------------------------------------
-      -- 10 randomly placed corners
-      ----------------------------------------
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      , TD Corner  Nothing      Nothing       False Nothing
-      ----------------------------------------
-      -- 6 randomly placed forks with treasures
-      ----------------------------------------
-      , TD Fork    Nothing      Nothing       True  Nothing
-      , TD Fork    Nothing      Nothing       True  Nothing
-      , TD Fork    Nothing      Nothing       True  Nothing
-      , TD Fork    Nothing      Nothing       True  Nothing
-      , TD Fork    Nothing      Nothing       True  Nothing
-      , TD Fork    Nothing      Nothing       True  Nothing
       ]
+      ++ (replicate 12 $ TD Path   Nothing Nothing False Nothing)
+      ++ (replicate 6  $ TD Corner Nothing Nothing True  Nothing)
+      ++ (replicate 10 $ TD Corner Nothing Nothing False Nothing)
+      ++ (replicate 6  $ TD Fork   Nothing Nothing True  Nothing)
 
 nextPlayer :: Game -> Maybe Game
 nextPlayer g = do
