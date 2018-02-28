@@ -8,7 +8,7 @@ module Labyrinth.GameDescription
 
 import           Control.Monad        (forM)
 import           Control.Monad.State  (StateT, evalStateT, get, put, liftIO)
-import           Data.Maybe           (isJust, fromJust)
+import           Data.Maybe           (isJust, fromJust, fromMaybe)
 import           Lens.Micro.TH        (makeLenses)
 import           Lens.Micro           ((^.), (.~), (&))
 import qualified Labyrinth            as Labyrinth
@@ -26,7 +26,7 @@ data TileDescription = TD
   , _dPosition  :: Maybe Position
   , _dDirection :: Maybe Direction
   , _dGoal      :: Bool
-  , _dColor    :: Maybe Color
+  , _dColor     :: Maybe Color
   } deriving (Show)
 makeLenses ''TileDescription
 
@@ -106,10 +106,9 @@ getGoal tileDesc = case (tileDesc ^. dGoal) of
       (x:xs)  -> put (env & eGoals .~ xs) >> return (Just x)
 
 getPlayer :: TileDescription -> Eval [Player]
-getPlayer tileDesc = case (tileDesc ^. dColor) of
-  Nothing    -> return []
-  Just color -> do
-    env <- get
-    case (Players.lookup color (env ^. ePlayers)) of
-      Nothing -> return []
-      Just player -> return [player]
+getPlayer tileDesc = do
+  env <- get
+  return $ fromMaybe [] $ do
+    color  <- tileDesc ^. dColor
+    player <- Players.lookup color (env ^. ePlayers)
+    return [player]
