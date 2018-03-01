@@ -32,9 +32,9 @@ instance Monoid Players where
   mempty = Players mempty
 
 data Player = Player
-    { _color :: Color
-    , _name  :: Name
-    } deriving (Show, Eq)
+  { _color :: Color
+  , _name  :: Name
+  } deriving (Show, Eq)
 makeLenses ''Player
 
 fromPlayer :: Player -> Players

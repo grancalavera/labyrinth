@@ -52,29 +52,29 @@ initialGame players' = do
   currentPlayer' <- Players.first players'
 
   return $ Game
-    { _currentPlayer = currentPlayer'
+    { _currentPlayer       = currentPlayer'
     , _currentTilePosition = (2,0)
-    , _players = players'
-    , _rowSpread = [0..8]
-    , _colSpread = [0..8]
-    , _gates = Map.fromList gates'
-    , _tiles = Map.fromList tiles'
+    , _players             = players'
+    , _rowSpread           = [0..8]
+    , _colSpread           = [0..8]
+    , _gates               = Map.fromList gates'
+    , _tiles               = Map.fromList tiles'
     }
 
   where
     gates'  =
-      [ ((2, 0), Gate South True)
-      , ((4, 0), Gate South True)
-      , ((6, 0), Gate South True)
-      , ((0, 2), Gate East True)
-      , ((0, 4), Gate East True)
-      , ((0, 6), Gate East True)
-      , ((8, 2), Gate West True)
-      , ((8, 4), Gate West True)
-      , ((8, 6), Gate West True)
-      , ((2, 8), Gate North True)
-      , ((4, 8), Gate North True)
-      , ((6, 8), Gate North True)
+      [ ((2,0), Gate South True)
+      , ((4,0), Gate South True)
+      , ((6,0), Gate South True)
+      , ((0,2), Gate East True)
+      , ((0,4), Gate East True)
+      , ((0,6), Gate East True)
+      , ((8,2), Gate West True)
+      , ((8,4), Gate West True)
+      , ((8,6), Gate West True)
+      , ((2,8), Gate North True)
+      , ((4,8), Gate North True)
+      , ((6,8), Gate North True)
       ]
     tiles'' =
       [ TD Corner  (Just (1,1)) (Just South)  False (Just Yellow)

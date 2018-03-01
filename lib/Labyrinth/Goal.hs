@@ -1,3 +1,6 @@
+{-# LANGUAGE ExplicitForAll #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Labyrinth.Goal (
     Goal (..)
   , Found
@@ -18,4 +21,4 @@ fromTreasure :: Treasure -> Goal
 fromTreasure t = Goal t False
 
 treasures :: [Treasure]
-treasures = [Bat ..]
+treasures = [(toEnum 0) ..]

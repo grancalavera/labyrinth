@@ -92,9 +92,7 @@ getPosition tileDesc = case (tileDesc ^. dPosition) of
 getDirection :: TileDescription -> Eval Direction
 getDirection tileDesc = case (tileDesc ^. dDirection) of
   Just direction -> return direction
-  _              -> do
-    direction' <- liftIO (Direction.random)
-    return direction'
+  _              -> liftIO (Direction.random) >>= return
 
 getGoal :: TileDescription -> Eval (Maybe Goal)
 getGoal tileDesc = case (tileDesc ^. dGoal) of
@@ -110,5 +108,4 @@ getPlayer tileDesc = do
   env <- get
   return $ fromMaybe [] $ do
     color  <- tileDesc ^. dColor
-    player <- Players.lookup color (env ^. ePlayers)
-    return [player]
+    Players.lookup color (env ^. ePlayers) >>= return . (:[])
