@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Labyrinth.UI.Game (playGame) where
 
 import           Control.Monad          (void, guard)
@@ -10,8 +12,11 @@ import qualified Brick                  as Brick
 import qualified Brick.Widgets.Center   as C
 import           Brick                  ( App(..)
                                         , Widget
+                                        , AttrMap
+                                        , on
                                         )
 import qualified Graphics.Vty           as V
+import           Graphics.Vty           (Attr)
 import           Data.List              (intercalate)
 import qualified Labyrinth              as Labyrinth
 import           Labyrinth              (Position)
@@ -44,7 +49,7 @@ app :: App Game e ()
 app = App { appDraw = drawUI
           , appHandleEvent  = Brick.resizeOrQuit
           , appStartEvent   = return
-          , appAttrMap      = const $ Brick.attrMap V.defAttr []
+          , appAttrMap      = const attributes
           , appChooseCursor = Brick.neverShowCursor
           }
 
@@ -83,7 +88,7 @@ toRawGate (Gate d _) = RawCell $ case d of
 
 toRawTile :: Tile -> RawCell
 toRawTile t =  mempty
-            <> toRawPlayers  t
+            -- <> toRawPlayers  t
             <> toRawFound    t
             <> toRawTreasure t
             <> toRawTerrain  t
@@ -197,3 +202,15 @@ mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
 
 rawEmptyBoard :: [Int] -> [Int] -> Map Position RawCell
 rawEmptyBoard rs cs = Map.fromList [((x,y), mempty) | x <- rs, y <- cs]
+
+attributes :: AttrMap
+attributes = Brick.attrMap defaultAttr
+  [ ("default",       defaultAttr)
+  , ("yellowPlayer",  V.white `on` V.yellow)
+  , ("bluePlayer",    V.white `on` V.blue)
+  , ("greenPlayer",   V.white `on` V.green)
+  , ("redPlayer",     V.white `on` V.red)
+  ]
+
+defaultAttr :: Attr
+defaultAttr = V.white `on` V.black
