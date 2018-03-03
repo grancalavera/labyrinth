@@ -20,7 +20,7 @@ import           Graphics.Vty           (Attr)
 import           Data.List              (intercalate)
 import qualified Labyrinth              as Labyrinth
 import           Labyrinth              (Position)
-import           Labyrinth.Players      (Players, color)
+import           Labyrinth.Players      (Players, Color(..), color)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
 import           Labyrinth.Tile         ( Tile(..)
@@ -63,33 +63,22 @@ drawUI g =
 
     emptyWidgetBoard = emptyOf (fromRaw mempty)
     gates' = Map.map (fromRaw . toRawGate) (g ^. gates)
-    tiles' = Map.map (fromRaw . toRawTile) (g ^. tiles)
-
-    emptyAttrBoard, tileAttributes, tiles''
-      :: Map Position (Widget () -> Widget ())
-    emptyAttrBoard = emptyOf (Brick.withAttr "default")
-    tileAttributes = Map.map (toAttr) (g ^. tiles)
-
-    tiles'' = Map.map const tiles'
-
-    tiles''' :: Map Position (Widget () -> Widget ())
-    tiles''' = Map.unionWith doTheThing tileAttributes tiles''
-
-    tiles'''' :: Map Position (Widget ())
-    tiles'''' = Map.map fromConst tiles'''
-
-    board' = tiles'''' <> gates' <> emptyWidgetBoard
-
+    tiles' = Map.map fromConst $
+      Map.unionWith (\attribute -> \widget -> const $ attribute $ fromConst widget)
+        (Map.map (toAttr) (g ^. tiles))
+        (Map.map (const . fromRaw . toRawTile) (g ^. tiles))
+    board' = tiles' <> gates' <> emptyWidgetBoard
     emptyOf = emptyBoard (g ^. rowSpread) (g ^. colSpread)
 
-doTheThing :: (Widget () -> Widget ()) -> (Widget () -> Widget ()) -> (Widget () -> Widget ())
-doTheThing attribute widget = const $ attribute $ fromConst widget
-
-
--- doTheThing attribute widget = const $ attribute $ fromConst widget
-
 toAttr :: Tile -> Widget () -> Widget ()
-toAttr = const $ Brick.withAttr "yellowPlayer"
+toAttr t = fromMaybe (Brick.withAttr "default") $ do
+  case (t ^. tenants) of
+    []     -> Nothing
+    (p:ps) -> case (p ^. color) of
+      Yellow  -> return $ Brick.withAttr "yellowPlayer"
+      Red     -> return $ Brick.withAttr "redPlayer"
+      Blue    -> return $ Brick.withAttr "bluePlayer"
+      Green   -> return $ Brick.withAttr "greenPlayer"
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate d _) = RawCell $ case d of
