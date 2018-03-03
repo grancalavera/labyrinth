@@ -15,13 +15,14 @@ import qualified Graphics.Vty           as V
 import           Data.List              (intercalate)
 import qualified Labyrinth              as Labyrinth
 import           Labyrinth              (Position)
-import           Labyrinth.Players      (Players)
+import           Labyrinth.Players      (Players, color)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
 import           Labyrinth.Tile         ( Tile(..)
                                         , Terrain(..)
                                         , direction
                                         , terrain
+                                        , tenants
                                         , goal
                                         )
 import qualified Labyrinth.Game         as Game
@@ -81,7 +82,20 @@ toRawGate (Gate d _) = RawCell $ case d of
             "         "]
 
 toRawTile :: Tile -> RawCell
-toRawTile t = toRawFound t <> toRawTreasure t <> toRawTerrain t
+toRawTile t =  mempty
+            <> toRawPlayers  t
+            <> toRawFound    t
+            <> toRawTreasure t
+            <> toRawTerrain  t
+
+toRawPlayers :: Tile -> RawCell
+toRawPlayers t = fromMaybe mempty $ do
+  guard $ (not . null) players'
+  return $ RawCell $ mergeTiles left right
+    where
+      players' = t ^. tenants
+      left   = [emptyRow, emptyRow, emptyRow, emptyRow]
+      right  = (map (\p -> (show $ p ^. color) ++ repeat ' ') players') ++ (repeat emptyRow)
 
 toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
@@ -155,13 +169,13 @@ toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
                       " │       ",
                       " │     ┌─"]
 
-data RawCell = RawCell [String]
+emptyRow :: String
+emptyRow = replicate 9 ' '
+
+newtype RawCell = RawCell [String]
 
 instance Monoid RawCell where
-  mempty = RawCell ["         ",
-                    "         ",
-                    "         ",
-                    "         "]
+  mempty = RawCell $ replicate 4 emptyRow
   RawCell l `mappend` RawCell r = RawCell $ mergeTiles l r
 
 fromRaw :: RawCell -> Widget ()
