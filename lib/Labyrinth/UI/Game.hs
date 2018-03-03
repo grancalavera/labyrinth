@@ -74,7 +74,7 @@ toAttr :: Tile -> Widget () -> Widget ()
 toAttr t = fromMaybe (Brick.withAttr "default") $ do
   case (t ^. tenants) of
     []     -> Nothing
-    (p:ps) -> case (p ^. color) of
+    (p:_) -> case (p ^. color) of
       Yellow  -> return $ Brick.withAttr "yellowPlayer"
       Red     -> return $ Brick.withAttr "redPlayer"
       Blue    -> return $ Brick.withAttr "bluePlayer"
@@ -105,15 +105,6 @@ toRawTile t =  mempty
             <> toRawFound    t
             <> toRawTreasure t
             <> toRawTerrain  t
-
-toRawPlayers :: Tile -> RawCell
-toRawPlayers t = fromMaybe mempty $ do
-  guard $ (not . null) players'
-  return $ RawCell $ mergeTiles left right
-    where
-      players' = t ^. tenants
-      left   = [emptyRow, emptyRow, emptyRow, emptyRow]
-      right  = (map (\p -> (show $ p ^. color) ++ repeat ' ') players') ++ (repeat emptyRow)
 
 toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
@@ -219,10 +210,10 @@ emptyBoard rows cols empty = Map.fromList [((x,y), empty) | x <- rows, y <- cols
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap defaultAttr
   [ ("default",       defaultAttr)
-  , ("yellowPlayer",  V.white `on` V.yellow)
-  , ("bluePlayer",    V.white `on` V.blue)
-  , ("greenPlayer",   V.white `on` V.green)
-  , ("redPlayer",     V.white `on` V.red)
+  , ("yellowPlayer",  V.black `on` V.yellow)
+  , ("bluePlayer",    V.black `on` V.blue)
+  , ("greenPlayer",   V.black `on` V.green)
+  , ("redPlayer",     V.black `on` V.red)
   ]
 
 defaultAttr :: Attr
