@@ -49,7 +49,7 @@ app :: App Game e ()
 app = App { appDraw = drawUI
           , appHandleEvent  = Brick.resizeOrQuit
           , appStartEvent   = return
-          , appAttrMap      = const attributes
+          , appAttrMap      = const attributeMap
           , appChooseCursor = Brick.neverShowCursor
           }
 
@@ -57,15 +57,39 @@ drawUI :: Game -> [Widget ()]
 drawUI g =
   [ C.vCenter $ C.hCenter
               $ Brick.vBox
-              $ map (Brick.hBox . (map (fromRaw . snd))) (Labyrinth.toRows board')
+              $ map (Brick.hBox . (map snd)) (Labyrinth.toRows board')
   ]
   where
-    gates' :: Map Position RawCell
-    gates' = Map.map toRawGate (g ^. gates)
-    tiles' :: Map Position RawCell
-    tiles' = Map.map toRawTile (g ^. tiles)
-    board' :: Map Position RawCell
-    board' = tiles' <> gates' <> (rawEmptyBoard (g ^. rowSpread) (g ^. colSpread))
+
+    emptyWidgetBoard = emptyOf (fromRaw mempty)
+    gates' = Map.map (fromRaw . toRawGate) (g ^. gates)
+    tiles' = Map.map (fromRaw . toRawTile) (g ^. tiles)
+
+    emptyAttrBoard, tileAttributes, tiles''
+      :: Map Position (Widget () -> Widget ())
+    emptyAttrBoard = emptyOf (Brick.withAttr "default")
+    tileAttributes = Map.map (toAttr) (g ^. tiles)
+
+    tiles'' = Map.map const tiles'
+
+    tiles''' :: Map Position (Widget () -> Widget ())
+    tiles''' = Map.unionWith doTheThing tileAttributes tiles''
+
+    tiles'''' :: Map Position (Widget ())
+    tiles'''' = Map.map fromConst tiles'''
+
+    board' = tiles'''' <> gates' <> emptyWidgetBoard
+
+    emptyOf = emptyBoard (g ^. rowSpread) (g ^. colSpread)
+
+doTheThing :: (Widget () -> Widget ()) -> (Widget () -> Widget ()) -> (Widget () -> Widget ())
+doTheThing attribute widget = const $ attribute $ fromConst widget
+
+
+-- doTheThing attribute widget = const $ attribute $ fromConst widget
+
+toAttr :: Tile -> Widget () -> Widget ()
+toAttr = const $ Brick.withAttr "yellowPlayer"
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate d _) = RawCell $ case d of
@@ -200,11 +224,11 @@ mergeTiles = mergeWith mergeRows
 mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
 mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
 
-rawEmptyBoard :: [Int] -> [Int] -> Map Position RawCell
-rawEmptyBoard rs cs = Map.fromList [((x,y), mempty) | x <- rs, y <- cs]
+emptyBoard :: [Int] -> [Int] -> a -> Map Position a
+emptyBoard rows cols empty = Map.fromList [((x,y), empty) | x <- rows, y <- cols]
 
-attributes :: AttrMap
-attributes = Brick.attrMap defaultAttr
+attributeMap :: AttrMap
+attributeMap = Brick.attrMap defaultAttr
   [ ("default",       defaultAttr)
   , ("yellowPlayer",  V.white `on` V.yellow)
   , ("bluePlayer",    V.white `on` V.blue)
@@ -214,3 +238,6 @@ attributes = Brick.attrMap defaultAttr
 
 defaultAttr :: Attr
 defaultAttr = V.white `on` V.black
+
+fromConst :: (Widget () -> Widget ()) -> Widget ()
+fromConst = ($ Brick.str "")
