@@ -93,7 +93,6 @@ toRawGate (Gate d _) = Cell $ case d of
 
 toRawTile :: Tile -> RawCell
 toRawTile t =  mempty
-            -- <> toRawPlayers  t
             <> toRawFound    t
             <> toRawTreasure t
             <> toRawTerrain  t
