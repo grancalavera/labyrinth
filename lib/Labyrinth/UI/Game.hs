@@ -63,22 +63,14 @@ drawUI g =
 
     emptyWidgetBoard = emptyOf (fromRaw mempty)
     gates' = Map.map (fromRaw . toRawGate) (g ^. gates)
-    tiles' = Map.map fromConst $
-      Map.unionWith (\attribute -> \widget -> const $ attribute $ fromConst widget)
-        (Map.map (toAttr) (g ^. tiles))
-        (Map.map (const . fromRaw . toRawTile) (g ^. tiles))
+    tiles' = Map.map (\t -> 
+      let rt = toRawTile t 
+          t' = fromRaw rt
+      in withAttr t t'
+      ) (g ^. tiles)
+
     board' = tiles' <> gates' <> emptyWidgetBoard
     emptyOf = emptyBoard (g ^. rowSpread) (g ^. colSpread)
-
-toAttr :: Tile -> Widget () -> Widget ()
-toAttr t = fromMaybe (Brick.withAttr "default") $ do
-  case (t ^. tenants) of
-    []     -> Nothing
-    (p:_) -> case (p ^. color) of
-      Yellow  -> return $ Brick.withAttr "yellowPlayer"
-      Red     -> return $ Brick.withAttr "redPlayer"
-      Blue    -> return $ Brick.withAttr "bluePlayer"
-      Green   -> return $ Brick.withAttr "greenPlayer"
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate d _) = Cell $ case d of
@@ -193,9 +185,12 @@ choose c   ' ' = c
 choose c   _   = c
 
 fromRaw :: RawCell -> Widget ()
-fromRaw raw = Brick.str $ intercalate "\n" $ case raw of 
-  Empty   -> replicate 4 $ replicate 9 ' '
-  Cell xs -> Labyrinth.splitEvery 9 xs
+fromRaw = fromRawWithSize 4 9
+
+fromRawWithSize :: Int -> Int -> RawCell -> Widget ()
+fromRawWithSize rows cols raw = Brick.str $ intercalate "\n" $ case raw of 
+  Empty   -> replicate rows $ replicate cols ' '
+  Cell xs -> Labyrinth.splitEvery cols xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
 emptyBoard rows cols empty = Map.fromList [((x,y), empty) | x <- rows, y <- cols]
@@ -207,11 +202,11 @@ attributeMap = Brick.attrMap defaultAttr
   , ("bluePlayer",    V.black `on` V.blue)
   , ("greenPlayer",   V.black `on` V.green)
   , ("redPlayer",     V.black `on` V.red)
+  , ("funky",         V.white `on` V.brightRed)
   ]
 
 defaultAttr :: Attr
 defaultAttr = V.white `on` V.black
 
-fromConst :: (Widget () -> Widget ()) -> Widget ()
-fromConst = ($ Brick.str "")
-
+withAttr :: Tile -> Widget () -> Widget ()
+withAttr _ = Brick.withAttr "funky"
