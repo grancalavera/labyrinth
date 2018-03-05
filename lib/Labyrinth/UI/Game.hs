@@ -81,23 +81,23 @@ toAttr t = fromMaybe (Brick.withAttr "default") $ do
       Green   -> return $ Brick.withAttr "greenPlayer"
 
 toRawGate :: Gate -> RawCell
-toRawGate (Gate d _) = RawCell $ case d of
-  North -> ["         ",
-            "   ▲ ▲   ",
-            "         ",
-            "         "]
-  West  -> ["         ",
-            "   ◄     ",
-            "   ◄     ",
-            "         "]
-  South -> ["         ",
-            "         ",
-            "   ▼ ▼   ",
-            "         "]
-  East  -> ["         ",
-            "     ►   ",
-            "     ►   ",
-            "         "]
+toRawGate (Gate d _) = Cell $ case d of
+  North -> "         " ++
+           "   ▲ ▲   " ++
+           "         " ++
+           "         "
+  West  -> "         " ++
+           "   ◄     " ++
+           "   ◄     " ++
+           "         "
+  South -> "         " ++
+           "         " ++
+           "   ▼ ▼   " ++
+           "         "
+  East  -> "         " ++
+           "     ►   " ++
+           "     ►   " ++
+           "         "
 
 toRawTile :: Tile -> RawCell
 toRawTile t =  mempty
@@ -110,10 +110,10 @@ toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
   (Goal t' _) <- t ^. goal
   c           <- Map.lookup t' treasureMap
-  return $ RawCell ["         ",
-                    "         ",
-                    "    " ++ [c] ++ "    ",
-                    "         "]
+  return $ Cell $ "         " ++
+                  "         " ++
+                  "    " ++ [c] ++ "    " ++
+                  "         " 
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
@@ -122,83 +122,80 @@ toRawFound :: Tile -> RawCell
 toRawFound t = fromMaybe mempty $ do
   (Goal _ isFound) <- t ^. goal
   guard isFound
-  return $ RawCell ["         ",
-                    "         ",
-                    "    ✓    ",
-                    "         "]
+  return $ Cell $ "         " ++
+                  "         " ++
+                  "    ✓    " ++
+                  "         " 
 
 toRawTerrain :: Tile -> RawCell
-toRawTerrain t = RawCell $ case (t ^. terrain, t ^. direction) of
-  (Path, North)   -> [" │     │ ",
-                      " │     │ ",
-                      " │     │ ",
-                      " │     │ "]
-  (Path, West)    -> ["─────────",
-                      "         ",
-                      "         ",
-                      "─────────"]
-  (Path, South)   -> [" │     │ ",
-                      " │     │ ",
-                      " │     │ ",
-                      " │     │ "]
-  (Path, East)    -> ["─────────",
-                      "         ",
-                      "         ",
-                      "─────────"]
-  (Corner, North) -> ["─┘     │ ",
-                      "       │ ",
-                      "       │ ",
-                      "───────┘ "]
-  (Corner, West)  -> ["───────┐ ",
-                      "       │ ",
-                      "       │ ",
-                      "─┐     │ "]
-  (Corner, South) -> [" ┌───────",
-                      " │       ",
-                      " │       ",
-                      " │     ┌─"]
-  (Corner, East)  -> [" │     └─",
-                      " │       ",
-                      " │       ",
-                      " └───────"]
-  (Fork, North)   -> ["─┘     └─",
-                      "         ",
-                      "         ",
-                      "─────────"]
-  (Fork, West)    -> ["─┘     │ ",
-                      "       │ ",
-                      "       │ ",
-                      "─┐     │ "]
-  (Fork, South)   -> ["─────────",
-                      "         ",
-                      "         ",
-                      "─┐     ┌─"]
-  (Fork, East)    -> [" │     └─",
-                      " │       ",
-                      " │       ",
-                      " │     ┌─"]
+toRawTerrain t = Cell $ case (t ^. terrain, t ^. direction) of
+  (Path, North)   -> " │     │ " ++
+                     " │     │ " ++
+                     " │     │ " ++
+                     " │     │ "
+  (Path, West)    -> "─────────" ++
+                     "         " ++
+                     "         " ++
+                     "─────────"
+  (Path, South)   -> " │     │ " ++
+                     " │     │ " ++
+                     " │     │ " ++
+                     " │     │ "
+  (Path, East)    -> "─────────" ++
+                     "         " ++
+                     "         " ++
+                     "─────────"
+  (Corner, North) -> "─┘     │ " ++
+                     "       │ " ++
+                     "       │ " ++
+                     "───────┘ "
+  (Corner, West)  -> "───────┐ " ++
+                     "       │ " ++
+                     "       │ " ++
+                     "─┐     │ "
+  (Corner, South) -> " ┌───────" ++
+                     " │       " ++
+                     " │       " ++
+                     " │     ┌─"
+  (Corner, East)  -> " │     └─" ++
+                     " │       " ++
+                     " │       " ++
+                     " └───────"
+  (Fork, North)   -> "─┘     └─" ++
+                     "         " ++
+                     "         " ++
+                     "─────────"
+  (Fork, West)    -> "─┘     │ " ++
+                     "       │ " ++
+                     "       │ " ++
+                     "─┐     │ "
+  (Fork, South)   -> "─────────" ++
+                     "         " ++
+                     "         " ++
+                     "─┐     ┌─"
+  (Fork, East)    -> " │     └─" ++
+                     " │       " ++
+                     " │       " ++
+                     " │     ┌─"
 
-emptyRow :: String
-emptyRow = replicate 9 ' '
-
-newtype RawCell = RawCell [String]
+data RawCell = Cell String | Empty
 
 instance Monoid RawCell where
-  mempty = RawCell $ replicate 4 emptyRow
-  RawCell l `mappend` RawCell r = RawCell $ mergeTiles l r
+  mempty = Empty
+  Empty     `mappend` Empty  = Empty
+  Empty     `mappend` Cell x = Cell x
+  Cell x    `mappend` Empty  = Cell x
+  Cell x    `mappend` Cell y = Cell (zipWith choose x y)
+
+choose :: Char -> Char -> Char
+choose ' ' c   = c
+choose c   ' ' = c
+choose c   _   = c
 
 fromRaw :: RawCell -> Widget ()
-fromRaw (RawCell r) = Brick.str (intercalate "\n" r)
-
-
-mergeRows :: String -> String -> String
-mergeRows = mergeWith choose
-
-mergeTiles :: [String] -> [String] -> [String]
-mergeTiles = mergeWith mergeRows
-
-mergeWith :: (a -> a -> a) -> [a] -> [a] -> [a]
-mergeWith f xs ys = [f x y | (x, y) <- zip xs ys]
+fromRaw raw = Brick.str $ intercalate "\n" $ case raw of 
+  Empty   -> replicate 4 $ replicate 9 ' '
+  Cell xs -> Labyrinth.splitEvery 9 xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
 emptyBoard rows cols empty = Map.fromList [((x,y), empty) | x <- rows, y <- cols]
@@ -218,17 +215,3 @@ defaultAttr = V.white `on` V.black
 fromConst :: (Widget () -> Widget ()) -> Widget ()
 fromConst = ($ Brick.str "")
 
-
-data RawCell' = Cell String | Empty
-
-instance Monoid RawCell' where
-  mempty = Empty
-
-  Empty     `mappend` Cell x = Cell x
-  Cell x    `mappend` Empty  = Cell x
-  Cell x    `mappend` Cell y = Cell (zipWith choose x y)
-
-choose :: Char -> Char -> Char
-choose ' ' c   = c
-choose c   ' ' = c
-choose c   _   = c

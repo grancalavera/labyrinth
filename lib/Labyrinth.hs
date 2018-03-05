@@ -3,6 +3,7 @@ module Labyrinth
   , halve
   , filterByPositions
   , toRows
+  , splitEvery
   , Position
   ) where
 
@@ -67,3 +68,9 @@ rowSpread m = fromMaybe [] $ do
   mn <- rowMin m
   mx <- rowMax m
   return [mn..mx]
+
+splitEvery :: Int -> [a] -> [[a]]
+splitEvery _ [] = []
+splitEvery n list = first : (splitEvery n rest)
+  where
+    (first,rest) = splitAt n list
