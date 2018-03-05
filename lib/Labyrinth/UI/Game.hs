@@ -190,10 +190,6 @@ instance Monoid RawCell where
 fromRaw :: RawCell -> Widget ()
 fromRaw (RawCell r) = Brick.str (intercalate "\n" r)
 
-choose :: Char -> Char -> Char
-choose ' ' c   = c
-choose c   ' ' = c
-choose c   _   = c
 
 mergeRows :: String -> String -> String
 mergeRows = mergeWith choose
@@ -221,3 +217,18 @@ defaultAttr = V.white `on` V.black
 
 fromConst :: (Widget () -> Widget ()) -> Widget ()
 fromConst = ($ Brick.str "")
+
+
+data RawCell' = Cell String | Empty
+
+instance Monoid RawCell' where
+  mempty = Empty
+
+  Empty     `mappend` Cell x = Cell x
+  Cell x    `mappend` Empty  = Cell x
+  Cell x    `mappend` Cell y = Cell (zipWith choose x y)
+
+choose :: Char -> Char -> Char
+choose ' ' c   = c
+choose c   ' ' = c
+choose c   _   = c
