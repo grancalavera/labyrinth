@@ -77,10 +77,10 @@ initialGame players' = do
       , ((6,8), Gate North True)
       ]
     tiles'' =
-      [ TD Corner  (Just (1,1)) (Just South)  False (Just Yellow)
+      [ TD Corner  (Just (1,1)) (Just South)  False (Just [Yellow])
       , TD Fork    (Just (3,1)) (Just East)   True  Nothing
       , TD Fork    (Just (5,1)) (Just East)   True  Nothing
-      , TD Corner  (Just (7,1)) (Just West)   False (Just Red)
+      , TD Corner  (Just (7,1)) (Just West)   False (Just [Yellow, Red])
       , TD Fork    (Just (1,3)) (Just East)   True  Nothing
       , TD Fork    (Just (3,3)) (Just East)   True  Nothing
       , TD Fork    (Just (5,3)) (Just South)  True  Nothing
@@ -89,10 +89,10 @@ initialGame players' = do
       , TD Fork    (Just (3,5)) (Just North)  True  Nothing
       , TD Fork    (Just (5,5)) (Just West)   True  Nothing
       , TD Fork    (Just (7,5)) (Just West)   True  Nothing
-      , TD Corner  (Just (1,7)) (Just East)   False (Just Green)
+      , TD Corner  (Just (1,7)) (Just East)   False (Just [Yellow, Red, Green])
       , TD Fork    (Just (3,7)) (Just North)  True  Nothing
       , TD Fork    (Just (5,7)) (Just North)  True  Nothing
-      , TD Corner  (Just (7,7)) (Just North)  False (Just Blue)
+      , TD Corner  (Just (7,7)) (Just North)  False (Just [Yellow, Red, Green, Blue])
       ]
       ++ (replicate 12 $ TD Path   Nothing Nothing False Nothing)
       ++ (replicate 6  $ TD Corner Nothing Nothing True  Nothing)
