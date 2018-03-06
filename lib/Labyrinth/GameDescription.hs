@@ -108,7 +108,6 @@ getPlayers tileDesc = do
   env <- get
   return $ fromMaybe [] $ do
     colors  <- tileDesc ^. dColors
-    return $ foldl (\players -> \color -> fromMaybe players $ do
-      player <- Players.lookup color (env ^. ePlayers)
-      return $ player:players
+    return $ foldl (\players -> \color -> fromMaybe players $
+      Players.lookup color (env ^. ePlayers) >>= return . (:players)
       ) [] colors
