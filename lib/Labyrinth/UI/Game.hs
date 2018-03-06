@@ -20,7 +20,7 @@ import           Graphics.Vty           (Attr)
 import           Data.List              (intercalate)
 import qualified Labyrinth              as Labyrinth
 import           Labyrinth              (Position)
-import           Labyrinth.Players      (Players, Color(..), color)
+import           Labyrinth.Players      (Players, color)
 import           Labyrinth.Direction    (Direction(..))
 import           Labyrinth.Gate         (Gate(..))
 import           Labyrinth.Tile         ( Tile(..)
@@ -60,15 +60,9 @@ drawUI g =
               $ map (Brick.hBox . (map snd)) (Labyrinth.toRows board')
   ]
   where
-
     emptyWidgetBoard = emptyOf (fromRaw mempty)
     gates' = Map.map (fromRaw . toRawGate) (g ^. gates)
-    tiles' = Map.map (\t -> 
-      let rt = toRawTile t 
-          t' = fromRaw rt
-      in withAttr t t'
-      ) (g ^. tiles)
-
+    tiles' = Map.map fromTile (g ^. tiles)
     board' = tiles' <> gates' <> emptyWidgetBoard
     emptyOf = emptyBoard (g ^. rowSpread) (g ^. colSpread)
 
@@ -104,7 +98,7 @@ toRawTreasure t = fromMaybe mempty $ do
   return $ Cell $ "         " ++
                   "         " ++
                   "    " ++ [c] ++ "    " ++
-                  "         " 
+                  "         "
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
@@ -116,7 +110,7 @@ toRawFound t = fromMaybe mempty $ do
   return $ Cell $ "         " ++
                   "         " ++
                   "    ✓    " ++
-                  "         " 
+                  "         "
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = Cell $ case (t ^. terrain, t ^. direction) of
@@ -183,29 +177,98 @@ choose ' ' c   = c
 choose c   ' ' = c
 choose c   _   = c
 
-fromRaw :: RawCell -> Widget ()
-fromRaw = fromRawWithSize 4 9
+widget2p :: String -> Widget ()
+widget2p = toWidget 9
 
-fromRawWithSize :: Int -> Int -> RawCell -> Widget ()
-fromRawWithSize rows cols raw = Brick.str $ intercalate "\n" $ case raw of 
-  Empty   -> replicate rows $ replicate cols ' '
-  Cell xs -> Labyrinth.splitEvery cols xs
+widget3p :: String -> Widget ()
+widget3p = toWidget 3
+
+widget4p :: String -> Widget ()
+widget4p = toWidget 9
+
+toWidget :: Int -> String -> Widget ()
+toWidget cols raw =
+  Brick.str
+    $ intercalate "\n"
+    $ Labyrinth.splitEvery cols raw
+
+fromRaw :: RawCell -> Widget ()
+fromRaw = (toWidget 9) . extract
+
+extract :: RawCell -> String
+extract Empty     = replicate (9*4) ' '
+extract (Cell xs) = xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
 emptyBoard rows cols empty = Map.fromList [((x,y), empty) | x <- rows, y <- cols]
 
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap defaultAttr
-  [ ("default",       defaultAttr)
-  , ("yellowPlayer",  V.black `on` V.yellow)
-  , ("bluePlayer",    V.black `on` V.blue)
-  , ("greenPlayer",   V.black `on` V.green)
-  , ("redPlayer",     V.black `on` V.red)
-  , ("funky",         V.white `on` V.brightRed)
+  [ ("default", defaultAttr)
+  , ("Yellow",  V.white `on` V.yellow)
+  , ("Blue",    V.white `on` V.blue)
+  , ("Green",   V.white `on` V.green)
+  , ("Red",     V.white `on` V.red)
   ]
 
 defaultAttr :: Attr
 defaultAttr = V.white `on` V.black
 
-withAttr :: Tile -> Widget () -> Widget ()
-withAttr _ = Brick.withAttr "funky"
+twoPlayers :: String -> (String, String)
+twoPlayers xs = foldl (\(p1, p2) -> \(i, x) ->
+  case (i `div` w) of
+    0 -> (p1++[x], p2)
+    1 -> (p1, p2++[x])
+    _ -> (p1, p2)
+  ) ([], []) $ zip [0..] xs
+  where
+    w = (length xs) `div` 2
+
+threePlayers :: String -> (String, String, String)
+threePlayers xs = foldl (\(p1, p2, p3) -> \(i, x) ->
+  case (group i) of
+    0 -> (p1++[x], p2, p3)
+    1 -> (p1, p2++[x], p3)
+    2 -> (p1, p2, p3++[x])
+    _ -> (p1, p2, p3)
+  ) ([], [], []) $ zip [0..] xs
+  where
+    cols  = 9
+    count = 3
+    group :: Int -> Int
+    group i = ((i `mod` cols) `div` count) `mod` count
+
+fourPlayers :: String -> (String, String, String, String)
+fourPlayers xs = foldl (\(p1, p2, p3, p4) -> \(i, x) ->
+  case (i `div` w) of
+    0 -> (p1++[x], p2, p3, p4)
+    1 -> (p1, p2++[x], p3, p4)
+    2 -> (p1, p2, p3++[x], p4)
+    3 -> (p1, p2, p3, p4++[x])
+    _ -> (p1, p2, p3, p4)
+  ) ([], [], [], []) $ zip [0..] xs
+  where
+    w = (length xs) `div` 4
+
+fromTile :: Tile -> Widget ()
+fromTile t = case (t ^. tenants) of
+  (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
+  (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
+                      in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'
+                                    , Brick.withAttr (attr p2) $ widget2p p2'
+                                    ]
+  (p1:p2:p3:[])    -> let (p1', p2', p3') = threePlayers $ extract rawTile
+                      in Brick.hBox [ Brick.withAttr (attr p1) $ widget3p p1'
+                                    , Brick.withAttr (attr p2) $ widget3p p2'
+                                    , Brick.withAttr (attr p3) $ widget3p p3'
+                                    ]
+  (p1:p2:p3:p4:[]) -> let (p1', p2', p3', p4') = fourPlayers $ extract rawTile
+                      in Brick.vBox [ Brick.withAttr (attr p1) $ widget4p p1'
+                                    , Brick.withAttr (attr p2) $ widget4p p2'
+                                    , Brick.withAttr (attr p3) $ widget4p p3'
+                                    , Brick.withAttr (attr p4) $ widget4p p4'
+                                    ]
+  _                -> Brick.withAttr "default" $ fromRaw rawTile
+  where
+    rawTile = toRawTile t
+    attr p  = Brick.attrName $ show (p ^. color)
