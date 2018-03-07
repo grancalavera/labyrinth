@@ -2,58 +2,69 @@
 
 module Labyrinth.UI.Game (playGame) where
 
-import           Control.Monad          (void, guard)
-import           Data.Monoid            ((<>))
-import           Data.Maybe             (fromMaybe)
-import qualified Data.Map               as Map
-import           Data.Map               (Map)
-import           Lens.Micro             ((^.))
-import qualified Brick                  as Brick
-import qualified Brick.Widgets.Center   as C
-import           Brick                  ( App(..)
-                                        , Widget
-                                        , AttrMap
-                                        , on
-                                        )
-import qualified Graphics.Vty           as V
-import           Graphics.Vty           (Attr)
-import           Data.List              (intercalate)
-import qualified Labyrinth              as Labyrinth
-import           Labyrinth              (Position)
-import           Labyrinth.Players      (Players, color)
-import           Labyrinth.Direction    (Direction(..))
-import           Labyrinth.Gate         (Gate(..))
-import           Labyrinth.Tile         ( Tile(..)
-                                        , Terrain(..)
-                                        , direction
-                                        , terrain
-                                        , tenants
-                                        , goal
-                                        )
-import qualified Labyrinth.Game         as Game
-import           Labyrinth.Game         ( Game
-                                        , gates
-                                        , tiles
-                                        , rowSpread
-                                        , colSpread
-                                        )
-import qualified Labyrinth.Goal         as Goal
-import           Labyrinth.Goal         (Goal(..), Treasure(..))
+import           Control.Monad             (void, guard)
+import           Data.Monoid               ((<>))
+import           Data.Maybe                (fromMaybe)
+import qualified Data.Map                  as Map
+import           Data.Map                  (Map)
+import           Lens.Micro                ((^.), (&), (.~))
+import qualified Brick                     as Brick
+import qualified Brick.Widgets.Center      as C
+import           Brick                     ( App(..)
+                                           , Widget
+                                           , AttrMap
+                                           , Next
+                                           , EventM
+                                           , BrickEvent (..)
+                                           , on
+                                           , continue
+                                           , halt
+                                           )
+import qualified Graphics.Vty              as V
+import           Graphics.Vty              (Attr)
+import           Graphics.Vty.Input.Events (Modifier (..))
+import           Data.List                 (intercalate)
+import qualified Labyrinth                 as Labyrinth
+import           Labyrinth                 (Position)
+import           Labyrinth.Players         (Players, color)
+import           Labyrinth.Direction       (Direction(..))
+import           Labyrinth.Gate            (Gate(..))
+import qualified Labyrinth.Tile            as Tile
+import           Labyrinth.Tile            ( Tile(..)
+                                           , Terrain(..)
+                                           , direction
+                                           , terrain
+                                           , tenants
+                                           , goal
+                                           )
+import qualified Labyrinth.Game            as Game
+import           Labyrinth.Game            ( Game
+                                           , gates
+                                           , tiles
+                                           , rowSpread
+                                           , colSpread
+                                           , currentTilePosition
+                                           )
+import qualified Labyrinth.Goal            as Goal
+import           Labyrinth.Goal            (Goal(..), Treasure(..))
 
-playGame :: Players -> IO ()
+-- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
+type Name = ()
+
+playGame :: Players -> IO Name
 playGame ps = do
   g <- Game.initialGame ps
   void $ Brick.defaultMain app g
 
-app :: App Game e ()
+app :: App Game e Name
 app = App { appDraw = drawUI
-          , appHandleEvent  = Brick.resizeOrQuit
+          , appHandleEvent  = handleEvent
           , appStartEvent   = return
           , appAttrMap      = const attributeMap
           , appChooseCursor = Brick.neverShowCursor
           }
 
-drawUI :: Game -> [Widget ()]
+drawUI :: Game -> [Widget Name]
 drawUI g =
   [ C.vCenter $ C.hCenter
               $ Brick.vBox
@@ -65,6 +76,33 @@ drawUI g =
     tiles' = Map.map fromTile (g ^. tiles)
     board' = tiles' <> gates' <> emptyWidgetBoard
     emptyOf = emptyBoard (g ^. rowSpread) (g ^. colSpread)
+
+handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
+handleEvent g (VtyEvent (V.EvKey V.KUp []))           = continue g
+handleEvent g (VtyEvent (V.EvKey V.KDown []))         = continue g
+handleEvent g (VtyEvent (V.EvKey V.KRight [MShift]))  = continue $ rotate East g
+handleEvent g (VtyEvent (V.EvKey V.KLeft [MShift]))   = continue $ rotate West g
+handleEvent g (VtyEvent (V.EvKey (V.KChar 'q') []))   = halt g
+handleEvent g (VtyEvent (V.EvKey V.KEsc []))          = halt g
+handleEvent g _ = continue g
+
+rotate :: Direction -> Game -> Game
+rotate d g = fromMaybe g $ do
+  tile' <- Map.lookup pos (g ^. tiles)
+  return $ g & tiles .~ (Map.insert pos (rotate' tile') tiles')
+  where
+    tiles'  = g ^. tiles
+    pos     = g ^. currentTilePosition
+    rotate' = case d of
+      East -> Tile.rotate'
+      West -> Tile.rotate
+      _    -> id
+
+-- handleEvent g (VtyEvent (V.EvKey (V.KChar 'r') [])) = liftIO (initGame) >>= continue
+
+--------------------------------------------------------------------------------
+-- maybe this belongs somewhere else
+--------------------------------------------------------------------------------
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate d _) = Cell $ case d of
@@ -177,22 +215,22 @@ choose ' ' c   = c
 choose c   ' ' = c
 choose c   _   = c
 
-widget2p :: String -> Widget ()
+widget2p :: String -> Widget Name
 widget2p = toWidget 9
 
-widget3p :: String -> Widget ()
+widget3p :: String -> Widget Name
 widget3p = toWidget 3
 
-widget4p :: String -> Widget ()
+widget4p :: String -> Widget Name
 widget4p = toWidget 9
 
-toWidget :: Int -> String -> Widget ()
+toWidget :: Int -> String -> Widget Name
 toWidget cols raw =
   Brick.str
     $ intercalate "\n"
     $ Labyrinth.splitEvery cols raw
 
-fromRaw :: RawCell -> Widget ()
+fromRaw :: RawCell -> Widget Name
 fromRaw = (toWidget 9) . extract
 
 extract :: RawCell -> String
@@ -250,7 +288,7 @@ fourPlayers xs = foldl (\(p1, p2, p3, p4) -> \(i, x) ->
   where
     w = (length xs) `div` 4
 
-fromTile :: Tile -> Widget ()
+fromTile :: Tile -> Widget Name
 fromTile t = case (t ^. tenants) of
   (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
   (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
