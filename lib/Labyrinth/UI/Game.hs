@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Labyrinth.UI.Game (playGame) where
 
@@ -7,7 +8,7 @@ import           Data.Monoid               ((<>))
 import           Data.Maybe                (fromMaybe)
 import qualified Data.Map                  as Map
 import           Data.Map                  (Map)
-import           Lens.Micro                ((^.), (&), (.~))
+import           Lens.Micro                ((^.))
 import qualified Brick                     as Brick
 import qualified Brick.Widgets.Center      as C
 import           Brick                     ( App(..)
@@ -29,7 +30,6 @@ import           Labyrinth                 (Position)
 import           Labyrinth.Players         (Players, color)
 import           Labyrinth.Direction       (Direction(..))
 import           Labyrinth.Gate            (Gate(..))
-import qualified Labyrinth.Tile            as Tile
 import           Labyrinth.Tile            ( Tile(..)
                                            , Terrain(..)
                                            , direction
@@ -38,12 +38,12 @@ import           Labyrinth.Tile            ( Tile(..)
                                            , goal
                                            )
 import qualified Labyrinth.Game            as Game
-import           Labyrinth.Game            ( Game
+import           Labyrinth.Game            ( Game (..)
+                                           , Phase (..)
                                            , gates
                                            , tiles
                                            , rowSpread
                                            , colSpread
-                                           , currentTilePosition
                                            )
 import qualified Labyrinth.Goal            as Goal
 import           Labyrinth.Goal            (Goal(..), Treasure(..))
@@ -72,31 +72,23 @@ drawUI g =
   ]
   where
     emptyWidgetBoard = emptyOf (fromRaw mempty)
-    gates' = Map.map (fromRaw . toRawGate) (g ^. gates)
-    tiles' = Map.map fromTile (g ^. tiles)
-    board' = tiles' <> gates' <> emptyWidgetBoard
-    emptyOf = emptyBoard (g ^. rowSpread) (g ^. colSpread)
+    gates'           = Map.map (fromRaw . toRawGate) (g ^. gates)
+    tiles'           = Map.map fromTile (g ^. tiles)
+    board'           = tiles' <> gates' <> emptyWidgetBoard
+    emptyOf          = emptyBoard (g ^. rowSpread) (g ^. colSpread)
 
 handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
-handleEvent g (VtyEvent (V.EvKey V.KUp []))           = continue g
-handleEvent g (VtyEvent (V.EvKey V.KDown []))         = continue g
-handleEvent g (VtyEvent (V.EvKey V.KRight [MShift]))  = continue $ rotate East g
-handleEvent g (VtyEvent (V.EvKey V.KLeft [MShift]))   = continue $ rotate West g
-handleEvent g (VtyEvent (V.EvKey (V.KChar 'q') []))   = halt g
-handleEvent g (VtyEvent (V.EvKey V.KEsc []))          = halt g
-handleEvent g _ = continue g
+handleEvent g@(Game {_phase=Plan, ..}) e = case e of
+  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotate g
+  VtyEvent (V.EvKey V.KLeft [MShift])  -> continue $ Game.rotate' g
+  _                                    -> handleEventCommon g e
+handleEvent g e = handleEventCommon g e
 
-rotate :: Direction -> Game -> Game
-rotate d g = fromMaybe g $ do
-  tile' <- Map.lookup pos (g ^. tiles)
-  return $ g & tiles .~ (Map.insert pos (rotate' tile') tiles')
-  where
-    tiles'  = g ^. tiles
-    pos     = g ^. currentTilePosition
-    rotate' = case d of
-      East -> Tile.rotate'
-      West -> Tile.rotate
-      _    -> id
+handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
+handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') []))   = halt g
+handleEventCommon g (VtyEvent (V.EvKey V.KEsc []))          = halt g
+handleEventCommon g _ = continue g
+
 
 -- handleEvent g (VtyEvent (V.EvKey (V.KChar 'r') [])) = liftIO (initGame) >>= continue
 

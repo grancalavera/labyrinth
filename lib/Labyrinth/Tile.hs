@@ -48,10 +48,10 @@ edges t = Set.fromList $ case (t ^. terrain, t ^. direction) of
   (Fork, East)    -> [South, East, North]
 
 rotate :: Tile -> Tile
-rotate = direction %~ Direction.next
+rotate = direction %~ Direction.previous
 
 rotate' :: Tile -> Tile
-rotate' = direction %~ Direction.previous
+rotate' = direction %~ Direction.next
 
 randomRotate :: Tile -> IO Tile
 randomRotate t = do

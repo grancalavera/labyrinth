@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Labyrinth.Game
     ( Game (..)
+    , Phase (..)
     , currentPlayer
     , currentTilePosition
     , players
@@ -9,11 +10,15 @@ module Labyrinth.Game
     , rowSpread
     , colSpread
     , nextPlayer
+    , phase
     , initialGame
+    , rotate
+    , rotate'
     ) where
 
 import qualified Data.Map.Strict           as Map
 import           Data.Map.Strict           (Map)
+import           Data.Maybe                (fromMaybe)
 import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
 import           Labyrinth                 (Position)
@@ -23,6 +28,7 @@ import           Labyrinth.Players         ( Player(..)
                                            , Players(..)
                                            )
 import           Labyrinth.Direction       (Direction(..))
+import qualified Labyrinth.Tile            as Tile
 import           Labyrinth.Tile            ( Tile(..)
                                            , Terrain(..)
                                            )
@@ -32,6 +38,8 @@ import           Labyrinth.GameDescription ( GameDescription(..)
                                            , mkTiles
                                            )
 
+data Phase = Plan | Walk | Check | End deriving (Show, Eq)
+
 data Game = Game
     { _currentPlayer       :: Maybe Player
     , _currentTilePosition :: Position
@@ -40,8 +48,37 @@ data Game = Game
     , _gates               :: Map Position Gate
     , _rowSpread           :: [Int]
     , _colSpread           :: [Int]
+    , _phase               :: Phase
     } deriving (Show, Eq)
 makeLenses ''Game
+
+--------------------------------------------------------------------------------
+-- game transformations
+--------------------------------------------------------------------------------
+
+rotate :: Game -> Game
+rotate = rotateInt $ Tile.rotate
+
+rotate' :: Game -> Game
+rotate' = rotateInt $ Tile.rotate'
+
+rotateInt :: (Tile -> Tile) -> Game -> Game
+rotateInt rotateInt' g = fromMaybe g $ do
+  tile' <- Map.lookup pos tiles'
+  return $ g & tiles .~ (Map.insert pos (rotateInt' tile') tiles')
+  where
+    tiles' = g ^. tiles
+    pos    = g ^. currentTilePosition
+
+nextPlayer :: Game -> Game
+nextPlayer g = fromMaybe g $ do
+  currP <- g ^. currentPlayer
+  nextP <- Players.next currP (g ^. players)
+  return $ g & currentPlayer .~ (Just nextP)
+
+--------------------------------------------------------------------------------
+-- etc
+--------------------------------------------------------------------------------
 
 initialGame :: Players -> IO Game
 initialGame players' = do
@@ -59,6 +96,7 @@ initialGame players' = do
     , _colSpread           = [0..8]
     , _gates               = Map.fromList gates'
     , _tiles               = Map.fromList tiles'
+    , _phase               = Plan
     }
 
   where
@@ -98,9 +136,3 @@ initialGame players' = do
       ++ (replicate 6  $ TD Corner Nothing Nothing True  Nothing)
       ++ (replicate 10 $ TD Corner Nothing Nothing False Nothing)
       ++ (replicate 6  $ TD Fork   Nothing Nothing True  Nothing)
-
-nextPlayer :: Game -> Maybe Game
-nextPlayer g = do
-  currP <- g ^. currentPlayer
-  nextP <- Players.next currP (g ^. players)
-  return $ g & currentPlayer .~ (Just nextP)
