@@ -33,17 +33,16 @@ toRows :: Map Position a -> [[(Position, a)]]
 toRows m = map (Map.toList . (`filterByRow` m)) (rowSpread m)
 
 filterByRow :: Int -> Map Position a -> Map Position a
-filterByRow r m = Map.filterWithKey (\i -> \_ -> snd i == r) m
+filterByRow r = Map.filterWithKey (curry $ (==r) . snd . fst)
 
 rowMin :: Map Position a -> Maybe Int
-rowMin m  = do
-  (((_, i), _), _) <- Map.minViewWithKey m
-  return i
+rowMin m = Map.minViewWithKey m >>= return . getRow
 
 rowMax :: Map Position a -> Maybe Int
-rowMax m  = do
-  (((_, i), _), _) <- Map.maxViewWithKey m
-  return i
+rowMax m  = Map.maxViewWithKey m >>= return . getRow
+
+getRow :: ((Position, a), Map Position a) -> Int
+getRow  = snd . fst . fst
 
 rowSpread :: Map Position a -> [Int]
 rowSpread m = fromMaybe [] $ do
