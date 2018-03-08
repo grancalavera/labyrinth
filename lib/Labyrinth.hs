@@ -1,7 +1,5 @@
 module Labyrinth
   ( shuffle
-  , halve
-  , filterByPositions
   , toRows
   , splitEvery
   , Position
@@ -30,19 +28,6 @@ shuffle xs = do
     n = length xs
     newArray :: Int -> [a] -> IO (IOArray Int a)
     newArray n' xs' = AIO.newListArray (1, n') xs'
-
-halve :: [a] -> ([a],[a])
-halve [] = ([], [])
-halve ls = (take half ls, drop half ls)
-  where
-    half :: Int
-    half = length ls `div` 2
-
-filterByPositions :: [Position] -> Map Position a -> Map Position a
-filterByPositions ps m = Map.filterWithKey byPositions m
-  where
-    byPositions :: Position -> a -> Bool
-    byPositions p _ = p `elem` ps
 
 toRows :: Map Position a -> [[(Position, a)]]
 toRows m = map (Map.toList . (`filterByRow` m)) (rowSpread m)
