@@ -14,6 +14,7 @@ module Labyrinth.Game
     , initialGame
     , rotate
     , rotate'
+    , move
     ) where
 
 import qualified Data.Map.Strict           as Map
@@ -61,6 +62,9 @@ rotate = rotateInt $ Tile.rotate
 
 rotate' :: Game -> Game
 rotate' = rotateInt $ Tile.rotate'
+
+move :: Direction -> Game -> Game
+move _ g = g
 
 rotateInt :: (Tile -> Tile) -> Game -> Game
 rotateInt rotateInt' g = fromMaybe g $ do
