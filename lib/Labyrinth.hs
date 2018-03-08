@@ -33,10 +33,7 @@ toRows :: Map Position a -> [[(Position, a)]]
 toRows m = map (Map.toList . (`filterByRow` m)) (rowSpread m)
 
 filterByRow :: Int -> Map Position a -> Map Position a
-filterByRow r m = Map.filterWithKey byRow m
-  where
-    byRow :: Position -> a -> Bool
-    byRow (_, i) _ = i == r
+filterByRow r m = Map.filterWithKey (\i -> \_ -> snd i == r) m
 
 rowMin :: Map Position a -> Maybe Int
 rowMin m  = do
