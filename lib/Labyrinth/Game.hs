@@ -15,6 +15,10 @@ module Labyrinth.Game
     , rotate
     , rotate'
     , move
+    , rowMin
+    , rowMax
+    , colMin
+    , colMax
     ) where
 
 import qualified Data.Map.Strict           as Map
@@ -22,6 +26,7 @@ import           Data.Map.Strict           (Map)
 import           Data.Maybe                (fromMaybe)
 import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
+import           Lens.Micro.Type           (Getting)
 import           Labyrinth                 (Position)
 import qualified Labyrinth.Players         as Players
 import           Labyrinth.Players         ( Player(..)
@@ -47,9 +52,11 @@ data Game = Game
     , _players             :: Players
     , _tiles               :: Map Position Tile
     , _gates               :: Map Position Gate
-    , _rowSpread           :: [Int]
-    , _colSpread           :: [Int]
     , _phase               :: Phase
+    , _rowMin              :: Int
+    , _rowMax              :: Int
+    , _colMin              :: Int
+    , _colMax              :: Int
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -84,6 +91,15 @@ nextPlayer g = fromMaybe g $ do
 -- etc
 --------------------------------------------------------------------------------
 
+rowSpread :: Game -> [Int]
+rowSpread = spread rowMin rowMax
+
+colSpread :: Game -> [Int]
+colSpread = spread colMin colMax
+
+spread :: Getting Int Game Int -> Getting Int Game Int -> Game -> [Int]
+spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
+
 initialGame :: Players -> IO Game
 initialGame players' = do
   tiles' <- mkTiles GD { _dTiles     = tiles''
@@ -96,11 +112,13 @@ initialGame players' = do
     { _currentPlayer       = currentPlayer'
     , _currentTilePosition = (2,0)
     , _players             = players'
-    , _rowSpread           = [0..8]
-    , _colSpread           = [0..8]
     , _gates               = Map.fromList gates'
     , _tiles               = Map.fromList tiles'
     , _phase               = Plan
+    , _rowMin              = 0
+    , _rowMax              = 8
+    , _colMin              = 0
+    , _colMax              = 8
     }
 
   where

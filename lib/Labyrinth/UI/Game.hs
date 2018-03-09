@@ -42,8 +42,6 @@ import           Labyrinth.Game            ( Game (..)
                                            , Phase (..)
                                            , gates
                                            , tiles
-                                           , rowSpread
-                                           , colSpread
                                            )
 import qualified Labyrinth.Goal            as Goal
 import           Labyrinth.Goal            (Goal(..), Treasure(..))
@@ -75,7 +73,7 @@ drawUI g =
     gates'           = Map.map (fromRaw . toRawGate) (g ^. gates)
     tiles'           = Map.map fromTile (g ^. tiles)
     board'           = tiles' <> gates' <> emptyWidgetBoard
-    emptyOf          = emptyBoard (g ^. rowSpread) (g ^. colSpread)
+    emptyOf          = emptyBoard (Game.rowSpread g) (Game.colSpread g)
 
 handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEvent g@(Game {_phase=Plan, ..}) e = case e of
