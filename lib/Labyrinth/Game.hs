@@ -100,14 +100,14 @@ moves dir g = fromMaybe [] $ do
       [(i, cMin) | i <- reverse [rMin..r-1]]
       [(rMin, i) | i <- [cMin..cMax]]
     (West, South) -> List.union
-      []
-      []
+      [(i, cMin) | i <- [r+1..rMax]]
+      [(rMax, i) | i <- [cMin..cMax]]
     (East, North) -> List.union
-      []
-      []
+      [(i, cMax) | i <- reverse [rMin..r-1]]
+      [(rMin, i) | i <- reverse [cMin..cMax]]
     (East, South) -> List.union
-      []
-      []
+      [(i, cMax) | i <- [r+1..rMax]]
+      [(rMax, i) | i <- reverse [cMin..cMax]]
     _ -> []
 
 edge :: Game -> Maybe Direction

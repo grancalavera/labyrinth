@@ -17,9 +17,14 @@ main = do
 f = addPlayers >>= Game.initialGame >>= \g -> do
   print $ Game.moves East $ g & Game.currentTilePosition .~ (0,4)
   print $ Game.moves West $ g & Game.currentTilePosition .~ (0,4)
+
   print $ Game.moves East $ g & Game.currentTilePosition .~ (8,4)
   print $ Game.moves West $ g & Game.currentTilePosition .~ (8,4)
+
   print $ Game.moves North $ g & Game.currentTilePosition .~ (4,0)
   print $ Game.moves South $ g & Game.currentTilePosition .~ (4,0)
+
+  print $ Game.moves North $ g & Game.currentTilePosition .~ (4,8)
+  print $ Game.moves South $ g & Game.currentTilePosition .~ (4,8)
 
 
