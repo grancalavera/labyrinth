@@ -73,7 +73,13 @@ rotate' :: Game -> Game
 rotate' = rotateInt $ Tile.rotate'
 
 move :: Direction -> Game -> Game
-move _ g = g
+move dir g = fromMoves (moves dir g) g
+
+fromMoves :: [Position] -> Game -> Game
+fromMoves []     g = g
+fromMoves (p:ps) g = fromMaybe (fromMoves ps g) $ do
+  Map.lookup p (g ^. gates)
+  Just $ g & currentTilePosition .~ p
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
