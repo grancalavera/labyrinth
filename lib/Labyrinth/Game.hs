@@ -83,31 +83,48 @@ moves dir g = fromMaybe [] $ do
       rMax = g ^. rowMax
       cMin = g ^. colMin
       cMax = g ^. colMax
+
   Just $ case (e, dir) of
     (North, East) -> List.union
       [(rMin,i) | i <- [c+1..cMax]]
       [(i,cMax) | i <- [rMin..rMax]]
+
     (North, West) -> List.union
       [(rMin, i) | i <- reverse [cMin..c-1]]
       [(i, cMin) | i <- [rMin..rMax]]
+
+    (North, South) -> [(i, c) | i <- [r+1..rMax]]
+
     (South, East) -> List.union
       [(rMax,i) | i <- [c+1..cMax]]
       [(i, cMax) | i <- reverse [rMin..rMax]]
+
     (South, West) -> List.union
       [(rMax, i) | i <- reverse [cMin..c-1]]
       [(i, cMin) | i <- reverse [rMin..rMax]]
+
+    (South, North) -> [(i, c) | i <- reverse [rMin..r-1]]
+
     (West, North) -> List.union
       [(i, cMin) | i <- reverse [rMin..r-1]]
       [(rMin, i) | i <- [cMin..cMax]]
+
     (West, South) -> List.union
       [(i, cMin) | i <- [r+1..rMax]]
       [(rMax, i) | i <- [cMin..cMax]]
+
+    (West, East) -> [(r, i) | i <- [c+1..cMax]]
+
     (East, North) -> List.union
       [(i, cMax) | i <- reverse [rMin..r-1]]
       [(rMin, i) | i <- reverse [cMin..cMax]]
+
     (East, South) -> List.union
       [(i, cMax) | i <- [r+1..rMax]]
       [(rMax, i) | i <- reverse [cMin..cMax]]
+
+    (East, West) -> [(r, i) | i <- reverse [cMin..c-1]]
+
     _ -> []
 
 edge :: Game -> Maybe Direction
