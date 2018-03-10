@@ -19,9 +19,12 @@ module Labyrinth.Game
     , rowMax
     , colMin
     , colMax
+    , moves
+    , edge
     ) where
 
 import qualified Data.Map.Strict           as Map
+import qualified Data.List                 as List
 import           Data.Map.Strict           (Map)
 import           Data.Maybe                (fromMaybe)
 import           Lens.Micro                ((^.), (&), (.~))
@@ -63,7 +66,6 @@ makeLenses ''Game
 --------------------------------------------------------------------------------
 -- game transformations
 --------------------------------------------------------------------------------
-
 rotate :: Game -> Game
 rotate = rotateInt $ Tile.rotate
 
@@ -72,6 +74,52 @@ rotate' = rotateInt $ Tile.rotate'
 
 move :: Direction -> Game -> Game
 move _ g = g
+
+moves :: Direction -> Game -> [Position]
+moves dir g = fromMaybe [] $ do
+  e <- edge g
+  let (r,c) = g ^.currentTilePosition
+      rMin = g ^. rowMin
+      rMax = g ^. rowMax
+      cMin = g ^. colMin
+      cMax = g ^. colMax
+  Just $ case (e, dir) of
+    (North, East) -> List.union
+      [(rMin,i) | i <- [c+1..cMax]]
+      [(i,cMax) | i <- [rMin..rMax]]
+    (North, West) -> List.union
+      [(rMin, i) | i <- reverse [cMin..c-1]]
+      [(i, cMin) | i <- [rMin..rMax]]
+    (South, East) -> List.union
+      [(rMax,i) | i <- [c+1..cMax]]
+      [(i, cMax) | i <- reverse [rMin..rMax]]
+    (South, West) -> List.union
+      [(rMax, i) | i <- reverse [cMin..c-1]]
+      [(i, cMin) | i <- reverse [rMin..rMax]]
+    (West, North) -> List.union
+      [(i, cMin) | i <- reverse [rMin..r-1]]
+      [(rMin, i) | i <- [cMin..cMax]]
+    (West, South) -> List.union
+      []
+      []
+    (East, North) -> List.union
+      []
+      []
+    (East, South) -> List.union
+      []
+      []
+    _ -> []
+
+edge :: Game -> Maybe Direction
+edge g
+  | r == c = Nothing
+  | r == (g ^. rowMin) = Just North
+  | r == (g ^. rowMax) = Just South
+  | c == (g ^. colMin) = Just West
+  | c == (g ^. colMax) = Just East
+  | otherwise = Nothing
+  where
+    (r, c) = g ^. currentTilePosition
 
 rotateInt :: (Tile -> Tile) -> Game -> Game
 rotateInt rotateInt' g = fromMaybe g $ do
@@ -104,13 +152,13 @@ initialGame :: Players -> IO Game
 initialGame players' = do
   tiles' <- mkTiles GD { _dTiles     = tiles''
                        , _dPlayers   = players'
-                       , _dPositions = (2,0):[(x,y) | x <- [1..7], y <- [1..7]]
+                       , _dPositions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
                        }
   currentPlayer' <- Players.first players'
 
   return $ Game
     { _currentPlayer       = currentPlayer'
-    , _currentTilePosition = (2,0)
+    , _currentTilePosition = startPosition
     , _players             = players'
     , _gates               = Map.fromList gates'
     , _tiles               = Map.fromList tiles'
@@ -122,36 +170,37 @@ initialGame players' = do
     }
 
   where
+    startPosition = (0,2)
     gates'  =
-      [ ((2,0), Gate South True)
-      , ((4,0), Gate South True)
-      , ((6,0), Gate South True)
-      , ((0,2), Gate East True)
-      , ((0,4), Gate East True)
-      , ((0,6), Gate East True)
-      , ((8,2), Gate West True)
-      , ((8,4), Gate West True)
-      , ((8,6), Gate West True)
-      , ((2,8), Gate North True)
-      , ((4,8), Gate North True)
-      , ((6,8), Gate North True)
+      [ ((0,2), Gate South True)
+      , ((0,4), Gate South True)
+      , ((0,6), Gate South True)
+      , ((2,0), Gate East True)
+      , ((4,0), Gate East True)
+      , ((6,0), Gate East True)
+      , ((2,8), Gate West True)
+      , ((4,8), Gate West True)
+      , ((6,8), Gate West True)
+      , ((8,2), Gate North True)
+      , ((8,4), Gate North True)
+      , ((8,6), Gate North True)
       ]
     tiles'' =
       [ TD Corner  (Just (1,1)) (Just South)  False (Just [Yellow])
-      , TD Fork    (Just (3,1)) (Just East)   True  Nothing
-      , TD Fork    (Just (5,1)) (Just East)   True  Nothing
-      , TD Corner  (Just (7,1)) (Just West)   False (Just [Red])
       , TD Fork    (Just (1,3)) (Just East)   True  Nothing
-      , TD Fork    (Just (3,3)) (Just East)   True  Nothing
-      , TD Fork    (Just (5,3)) (Just South)  True  Nothing
-      , TD Fork    (Just (7,3)) (Just West)   True  Nothing
       , TD Fork    (Just (1,5)) (Just East)   True  Nothing
-      , TD Fork    (Just (3,5)) (Just North)  True  Nothing
+      , TD Corner  (Just (1,7)) (Just West)   False (Just [Red])
+      , TD Fork    (Just (3,1)) (Just East)   True  Nothing
+      , TD Fork    (Just (3,3)) (Just East)   True  Nothing
+      , TD Fork    (Just (3,5)) (Just South)  True  Nothing
+      , TD Fork    (Just (3,7)) (Just West)   True  Nothing
+      , TD Fork    (Just (5,1)) (Just East)   True  Nothing
+      , TD Fork    (Just (5,3)) (Just North)  True  Nothing
       , TD Fork    (Just (5,5)) (Just West)   True  Nothing
-      , TD Fork    (Just (7,5)) (Just West)   True  Nothing
-      , TD Corner  (Just (1,7)) (Just East)   False (Just [Green])
-      , TD Fork    (Just (3,7)) (Just North)  True  Nothing
-      , TD Fork    (Just (5,7)) (Just North)  True  Nothing
+      , TD Fork    (Just (5,7)) (Just West)   True  Nothing
+      , TD Corner  (Just (7,1)) (Just East)   False (Just [Green])
+      , TD Fork    (Just (7,3)) (Just North)  True  Nothing
+      , TD Fork    (Just (7,5)) (Just North)  True  Nothing
       , TD Corner  (Just (7,7)) (Just North)  False (Just [Blue])
       ]
       ++ (replicate 12 $ TD Path   Nothing Nothing False Nothing)

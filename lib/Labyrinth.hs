@@ -2,7 +2,13 @@ module Labyrinth
   ( shuffle
   , toRows
   , splitEvery
+  , getRow
+  , getCol
   , Position
+
+  , rowIndex
+  , colIndex
+
   ) where
 
 import qualified Data.Array.IO  as AIO
@@ -13,7 +19,9 @@ import qualified Data.Map       as Map
 import           Data.Map       (Map)
 import           Data.Maybe     (fromMaybe)
 
-type Position = (Int, Int)
+type Row      = Int
+type Col      = Int
+type Position = (Row, Col)
 
 shuffle :: [a] -> IO [a]
 shuffle xs = do
@@ -30,19 +38,25 @@ shuffle xs = do
     newArray n' xs' = AIO.newListArray (1, n') xs'
 
 toRows :: Map Position a -> [[(Position, a)]]
-toRows m = map (Map.toList . (`filterByRow` m)) (rowSpread m)
+toRows m = map (Map.toList . (`getRow` m)) (rowSpread m)
 
-filterByRow :: Int -> Map Position a -> Map Position a
-filterByRow r = Map.filterWithKey (curry $ (==r) . snd . fst)
+getRow :: Int -> Map Position a -> Map Position a
+getRow r = Map.filterWithKey (curry $ (==r) . rowIndex)
+
+getCol :: Int -> Map Position a -> Map Position a
+getCol c = Map.filterWithKey (curry $ (==c) . colIndex)
 
 rowMin :: Map Position a -> Maybe Int
-rowMin m = Map.minViewWithKey m >>= return . getRow
+rowMin m = Map.minViewWithKey m >>= return . rowIndex . fst
 
 rowMax :: Map Position a -> Maybe Int
-rowMax m  = Map.maxViewWithKey m >>= return . getRow
+rowMax m  = Map.maxViewWithKey m >>= return . rowIndex . fst
 
-getRow :: ((Position, a), Map Position a) -> Int
-getRow  = snd . fst . fst
+rowIndex :: (Position, a) -> Int
+rowIndex  = fst . fst
+
+colIndex :: (Position, a) -> Int
+colIndex = snd . fst
 
 rowSpread :: Map Position a -> [Int]
 rowSpread m = fromMaybe [] $ do
