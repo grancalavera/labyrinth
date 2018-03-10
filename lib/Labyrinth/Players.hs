@@ -65,5 +65,5 @@ first :: Players -> IO (Maybe Player)
 first players = case (toList players) of
   []       -> return Nothing
   players' -> do
-    i <- randomRIO (0, length players')
+    i <- randomRIO (0, (length players')-1)
     return $ Just (snd (players' !! i))
