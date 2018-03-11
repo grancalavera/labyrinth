@@ -15,12 +15,7 @@ module Labyrinth.Game
     , rotate
     , rotate'
     , move
-    , rowMin
-    , rowMax
-    , colMin
-    , colMax
-    , moves
-    , edge
+    , donePlanning
     ) where
 
 import qualified Data.Map.Strict           as Map
@@ -64,6 +59,13 @@ data Game = Game
 makeLenses ''Game
 
 --------------------------------------------------------------------------------
+-- state transitions
+--------------------------------------------------------------------------------
+
+donePlanning :: Game -> Game
+donePlanning g = g & phase .~ Walk
+
+--------------------------------------------------------------------------------
 -- game transformations
 --------------------------------------------------------------------------------
 rotate :: Game -> Game
@@ -78,10 +80,11 @@ move dir g = fromMoves (moves dir g) g
 fromMoves :: [Position] -> Game -> Game
 fromMoves []     g = g
 fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
-  Map.lookup newP (g ^. gates)
+  _ <- Map.lookup newP (g ^. gates)
   let oldP = g ^. currentTilePosition
   tile' <- Map.lookup oldP (g ^. tiles)
-  Just $ (g & currentTilePosition .~ newP) & tiles .~ (Map.insert newP tile' (Map.delete oldP (g ^. tiles)))
+  Just $ (g & currentTilePosition .~ newP)
+          & tiles .~ (Map.insert newP tile' (Map.delete oldP (g ^. tiles)))
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
