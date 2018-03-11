@@ -63,7 +63,7 @@ makeLenses ''Game
 --------------------------------------------------------------------------------
 
 donePlanning :: Game -> Game
-donePlanning = nextPhase . slideTile
+donePlanning = nextPhase . updateCurrentTilePosition . slideTile
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
@@ -72,14 +72,21 @@ slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
     slide pos@(r, c) = fromMaybe pos $ do
       edge' <- edge g
       Just $ case edge' of
-        -- look for same column and increment row
         North -> if (c==cc) then (r+1,c) else pos
-        -- look for same column and decrement row
         South -> if (c==cc) then (r-1,c) else pos
-        -- look for same row and increment column
         West  -> if (r==cr) then (r,c+1) else pos
-        -- look for same row and decrement column
         East  -> if (r==cr) then (r,c-1) else pos
+
+updateCurrentTilePosition :: Game -> Game
+updateCurrentTilePosition g = g & currentTilePosition .~ (update (g ^. currentTilePosition))
+  where
+    update pos@(r,c) = fromMaybe pos $ do
+      edge' <- edge g
+      Just $ case edge' of
+        North -> (g ^. rowMax, c)
+        South -> (g ^. rowMin, c)
+        West  -> (r, g ^. colMax)
+        East  -> (r, g ^. colMin)
 
 nextPhase :: Game -> Game
 nextPhase g = g & phase .~ Walk
