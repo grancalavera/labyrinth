@@ -102,7 +102,7 @@ moves dir g = fromMaybe [] $ do
     (North, South) -> [(i, c) | i <- [r+1..rMax]]
 
     (South, East) -> List.union
-      [(rMax,i) | i <- [c+1..cMax]]
+      [(rMax, i) | i <- [c+1..cMax]]
       [(i, cMax) | i <- reverse [rMin..rMax]]
 
     (South, West) -> List.union
