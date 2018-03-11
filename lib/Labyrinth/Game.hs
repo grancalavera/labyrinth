@@ -107,18 +107,13 @@ toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
 -- Plan phase
 --------------------------------------------------------------------------------
 rotate :: Game -> Game
-rotate = rotateInternal $ Tile.rotate
+rotate = rotateInternal Tile.rotate
 
 rotate' :: Game -> Game
-rotate' = rotateInternal $ Tile.rotate'
+rotate' = rotateInternal Tile.rotate'
 
 rotateInternal :: (Tile -> Tile) -> Game -> Game
-rotateInternal rotateInternal' g = fromMaybe g $ do
-  tile' <- Map.lookup pos tiles'
-  return $ g & tiles .~ (Map.insert pos (rotateInternal' tile') tiles')
-  where
-    tiles' = g ^. tiles
-    pos    = g ^. currentTilePosition
+rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.currentTilePosition) (g ^. tiles)))
 
 move :: Direction -> Game -> Game
 move dir g = fromMoves moves' g
