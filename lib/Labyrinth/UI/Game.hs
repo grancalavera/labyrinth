@@ -101,6 +101,10 @@ handleEventCommon g _ = continue g
 --------------------------------------------------------------------------------
 
 toRawGate :: Gate -> RawCell
+toRawGate (Gate _ False) = Cell $ "┌───────┐" ++
+                                  "│       │" ++
+                                  "│       │" ++
+                                  "└───────┘"
 toRawGate (Gate d _) = Cell $ case d of
   North -> "         " ++
            "   ▲ ▲   " ++

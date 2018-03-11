@@ -63,7 +63,7 @@ makeLenses ''Game
 --------------------------------------------------------------------------------
 
 donePlanning :: Game -> Game
-donePlanning = nextPhase . updateCurrentTilePosition . slideTile
+donePlanning = nextPhase . toggleGates . updateCurrentTilePosition . slideTile
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
@@ -89,7 +89,15 @@ updateCurrentTilePosition g = g & currentTilePosition .~ (update (g ^. currentTi
         East  -> (r, g ^. colMin)
 
 nextPhase :: Game -> Game
-nextPhase g = g & phase .~ Walk
+nextPhase = id
+-- nextPhase g = g & phase .~ Walk
+
+toggleGates :: Game -> Game
+toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
+  where
+    toggleGate pos (Gate dir _) = if (pos == g ^. currentTilePosition)
+      then Gate dir False
+      else Gate dir True
 
 --------------------------------------------------------------------------------
 -- Plan phase
