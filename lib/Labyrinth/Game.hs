@@ -63,16 +63,43 @@ makeLenses ''Game
 --------------------------------------------------------------------------------
 
 donePlanning :: Game -> Game
-donePlanning g = g & phase .~ Walk
+donePlanning = nextPhase . slideTile
+
+slideTile :: Game -> Game
+slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
+  where
+    (cr, cc) = g ^. currentTilePosition
+    slide pos@(r, c) = fromMaybe pos $ do
+      edge' <- edge g
+      Just $ case edge' of
+        -- look for same column and increment row
+        North -> if (c==cc) then (r+1,c) else pos
+        -- look for same column and decrement row
+        South -> if (c==cc) then (r-1,c) else pos
+        -- look for same row and increment column
+        West  -> if (r==cr) then (r,c+1) else pos
+        -- look for same row and decrement column
+        East  -> if (r==cr) then (r,c-1) else pos
+
+nextPhase :: Game -> Game
+nextPhase g = g & phase .~ Walk
 
 --------------------------------------------------------------------------------
--- game transformations
+-- Plan phase
 --------------------------------------------------------------------------------
 rotate :: Game -> Game
-rotate = rotateInt $ Tile.rotate
+rotate = rotateInternal $ Tile.rotate
 
 rotate' :: Game -> Game
-rotate' = rotateInt $ Tile.rotate'
+rotate' = rotateInternal $ Tile.rotate'
+
+rotateInternal :: (Tile -> Tile) -> Game -> Game
+rotateInternal rotateInternal' g = fromMaybe g $ do
+  tile' <- Map.lookup pos tiles'
+  return $ g & tiles .~ (Map.insert pos (rotateInternal' tile') tiles')
+  where
+    tiles' = g ^. tiles
+    pos    = g ^. currentTilePosition
 
 move :: Direction -> Game -> Game
 move dir g = fromMoves (moves dir g) g
@@ -138,6 +165,10 @@ moves dir g = fromMaybe [] $ do
 
     _ -> []
 
+--------------------------------------------------------------------------------
+-- etc
+--------------------------------------------------------------------------------
+
 edge :: Game -> Maybe Direction
 edge g
   | r == c = Nothing
@@ -149,23 +180,11 @@ edge g
   where
     (r, c) = g ^. currentTilePosition
 
-rotateInt :: (Tile -> Tile) -> Game -> Game
-rotateInt rotateInt' g = fromMaybe g $ do
-  tile' <- Map.lookup pos tiles'
-  return $ g & tiles .~ (Map.insert pos (rotateInt' tile') tiles')
-  where
-    tiles' = g ^. tiles
-    pos    = g ^. currentTilePosition
-
 nextPlayer :: Game -> Game
 nextPlayer g = fromMaybe g $ do
   currP <- g ^. currentPlayer
   nextP <- Players.next currP (g ^. players)
   return $ g & currentPlayer .~ (Just nextP)
-
---------------------------------------------------------------------------------
--- etc
---------------------------------------------------------------------------------
 
 rowSpread :: Game -> [Int]
 rowSpread = spread rowMin rowMax
