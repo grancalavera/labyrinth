@@ -99,9 +99,9 @@ nextPhase = id
 toggleGates :: Game -> Game
 toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
   where
-    toggleGate pos (Gate dir _) = if (pos == g ^. currentTilePosition)
-      then Gate dir False
-      else Gate dir True
+    toggleGate pos (Gate dir _)
+      | pos == g ^. currentTilePosition = Gate dir False
+      | otherwise                       = Gate dir True
 
 --------------------------------------------------------------------------------
 -- Plan phase
