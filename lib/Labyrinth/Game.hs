@@ -126,8 +126,7 @@ move dir g = fromMoves (moves dir g) g
 fromMoves :: [Position] -> Game -> Game
 fromMoves []     g = g
 fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
-  Gate _ isOpen  <- Map.lookup newP (g ^. gates)
-  guard isOpen
+  _ <- Map.lookup newP (g ^. gates)
   let oldP = g ^. currentTilePosition
   tile' <- Map.lookup oldP (g ^. tiles)
   Just $ (g & currentTilePosition .~ newP)
