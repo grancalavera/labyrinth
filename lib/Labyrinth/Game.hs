@@ -121,16 +121,20 @@ rotateInternal rotateInternal' g = fromMaybe g $ do
     pos    = g ^. currentTilePosition
 
 move :: Direction -> Game -> Game
-move dir g = fromMoves (moves dir g) g
+move dir g = fromMoves moves' g
+  where
+    moves' = moves dir g
 
 fromMoves :: [Position] -> Game -> Game
-fromMoves []     g = g
+fromMoves []        g = g
 fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
-  _ <- Map.lookup newP (g ^. gates)
-  let oldP = g ^. currentTilePosition
-  tile' <- Map.lookup oldP (g ^. tiles)
-  Just $ (g & currentTilePosition .~ newP)
-          & tiles .~ (Map.insert newP tile' (Map.delete oldP (g ^. tiles)))
+  Map.lookup newP (g ^. gates) >> (Just . updatePos . moveTile) g
+  where
+    moveTile  = tiles .~ (Map.mapKeys moveKey (g ^. tiles))
+    updatePos = currentTilePosition .~ newP
+    moveKey p
+      | p == g ^. currentTilePosition = newP
+      | otherwise                     = p
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
