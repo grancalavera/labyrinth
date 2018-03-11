@@ -64,7 +64,10 @@ makeLenses ''Game
 --------------------------------------------------------------------------------
 
 donePlanning :: Game -> Game
-donePlanning = nextPhase . toggleGates . updateCurrentTilePosition . slideTile
+donePlanning g = fromMaybe g $ do
+  Gate _ isOpen <- Map.lookup (g ^. currentTilePosition) (g ^. gates)
+  guard isOpen
+  return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
