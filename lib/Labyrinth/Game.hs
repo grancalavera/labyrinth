@@ -22,6 +22,7 @@ import qualified Data.Map.Strict           as Map
 import qualified Data.List                 as List
 import           Data.Map.Strict           (Map)
 import           Data.Maybe                (fromMaybe)
+import           Control.Monad             (guard)
 import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
@@ -122,7 +123,8 @@ move dir g = fromMoves (moves dir g) g
 fromMoves :: [Position] -> Game -> Game
 fromMoves []     g = g
 fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
-  _ <- Map.lookup newP (g ^. gates)
+  Gate _ isOpen  <- Map.lookup newP (g ^. gates)
+  guard isOpen
   let oldP = g ^. currentTilePosition
   tile' <- Map.lookup oldP (g ^. tiles)
   Just $ (g & currentTilePosition .~ newP)
