@@ -93,13 +93,6 @@ handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') []))   = halt g
 handleEventCommon g (VtyEvent (V.EvKey V.KEsc []))          = halt g
 handleEventCommon g _ = continue g
 
-
--- handleEvent g (VtyEvent (V.EvKey (V.KChar 'r') [])) = liftIO (initGame) >>= continue
-
---------------------------------------------------------------------------------
--- maybe this belongs somewhere else
---------------------------------------------------------------------------------
-
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
 toRawGate (Gate d _) = Cell $ case d of
