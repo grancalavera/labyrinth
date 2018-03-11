@@ -139,11 +139,11 @@ fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
   e <- edge g
-  let (r,c) = g ^.currentTilePosition
-      rMin = g ^. rowMin
-      rMax = g ^. rowMax
-      cMin = g ^. colMin
-      cMax = g ^. colMax
+  let (r, c) = g ^.currentTilePosition
+      rMin   = g ^. rowMin
+      rMax   = g ^. rowMax
+      cMin   = g ^. colMin
+      cMax   = g ^. colMax
 
   Just $ case (e, dir) of
     (North, East) -> List.union
@@ -194,12 +194,12 @@ moves dir g = fromMaybe [] $ do
 
 edge :: Game -> Maybe Direction
 edge g
-  | r == c = Nothing
+  | r == c             = Nothing --  because we don't care about corners
   | r == (g ^. rowMin) = Just North
   | r == (g ^. rowMax) = Just South
   | c == (g ^. colMin) = Just West
   | c == (g ^. colMax) = Just East
-  | otherwise = Nothing
+  | otherwise          = Nothing
   where
     (r, c) = g ^. currentTilePosition
 
