@@ -6,6 +6,8 @@ module Labyrinth.GameDescription
     , GameDescription(..)
     ) where
 
+import qualified Data.Map             as Map
+import           Data.Map             (Map)
 import           Control.Monad        (forM)
 import           Control.Monad.State  (StateT, evalStateT, get, put, liftIO)
 import           Data.Maybe           (isJust, fromJust, fromMaybe)
@@ -16,8 +18,7 @@ import           Labyrinth            (Position)
 import           Labyrinth.Tile       (Tile(..), Terrain(..))
 import qualified Labyrinth.Direction  as Direction
 import           Labyrinth.Direction  (Direction(..))
-import qualified Labyrinth.Players    as Players
-import           Labyrinth.Players    (Players, Player, Color(..))
+import           Labyrinth.Player     (Player, Color(..))
 import qualified Labyrinth.Goal       as Goal
 import           Labyrinth.Goal       (Goal)
 
@@ -26,21 +27,21 @@ data TileDescription = TD
   , _dPosition  :: Maybe Position
   , _dDirection :: Maybe Direction
   , _dGoal      :: Bool
-  , _dColors     :: Maybe [Color]
+  , _dColors    :: [Color]
   } deriving (Show)
 makeLenses ''TileDescription
 
 data GameDescription = GD
   { _dTiles     :: [TileDescription]
   , _dPositions :: [Position]
-  , _dPlayers   :: Players
+  , _dPlayers   :: Map Color Player
   } deriving (Show)
 makeLenses ''GameDescription
 
 data Env = Env
   { _ePositions   :: [Position]
   , _eGoals       :: [Goal]
-  , _ePlayers     :: Players
+  , _ePlayers     :: Map Color Player
   } deriving (Show)
 makeLenses ''Env
 
@@ -106,8 +107,6 @@ getGoal tileDesc = case (tileDesc ^. dGoal) of
 getPlayers :: TileDescription -> Eval [Player]
 getPlayers tileDesc = do
   env <- get
-  return $ fromMaybe [] $ do
-    colors  <- tileDesc ^. dColors
-    return $ foldl (\players -> \color -> fromMaybe players $
-      Players.lookup color (env ^. ePlayers) >>= return . (:players)
-      ) [] colors
+  return $ foldl (\players -> \color -> fromMaybe players $
+    Map.lookup color (env ^. ePlayers) >>= return . (:players)
+    ) [] (tileDesc ^. dColors)

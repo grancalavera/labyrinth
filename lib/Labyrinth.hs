@@ -5,10 +5,6 @@ module Labyrinth
   , getRow
   , getCol
   , Position
-
-  , rowIndex
-  , colIndex
-
   ) where
 
 import qualified Data.Array.IO  as AIO
