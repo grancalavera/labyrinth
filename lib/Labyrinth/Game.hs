@@ -2,14 +2,12 @@
 module Labyrinth.Game
     ( Game (..)
     , Phase (..)
-    , currentPlayer
     , currentTilePosition
     , players
     , tiles
     , gates
     , rowSpread
     , colSpread
-    , nextPlayer
     , phase
     , initialGame
     , rotate
@@ -27,10 +25,8 @@ import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
 import           Labyrinth                 (Position)
-import qualified Labyrinth.Players         as Players
-import           Labyrinth.Players         ( Player(..)
+import           Labyrinth.Player          ( Player(..)
                                            , Color(..)
-                                           , Players(..)
                                            )
 import           Labyrinth.Direction       (Direction(..))
 import qualified Labyrinth.Tile            as Tile
@@ -46,9 +42,8 @@ import           Labyrinth.GameDescription ( GameDescription(..)
 data Phase = Plan | Walk | Check | End deriving (Show, Eq)
 
 data Game = Game
-    { _currentPlayer       :: Maybe Player
-    , _currentTilePosition :: Position
-    , _players             :: Players
+    { _currentTilePosition :: Position
+    , _players             :: Map Color Player
     , _tiles               :: Map Position Tile
     , _gates               :: Map Position Gate
     , _phase               :: Phase
@@ -106,6 +101,7 @@ toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
 --------------------------------------------------------------------------------
 -- Plan phase
 --------------------------------------------------------------------------------
+
 rotate :: Game -> Game
 rotate = rotateInternal Tile.rotate
 
@@ -198,12 +194,6 @@ edge g
   where
     (r, c) = g ^. currentTilePosition
 
-nextPlayer :: Game -> Game
-nextPlayer g = fromMaybe g $ do
-  currP <- g ^. currentPlayer
-  nextP <- Players.next currP (g ^. players)
-  return $ g & currentPlayer .~ (Just nextP)
-
 rowSpread :: Game -> [Int]
 rowSpread = spread rowMin rowMax
 
@@ -213,17 +203,15 @@ colSpread = spread colMin colMax
 spread :: Getting Int Game Int -> Getting Int Game Int -> Game -> [Int]
 spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
 
-initialGame :: Players -> IO Game
+initialGame :: Map Color Player -> IO Game
 initialGame players' = do
   tiles' <- mkTiles GD { _dTiles     = tiles''
                        , _dPlayers   = players'
                        , _dPositions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
                        }
-  currentPlayer' <- Players.first players'
 
   return $ Game
-    { _currentPlayer       = currentPlayer'
-    , _currentTilePosition = startPosition
+    { _currentTilePosition = startPosition
     , _players             = players'
     , _gates               = Map.fromList gates'
     , _tiles               = Map.fromList tiles'

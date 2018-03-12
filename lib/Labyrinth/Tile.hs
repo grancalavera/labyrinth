@@ -13,15 +13,15 @@ module Labyrinth.Tile
     , edges
     ) where
 
-import qualified Data.Set              as Set
-import           Data.Set              (Set)
-import           Lens.Micro.TH         (makeLenses)
-import           Lens.Micro            ((%~), (^.))
-import           System.Random         (randomRIO)
-import           Labyrinth.Direction   (Direction(..))
-import qualified Labyrinth.Direction   as Direction
-import           Labyrinth.Goal        (Goal(..))
-import           Labyrinth.Players     (Player(..))
+import qualified Data.Set             as Set
+import           Data.Set             (Set)
+import           Lens.Micro.TH        (makeLenses)
+import           Lens.Micro           ((%~), (^.))
+import           System.Random        (randomRIO)
+import qualified Labyrinth.Direction  as Direction
+import           Labyrinth.Direction  (Direction(..))
+import           Labyrinth.Goal       (Goal(..))
+import           Labyrinth.Player     (Player(..))
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile

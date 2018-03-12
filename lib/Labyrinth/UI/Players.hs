@@ -1,15 +1,14 @@
-module Labyrinth.UI.Players (addPlayers, mockPlayers) where
+module Labyrinth.UI.Players
+    (addPlayers) where
 
-import Data.Monoid ((<>))
-import qualified Labyrinth.Players as Players
-import           Labyrinth.Players (Players, Player(..), Color(..))
+import qualified Data.Map         as Map
+import           Data.Map         (Map)
+import           Labyrinth.Player (Player(..), Color(..))
 
-addPlayers :: IO Players
-addPlayers = return mockPlayers
-
-mockPlayers :: Players
-mockPlayers = mempty
-  <> (Players.fromPlayer $ Player Yellow "Yellow Player")
-  <> (Players.fromPlayer $ Player Blue "Blue Player")
-  <> (Players.fromPlayer $ Player Green "Green Player")
-  <> (Players.fromPlayer $ Player Red "Red Player")
+addPlayers :: IO (Map Color Player)
+addPlayers = return $ Map.fromList
+  [ (Yellow, Player Yellow "Yellow Player")
+  , (Blue, Player Blue "Blue Player")
+  , (Green, Player Green "Green Player")
+  , (Red, Player Red "Red Player")
+  ]
