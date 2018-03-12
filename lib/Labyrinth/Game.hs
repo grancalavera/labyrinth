@@ -174,7 +174,7 @@ moves dir g = fromMaybe [] $ do
     (West, East)   -> [(r, i) | i <- [c+1..cMax]]
     (South, North) -> [(i, c) | i <- reverse [rMin..r-1]]
     (East, West)   -> [(r, i) | i <- reverse [cMin..c-1]]
-    _              -> [] --¯\_(ツ)_/¯
+    _              -> [] --  ¯\_(ツ)_/¯
 
 --------------------------------------------------------------------------------
 -- etc
