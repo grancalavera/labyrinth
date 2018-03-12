@@ -239,24 +239,24 @@ initialGame players' = do
       , ((8,6), Gate North True)
       ]
     tiles'' =
-      [ TD Corner  (Just (1,1)) (Just South)  False (Just [Yellow])
-      , TD Fork    (Just (1,3)) (Just South)  True  Nothing
-      , TD Fork    (Just (1,5)) (Just South)  True  Nothing
-      , TD Corner  (Just (1,7)) (Just West)   False (Just [Red])
-      , TD Fork    (Just (3,1)) (Just East)   True  Nothing
-      , TD Fork    (Just (3,3)) (Just East)   True  Nothing
-      , TD Fork    (Just (3,5)) (Just South)  True  Nothing
-      , TD Fork    (Just (3,7)) (Just West)   True  Nothing
-      , TD Fork    (Just (5,1)) (Just East)   True  Nothing
-      , TD Fork    (Just (5,3)) (Just North)  True  Nothing
-      , TD Fork    (Just (5,5)) (Just West)   True  Nothing
-      , TD Fork    (Just (5,7)) (Just West)   True  Nothing
-      , TD Corner  (Just (7,1)) (Just East)   False (Just [Green])
-      , TD Fork    (Just (7,3)) (Just North)  True  Nothing
-      , TD Fork    (Just (7,5)) (Just North)  True  Nothing
-      , TD Corner  (Just (7,7)) (Just North)  False (Just [Blue])
+      [ TD Corner  (Just (1,1)) (Just South)  False [Yellow]
+      , TD Fork    (Just (1,3)) (Just South)  True  []
+      , TD Fork    (Just (1,5)) (Just South)  True  []
+      , TD Corner  (Just (1,7)) (Just West)   False [Red]
+      , TD Fork    (Just (3,1)) (Just East)   True  []
+      , TD Fork    (Just (3,3)) (Just East)   True  []
+      , TD Fork    (Just (3,5)) (Just South)  True  []
+      , TD Fork    (Just (3,7)) (Just West)   True  []
+      , TD Fork    (Just (5,1)) (Just East)   True  []
+      , TD Fork    (Just (5,3)) (Just North)  True  []
+      , TD Fork    (Just (5,5)) (Just West)   True  []
+      , TD Fork    (Just (5,7)) (Just West)   True  []
+      , TD Corner  (Just (7,1)) (Just East)   False [Green]
+      , TD Fork    (Just (7,3)) (Just North)  True  []
+      , TD Fork    (Just (7,5)) (Just North)  True  []
+      , TD Corner  (Just (7,7)) (Just North)  False [Blue]
       ]
-      ++ (replicate 12 $ TD Path   Nothing Nothing False Nothing)
-      ++ (replicate 6  $ TD Corner Nothing Nothing True  Nothing)
-      ++ (replicate 10 $ TD Corner Nothing Nothing False Nothing)
-      ++ (replicate 6  $ TD Fork   Nothing Nothing True  Nothing)
+      ++ (replicate 12 $ TD Path   Nothing Nothing False [])
+      ++ (replicate 6  $ TD Corner Nothing Nothing True  [])
+      ++ (replicate 10 $ TD Corner Nothing Nothing False [])
+      ++ (replicate 6  $ TD Fork   Nothing Nothing True  [])

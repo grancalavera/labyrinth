@@ -27,7 +27,7 @@ data TileDescription = TD
   , _dPosition  :: Maybe Position
   , _dDirection :: Maybe Direction
   , _dGoal      :: Bool
-  , _dColors    :: Maybe [Color]
+  , _dColors    :: [Color]
   } deriving (Show)
 makeLenses ''TileDescription
 
@@ -107,8 +107,6 @@ getGoal tileDesc = case (tileDesc ^. dGoal) of
 getPlayers :: TileDescription -> Eval [Player]
 getPlayers tileDesc = do
   env <- get
-  return $ fromMaybe [] $ do
-    colors  <- tileDesc ^. dColors
-    return $ foldl (\players -> \color -> fromMaybe players $
-      Map.lookup color (env ^. ePlayers) >>= return . (:players)
-      ) [] colors
+  return $ foldl (\players -> \color -> fromMaybe players $
+    Map.lookup color (env ^. ePlayers) >>= return . (:players)
+    ) [] (tileDesc ^. dColors)
