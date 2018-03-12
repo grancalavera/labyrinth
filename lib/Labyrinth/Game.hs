@@ -119,7 +119,8 @@ move dir g = fromMoves moves' g
 fromMoves :: [Position] -> Game -> Game
 fromMoves []        g = g
 fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
-  Map.lookup newP (g ^. gates) >> (Just . updatePos . moveTile) g
+  _ <- Map.lookup newP (g ^. gates)
+  Just $ (updatePos . moveTile) g
   where
     moveTile  = tiles .~ (Map.mapKeys moveKey (g ^. tiles))
     updatePos = currentTilePosition .~ newP
