@@ -146,8 +146,6 @@ moves dir g = fromMaybe [] $ do
       [(rMin, i) | i <- reverse [cMin..c-1]]
       [(i, cMin) | i <- [rMin..rMax]]
 
-    (North, South) -> [(i, c) | i <- [r+1..rMax]]
-
     (South, East) -> List.union
       [(rMax, i) | i <- [c+1..cMax]]
       [(i, cMax) | i <- reverse [rMin..rMax]]
@@ -155,8 +153,6 @@ moves dir g = fromMaybe [] $ do
     (South, West) -> List.union
       [(rMax, i) | i <- reverse [cMin..c-1]]
       [(i, cMin) | i <- reverse [rMin..rMax]]
-
-    (South, North) -> [(i, c) | i <- reverse [rMin..r-1]]
 
     (West, North) -> List.union
       [(i, cMin) | i <- reverse [rMin..r-1]]
@@ -166,8 +162,6 @@ moves dir g = fromMaybe [] $ do
       [(i, cMin) | i <- [r+1..rMax]]
       [(rMax, i) | i <- [cMin..cMax]]
 
-    (West, East) -> [(r, i) | i <- [c+1..cMax]]
-
     (East, North) -> List.union
       [(i, cMax) | i <- reverse [rMin..r-1]]
       [(rMin, i) | i <- reverse [cMin..cMax]]
@@ -176,9 +170,11 @@ moves dir g = fromMaybe [] $ do
       [(i, cMax) | i <- [r+1..rMax]]
       [(rMax, i) | i <- reverse [cMin..cMax]]
 
-    (East, West) -> [(r, i) | i <- reverse [cMin..c-1]]
-
-    _ -> []
+    (North, South) -> [(i, c) | i <- [r+1..rMax]]
+    (West, East)   -> [(r, i) | i <- [c+1..cMax]]
+    (South, North) -> [(i, c) | i <- reverse [rMin..r-1]]
+    (East, West)   -> [(r, i) | i <- reverse [cMin..c-1]]
+    _              -> [] --¯\_(ツ)_/¯
 
 --------------------------------------------------------------------------------
 -- etc
