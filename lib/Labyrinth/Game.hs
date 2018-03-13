@@ -40,7 +40,7 @@ import           Labyrinth.GameDescription ( GameDescription(..)
                                            , mkTiles
                                            )
 
-data Phase = Plan | Walk | Check | End deriving (Show, Eq)
+data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
     { _tileAt   :: Position
