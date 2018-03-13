@@ -9,7 +9,7 @@ module Labyrinth.Player
 
 import Lens.Micro.TH (makeLenses)
 
-data Color = Yellow | Blue | Green | Red deriving (Show, Eq, Ord, Enum)
+data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 
 data Player = Player
   { _color :: Color

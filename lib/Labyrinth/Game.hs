@@ -184,7 +184,7 @@ fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
     updatePos = tileAt .~ newP
     moveKey p
       | p == g ^. tileAt = newP
-      | otherwise                     = p
+      | otherwise        = p
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
@@ -257,5 +257,3 @@ colSpread = spread colMin colMax
 
 spread :: Getting Int Game Int -> Getting Int Game Int -> Game -> [Int]
 spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
-
-
