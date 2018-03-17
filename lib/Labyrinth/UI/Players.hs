@@ -8,7 +8,7 @@ import           Labyrinth.Player (Player(..), Color(..))
 addPlayers :: IO (Map Color Player)
 addPlayers = return $ Map.fromList
   [ (Yellow, Player Yellow "Yellow Player")
-  -- , (Blue, Player Blue "Blue Player")
-  -- , (Green, Player Green "Green Player")
+  , (Blue, Player Blue "Blue Player")
+  , (Green, Player Green "Green Player")
   , (Red, Player Red "Red Player")
   ]

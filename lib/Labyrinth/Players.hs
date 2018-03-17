@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Labyrinth.Player
+module Labyrinth.Players
     ( Player (..)
     , Color (..)
     , color

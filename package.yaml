@@ -14,7 +14,7 @@ library:
   ghc-options:
   - -Wall
   exposed-modules:
-  - Labyrinth.Player
+  - Labyrinth.Players
   - Labyrinth.Game
   - Labyrinth.Tile
   - Labyrinth.GameDescription
