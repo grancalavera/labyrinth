@@ -1,5 +1,6 @@
 module Labyrinth
   ( shuffle
+  , randomElem
   , toRows
   , splitEvery
   , getRow
@@ -18,6 +19,10 @@ import           Data.Maybe     (fromMaybe)
 type Row      = Int
 type Col      = Int
 type Position = (Row, Col)
+
+randomElem :: [a] -> IO (Maybe a)
+randomElem [] = return Nothing
+randomElem xs = randomRIO(0, (length xs)-1) >>= return . Just  . (xs !!)
 
 shuffle :: [a] -> IO [a]
 shuffle xs = do

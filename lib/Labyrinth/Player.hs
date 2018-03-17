@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Labyrinth.Player
     ( Player (..)
     , Color (..)
@@ -18,4 +19,4 @@ data Player = Player
 makeLenses ''Player
 
 colors :: [Color]
-colors = [(toEnum 0::Color) ..]
+colors = [(toEnum 0)..]

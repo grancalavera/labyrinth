@@ -25,6 +25,7 @@ import           Control.Monad             (guard)
 import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
+import qualified Labyrinth                 as Labyrinth
 import           Labyrinth                 (Position)
 import           Labyrinth.Player          ( Player(..)
                                            , Color(..)
@@ -58,16 +59,18 @@ makeLenses ''Game
 
 initialGame :: Map Color Player -> IO Game
 initialGame players' = do
-  tiles' <- mkTiles GD { _dTiles     = tiles''
-                       , _dPlayers   = players'
-                       , _dPositions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
-                       }
+  tiles'   <- mkTiles GD { _dTiles     = tiles''
+                         , _dPlayers   = players'
+                         , _dPositions = positions
+                         }
+  let tileMap = Map.fromList tiles'
+  playerAt' <- firstPlayer players' tileMap
   return $ Game
     { _tileAt   = startPosition
-    , _playerAt = (1,1)
+    , _playerAt = playerAt'
     , _players  = players'
     , _gates    = Map.fromList gates'
-    , _tiles    = Map.fromList tiles'
+    , _tiles    = tileMap
     , _phase    = Plan
     , _rowMin   = 0
     , _rowMax   = 8
@@ -76,7 +79,8 @@ initialGame players' = do
     }
   where
     startPosition = (0,2)
-    gates'  =
+    positions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
+    gates' =
       [ ((0,2), Gate South True)
       , ((0,4), Gate South True)
       , ((0,6), Gate South True)
@@ -154,7 +158,7 @@ toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
   where
     toggleGate pos (Gate dir _)
       | pos == g ^. tileAt = Gate dir False
-      | otherwise                       = Gate dir True
+      | otherwise          = Gate dir True
 
 --------------------------------------------------------------------------------
 -- Plan phase
@@ -237,6 +241,13 @@ moves dir g = fromMaybe [] $ do
 --------------------------------------------------------------------------------
 -- etc
 --------------------------------------------------------------------------------
+
+firstPlayer :: Map Color Player -> Map Position Tile -> IO Position
+firstPlayer players' tiles' = do
+  maybePos <- Labyrinth.randomElem $ Map.keys players'
+  case maybePos of
+    Nothing     -> return (-1, -1) --  ¯\_(ツ)_/¯
+    Just color  -> return (1, 1) -- WIP
 
 edge :: Game -> Maybe Direction
 edge g
