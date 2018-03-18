@@ -19,7 +19,10 @@ import           Brick.Forms          ( Form
                                       , renderForm
                                       , handleFormEvent
                                       , focusedFormInputAttr
+                                      , invalidFormInputAttr
                                       , editTextField
+                                      , checkboxField
+                                      , setFieldValid
                                       , (@@=)
                                       )
 import           Brick.Focus          ( focusGetCurrent
@@ -37,6 +40,10 @@ data PlayersInfo = PlayersInfo
   , _p2 :: T.Text
   , _p3 :: T.Text
   , _p4 :: T.Text
+  , _remP1 :: Bool
+  , _remP2 :: Bool
+  , _remP3 :: Bool
+  , _remP4 :: Bool
   } deriving (Show)
 makeLenses ''PlayersInfo
 
@@ -44,6 +51,10 @@ data Name = P1Field
           | P2Field
           | P3Field
           | P4Field
+          | RemP1Field
+          | RemP2Field
+          | RemP3Field
+          | RemP4Field
           deriving (Eq, Ord, Show)
 
 mkForm :: PlayersInfo -> Form PlayersInfo e Name
@@ -58,20 +69,30 @@ mkForm =
 
   in newForm
     [ chip "yp" @@= editTextField p1 P1Field (Just 1)
+    -- , chip "__" @@= checkboxField remP1 RemP1Field "Clear"
+
     , chip "rp" @@= editTextField p2 P2Field (Just 1)
+    -- , chip "__" @@= checkboxField remP2 RemP2Field "Clear"
+
     , chip "bp" @@= editTextField p3 P3Field (Just 1)
+    -- , chip "__" @@= checkboxField remP3 RemP3Field "Clear"
+
     , chip "gp" @@= editTextField p4 P4Field (Just 1)
+    -- , chip "__" @@= checkboxField remP4 RemP4Field "Clear"
+
     ]
 
 theMap :: AttrMap
 theMap = attrMap V.defAttr
-  [ (E.editAttr,           V.white `on` V.black)
-  , (E.editFocusedAttr,    V.white `on` V.brightBlack)
-  , (focusedFormInputAttr, V.white `on` V.brightBlack)
+  [ (E.editAttr,           V.white `on` V.brightBlack)
+  , (E.editFocusedAttr,    V.brightBlack `on` V.brightYellow)
+  , (invalidFormInputAttr, V.brightBlack `on` V.brightMagenta)
+  , (focusedFormInputAttr, V.black `on` V.white)
   , ("yp", V.white `on` V.yellow)
   , ("rp", V.white `on` V.red)
   , ("bp", V.white `on` V.blue)
   , ("gp", V.white `on` V.green)
+  , ("__", V.black `on` V.black)
   ]
 
 draw :: Form PlayersInfo e Name -> [Widget Name]
@@ -92,10 +113,15 @@ handleEvent :: Form PlayersInfo e Name
   -> BrickEvent Name e
   -> EventM Name (Next (Form PlayersInfo e Name))
 handleEvent s e = case e of
-  VtyEvent (V.EvKey V.KEsc [])        -> halt s
-  _                                   -> do
+  VtyEvent (V.EvKey V.KEsc [])    -> halt s
+  VtyEvent (V.EvKey V.KEnter [])  -> halt s
+  _                               -> do
     s' <- handleFormEvent e s
-    continue s'
+    continue $ ( (setFieldValid ((formState s') ^. p1 /= "") P1Field)
+               . (setFieldValid ((formState s') ^. p2 /= "") P2Field)
+               . (setFieldValid ((formState s') ^. p3 /= "") P3Field)
+               . (setFieldValid ((formState s') ^. p4 /= "") P4Field)
+               ) s'
 
 addPlayers :: IO Players
 addPlayers = do
@@ -103,8 +129,20 @@ addPlayers = do
                                  , _p2 = ""
                                  , _p3 = ""
                                  , _p4 = ""
+                                 , _remP1 = False
+                                 , _remP2 = False
+                                 , _remP3 = False
+                                 , _remP4 = False
                                  }
-  Brick.defaultMain app $ mkForm initialState
+      f =  ( (setFieldValid False P1Field)
+           . (setFieldValid False P2Field)
+           . (setFieldValid False P3Field)
+           . (setFieldValid False P4Field)
+           ) $ mkForm initialState
+
+  f' <- Brick.defaultMain app f
+
+  print $ formState f'
 
   return $ fromJust $ Players.fromList
     [ Player Yellow "Yellow Player"
