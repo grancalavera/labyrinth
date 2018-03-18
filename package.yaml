@@ -36,6 +36,7 @@ library:
   - vty
   - array
   - mtl
+  - text
 executables:
   labyrinth:
     main: Main.hs

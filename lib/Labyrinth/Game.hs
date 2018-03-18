@@ -27,8 +27,11 @@ import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
 import qualified Labyrinth                 as Labyrinth
 import           Labyrinth                 (Position)
-import           Labyrinth.Player          ( Player(..)
+import qualified Labyrinth.Players         as Players
+import           Labyrinth.Players         ( Player(..)
                                            , Color(..)
+                                           , Players
+                                           , color
                                            )
 import           Labyrinth.Direction       (Direction(..))
 import qualified Labyrinth.Tile            as Tile
@@ -57,18 +60,18 @@ data Game = Game
     } deriving (Show, Eq)
 makeLenses ''Game
 
-initialGame :: Map Color Player -> IO Game
+initialGame :: Players -> IO Game
 initialGame players' = do
   tiles'   <- mkTiles GD { _dTiles     = tiles''
-                         , _dPlayers   = players'
+                         , _dPlayers   = players''
                          , _dPositions = positions
                          }
   let tileMap = Map.fromList tiles'
-  playerAt' <- firstPlayer players' tileMap
+  playerAt' <- firstPlayer players'' tileMap
   return $ Game
     { _tileAt   = startPosition
     , _playerAt = playerAt'
-    , _players  = players'
+    , _players  = players''
     , _gates    = Map.fromList gates'
     , _tiles    = tileMap
     , _phase    = Plan
@@ -78,6 +81,9 @@ initialGame players' = do
     , _colMax   = 8
     }
   where
+    players'' = Map.fromList
+                  $ map (\p -> (p ^. color, p))
+                  $ Players.toList players'
     startPosition = (0,2)
     positions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
     gates' =
