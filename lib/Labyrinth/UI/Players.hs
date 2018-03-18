@@ -48,26 +48,36 @@ data Name = P1Field
 
 mkForm :: PlayersInfo -> Form PlayersInfo e Name
 mkForm =
-  let label s w = padBottom (Pad 1)
-                    $ (vLimit 1 $ hLimit 15 $ str s <+> fill ' ') <+> w
+  let chip a w = padBottom (Pad 1) $ ( padRight (Pad 1)
+                                     $ withAttr a
+                                     $ vLimit 1
+                                     $ hLimit 3
+                                     $ fill ' '
+                                     )
+                                   <+> w
+
   in newForm
-    [ label "Player 1" @@= editTextField p1 P1Field (Just 16)
-    , label "Player 2" @@= editTextField p1 P2Field (Just 16)
-    , label "Player 3" @@= editTextField p1 P3Field (Just 16)
-    , label "Player 4" @@= editTextField p1 P4Field (Just 16)
+    [ chip "yp" @@= editTextField p1 P1Field (Just 1)
+    , chip "rp" @@= editTextField p2 P2Field (Just 1)
+    , chip "bp" @@= editTextField p3 P3Field (Just 1)
+    , chip "gp" @@= editTextField p4 P4Field (Just 1)
     ]
 
 theMap :: AttrMap
 theMap = attrMap V.defAttr
   [ (E.editAttr,           V.white `on` V.black)
-  , (E.editFocusedAttr,    V.black `on` V.brightBlack)
-  , (focusedFormInputAttr, V.black `on` V.brightBlack)
+  , (E.editFocusedAttr,    V.white `on` V.brightBlack)
+  , (focusedFormInputAttr, V.white `on` V.brightBlack)
+  , ("yp", V.white `on` V.yellow)
+  , ("rp", V.white `on` V.red)
+  , ("bp", V.white `on` V.blue)
+  , ("gp", V.white `on` V.green)
   ]
 
 draw :: Form PlayersInfo e Name -> [Widget Name]
 draw f = [C.vCenter $ C.hCenter form]
   where
-    form = B.border $ padTop (Pad 1) $ hLimit 15 $ renderForm f
+    form = B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm f
 
 app :: App (Form PlayersInfo e Name) e Name
 app = App
@@ -83,8 +93,9 @@ handleEvent :: Form PlayersInfo e Name
   -> EventM Name (Next (Form PlayersInfo e Name))
 handleEvent s e = case e of
   VtyEvent (V.EvKey V.KEsc [])        -> halt s
-  VtyEvent (V.EvKey (V.KChar 'q') []) -> halt s
-  _                            -> continue s
+  _                                   -> do
+    s' <- handleFormEvent e s
+    continue s'
 
 addPlayers :: IO Players
 addPlayers = do
