@@ -19,7 +19,6 @@ import           Brick.Forms          ( Form
                                       , focusedFormInputAttr
                                       , invalidFormInputAttr
                                       , editTextField
-                                      , setFieldValid
                                       , (@@=)
                                       )
 import           Brick.Focus          (focusRingCursor)
@@ -45,13 +44,11 @@ data Name = P1Field
           deriving (Eq, Ord, Show)
 
 addPlayers :: IO Players
-addPlayers = addPlayers' initialState
-  where
-    initialState = PlayersInfo { _p1 = ""
-                               , _p2 = ""
-                               , _p3 = ""
-                               , _p4 = ""
-                               }
+addPlayers = addPlayers' PlayersInfo { _p1 = ""
+                                     , _p2 = ""
+                                     , _p3 = ""
+                                     , _p4 = ""
+                                     }
 
 addPlayers' :: PlayersInfo -> IO Players
 addPlayers' initialState = do
@@ -115,13 +112,7 @@ handleEvent :: Form PlayersInfo e Name
 handleEvent s e = case e of
   VtyEvent (V.EvKey V.KEsc [])    -> halt s
   VtyEvent (V.EvKey V.KEnter [])  -> halt s
-  _                               -> do
-    s' <- handleFormEvent e s
-    continue $ ( (setFieldValid (valid $ (formState s') ^. p1) P1Field)
-               . (setFieldValid (valid $ (formState s') ^. p2) P2Field)
-               . (setFieldValid (valid $ (formState s') ^. p3) P3Field)
-               . (setFieldValid (valid $ (formState s') ^. p4) P4Field)
-               ) s'
+  _                               -> handleFormEvent e s >>= continue
 
 valid :: Text -> Bool
 valid = (/= "")
