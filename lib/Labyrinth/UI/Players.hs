@@ -51,6 +51,28 @@ data Name = P1Field
           | P4Field
           deriving (Eq, Ord, Show)
 
+addPlayers :: IO Players
+addPlayers = addPlayers' initialState
+  where
+    initialState = PlayersInfo { _p1 = ""
+                               , _p2 = ""
+                               , _p3 = ""
+                               , _p4 = ""
+                               }
+
+addPlayers' :: PlayersInfo -> IO Players
+addPlayers' initialState = do
+  f <- Brick.defaultMain app $ mkForm initialState
+  let st = formState f
+      ps = map (uncurry Player)
+            $ filter (valid.snd)
+            $ map (\(c, l) -> (c, st ^. l))
+            $ zip Players.colors [p1, p2, p3, p4]
+
+  case (Players.fromList ps) of
+    (Just ps') -> return ps'
+    Nothing    -> addPlayers' st
+
 mkForm :: PlayersInfo -> Form PlayersInfo e Name
 mkForm =
   let chip a w = padBottom (Pad 1) $ ( padRight (Pad 1)
@@ -107,28 +129,6 @@ handleEvent s e = case e of
                . (setFieldValid (valid $ (formState s') ^. p3) P3Field)
                . (setFieldValid (valid $ (formState s') ^. p4) P4Field)
                ) s'
-
-addPlayers :: IO Players
-addPlayers = addPlayers' initialState
-  where
-    initialState = PlayersInfo { _p1 = ""
-                               , _p2 = ""
-                               , _p3 = ""
-                               , _p4 = ""
-                               }
-
-addPlayers' :: PlayersInfo -> IO Players
-addPlayers' initialState = do
-  f <- Brick.defaultMain app $ mkForm initialState
-  let st = formState f
-      ps = zipWith (\c -> \p -> Player c p) Players.colors
-            $ filter valid
-            $ map (st ^.) [p1, p2, p3, p4]
-
-  print ps
-  case (Players.fromList ps) of
-    (Just ps') -> return ps'
-    Nothing    -> addPlayers' st
 
 valid :: Text -> Bool
 valid = (/= "")
