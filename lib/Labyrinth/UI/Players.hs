@@ -5,7 +5,6 @@ module Labyrinth.UI.Players
     (addPlayers) where
 
 import qualified Data.Text            as T
-import           Data.Text            (Text)
 import           Lens.Micro           ((^.))
 import           Lens.Micro.TH
 import qualified Graphics.Vty         as V
@@ -55,7 +54,7 @@ addPlayers' initialState = do
   f <- Brick.defaultMain app $ mkForm initialState
   let st = formState f
       ps = map (uncurry Player)
-            $ filter (valid.snd)
+            $ filter ((/= "").snd)
             $ map (\(c, l) -> (c, st ^. l))
             $ zip Players.colors [p1, p2, p3, p4]
 
@@ -113,6 +112,3 @@ handleEvent s e = case e of
   VtyEvent (V.EvKey V.KEsc [])    -> halt s
   VtyEvent (V.EvKey V.KEnter [])  -> halt s
   _                               -> handleFormEvent e s >>= continue
-
-valid :: Text -> Bool
-valid = (/= "")
