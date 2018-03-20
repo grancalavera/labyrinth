@@ -12,12 +12,13 @@ module Labyrinth.Players
     ) where
 
 import Lens.Micro.TH (makeLenses)
+import Data.Text as T
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 
 data Player = Player
   { _color :: Color
-  , _name  :: String
+  , _name  :: T.Text
   } deriving (Show, Eq)
 makeLenses ''Player
 
