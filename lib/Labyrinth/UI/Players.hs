@@ -63,11 +63,8 @@ mkForm =
 
   in newForm
     [ chip "yp" @@= editTextField p1 P1Field (Just 1)
-
     , chip "rp" @@= editTextField p2 P2Field (Just 1)
-
     , chip "bp" @@= editTextField p3 P3Field (Just 1)
-
     , chip "gp" @@= editTextField p4 P4Field (Just 1)
     ]
 
@@ -124,21 +121,14 @@ addPlayers' :: PlayersInfo -> IO Players
 addPlayers' initialState = do
   f <- Brick.defaultMain app $ mkForm initialState
   let st = formState f
-      ps = map (\(c,p) -> Player c p)
-            $ zip Players.colors
+      ps = zipWith (\c -> \p -> Player c p) Players.colors
             $ filter valid
             $ map (st ^.) [p1, p2, p3, p4]
 
   print ps
-  -- return $ fromJust $ fromMaybe (addPlayers' s) $ Players.fromList m
-
-
-  return $ fromJust $ Players.fromList
-    [ Player Yellow "Yellow Player"
-    , Player Blue "Blue Player"
-    , Player Green "Green Player"
-    , Player Red "Red Player"
-    ]
+  case (Players.fromList ps) of
+    (Just ps') -> return ps'
+    Nothing    -> addPlayers' st
 
 valid :: Text -> Bool
 valid = (/= "")
