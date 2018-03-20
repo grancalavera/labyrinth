@@ -4,38 +4,31 @@
 module Labyrinth.UI.Players
     (addPlayers) where
 
-import           Data.Maybe           (fromJust, fromMaybe)
 import qualified Data.Text            as T
 import           Data.Text            (Text)
-import           Data.List            (isInfixOf)
-import           Lens.Micro           ((^.), Lens')
+import           Lens.Micro           ((^.))
 import           Lens.Micro.TH
-import           Data.Monoid          ((<>))
 import qualified Graphics.Vty         as V
 import           Brick
 import           Brick.Forms          ( Form
                                       , newForm
                                       , formState
-                                      , invalidFields
                                       , formFocus
                                       , renderForm
                                       , handleFormEvent
                                       , focusedFormInputAttr
                                       , invalidFormInputAttr
                                       , editTextField
-                                      , checkboxField
                                       , setFieldValid
                                       , (@@=)
                                       )
-import           Brick.Focus          ( focusGetCurrent
-                                      , focusRingCursor
-                                      )
+import           Brick.Focus          (focusRingCursor)
 import qualified Brick.Widgets.Edit   as E
 import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Border as B
 
 import qualified Labyrinth.Players    as Players
-import           Labyrinth.Players    (Players, Player(..), Color(..))
+import           Labyrinth.Players    (Players, Player(..))
 
 data PlayersInfo = PlayersInfo
   { _p1 :: T.Text
