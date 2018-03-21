@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d88c53511194b20700f5c606750e834cba152794d4ef63b2aaef8a4785a6f17c
+-- hash: 9e3530f347675aa998bd42b6a00da542adcebedf38ad66ded7fe3c9585f878e1
 
 name:           labyrinth
 version:        0.1.0.0
@@ -38,9 +38,10 @@ library
     , microlens-th
     , mtl
     , random
+    , text
     , vty
   exposed-modules:
-      Labyrinth.Player
+      Labyrinth.Players
       Labyrinth.Game
       Labyrinth.Tile
       Labyrinth.GameDescription

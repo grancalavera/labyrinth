@@ -18,7 +18,7 @@ import           Labyrinth            (Position)
 import           Labyrinth.Tile       (Tile(..), Terrain(..))
 import qualified Labyrinth.Direction  as Direction
 import           Labyrinth.Direction  (Direction(..))
-import           Labyrinth.Player     (Player, Color(..))
+import           Labyrinth.Players    (Player, Color(..))
 import qualified Labyrinth.Goal       as Goal
 import           Labyrinth.Goal       (Goal)
 

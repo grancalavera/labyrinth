@@ -27,7 +27,7 @@ import           Graphics.Vty.Input.Events (Modifier (..))
 import           Data.List                 (intercalate)
 import qualified Labyrinth                 as Labyrinth
 import           Labyrinth                 (Position)
-import           Labyrinth.Player          (Player, Color, color)
+import           Labyrinth.Players         (Player, Color, color, Players)
 import           Labyrinth.Direction       (Direction(..))
 import           Labyrinth.Gate            (Gate(..))
 import           Labyrinth.Tile            ( Tile(..)
@@ -49,7 +49,7 @@ import           Labyrinth.Goal            (Goal(..), Treasure(..))
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
 
-playGame :: Map Color Player -> IO Name
+playGame :: Players -> IO Name
 playGame ps = do
   g <- Game.initialGame ps
   void $ Brick.defaultMain app g

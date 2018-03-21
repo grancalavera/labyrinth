@@ -2,7 +2,8 @@
 module Labyrinth.Game
     ( Game (..)
     , Phase (..)
-    , currentTilePosition
+    , tileAt
+    , playerAt
     , players
     , tiles
     , gates
@@ -24,9 +25,13 @@ import           Control.Monad             (guard)
 import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
+import qualified Labyrinth                 as Labyrinth
 import           Labyrinth                 (Position)
-import           Labyrinth.Player          ( Player(..)
+import qualified Labyrinth.Players         as Players
+import           Labyrinth.Players         ( Player(..)
                                            , Color(..)
+                                           , Players
+                                           , color
                                            )
 import           Labyrinth.Direction       (Direction(..))
 import qualified Labyrinth.Tile            as Tile
@@ -39,35 +44,98 @@ import           Labyrinth.GameDescription ( GameDescription(..)
                                            , mkTiles
                                            )
 
-data Phase = Plan | Walk | Check | End deriving (Show, Eq)
+data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _currentTilePosition :: Position
-    , _players             :: Map Color Player
-    , _tiles               :: Map Position Tile
-    , _gates               :: Map Position Gate
-    , _phase               :: Phase
-    , _rowMin              :: Int
-    , _rowMax              :: Int
-    , _colMin              :: Int
-    , _colMax              :: Int
+    { _tileAt   :: Position
+    , _playerAt :: Position
+    , _players  :: Map Color Player
+    , _tiles    :: Map Position Tile
+    , _gates    :: Map Position Gate
+    , _phase    :: Phase
+    , _rowMin   :: Int
+    , _rowMax   :: Int
+    , _colMin   :: Int
+    , _colMax   :: Int
     } deriving (Show, Eq)
 makeLenses ''Game
 
+initialGame :: Players -> IO Game
+initialGame players' = do
+  tiles'   <- mkTiles GD { _dTiles     = tiles''
+                         , _dPlayers   = players''
+                         , _dPositions = positions
+                         }
+  let tileMap = Map.fromList tiles'
+  playerAt' <- firstPlayer players'' tileMap
+  return $ Game
+    { _tileAt   = startPosition
+    , _playerAt = playerAt'
+    , _players  = players''
+    , _gates    = Map.fromList gates'
+    , _tiles    = tileMap
+    , _phase    = Plan
+    , _rowMin   = 0
+    , _rowMax   = 8
+    , _colMin   = 0
+    , _colMax   = 8
+    }
+  where
+    players'' = Map.fromList
+                  $ map (\p -> (p ^. color, p))
+                  $ Players.toList players'
+    startPosition = (0,2)
+    positions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
+    gates' =
+      [ ((0,2), Gate South True)
+      , ((0,4), Gate South True)
+      , ((0,6), Gate South True)
+      , ((2,0), Gate East True)
+      , ((4,0), Gate East True)
+      , ((6,0), Gate East True)
+      , ((2,8), Gate West True)
+      , ((4,8), Gate West True)
+      , ((6,8), Gate West True)
+      , ((8,2), Gate North True)
+      , ((8,4), Gate North True)
+      , ((8,6), Gate North True)
+      ]
+    tiles'' =
+      [ TD Corner  (Just (1,1)) (Just South)  False [Yellow]
+      , TD Fork    (Just (1,3)) (Just South)  True  []
+      , TD Fork    (Just (1,5)) (Just South)  True  []
+      , TD Corner  (Just (1,7)) (Just West)   False [Red]
+      , TD Fork    (Just (3,1)) (Just East)   True  []
+      , TD Fork    (Just (3,3)) (Just East)   True  []
+      , TD Fork    (Just (3,5)) (Just South)  True  []
+      , TD Fork    (Just (3,7)) (Just West)   True  []
+      , TD Fork    (Just (5,1)) (Just East)   True  []
+      , TD Fork    (Just (5,3)) (Just North)  True  []
+      , TD Fork    (Just (5,5)) (Just West)   True  []
+      , TD Fork    (Just (5,7)) (Just West)   True  []
+      , TD Corner  (Just (7,1)) (Just East)   False [Green]
+      , TD Fork    (Just (7,3)) (Just North)  True  []
+      , TD Fork    (Just (7,5)) (Just North)  True  []
+      , TD Corner  (Just (7,7)) (Just North)  False [Blue]
+      ]
+      ++ (replicate 12 $ TD Path   Nothing Nothing False [])
+      ++ (replicate 6  $ TD Corner Nothing Nothing True  [])
+      ++ (replicate 10 $ TD Corner Nothing Nothing False [])
+      ++ (replicate 6  $ TD Fork   Nothing Nothing True  [])
 --------------------------------------------------------------------------------
 -- state transitions
 --------------------------------------------------------------------------------
 
 donePlanning :: Game -> Game
 donePlanning g = fromMaybe g $ do
-  Gate _ isOpen <- Map.lookup (g ^. currentTilePosition) (g ^. gates)
+  Gate _ isOpen <- Map.lookup (g ^. tileAt) (g ^. gates)
   guard isOpen
   return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
   where
-    (cr, cc) = g ^. currentTilePosition
+    (cr, cc) = g ^. tileAt
     slide pos@(r, c) = fromMaybe pos $ do
       edge' <- edge g
       Just $ case edge' of
@@ -77,7 +145,7 @@ slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
         East  -> if (r==cr) then (r,c-1) else pos
 
 updateCurrentTilePosition :: Game -> Game
-updateCurrentTilePosition g = g & currentTilePosition .~ (update (g ^. currentTilePosition))
+updateCurrentTilePosition g = g & tileAt .~ (update (g ^. tileAt))
   where
     update pos@(r,c) = fromMaybe pos $ do
       edge' <- edge g
@@ -95,8 +163,8 @@ toggleGates :: Game -> Game
 toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
   where
     toggleGate pos (Gate dir _)
-      | pos == g ^. currentTilePosition = Gate dir False
-      | otherwise                       = Gate dir True
+      | pos == g ^. tileAt = Gate dir False
+      | otherwise          = Gate dir True
 
 --------------------------------------------------------------------------------
 -- Plan phase
@@ -109,7 +177,7 @@ rotate' :: Game -> Game
 rotate' = rotateInternal Tile.rotate'
 
 rotateInternal :: (Tile -> Tile) -> Game -> Game
-rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.currentTilePosition) (g ^. tiles)))
+rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.tileAt) (g ^. tiles)))
 
 move :: Direction -> Game -> Game
 move dir g = fromMoves moves' g
@@ -123,15 +191,15 @@ fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
   Just $ (updatePos . moveTile) g
   where
     moveTile  = tiles .~ (Map.mapKeys moveKey (g ^. tiles))
-    updatePos = currentTilePosition .~ newP
+    updatePos = tileAt .~ newP
     moveKey p
-      | p == g ^. currentTilePosition = newP
-      | otherwise                     = p
+      | p == g ^. tileAt = newP
+      | otherwise        = p
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
   e <- edge g
-  let (r, c) = g ^.currentTilePosition
+  let (r, c) = g ^.tileAt
       rMin   = g ^. rowMin
       rMax   = g ^. rowMax
       cMin   = g ^. colMin
@@ -180,6 +248,13 @@ moves dir g = fromMaybe [] $ do
 -- etc
 --------------------------------------------------------------------------------
 
+firstPlayer :: Map Color Player -> Map Position Tile -> IO Position
+firstPlayer players' tiles' = do
+  maybePos <- Labyrinth.randomElem $ Map.keys players'
+  case maybePos of
+    Nothing     -> return (-1, -1) --  ¯\_(ツ)_/¯
+    Just color  -> return (1, 1) -- WIP
+
 edge :: Game -> Maybe Direction
 edge g
   | r == c             = Nothing --  because we don't care about corners
@@ -189,7 +264,7 @@ edge g
   | c == (g ^. colMax) = Just East
   | otherwise          = Nothing
   where
-    (r, c) = g ^. currentTilePosition
+    (r, c) = g ^. tileAt
 
 rowSpread :: Game -> [Int]
 rowSpread = spread rowMin rowMax
@@ -199,61 +274,3 @@ colSpread = spread colMin colMax
 
 spread :: Getting Int Game Int -> Getting Int Game Int -> Game -> [Int]
 spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
-
-initialGame :: Map Color Player -> IO Game
-initialGame players' = do
-  tiles' <- mkTiles GD { _dTiles     = tiles''
-                       , _dPlayers   = players'
-                       , _dPositions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
-                       }
-
-  return $ Game
-    { _currentTilePosition = startPosition
-    , _players             = players'
-    , _gates               = Map.fromList gates'
-    , _tiles               = Map.fromList tiles'
-    , _phase               = Plan
-    , _rowMin              = 0
-    , _rowMax              = 8
-    , _colMin              = 0
-    , _colMax              = 8
-    }
-
-  where
-    startPosition = (0,2)
-    gates'  =
-      [ ((0,2), Gate South True)
-      , ((0,4), Gate South True)
-      , ((0,6), Gate South True)
-      , ((2,0), Gate East True)
-      , ((4,0), Gate East True)
-      , ((6,0), Gate East True)
-      , ((2,8), Gate West True)
-      , ((4,8), Gate West True)
-      , ((6,8), Gate West True)
-      , ((8,2), Gate North True)
-      , ((8,4), Gate North True)
-      , ((8,6), Gate North True)
-      ]
-    tiles'' =
-      [ TD Corner  (Just (1,1)) (Just South)  False [Yellow]
-      , TD Fork    (Just (1,3)) (Just South)  True  []
-      , TD Fork    (Just (1,5)) (Just South)  True  []
-      , TD Corner  (Just (1,7)) (Just West)   False [Red]
-      , TD Fork    (Just (3,1)) (Just East)   True  []
-      , TD Fork    (Just (3,3)) (Just East)   True  []
-      , TD Fork    (Just (3,5)) (Just South)  True  []
-      , TD Fork    (Just (3,7)) (Just West)   True  []
-      , TD Fork    (Just (5,1)) (Just East)   True  []
-      , TD Fork    (Just (5,3)) (Just North)  True  []
-      , TD Fork    (Just (5,5)) (Just West)   True  []
-      , TD Fork    (Just (5,7)) (Just West)   True  []
-      , TD Corner  (Just (7,1)) (Just East)   False [Green]
-      , TD Fork    (Just (7,3)) (Just North)  True  []
-      , TD Fork    (Just (7,5)) (Just North)  True  []
-      , TD Corner  (Just (7,7)) (Just North)  False [Blue]
-      ]
-      ++ (replicate 12 $ TD Path   Nothing Nothing False [])
-      ++ (replicate 6  $ TD Corner Nothing Nothing True  [])
-      ++ (replicate 10 $ TD Corner Nothing Nothing False [])
-      ++ (replicate 6  $ TD Fork   Nothing Nothing True  [])

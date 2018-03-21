@@ -21,7 +21,7 @@ import           System.Random        (randomRIO)
 import qualified Labyrinth.Direction  as Direction
 import           Labyrinth.Direction  (Direction(..))
 import           Labyrinth.Goal       (Goal(..))
-import           Labyrinth.Player     (Player(..))
+import           Labyrinth.Players    (Player(..))
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile
