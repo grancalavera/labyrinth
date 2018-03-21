@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9e3530f347675aa998bd42b6a00da542adcebedf38ad66ded7fe3c9585f878e1
+-- hash: 4c0e3a88d4f14212ec78af5cb2d5d1780ed6005705835d32629583fdf11d17cb
 
 name:           labyrinth
 version:        0.1.0.0
@@ -41,14 +41,15 @@ library
     , text
     , vty
   exposed-modules:
-      Labyrinth.Players
-      Labyrinth.Game
-      Labyrinth.Tile
-      Labyrinth.GameDescription
-      Labyrinth.Goal
-      Labyrinth.Direction
-      Labyrinth.Gate
       Labyrinth
+      Labyrinth.Cell
+      Labyrinth.Direction
+      Labyrinth.Game
+      Labyrinth.GameDescription
+      Labyrinth.Gate
+      Labyrinth.Goal
+      Labyrinth.Players
+      Labyrinth.Tile
       Labyrinth.UI
       Labyrinth.UI.Game
       Labyrinth.UI.Players

@@ -14,14 +14,15 @@ library:
   ghc-options:
   - -Wall
   exposed-modules:
-  - Labyrinth.Players
-  - Labyrinth.Game
-  - Labyrinth.Tile
-  - Labyrinth.GameDescription
-  - Labyrinth.Goal
-  - Labyrinth.Direction
-  - Labyrinth.Gate
   - Labyrinth
+  - Labyrinth.Cell
+  - Labyrinth.Direction
+  - Labyrinth.Game
+  - Labyrinth.GameDescription
+  - Labyrinth.Gate
+  - Labyrinth.Goal
+  - Labyrinth.Players
+  - Labyrinth.Tile
   - Labyrinth.UI
   - Labyrinth.UI.Game
   - Labyrinth.UI.Players
