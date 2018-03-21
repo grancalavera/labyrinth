@@ -25,7 +25,6 @@ import           Control.Monad             (guard)
 import           Lens.Micro                ((^.), (&), (.~))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
-import qualified Labyrinth                 as Labyrinth
 import           Labyrinth                 (Position)
 import qualified Labyrinth.Players         as Players
 import           Labyrinth.Players         ( Player(..)
@@ -66,14 +65,13 @@ initialGame players' = do
                          , _dPlayers   = players''
                          , _dPositions = positions
                          }
-  let tileMap = Map.fromList tiles'
-  playerAt' <- firstPlayer players'' tileMap
+
   return $ Game
     { _tileAt   = startPosition
-    , _playerAt = playerAt'
+    , _playerAt = (-1,-1)
     , _players  = players''
     , _gates    = Map.fromList gates'
-    , _tiles    = tileMap
+    , _tiles    = Map.fromList tiles'
     , _phase    = Plan
     , _rowMin   = 0
     , _rowMax   = 8
@@ -247,13 +245,6 @@ moves dir g = fromMaybe [] $ do
 --------------------------------------------------------------------------------
 -- etc
 --------------------------------------------------------------------------------
-
-firstPlayer :: Map Color Player -> Map Position Tile -> IO Position
-firstPlayer players' tiles' = do
-  maybePos <- Labyrinth.randomElem $ Map.keys players'
-  case maybePos of
-    Nothing     -> return (-1, -1) --  ¯\_(ツ)_/¯
-    Just color  -> return (1, 1) -- WIP
 
 edge :: Game -> Maybe Direction
 edge g
