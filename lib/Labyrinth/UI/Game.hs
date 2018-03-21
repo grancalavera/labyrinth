@@ -34,8 +34,6 @@ import           Labyrinth.Tile            ( Tile(..)
                                            , Terrain(..)
                                            , direction
                                            , terrain
-                                           , tenants
-                                           , goal
                                            )
 import qualified Labyrinth.Game            as Game
 import           Labyrinth.Game            ( Game (..)
@@ -115,30 +113,30 @@ toRawGate (Gate d _) = Cell $ case d of
 
 toRawTile :: Tile -> RawCell
 toRawTile t =  mempty
-            <> toRawFound    t
-            <> toRawTreasure t
+            -- <> toRawFound    t
+            -- <> toRawTreasure t
             <> toRawTerrain  t
 
-toRawTreasure :: Tile -> RawCell
-toRawTreasure t = fromMaybe mempty $ do
-  (Goal t' _) <- t ^. goal
-  c           <- Map.lookup t' treasureMap
-  return $ Cell $ "         " ++
-                  "         " ++
-                  "    " ++ [c] ++ "    " ++
-                  "         "
+-- toRawTreasure :: Tile -> RawCell
+-- toRawTreasure t = fromMaybe mempty $ do
+--   (Goal t' _) <- t ^. goal
+--   c           <- Map.lookup t' treasureMap
+--   return $ Cell $ "         " ++
+--                   "         " ++
+--                   "    " ++ [c] ++ "    " ++
+--                   "         "
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
 
-toRawFound :: Tile -> RawCell
-toRawFound t = fromMaybe mempty $ do
-  (Goal _ isFound) <- t ^. goal
-  guard isFound
-  return $ Cell $ "         " ++
-                  "         " ++
-                  "    ✓    " ++
-                  "         "
+-- toRawFound :: Tile -> RawCell
+-- toRawFound t = fromMaybe mempty $ do
+--   (Goal _ isFound) <- t ^. goal
+--   guard isFound
+--   return $ Cell $ "         " ++
+--                   "         " ++
+--                   "    ✓    " ++
+--                   "         "
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = Cell $ case (t ^. terrain, t ^. direction) of
@@ -279,24 +277,26 @@ fourPlayers xs = foldl (\(p1, p2, p3, p4) -> \(i, x) ->
     w = (length xs) `div` 4
 
 fromTile :: Tile -> Widget Name
-fromTile t = case (t ^. tenants) of
-  (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
-  (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
-                      in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'
-                                    , Brick.withAttr (attr p2) $ widget2p p2'
-                                    ]
-  (p1:p2:p3:[])    -> let (p1', p2', p3') = threePlayers $ extract rawTile
-                      in Brick.hBox [ Brick.withAttr (attr p1) $ widget3p p1'
-                                    , Brick.withAttr (attr p2) $ widget3p p2'
-                                    , Brick.withAttr (attr p3) $ widget3p p3'
-                                    ]
-  (p1:p2:p3:p4:[]) -> let (p1', p2', p3', p4') = fourPlayers $ extract rawTile
-                      in Brick.vBox [ Brick.withAttr (attr p1) $ widget4p p1'
-                                    , Brick.withAttr (attr p2) $ widget4p p2'
-                                    , Brick.withAttr (attr p3) $ widget4p p3'
-                                    , Brick.withAttr (attr p4) $ widget4p p4'
-                                    ]
-  _                -> Brick.withAttr "default" $ fromRaw rawTile
-  where
-    rawTile = toRawTile t
-    attr p  = Brick.attrName $ show (p ^. color)
+fromTile = fromRaw . toRawTile
+
+-- fromTile t = case (t ^. tenants) of
+--   (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
+--   (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
+--                       in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'
+--                                     , Brick.withAttr (attr p2) $ widget2p p2'
+--                                     ]
+--   (p1:p2:p3:[])    -> let (p1', p2', p3') = threePlayers $ extract rawTile
+--                       in Brick.hBox [ Brick.withAttr (attr p1) $ widget3p p1'
+--                                     , Brick.withAttr (attr p2) $ widget3p p2'
+--                                     , Brick.withAttr (attr p3) $ widget3p p3'
+--                                     ]
+--   (p1:p2:p3:p4:[]) -> let (p1', p2', p3', p4') = fourPlayers $ extract rawTile
+--                       in Brick.vBox [ Brick.withAttr (attr p1) $ widget4p p1'
+--                                     , Brick.withAttr (attr p2) $ widget4p p2'
+--                                     , Brick.withAttr (attr p3) $ widget4p p3'
+--                                     , Brick.withAttr (attr p4) $ widget4p p4'
+--                                     ]
+--   _                -> Brick.withAttr "default" $ fromRaw rawTile
+--   where
+--     rawTile = toRawTile t
+--     attr p  = Brick.attrName $ show (p ^. color)

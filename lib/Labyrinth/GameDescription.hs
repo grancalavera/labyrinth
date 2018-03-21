@@ -77,7 +77,7 @@ eval gameDesc = forM (gameDesc ^. dTiles) (\tileDesc -> do
     direction <- getDirection tileDesc
     goal      <- getGoal tileDesc
     players   <- getPlayers tileDesc
-    let tile = Tile (tileDesc ^. dTerrain) direction goal players
+    let tile = Tile (tileDesc ^. dTerrain) direction
     return $ (position, tile)
   )
 

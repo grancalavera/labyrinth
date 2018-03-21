@@ -6,8 +6,6 @@ module Labyrinth.Tile
     , randomRotate
     , direction
     , terrain
-    , goal
-    , tenants
     , rotate
     , rotate'
     , edges
@@ -20,15 +18,11 @@ import           Lens.Micro           ((%~), (^.))
 import           System.Random        (randomRIO)
 import qualified Labyrinth.Direction  as Direction
 import           Labyrinth.Direction  (Direction(..))
-import           Labyrinth.Goal       (Goal(..))
-import           Labyrinth.Players    (Player(..))
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile
   { _terrain    :: Terrain
   , _direction  :: Direction
-  , _goal       :: Maybe Goal
-  , _tenants    :: [Player]
   } deriving (Eq, Show)
 makeLenses ''Tile
 
