@@ -1,48 +1,35 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module Labyrinth.UI.Game (playGame) where
 
-import           Control.Monad             (void, guard)
-import           Data.Monoid               ((<>))
-import           Data.Maybe                (fromMaybe)
-import qualified Data.Map                  as Map
-import           Data.Map                  (Map)
-import           Lens.Micro                ((^.))
+import           Brick                     (App (..), AttrMap, BrickEvent (..),
+                                            EventM, Next, Widget, continue,
+                                            halt, on)
 import qualified Brick                     as Brick
 import qualified Brick.Widgets.Center      as C
-import           Brick                     ( App(..)
-                                           , Widget
-                                           , AttrMap
-                                           , Next
-                                           , EventM
-                                           , BrickEvent (..)
-                                           , on
-                                           , continue
-                                           , halt
-                                           )
-import qualified Graphics.Vty              as V
-import           Graphics.Vty              (Attr)
-import           Graphics.Vty.Input.Events (Modifier (..))
+import           Control.Monad             (guard, void)
 import           Data.List                 (intercalate)
-import qualified Labyrinth                 as Labyrinth
+import           Data.Map                  (Map)
+import qualified Data.Map                  as Map
+import           Data.Maybe                (fromMaybe)
+import           Data.Monoid               ((<>))
+import           Graphics.Vty              (Attr)
+import qualified Graphics.Vty              as V
+import           Graphics.Vty.Input.Events (Modifier (..))
 import           Labyrinth                 (Position)
-import           Labyrinth.Players         (Player, Color, color, Players)
-import           Labyrinth.Direction       (Direction(..))
-import           Labyrinth.Gate            (Gate(..))
-import           Labyrinth.Tile            ( Tile(..)
-                                           , Terrain(..)
-                                           , direction
-                                           , terrain
-                                           )
+import qualified Labyrinth                 as Labyrinth
+import           Labyrinth.Direction       (Direction (..))
+import           Labyrinth.Game            (Game (..), Phase (..), gates, tiles)
 import qualified Labyrinth.Game            as Game
-import           Labyrinth.Game            ( Game (..)
-                                           , Phase (..)
-                                           , gates
-                                           , tiles
-                                           )
+import           Labyrinth.Gate            (Gate (..))
+import           Labyrinth.Goal            (Goal (..), Treasure (..))
 import qualified Labyrinth.Goal            as Goal
-import           Labyrinth.Goal            (Goal(..), Treasure(..))
+import           Labyrinth.Players         (Players, color)
+import           Labyrinth.Tile            (Terrain (..), Tile (..), direction,
+                                            goal, terrain)
+import qualified Labyrinth.Tile            as Tile
+import           Lens.Micro                ((^.))
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
@@ -87,9 +74,9 @@ handleEvent g@(Game {_phase=Plan, ..}) e = case e of
 handleEvent g e = handleEventCommon g e
 
 handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
-handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') []))   = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEsc []))          = halt g
-handleEventCommon g _ = continue g
+handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt g
+handleEventCommon g (VtyEvent (V.EvKey V.KEsc []))        = halt g
+handleEventCommon g _                                     = continue g
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
@@ -113,30 +100,30 @@ toRawGate (Gate d _) = Cell $ case d of
 
 toRawTile :: Tile -> RawCell
 toRawTile t =  mempty
-            -- <> toRawFound    t
-            -- <> toRawTreasure t
+            <> toRawFound    t
+            <> toRawTreasure t
             <> toRawTerrain  t
 
--- toRawTreasure :: Tile -> RawCell
--- toRawTreasure t = fromMaybe mempty $ do
---   (Goal t' _) <- t ^. goal
---   c           <- Map.lookup t' treasureMap
---   return $ Cell $ "         " ++
---                   "         " ++
---                   "    " ++ [c] ++ "    " ++
---                   "         "
+toRawTreasure :: Tile -> RawCell
+toRawTreasure t = fromMaybe mempty $ do
+  (Goal t' _) <- t ^. goal
+  c           <- Map.lookup t' treasureMap
+  return $ Cell $ "         " ++
+                  "         " ++
+                  "    " ++ [c] ++ "    " ++
+                  "         "
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A'..]
 
--- toRawFound :: Tile -> RawCell
--- toRawFound t = fromMaybe mempty $ do
---   (Goal _ isFound) <- t ^. goal
---   guard isFound
---   return $ Cell $ "         " ++
---                   "         " ++
---                   "    ✓    " ++
---                   "         "
+toRawFound :: Tile -> RawCell
+toRawFound t = fromMaybe mempty $ do
+  (Goal _ isFound) <- t ^. goal
+  guard isFound
+  return $ Cell $ "         " ++
+                  "         " ++
+                  "    ✓    " ++
+                  "         "
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = Cell $ case (t ^. terrain, t ^. direction) of
@@ -240,6 +227,29 @@ attributeMap = Brick.attrMap defaultAttr
 defaultAttr :: Attr
 defaultAttr = V.white `on` V.black
 
+fromTile :: Tile -> Widget Name
+fromTile t = case (Tile.players t) of
+  (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
+  (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
+                      in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'
+                                    , Brick.withAttr (attr p2) $ widget2p p2'
+                                    ]
+  (p1:p2:p3:[])    -> let (p1', p2', p3') = threePlayers $ extract rawTile
+                      in Brick.hBox [ Brick.withAttr (attr p1) $ widget3p p1'
+                                    , Brick.withAttr (attr p2) $ widget3p p2'
+                                    , Brick.withAttr (attr p3) $ widget3p p3'
+                                    ]
+  (p1:p2:p3:p4:[]) -> let (p1', p2', p3', p4') = fourPlayers $ extract rawTile
+                      in Brick.vBox [ Brick.withAttr (attr p1) $ widget4p p1'
+                                    , Brick.withAttr (attr p2) $ widget4p p2'
+                                    , Brick.withAttr (attr p3) $ widget4p p3'
+                                    , Brick.withAttr (attr p4) $ widget4p p4'
+                                    ]
+  _                -> Brick.withAttr "default" $ fromRaw rawTile
+  where
+    rawTile = toRawTile t
+    attr p  = Brick.attrName $ show (p ^. color)
+
 twoPlayers :: String -> (String, String)
 twoPlayers xs = foldl (\(p1, p2) -> \(i, x) ->
   case (i `div` w) of
@@ -276,27 +286,3 @@ fourPlayers xs = foldl (\(p1, p2, p3, p4) -> \(i, x) ->
   where
     w = (length xs) `div` 4
 
-fromTile :: Tile -> Widget Name
-fromTile = fromRaw . toRawTile
-
--- fromTile t = case (t ^. tenants) of
---   (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
---   (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
---                       in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'
---                                     , Brick.withAttr (attr p2) $ widget2p p2'
---                                     ]
---   (p1:p2:p3:[])    -> let (p1', p2', p3') = threePlayers $ extract rawTile
---                       in Brick.hBox [ Brick.withAttr (attr p1) $ widget3p p1'
---                                     , Brick.withAttr (attr p2) $ widget3p p2'
---                                     , Brick.withAttr (attr p3) $ widget3p p3'
---                                     ]
---   (p1:p2:p3:p4:[]) -> let (p1', p2', p3', p4') = fourPlayers $ extract rawTile
---                       in Brick.vBox [ Brick.withAttr (attr p1) $ widget4p p1'
---                                     , Brick.withAttr (attr p2) $ widget4p p2'
---                                     , Brick.withAttr (attr p3) $ widget4p p3'
---                                     , Brick.withAttr (attr p4) $ widget4p p4'
---                                     ]
---   _                -> Brick.withAttr "default" $ fromRaw rawTile
---   where
---     rawTile = toRawTile t
---     attr p  = Brick.attrName $ show (p ^. color)

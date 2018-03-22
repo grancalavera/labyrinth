@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns  #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Tile
@@ -5,26 +7,49 @@ module Labyrinth.Tile
     , Terrain (..)
     , randomRotate
     , direction
+    , goal
     , terrain
     , rotate
     , rotate'
     , edges
+    , players
+    , playerY
+    , playerR
+    , playerB
+    , playerG
     ) where
 
-import qualified Data.Set             as Set
-import           Data.Set             (Set)
-import           Lens.Micro.TH        (makeLenses)
-import           Lens.Micro           ((%~), (^.))
-import           System.Random        (randomRIO)
-import qualified Labyrinth.Direction  as Direction
-import           Labyrinth.Direction  (Direction(..))
+import           Data.Maybe          (fromJust, isJust)
+import           Data.Set            (Set)
+import qualified Data.Set            as Set
+import           Labyrinth.Direction (Direction (..))
+import qualified Labyrinth.Direction as Direction
+import           Labyrinth.Goal      (Goal)
+import           Labyrinth.Players   (Player)
+import           Lens.Micro          ((%~), (^.))
+import           Lens.Micro.TH       (makeLenses)
+import           System.Random       (randomRIO)
 
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile
-  { _terrain    :: Terrain
-  , _direction  :: Direction
+  { _terrain   :: Terrain
+  , _direction :: Direction
+  , _goal      :: Maybe Goal
+  , _playerY   :: Maybe Player
+  , _playerR   :: Maybe Player
+  , _playerB   :: Maybe Player
+  , _playerG   :: Maybe Player
   } deriving (Eq, Show)
 makeLenses ''Tile
+
+players :: Tile -> [Player]
+players Tile
+  { _playerY
+  , _playerR
+  , _playerB
+  , _playerG
+  , ..
+  } = map fromJust $ filter isJust [_playerY, _playerR, _playerB, _playerG]
 
 edges :: Tile -> Set Direction
 edges t = Set.fromList $ case (t ^. terrain, t ^. direction) of

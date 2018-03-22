@@ -1,10 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Labyrinth.Game
     ( Game (..)
     , Phase (..)
     , tileAt
     , playerAt
-    , players
     , tiles
     , gates
     , rowSpread
@@ -17,38 +17,28 @@ module Labyrinth.Game
     , donePlanning
     ) where
 
-import qualified Data.Map.Strict           as Map
+import           Control.Monad             (guard)
 import qualified Data.List                 as List
 import           Data.Map.Strict           (Map)
+import qualified Data.Map.Strict           as Map
 import           Data.Maybe                (fromMaybe)
-import           Control.Monad             (guard)
-import           Lens.Micro                ((^.), (&), (.~))
+import           Labyrinth                 (Position)
+import           Labyrinth.Direction       (Direction (..))
+import           Labyrinth.GameDescription (GameDescription (..),
+                                            TileDescription (..), mkTiles)
+import           Labyrinth.Gate            (Gate (..))
+import           Labyrinth.Players         (Players)
+import           Labyrinth.Tile            (Terrain (..), Tile (..))
+import qualified Labyrinth.Tile            as Tile
+import           Lens.Micro                ((&), (.~), (^.))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Getting)
-import           Labyrinth                 (Position)
-import qualified Labyrinth.Players         as Players
-import           Labyrinth.Players         ( Player(..)
-                                           , Color(..)
-                                           , Players
-                                           , color
-                                           )
-import           Labyrinth.Direction       (Direction(..))
-import qualified Labyrinth.Tile            as Tile
-import           Labyrinth.Tile            ( Tile(..)
-                                           , Terrain(..)
-                                           )
-import           Labyrinth.Gate            (Gate(..))
-import           Labyrinth.GameDescription ( GameDescription(..)
-                                           , TileDescription(..)
-                                           , mkTiles
-                                           )
 
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
     { _tileAt   :: Position
     , _playerAt :: Position
-    , _players  :: Map Color Player
     , _tiles    :: Map Position Tile
     , _gates    :: Map Position Gate
     , _phase    :: Phase
@@ -61,15 +51,14 @@ makeLenses ''Game
 
 initialGame :: Players -> IO Game
 initialGame players' = do
-  tiles'   <- mkTiles GD { _dTiles     = tiles''
-                         , _dPlayers   = players''
-                         , _dPositions = positions
+  tiles'   <- mkTiles BD { _bTiles     = tiles''
+                         , _bPlayers   = players'
+                         , _bPositions = positions
                          }
 
   return $ Game
     { _tileAt   = startPosition
     , _playerAt = (-1,-1)
-    , _players  = players''
     , _gates    = Map.fromList gates'
     , _tiles    = Map.fromList tiles'
     , _phase    = Plan
@@ -79,9 +68,6 @@ initialGame players' = do
     , _colMax   = 8
     }
   where
-    players'' = Map.fromList
-                  $ map (\p -> (p ^. color, p))
-                  $ Players.toList players'
     startPosition = (0,2)
     positions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
     gates' =
@@ -99,27 +85,27 @@ initialGame players' = do
       , ((8,6), Gate North True)
       ]
     tiles'' =
-      [ TD Corner  (Just (1,1)) (Just South)  False [Yellow]
-      , TD Fork    (Just (1,3)) (Just South)  True  []
-      , TD Fork    (Just (1,5)) (Just South)  True  []
-      , TD Corner  (Just (1,7)) (Just West)   False [Red]
-      , TD Fork    (Just (3,1)) (Just East)   True  []
-      , TD Fork    (Just (3,3)) (Just East)   True  []
-      , TD Fork    (Just (3,5)) (Just South)  True  []
-      , TD Fork    (Just (3,7)) (Just West)   True  []
-      , TD Fork    (Just (5,1)) (Just East)   True  []
-      , TD Fork    (Just (5,3)) (Just North)  True  []
-      , TD Fork    (Just (5,5)) (Just West)   True  []
-      , TD Fork    (Just (5,7)) (Just West)   True  []
-      , TD Corner  (Just (7,1)) (Just East)   False [Green]
-      , TD Fork    (Just (7,3)) (Just North)  True  []
-      , TD Fork    (Just (7,5)) (Just North)  True  []
-      , TD Corner  (Just (7,7)) (Just North)  False [Blue]
+      [ TD Corner (Just (1,1)) (Just South) False True  False False False
+      , TD Fork   (Just (1,3)) (Just South) True  False False False False
+      , TD Fork   (Just (1,5)) (Just South) True  False False False False
+      , TD Corner (Just (1,7)) (Just West)  False False True  False False
+      , TD Fork   (Just (3,1)) (Just East)  True  False False False False
+      , TD Fork   (Just (3,3)) (Just East)  True  False False False False
+      , TD Fork   (Just (3,5)) (Just South) True  False False False False
+      , TD Fork   (Just (3,7)) (Just West)  True  False False False False
+      , TD Fork   (Just (5,1)) (Just East)  True  False False False False
+      , TD Fork   (Just (5,3)) (Just North) True  False False False False
+      , TD Fork   (Just (5,5)) (Just West)  True  False False False False
+      , TD Fork   (Just (5,7)) (Just West)  True  False False False False
+      , TD Corner (Just (7,1)) (Just East)  False False False False True
+      , TD Fork   (Just (7,3)) (Just North) True  False False False False
+      , TD Fork   (Just (7,5)) (Just North) True  False False False False
+      , TD Corner (Just (7,7)) (Just North) False False False True  False
       ]
-      ++ (replicate 12 $ TD Path   Nothing Nothing False [])
-      ++ (replicate 6  $ TD Corner Nothing Nothing True  [])
-      ++ (replicate 10 $ TD Corner Nothing Nothing False [])
-      ++ (replicate 6  $ TD Fork   Nothing Nothing True  [])
+      ++ (replicate 12 $ TD Path   Nothing Nothing False False False False False)
+      ++ (replicate 6  $ TD Corner Nothing Nothing True  False False False False)
+      ++ (replicate 10 $ TD Corner Nothing Nothing False False False False False)
+      ++ (replicate 6  $ TD Fork   Nothing Nothing True  False False False False)
 --------------------------------------------------------------------------------
 -- state transitions
 --------------------------------------------------------------------------------
