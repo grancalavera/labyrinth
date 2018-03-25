@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes      #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Game
@@ -32,7 +33,7 @@ import           Labyrinth.Tile            (Terrain (..), Tile (..))
 import qualified Labyrinth.Tile            as Tile
 import           Lens.Micro                ((&), (.~), (^.))
 import           Lens.Micro.TH             (makeLenses)
-import           Lens.Micro.Type           (Getting)
+import           Lens.Micro.Type           (Lens')
 
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
@@ -106,6 +107,7 @@ initialGame players' = do
       ++ (replicate 6  $ TD Corner Nothing Nothing True  False False False False)
       ++ (replicate 10 $ TD Corner Nothing Nothing False False False False False)
       ++ (replicate 6  $ TD Fork   Nothing Nothing True  False False False False)
+
 --------------------------------------------------------------------------------
 -- state transitions
 --------------------------------------------------------------------------------
@@ -249,5 +251,5 @@ rowSpread = spread rowMin rowMax
 colSpread :: Game -> [Int]
 colSpread = spread colMin colMax
 
-spread :: Getting Int Game Int -> Getting Int Game Int -> Game -> [Int]
+spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
 spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
