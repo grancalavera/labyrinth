@@ -9,10 +9,14 @@ module Labyrinth.Players
     , colors
     , fromList
     , toList
+    , toMap
     ) where
 
-import Lens.Micro.TH (makeLenses)
-import Data.Text as T
+import           Data.Map      (Map)
+import qualified Data.Map      as Map
+import qualified Data.Text     as T
+import           Lens.Micro    ((^.))
+import           Lens.Micro.TH (makeLenses)
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 
@@ -40,3 +44,6 @@ fromList (p1:p2:[])       = Just (P2 p1 p2)
 fromList (p1:p2:p3:[])    = Just (P3 p1 p2 p3)
 fromList (p1:p2:p3:p4:[]) = Just (P4 p1 p2 p3 p4)
 fromList _                = Nothing
+
+toMap :: Players -> Map Color Player
+toMap = Map.fromList . (map (\p -> (p ^. color, p))) . toList
