@@ -1,32 +1,27 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module Labyrinth.UI.Players
     (addPlayers) where
 
+import           Brick
+import           Brick.Focus          (focusRingCursor)
+import           Brick.Forms          (Form, editTextField,
+                                       focusedFormInputAttr, formFocus,
+                                       formState, handleFormEvent,
+                                       invalidFormInputAttr, newForm,
+                                       renderForm, (@@=))
+import qualified Brick.Widgets.Border as B
+import qualified Brick.Widgets.Center as C
+import qualified Brick.Widgets.Edit   as E
 import qualified Data.Text            as T
+import           Graphics.Vty         (Attr)
+import qualified Graphics.Vty         as V
 import           Lens.Micro           ((^.))
 import           Lens.Micro.TH
-import qualified Graphics.Vty         as V
-import           Brick
-import           Brick.Forms          ( Form
-                                      , newForm
-                                      , formState
-                                      , formFocus
-                                      , renderForm
-                                      , handleFormEvent
-                                      , focusedFormInputAttr
-                                      , invalidFormInputAttr
-                                      , editTextField
-                                      , (@@=)
-                                      )
-import           Brick.Focus          (focusRingCursor)
-import qualified Brick.Widgets.Edit   as E
-import qualified Brick.Widgets.Center as C
-import qualified Brick.Widgets.Border as B
 
+import           Labyrinth.Players    (Player (..), Players)
 import qualified Labyrinth.Players    as Players
-import           Labyrinth.Players    (Players, Player(..))
 
 data PlayersInfo = PlayersInfo
   { _p1 :: T.Text
@@ -80,7 +75,7 @@ mkForm =
     ]
 
 theMap :: AttrMap
-theMap = attrMap V.defAttr
+theMap = attrMap defaultAttr
   [ (E.editAttr,           V.white `on` V.brightBlack)
   , (E.editFocusedAttr,    V.brightBlack `on` V.brightYellow)
   , (invalidFormInputAttr, V.white `on` V.brightBlack)
@@ -90,6 +85,9 @@ theMap = attrMap V.defAttr
   , ("bp", V.white `on` V.blue)
   , ("gp", V.white `on` V.green)
   ]
+
+defaultAttr :: Attr
+defaultAttr = V.white `on` V.black
 
 draw :: Form PlayersInfo e Name -> [Widget Name]
 draw f = [C.vCenter $ C.hCenter form]
@@ -109,6 +107,6 @@ handleEvent :: Form PlayersInfo e Name
   -> BrickEvent Name e
   -> EventM Name (Next (Form PlayersInfo e Name))
 handleEvent s e = case e of
-  VtyEvent (V.EvKey V.KEsc [])    -> halt s
-  VtyEvent (V.EvKey V.KEnter [])  -> halt s
-  _                               -> handleFormEvent e s >>= continue
+  VtyEvent (V.EvKey V.KEsc [])   -> halt s
+  VtyEvent (V.EvKey V.KEnter []) -> halt s
+  _                              -> handleFormEvent e s >>= continue
