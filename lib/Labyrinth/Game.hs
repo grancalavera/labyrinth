@@ -1,11 +1,14 @@
 {-# LANGUAGE RankNTypes      #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE NamedFieldPuns  #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Labyrinth.Game
     ( Game (..)
     , Phase (..)
-    , tileAt
-    , playerAt
+    , players
+    , player
+    , tile
     , tiles
     , gates
     , rowSpread
@@ -22,31 +25,33 @@ import           Control.Monad             (guard)
 import qualified Data.List                 as List
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as Map
-import           Data.Maybe                (fromMaybe)
+import           Data.Maybe                (fromJust, fromMaybe)
 import           Labyrinth                 (Position)
+import qualified Labyrinth                 as Labyrinth
 import           Labyrinth.Direction       (Direction (..))
 import           Labyrinth.GameDescription (GameDescription (..),
                                             TileDescription (..), mkTiles)
 import           Labyrinth.Gate            (Gate (..))
-import           Labyrinth.Players         (Players)
+import           Labyrinth.Players         (Color(..), Player, Players, color)
+import qualified Labyrinth.Players         as Players
 import           Labyrinth.Tile            (Terrain (..), Tile (..))
 import qualified Labyrinth.Tile            as Tile
 import           Lens.Micro                ((&), (.~), (^.))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Lens')
-
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _tileAt   :: Position
-    , _playerAt :: Position
-    , _tiles    :: Map Position Tile
-    , _gates    :: Map Position Gate
-    , _phase    :: Phase
-    , _rowMin   :: Int
-    , _rowMax   :: Int
-    , _colMin   :: Int
-    , _colMax   :: Int
+    { _tile    :: Position
+    , _tiles   :: Map Position Tile
+    , _gates   :: Map Position Gate
+    , _players :: Map Color Position
+    , _phase   :: Phase
+    , _rowMin  :: Int
+    , _rowMax  :: Int
+    , _colMin  :: Int
+    , _colMax  :: Int
+    , _player  :: Player
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -56,17 +61,20 @@ initialGame players' = do
                          , _bPlayers   = players'
                          , _bPositions = positions
                          }
+  player' <- firstPlayer players'
+  let tiles''' = Map.fromList tiles'
 
   return $ Game
-    { _tileAt   = startPosition
-    , _playerAt = (-1,-1)
-    , _gates    = Map.fromList gates'
-    , _tiles    = Map.fromList tiles'
-    , _phase    = Plan
-    , _rowMin   = 0
-    , _rowMax   = 8
-    , _colMin   = 0
-    , _colMax   = 8
+    { _tile    = startPosition
+    , _player  = player'
+    , _gates   = Map.fromList gates'
+    , _tiles   = tiles'''
+    , _players = playerMap tiles'''
+    , _phase   = Plan
+    , _rowMin  = 0
+    , _rowMax  = 8
+    , _colMin  = 0
+    , _colMax  = 8
     }
   where
     startPosition = (0,2)
@@ -114,14 +122,14 @@ initialGame players' = do
 
 donePlanning :: Game -> Game
 donePlanning g = fromMaybe g $ do
-  Gate _ isOpen <- Map.lookup (g ^. tileAt) (g ^. gates)
+  Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
   guard isOpen
   return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
   where
-    (cr, cc) = g ^. tileAt
+    (cr, cc) = g ^. tile
     slide pos@(r, c) = fromMaybe pos $ do
       edge' <- edge g
       Just $ case edge' of
@@ -131,7 +139,7 @@ slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
         East  -> if (r==cr) then (r,c-1) else pos
 
 updateCurrentTilePosition :: Game -> Game
-updateCurrentTilePosition g = g & tileAt .~ (update (g ^. tileAt))
+updateCurrentTilePosition g = g & tile .~ (update (g ^. tile))
   where
     update pos@(r,c) = fromMaybe pos $ do
       edge' <- edge g
@@ -149,7 +157,7 @@ toggleGates :: Game -> Game
 toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
   where
     toggleGate pos (Gate dir _)
-      | pos == g ^. tileAt = Gate dir False
+      | pos == g ^. tile = Gate dir False
       | otherwise          = Gate dir True
 
 --------------------------------------------------------------------------------
@@ -163,7 +171,7 @@ rotate' :: Game -> Game
 rotate' = rotateInternal Tile.rotate'
 
 rotateInternal :: (Tile -> Tile) -> Game -> Game
-rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.tileAt) (g ^. tiles)))
+rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.tile) (g ^. tiles)))
 
 move :: Direction -> Game -> Game
 move dir g = fromMoves moves' g
@@ -177,15 +185,15 @@ fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
   Just $ (updatePos . moveTile) g
   where
     moveTile  = tiles .~ (Map.mapKeys moveKey (g ^. tiles))
-    updatePos = tileAt .~ newP
+    updatePos = tile .~ newP
     moveKey p
-      | p == g ^. tileAt = newP
+      | p == g ^. tile = newP
       | otherwise        = p
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
   e <- edge g
-  let (r, c) = g ^.tileAt
+  let (r, c) = g ^.tile
       rMin   = g ^. rowMin
       rMax   = g ^. rowMax
       cMin   = g ^. colMin
@@ -243,7 +251,7 @@ edge g
   | c == (g ^. colMax) = Just East
   | otherwise          = Nothing
   where
-    (r, c) = g ^. tileAt
+    (r, c) = g ^. tile
 
 rowSpread :: Game -> [Int]
 rowSpread = spread rowMin rowMax
@@ -253,3 +261,21 @@ colSpread = spread colMin colMax
 
 spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
 spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
+
+firstPlayer :: Players -> IO Player
+firstPlayer p = (Labyrinth.randomElem $ Players.toList p) >>= (return . fromJust)
+
+playerMap :: Map Position Tile -> Map Color Position
+playerMap tiles' = foldl f mempty $ Map.toList tiles'
+  where
+    f :: Map Color Position -> (Position, Tile) -> Map Color Position
+    f m (p, (Tile{_playerY, _playerR, _playerB, _playerG, ..})) =
+      ( i p _playerY
+      . i p _playerR
+      . i p _playerB
+      . i p _playerG
+      ) m
+    i :: Position -> Maybe Player -> Map Color Position -> Map Color Position
+    i v mp m = fromMaybe m $ do
+      p <- mp
+      return $ Map.insert (p ^. color) v m

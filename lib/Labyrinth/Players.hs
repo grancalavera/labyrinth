@@ -10,6 +10,7 @@ module Labyrinth.Players
     , fromList
     , toList
     , toMap
+    , nextColor
     ) where
 
 import           Data.Map      (Map)
@@ -47,3 +48,6 @@ fromList _                = Nothing
 
 toMap :: Players -> Map Color Player
 toMap = Map.fromList . (map (\p -> (p ^. color, p))) . toList
+
+nextColor :: Color -> Color
+nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length colors))
