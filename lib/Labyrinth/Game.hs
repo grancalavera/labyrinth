@@ -1,12 +1,12 @@
-{-# LANGUAGE RankNTypes      #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE NamedFieldPuns  #-}
+{-# LANGUAGE RankNTypes      #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Game
     ( Game (..)
     , Phase (..)
-    , players
+    , playerMap
     , player
     , tile
     , tiles
@@ -32,7 +32,7 @@ import           Labyrinth.Direction       (Direction (..))
 import           Labyrinth.GameDescription (GameDescription (..),
                                             TileDescription (..), mkTiles)
 import           Labyrinth.Gate            (Gate (..))
-import           Labyrinth.Players         (Color(..), Player, Players, color)
+import           Labyrinth.Players         (Color (..), Player, Players, color)
 import qualified Labyrinth.Players         as Players
 import           Labyrinth.Tile            (Terrain (..), Tile (..))
 import qualified Labyrinth.Tile            as Tile
@@ -42,40 +42,41 @@ import           Lens.Micro.Type           (Lens')
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _tile    :: Position
-    , _tiles   :: Map Position Tile
-    , _gates   :: Map Position Gate
-    , _players :: Map Color Position
-    , _phase   :: Phase
-    , _rowMin  :: Int
-    , _rowMax  :: Int
-    , _colMin  :: Int
-    , _colMax  :: Int
-    , _player  :: Player
+    { _tile      :: Position
+    , _tiles     :: Map Position Tile
+    , _gates     :: Map Position Gate
+    , _playerMap :: Map Color Position
+    , _phase     :: Phase
+    , _rowMin    :: Int
+    , _rowMax    :: Int
+    , _colMin    :: Int
+    , _colMax    :: Int
+    , _player    :: Player
     } deriving (Show, Eq)
 makeLenses ''Game
 
 initialGame :: Players -> IO Game
 initialGame players' = do
-  tiles'   <- mkTiles BD { _bTiles     = tiles''
-                         , _bPlayers   = players'
-                         , _bPositions = positions
-                         }
   player' <- firstPlayer players'
-  let tiles''' = Map.fromList tiles'
+  tiles'  <- mkTiles BD { _bTiles     = tiles''
+                        , _bPlayers   = players'
+                        , _bPositions = positions
+                        }
 
-  return $ Game
-    { _tile    = startPosition
-    , _player  = player'
-    , _gates   = Map.fromList gates'
-    , _tiles   = tiles'''
-    , _players = playerMap tiles'''
-    , _phase   = Plan
-    , _rowMin  = 0
-    , _rowMax  = 8
-    , _colMin  = 0
-    , _colMax  = 8
-    }
+  let game = Game { _tile      = startPosition
+                  , _player    = player'
+                  , _gates     = Map.fromList gates'
+                  , _tiles     = Map.fromList tiles'
+                  , _playerMap = mempty
+                  , _phase     = Plan
+                  , _rowMin    = 0
+                  , _rowMax    = 8
+                  , _colMin    = 0
+                  , _colMax    = 8
+                  }
+
+  return $ updatePlayerMap game
+
   where
     startPosition = (0,2)
     positions = startPosition:[(x,y) | x <- [1..7], y <- [1..7]]
@@ -265,8 +266,9 @@ spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
 firstPlayer :: Players -> IO Player
 firstPlayer p = (Labyrinth.randomElem $ Players.toList p) >>= (return . fromJust)
 
-playerMap :: Map Position Tile -> Map Color Position
-playerMap tiles' = foldl f mempty $ Map.toList tiles'
+
+updatePlayerMap :: Game -> Game
+updatePlayerMap g = g & playerMap .~ (foldl f mempty $ Map.toList (g ^. tiles))
   where
     f :: Map Color Position -> (Position, Tile) -> Map Color Position
     f m (p, (Tile{_playerY, _playerR, _playerB, _playerG, ..})) =
