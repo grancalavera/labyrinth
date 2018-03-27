@@ -13,13 +13,8 @@ module Labyrinth.Tile
     , rotate'
     , edges
     , players
-    , playerY
-    , playerR
-    , playerB
-    , playerG
     ) where
 
-import           Data.Maybe          (fromJust, isJust)
 import           Data.Set            (Set)
 import qualified Data.Set            as Set
 import           Labyrinth.Direction (Direction (..))
@@ -35,21 +30,9 @@ data Tile = Tile
   { _terrain   :: Terrain
   , _direction :: Direction
   , _goal      :: Maybe Goal
-  , _playerY   :: Maybe Player
-  , _playerR   :: Maybe Player
-  , _playerB   :: Maybe Player
-  , _playerG   :: Maybe Player
+  , _players   :: [Player]
   } deriving (Eq, Show)
 makeLenses ''Tile
-
-players :: Tile -> [Player]
-players Tile
-  { _playerY
-  , _playerR
-  , _playerB
-  , _playerG
-  , ..
-  } = map fromJust $ filter isJust [_playerY, _playerR, _playerB, _playerG]
 
 edges :: Tile -> Set Direction
 edges t = Set.fromList $ case (t ^. terrain, t ^. direction) of

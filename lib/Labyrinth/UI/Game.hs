@@ -228,7 +228,7 @@ defaultAttr :: Attr
 defaultAttr = V.white `on` V.black
 
 fromTile :: Tile -> Widget Name
-fromTile t = case (Tile.players t) of
+fromTile t = case (t ^. Tile.players) of
   (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
   (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
                       in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'

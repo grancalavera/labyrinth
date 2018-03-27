@@ -6,7 +6,6 @@
 module Labyrinth.Game
     ( Game (..)
     , Phase (..)
-    , playerMap
     , player
     , tile
     , tiles
@@ -19,6 +18,7 @@ module Labyrinth.Game
     , rotate'
     , move
     , donePlanning
+    , playerMap
     ) where
 
 import           Control.Monad             (guard)
@@ -32,7 +32,7 @@ import           Labyrinth.Direction       (Direction (..))
 import           Labyrinth.GameDescription (GameDescription (..),
                                             TileDescription (..), mkTiles)
 import           Labyrinth.Gate            (Gate (..))
-import           Labyrinth.Players         (Color (..), Player, Players, color)
+import           Labyrinth.Players         (Color (..), Player, Players)
 import qualified Labyrinth.Players         as Players
 import           Labyrinth.Tile            (Terrain (..), Tile (..))
 import qualified Labyrinth.Tile            as Tile
@@ -45,7 +45,6 @@ data Game = Game
     { _tile      :: Position
     , _tiles     :: Map Position Tile
     , _gates     :: Map Position Gate
-    , _playerMap :: Map Color Position
     , _phase     :: Phase
     , _rowMin    :: Int
     , _rowMax    :: Int
@@ -63,19 +62,16 @@ initialGame players' = do
                         , _bPositions = positions
                         }
 
-  let game = Game { _tile      = startPosition
-                  , _player    = player'
-                  , _gates     = Map.fromList gates'
-                  , _tiles     = Map.fromList tiles'
-                  , _playerMap = mempty
-                  , _phase     = Plan
-                  , _rowMin    = 0
-                  , _rowMax    = 8
-                  , _colMin    = 0
-                  , _colMax    = 8
-                  }
-
-  return $ updatePlayerMap game
+  return Game { _tile      = startPosition
+              , _player    = player'
+              , _gates     = Map.fromList gates'
+              , _tiles     = Map.fromList tiles'
+              , _phase     = Plan
+              , _rowMin    = 0
+              , _rowMax    = 8
+              , _colMin    = 0
+              , _colMax    = 8
+              }
 
   where
     startPosition = (0,2)
@@ -95,27 +91,27 @@ initialGame players' = do
       , ((8,6), Gate North True)
       ]
     tiles'' =
-      [ TD Corner (Just (1,1)) (Just South) False True  False False False
-      , TD Fork   (Just (1,3)) (Just South) True  False False False False
-      , TD Fork   (Just (1,5)) (Just South) True  False False False False
-      , TD Corner (Just (1,7)) (Just West)  False False True  False False
-      , TD Fork   (Just (3,1)) (Just East)  True  False False False False
-      , TD Fork   (Just (3,3)) (Just East)  True  False False False False
-      , TD Fork   (Just (3,5)) (Just South) True  False False False False
-      , TD Fork   (Just (3,7)) (Just West)  True  False False False False
-      , TD Fork   (Just (5,1)) (Just East)  True  False False False False
-      , TD Fork   (Just (5,3)) (Just North) True  False False False False
-      , TD Fork   (Just (5,5)) (Just West)  True  False False False False
-      , TD Fork   (Just (5,7)) (Just West)  True  False False False False
-      , TD Corner (Just (7,1)) (Just East)  False False False False True
-      , TD Fork   (Just (7,3)) (Just North) True  False False False False
-      , TD Fork   (Just (7,5)) (Just North) True  False False False False
-      , TD Corner (Just (7,7)) (Just North) False False False True  False
+      [ TD Corner (Just (1,1)) (Just South) False (Just Yellow)
+      , TD Fork   (Just (1,3)) (Just South) True  Nothing
+      , TD Fork   (Just (1,5)) (Just South) True  Nothing
+      , TD Corner (Just (1,7)) (Just West)  False (Just Red)
+      , TD Fork   (Just (3,1)) (Just East)  True  Nothing
+      , TD Fork   (Just (3,3)) (Just East)  True  Nothing
+      , TD Fork   (Just (3,5)) (Just South) True  Nothing
+      , TD Fork   (Just (3,7)) (Just West)  True  Nothing
+      , TD Fork   (Just (5,1)) (Just East)  True  Nothing
+      , TD Fork   (Just (5,3)) (Just North) True  Nothing
+      , TD Fork   (Just (5,5)) (Just West)  True  Nothing
+      , TD Fork   (Just (5,7)) (Just West)  True  Nothing
+      , TD Corner (Just (7,1)) (Just East)  False (Just Green)
+      , TD Fork   (Just (7,3)) (Just North) True  Nothing
+      , TD Fork   (Just (7,5)) (Just North) True  Nothing
+      , TD Corner (Just (7,7)) (Just North) False (Just Blue)
       ]
-      ++ (replicate 12 $ TD Path   Nothing Nothing False False False False False)
-      ++ (replicate 6  $ TD Corner Nothing Nothing True  False False False False)
-      ++ (replicate 10 $ TD Corner Nothing Nothing False False False False False)
-      ++ (replicate 6  $ TD Fork   Nothing Nothing True  False False False False)
+      ++ (replicate 12 $ TD Path   Nothing Nothing False Nothing)
+      ++ (replicate 6  $ TD Corner Nothing Nothing True  Nothing)
+      ++ (replicate 10 $ TD Corner Nothing Nothing False Nothing)
+      ++ (replicate 6  $ TD Fork   Nothing Nothing True  Nothing)
 
 --------------------------------------------------------------------------------
 -- state transitions
@@ -266,18 +262,20 @@ spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
 firstPlayer :: Players -> IO Player
 firstPlayer p = (Labyrinth.randomElem $ Players.toList p) >>= (return . fromJust)
 
-
-updatePlayerMap :: Game -> Game
-updatePlayerMap g = g & playerMap .~ (foldl f mempty $ Map.toList (g ^. tiles))
-  where
+playerMap :: Map Position Tile -> Map Color Position
+playerMap tiles' = foldl f mempty (Map.toList tiles')
+  where 
     f :: Map Color Position -> (Position, Tile) -> Map Color Position
-    f m (p, (Tile{_playerY, _playerR, _playerB, _playerG, ..})) =
-      ( i p _playerY
-      . i p _playerR
-      . i p _playerB
-      . i p _playerG
-      ) m
-    i :: Position -> Maybe Player -> Map Color Position -> Map Color Position
-    i v mp m = fromMaybe m $ do
-      p <- mp
-      return $ Map.insert (p ^. color) v m
+    f = undefined
+
+{-
+playerMap :: Game -> Map Color Player
+playerMap g = foldl f mempty $ Map.toList (g ^. tiles)
+  where
+
+    f :: Map Color Position -> (Position, Tile) -> Map Color Position
+    f m (p, tile') = foldl (i p) m (tile' ^. Tile.players)
+
+    i :: Position -> Map Color Position -> Player -> Map Color Position
+    i p' m' player' = Map.insert (player ^. Players.color) p' m'
+-}
