@@ -19,9 +19,10 @@ module Labyrinth.Game
     , move
     , donePlanning
     , playerMap
+    , walk
     ) where
 
-import           Control.Monad             (guard)
+import           Control.Monad             (guard, void)
 import qualified Data.List                 as List
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as Map
@@ -32,25 +33,26 @@ import           Labyrinth.Direction       (Direction (..))
 import           Labyrinth.GameDescription (GameDescription (..),
                                             TileDescription (..), mkTiles)
 import           Labyrinth.Gate            (Gate (..))
-import           Labyrinth.Players         (Color (..), Player, Players)
+import           Labyrinth.Players         (Color (..), Player, Players, color)
 import qualified Labyrinth.Players         as Players
-import           Labyrinth.Tile            (Terrain (..), Tile (..))
+import           Labyrinth.Tile            (Terrain (..), Tile (..), players)
 import qualified Labyrinth.Tile            as Tile
 import           Lens.Micro                ((&), (.~), (^.))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Lens')
+
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _tile      :: Position
-    , _tiles     :: Map Position Tile
-    , _gates     :: Map Position Gate
-    , _phase     :: Phase
-    , _rowMin    :: Int
-    , _rowMax    :: Int
-    , _colMin    :: Int
-    , _colMax    :: Int
-    , _player    :: Player
+    { _tile   :: Position
+    , _tiles  :: Map Position Tile
+    , _gates  :: Map Position Gate
+    , _phase  :: Phase
+    , _rowMin :: Int
+    , _rowMax :: Int
+    , _colMin :: Int
+    , _colMax :: Int
+    , _player :: Player
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -62,15 +64,15 @@ initialGame players' = do
                         , _bPositions = positions
                         }
 
-  return Game { _tile      = startPosition
-              , _player    = player'
-              , _gates     = Map.fromList gates'
-              , _tiles     = Map.fromList tiles'
-              , _phase     = Plan
-              , _rowMin    = 0
-              , _rowMax    = 8
-              , _colMin    = 0
-              , _colMax    = 8
+  return Game { _tile   = startPosition
+              , _player = player'
+              , _gates  = Map.fromList gates'
+              , _tiles  = Map.fromList tiles'
+              , _phase  = Plan
+              , _rowMin = 0
+              , _rowMax = 8
+              , _colMin = 0
+              , _colMax = 8
               }
 
   where
@@ -147,8 +149,7 @@ updateCurrentTilePosition g = g & tile .~ (update (g ^. tile))
         East  -> (r, g ^. colMin)
 
 nextPhase :: Game -> Game
-nextPhase = id
--- nextPhase g = g & phase .~ Walk
+nextPhase g = g & phase .~ Walk
 
 toggleGates :: Game -> Game
 toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
@@ -236,6 +237,40 @@ moves dir g = fromMaybe [] $ do
     _              -> [] --  ¯\_(ツ)_/¯
 
 --------------------------------------------------------------------------------
+-- Walk phase
+--------------------------------------------------------------------------------
+
+walk :: Direction -> Game -> Game
+walk d g = fromMaybe g $ do
+  from  <- playerPosition g
+  let player' = g ^. player
+      tiles' = g ^. tiles
+      to = nextPos from d
+
+  void $ Map.lookup to tiles'
+
+  return $ g & tiles .~ (
+    ( (Map.alter (removePlayer player') from)
+    . (Map.alter (insertPlayer player') (nextPos from d))
+    ) (g ^. tiles))
+
+insertPlayer :: Player -> Maybe Tile -> Maybe Tile
+insertPlayer p  mt = do
+  t <- mt
+  return $ t & players .~ (p:(t ^. players))
+
+removePlayer :: Player -> Maybe Tile -> Maybe Tile
+removePlayer p mt = do
+  t <- mt
+  return $ t & players .~ (filter (/= p) (t ^. players))
+
+nextPos :: Position -> Direction -> Position
+nextPos (r,c) East  = (r, c+1)
+nextPos (r,c) West  = (r,c-1)
+nextPos (r,c) North = (r-1, c)
+nextPos (r,c) South = (r+1, c)
+
+--------------------------------------------------------------------------------
 -- etc
 --------------------------------------------------------------------------------
 
@@ -257,13 +292,24 @@ colSpread :: Game -> [Int]
 colSpread = spread colMin colMax
 
 spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
-spread minLens maxLens g = [(g ^. minLens)..(g ^. maxLens)]
+spread mn mx g = [(g ^. mn)..(g ^. mx)]
 
 firstPlayer :: Players -> IO Player
 firstPlayer p = (Labyrinth.randomElem $ Players.toList p) >>= (return . fromJust)
 
 playerMap :: Map Position Tile -> Map Color Position
 playerMap tiles' = foldl f mempty (Map.toList tiles')
-  where 
+  where
     f :: Map Color Position -> (Position, Tile) -> Map Color Position
-    f = undefined
+    f m (p, t) = foldl (g p) m (t ^. Tile.players)
+
+    g :: Position -> Map Color Position -> Player -> Map Color Position
+    g p m p' = Map.insert (p' ^. color) p m
+
+playerPosition :: Game -> Maybe Position
+playerPosition g =
+  let c = g ^. (player.color)
+      t = g ^. tiles
+  in Map.lookup c (playerMap t)
+
+

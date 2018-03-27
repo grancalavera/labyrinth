@@ -6,10 +6,10 @@ module Labyrinth.GameDescription
     , GameDescription(..)
     ) where
 
-import Data.Maybe (fromMaybe)
 import           Control.Monad       (forM)
 import           Control.Monad.State (StateT, evalStateT, get, liftIO, put)
 import qualified Data.Map            as Map
+import           Data.Maybe          (fromMaybe)
 import           Data.Maybe          (fromJust, isJust)
 import           Labyrinth           (Position)
 import qualified Labyrinth           as Labyrinth

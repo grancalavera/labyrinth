@@ -71,6 +71,12 @@ handleEvent g@(Game {_phase=Plan, ..}) e = case e of
   VtyEvent (V.EvKey V.KEnter [])       -> continue $ Game.donePlanning g
   VtyEvent (V.EvKey (V.KChar ' ') [])  -> continue $ Game.donePlanning g
   _                                    -> handleEventCommon g e
+handleEvent g@(Game {_phase=Walk, ..}) e = case e of
+  VtyEvent (V.EvKey V.KRight [])       -> continue $ Game.walk East  g
+  VtyEvent (V.EvKey V.KLeft [])        -> continue $ Game.walk West  g
+  VtyEvent (V.EvKey V.KUp [])          -> continue $ Game.walk North g
+  VtyEvent (V.EvKey V.KDown [])        -> continue $ Game.walk South g
+  _                                    -> handleEventCommon g e
 handleEvent g e = handleEventCommon g e
 
 handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
