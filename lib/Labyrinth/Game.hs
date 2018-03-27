@@ -17,7 +17,7 @@ module Labyrinth.Game
     , rotate
     , rotate'
     , move
-    , donePlanning
+    , done
     , playerMap
     , walk
     ) where
@@ -119,11 +119,19 @@ initialGame players' = do
 -- state transitions
 --------------------------------------------------------------------------------
 
-donePlanning :: Game -> Game
-donePlanning g = fromMaybe g $ do
-  Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
-  guard isOpen
-  return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
+-- done :: Game -> Game
+-- done g = fromMaybe g $ do
+--   Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
+--   guard isOpen
+--   return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
+
+done :: Game -> Game
+done g = case (g ^. phase) of
+  Plan -> fromMaybe g $ do
+    Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
+    guard isOpen
+    return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
+  _ -> nextPhase g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
@@ -149,7 +157,10 @@ updateCurrentTilePosition g = g & tile .~ (update (g ^. tile))
         East  -> (r, g ^. colMin)
 
 nextPhase :: Game -> Game
-nextPhase g = g & phase .~ Walk
+nextPhase g = g & phase .~ (nextPhase' (g ^. phase))
+  where
+    nextPhase' Plan = Walk
+    nextPhase' _ = Plan
 
 toggleGates :: Game -> Game
 toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))

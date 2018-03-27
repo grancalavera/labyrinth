@@ -68,8 +68,6 @@ handleEvent g@(Game {_phase=Plan, ..}) e = case e of
   VtyEvent (V.EvKey V.KDown [])        -> continue $ Game.move South g
   VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotate  g
   VtyEvent (V.EvKey V.KLeft [MShift])  -> continue $ Game.rotate' g
-  VtyEvent (V.EvKey V.KEnter [])       -> continue $ Game.donePlanning g
-  VtyEvent (V.EvKey (V.KChar ' ') [])  -> continue $ Game.donePlanning g
   _                                    -> handleEventCommon g e
 handleEvent g@(Game {_phase=Walk, ..}) e = case e of
   VtyEvent (V.EvKey V.KRight [])       -> continue $ Game.walk East  g
@@ -82,6 +80,8 @@ handleEvent g e = handleEventCommon g e
 handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt g
 handleEventCommon g (VtyEvent (V.EvKey V.KEsc []))        = halt g
+handleEventCommon g (VtyEvent (V.EvKey V.KEnter []))      = continue $ Game.done g
+handleEventCommon g (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ Game.done g
 handleEventCommon g _                                     = continue g
 
 toRawGate :: Gate -> RawCell
