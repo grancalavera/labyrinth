@@ -18,7 +18,6 @@ module Labyrinth.Game
     , rotate'
     , move
     , done
-    , playerMap
     , walk
     ) where
 
@@ -125,7 +124,7 @@ done g = case (g ^. phase) of
     Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
     guard isOpen
     return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
-  _ -> nextPhase g
+  _ -> (nextPhase . nextPlayer) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
@@ -161,7 +160,18 @@ toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
   where
     toggleGate pos (Gate dir _)
       | pos == g ^. tile = Gate dir False
-      | otherwise          = Gate dir True
+      | otherwise        = Gate dir True
+
+nextPlayer :: Game -> Game
+nextPlayer g = nextPlayer' (g ^. (player.color)) g
+
+nextPlayer' :: Color -> Game -> Game
+nextPlayer' c g = fromMaybe recurse $ do
+  (_, p) <- Map.lookup c' (playerMap g)
+  return $ g & player .~ p
+  where
+    c' = Players.nextColor c
+    recurse = nextPlayer' (Players.nextColor c') g
 
 --------------------------------------------------------------------------------
 -- Plan phase
@@ -247,16 +257,16 @@ moves dir g = fromMaybe [] $ do
 
 walk :: Direction -> Game -> Game
 walk d g = fromMaybe g $ do
-  from  <- playerPosition g
   let player' = g ^. player
-      tiles' = g ^. tiles
-      to = nextPos from d
+      tiles'  = g ^. tiles
+  from  <- playerPosition g (player' ^. color)
 
+  let to = nextPos from d
   void $ Map.lookup to tiles'
 
   return $ g & tiles .~ (
     ( (Map.alter (removePlayer player') from)
-    . (Map.alter (insertPlayer player') (nextPos from d))
+    . (Map.alter (insertPlayer player') to)
     ) (g ^. tiles))
 
 insertPlayer :: Player -> Maybe Tile -> Maybe Tile
@@ -302,19 +312,11 @@ spread mn mx g = [(g ^. mn)..(g ^. mx)]
 firstPlayer :: Players -> IO Player
 firstPlayer p = (Labyrinth.randomElem $ Players.toList p) >>= (return . fromJust)
 
-playerMap :: Map Position Tile -> Map Color Position
-playerMap tiles' = foldl f mempty (Map.toList tiles')
+playerMap :: Game -> Map Color (Position, Player)
+playerMap g = foldl f mempty (Map.toList (g ^. tiles))
   where
-    f :: Map Color Position -> (Position, Tile) -> Map Color Position
-    f m (p, t) = foldl (g p) m (t ^. Tile.players)
+    f m (p, t) = foldl (f' p) m (t ^. players)
+    f' p m p' = Map.insert (p' ^. color) (p,p') m
 
-    g :: Position -> Map Color Position -> Player -> Map Color Position
-    g p m p' = Map.insert (p' ^. color) p m
-
-playerPosition :: Game -> Maybe Position
-playerPosition g =
-  let c = g ^. (player.color)
-      t = g ^. tiles
-  in Map.lookup c (playerMap t)
-
-
+playerPosition :: Game -> Color -> Maybe Position
+playerPosition g c = Map.lookup c (playerMap g) >>= (return.fst)
