@@ -267,15 +267,3 @@ playerMap tiles' = foldl f mempty (Map.toList tiles')
   where 
     f :: Map Color Position -> (Position, Tile) -> Map Color Position
     f = undefined
-
-{-
-playerMap :: Game -> Map Color Player
-playerMap g = foldl f mempty $ Map.toList (g ^. tiles)
-  where
-
-    f :: Map Color Position -> (Position, Tile) -> Map Color Position
-    f m (p, tile') = foldl (i p) m (tile' ^. Tile.players)
-
-    i :: Position -> Map Color Position -> Player -> Map Color Position
-    i p' m' player' = Map.insert (player ^. Players.color) p' m'
--}
