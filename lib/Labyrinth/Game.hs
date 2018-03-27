@@ -119,12 +119,6 @@ initialGame players' = do
 -- state transitions
 --------------------------------------------------------------------------------
 
--- done :: Game -> Game
--- done g = fromMaybe g $ do
---   Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
---   guard isOpen
---   return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
-
 done :: Game -> Game
 done g = case (g ^. phase) of
   Plan -> fromMaybe g $ do
