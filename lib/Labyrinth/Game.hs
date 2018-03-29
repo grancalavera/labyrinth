@@ -7,7 +7,7 @@ module Labyrinth.Game
     ( Game (..)
     , Phase (..)
     , player
-    , tile
+    , tileAt
     , tiles
     , gates
     , rowSpread
@@ -38,14 +38,14 @@ import           Labyrinth.Players         (Color (..), Player, Players)
 import qualified Labyrinth.Players         as P
 import           Labyrinth.Tile            (Terrain (..), Tile (..))
 import qualified Labyrinth.Tile            as T
-import           Lens.Micro                ((&), (.~), (^.))
+import           Lens.Micro                ((&), (.~), (^.), _1, _2)
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Lens')
 
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _tile    :: Position
+    { _tileAt  :: Position
     , _tiles   :: Map Position Tile
     , _gates   :: Map Position Gate
     , _phase   :: Phase
@@ -66,7 +66,7 @@ initialGame players' = do
                            , _bPositions = positions
                            }
 
-  return Game { _tile    = startPosition
+  return Game { _tileAt  = startPosition
               , _player  = player'
               , _players = players'
               , _gates   = Map.fromList gates'
@@ -125,28 +125,46 @@ initialGame players' = do
 done :: Game -> Game
 done g = case (g ^. phase) of
   Plan -> fromMaybe g $ do
-    Gate _ isOpen <- Map.lookup (g ^. tile) (g ^. gates)
+    Gate _ isOpen <- Map.lookup (g ^. tileAt) (g ^. gates)
     guard isOpen
-    return $ (nextPhase . toggleGates . updateCurrentTilePosition . slideTile) g
+    return $ ( nextPhase
+             . teleport
+             . toggleGates
+             . updateCurrentTilePosition
+             . slideTile
+             ) g
   _ -> (nextPhase . nextPlayer) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ (Map.mapKeys slide (g ^. tiles))
   where
-    (cr, cc) = g ^. tile
+    (cr, cc) = g ^. tileAt
     slide pos@(r, c) = fromMaybe pos $ do
-      edge' <- edge g
+      edge' <- edge (g ^. tileAt) g
       Just $ case edge' of
         North -> if (c==cc) then (r+1,c) else pos
         South -> if (c==cc) then (r-1,c) else pos
         West  -> if (r==cr) then (r,c+1) else pos
         East  -> if (r==cr) then (r,c-1) else pos
 
+teleport :: Game -> Game
+teleport g = foldl f g
+                $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.players))
+                $ Map.toList
+                $ Map.intersection (g ^. tiles) (g ^. gates)
+  where
+    f g' (from, p) = fromMaybe g' $ do
+      op <- oppositeEdge from g'
+      pd <- padding op g'
+      -- TODO: refactor to use Linear.V2
+      let to = (op^._1+pd^._1,op^._2+pd^._2)
+      return $ walk' from to p g'
+
 updateCurrentTilePosition :: Game -> Game
-updateCurrentTilePosition g = g & tile .~ (update (g ^. tile))
+updateCurrentTilePosition g = g & tileAt .~ (update (g ^. tileAt))
   where
     update pos@(r,c) = fromMaybe pos $ do
-      edge' <- edge g
+      edge' <- edge (g ^. tileAt) g
       Just $ case edge' of
         North -> (g ^. rowMax, c)
         South -> (g ^. rowMin, c)
@@ -163,7 +181,7 @@ toggleGates :: Game -> Game
 toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
   where
     toggleGate pos (Gate dir _)
-      | pos == g ^. tile = Gate dir False
+      | pos == g ^. tileAt = Gate dir False
       | otherwise        = Gate dir True
 
 nextPlayer :: Game -> Game
@@ -180,7 +198,7 @@ rotate' :: Game -> Game
 rotate' = rotateInternal T.rotate'
 
 rotateInternal :: (Tile -> Tile) -> Game -> Game
-rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.tile) (g ^. tiles)))
+rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.tileAt) (g ^. tiles)))
 
 move :: Direction -> Game -> Game
 move dir g = fromMoves moves' g
@@ -194,15 +212,15 @@ fromMoves (newP:ps) g = fromMaybe (fromMoves ps g) $ do
   Just $ (updatePos . moveTile) g
   where
     moveTile  = tiles .~ (Map.mapKeys moveKey (g ^. tiles))
-    updatePos = tile .~ newP
+    updatePos = tileAt .~ newP
     moveKey p
-      | p == g ^. tile = newP
+      | p == g ^. tileAt = newP
       | otherwise        = p
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
-  e <- edge g
-  let (r, c) = g ^.tile
+  e <- edge (g ^. tileAt) g
+  let (r, c) = g ^.tileAt
       rMin   = g ^. rowMin
       rMax   = g ^. rowMax
       cMin   = g ^. colMin
@@ -260,7 +278,10 @@ walk d g = fromMaybe g $ do
   let to = nextPos from d
   void $ Map.lookup to tiles'
 
-  return $ g & tiles .~ (
+  return $ walk' from to player' g
+
+walk' :: Position -> Position -> Player -> Game -> Game
+walk' from to player' g = g & tiles .~ (
     ( (Map.alter (removePlayer player') from)
     . (Map.alter (insertPlayer player') to)
     ) (g ^. tiles))
@@ -285,16 +306,32 @@ nextPos (r,c) South = (r+1, c)
 -- etc
 --------------------------------------------------------------------------------
 
-edge :: Game -> Maybe Direction
-edge g
+edge :: Position -> Game -> Maybe Direction
+edge (r,c) g
   | r == c             = Nothing --  because we don't care about corners
   | r == (g ^. rowMin) = Just North
   | r == (g ^. rowMax) = Just South
   | c == (g ^. colMin) = Just West
   | c == (g ^. colMax) = Just East
   | otherwise          = Nothing
-  where
-    (r, c) = g ^. tile
+
+oppositeEdge :: Position -> Game -> Maybe Position
+oppositeEdge p@(r,c) g = do
+  edge' <- edge p g
+  return $ case edge' of
+    North -> (g ^. rowMax, c)
+    South -> (g ^. rowMin, c)
+    East  -> (r, g ^. colMin)
+    West  -> (r, g ^. colMax)
+
+padding :: Position -> Game -> Maybe Position
+padding p g = do
+  edge' <- edge p g
+  return $ case edge' of
+    North -> (1,0)
+    South -> (-1,0)
+    East  -> (0,-1)
+    West  -> (0,1)
 
 rowSpread :: Game -> [Int]
 rowSpread = spread rowMin rowMax
@@ -313,6 +350,12 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
   where
     f m (p, t) = foldl (f' p) m (t ^. T.players)
     f' p m p' = Map.insert (p' ^. P.color) (p,p') m
+
+playerMap' :: Game -> Map Position Player
+playerMap' = (foldl f mempty) . Map.toList . playerMap
+  where
+    f :: Map Position Player -> (Color, (Position, Player)) -> Map Position Player
+    f m (_, (k, v)) = Map.insert k v m
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = Map.lookup c (playerMap g) >>= (return.fst)
