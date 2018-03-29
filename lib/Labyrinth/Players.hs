@@ -10,11 +10,13 @@ module Labyrinth.Players
     , fromList
     , toList
     , toMap
-    , nextColor
+    , next
     ) where
 
 import           Data.Map      (Map)
 import qualified Data.Map      as Map
+import           Data.Maybe    (fromJust)
+import qualified Data.List     as L
 import qualified Data.Text     as T
 import           Lens.Micro    ((^.))
 import           Lens.Micro.TH (makeLenses)
@@ -27,6 +29,9 @@ data Player = Player
   } deriving (Show, Eq)
 makeLenses ''Player
 
+instance Ord Player where
+  l <= r = l ^. color <= r ^. color
+
 colors :: [Color]
 colors = [(toEnum 0)..]
 
@@ -36,9 +41,10 @@ data Players = P2 Player Player
              deriving (Eq, Show)
 
 toList :: Players -> [Player]
-toList (P2 p1 p2)       = [p1, p2]
-toList (P3 p1 p2 p3)    = [p1, p2, p3]
-toList (P4 p1 p2 p3 p4) = [p1, p2, p3, p4]
+toList ps = L.sort $ case ps of
+  (P2 p1 p2)       -> [p1, p2]
+  (P3 p1 p2 p3)    -> [p1, p2, p3]
+  (P4 p1 p2 p3 p4) -> [p1, p2, p3, p4]
 
 fromList :: [Player] -> Maybe Players
 fromList (p1:p2:[])       = Just (P2 p1 p2)
@@ -49,5 +55,8 @@ fromList _                = Nothing
 toMap :: Players -> Map Color Player
 toMap = Map.fromList . (map (\p -> (p ^. color, p))) . toList
 
-nextColor :: Color -> Color
-nextColor c = toEnum $ ((1 + fromEnum c) `mod` (length colors))
+next :: Player -> Players -> Player
+next p ps = (cycle l) !! (i + 1)
+  where
+    i = fromJust $ L.elemIndex p l
+    l = toList ps

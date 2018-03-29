@@ -19,6 +19,7 @@ module Labyrinth.Game
     , move
     , done
     , walk
+    , players
     ) where
 
 import           Control.Monad             (guard, void)
@@ -44,35 +45,37 @@ import           Lens.Micro.Type           (Lens')
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _tile   :: Position
-    , _tiles  :: Map Position Tile
-    , _gates  :: Map Position Gate
-    , _phase  :: Phase
-    , _rowMin :: Int
-    , _rowMax :: Int
-    , _colMin :: Int
-    , _colMax :: Int
-    , _player :: Player
+    { _tile    :: Position
+    , _tiles   :: Map Position Tile
+    , _gates   :: Map Position Gate
+    , _phase   :: Phase
+    , _rowMin  :: Int
+    , _rowMax  :: Int
+    , _colMin  :: Int
+    , _colMax  :: Int
+    , _player  :: Player
+    , _players :: Players
     } deriving (Show, Eq)
 makeLenses ''Game
 
 initialGame :: Players -> IO Game
 initialGame players' = do
   player' <- firstPlayer players'
-  tiles'  <- GD.mkTiles BD { _bTiles     = tiles''
+  tiles'  <- GD.mkTiles GD { _bTiles     = tiles''
                            , _bPlayers   = players'
                            , _bPositions = positions
                            }
 
-  return Game { _tile   = startPosition
-              , _player = player'
-              , _gates  = Map.fromList gates'
-              , _tiles  = Map.fromList tiles'
-              , _phase  = Plan
-              , _rowMin = 0
-              , _rowMax = 8
-              , _colMin = 0
-              , _colMax = 8
+  return Game { _tile    = startPosition
+              , _player  = player'
+              , _players = players'
+              , _gates   = Map.fromList gates'
+              , _tiles   = Map.fromList tiles'
+              , _phase   = Plan
+              , _rowMin  = 0
+              , _rowMax  = 8
+              , _colMin  = 0
+              , _colMax  = 8
               }
 
   where
@@ -164,15 +167,7 @@ toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
       | otherwise        = Gate dir True
 
 nextPlayer :: Game -> Game
-nextPlayer g = nextPlayer' (g ^. (player . P.color)) g
-
-nextPlayer' :: Color -> Game -> Game
-nextPlayer' c g = fromMaybe recurse $ do
-  (_, p) <- Map.lookup c' (playerMap g)
-  return $ g & player .~ p
-  where
-    c' = P.nextColor c
-    recurse = nextPlayer' (P.nextColor c') g
+nextPlayer g = g & player .~ (P.next (g ^. player) (g ^. players))
 
 --------------------------------------------------------------------------------
 -- Plan phase

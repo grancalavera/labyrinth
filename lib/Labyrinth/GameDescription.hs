@@ -39,7 +39,7 @@ data TileDescription = TD
   } deriving (Show)
 makeLenses ''TileDescription
 
-data GameDescription = BD
+data GameDescription = GD
   { _bTiles     :: [TileDescription]
   , _bPositions :: [Position]
   , _bPlayers   :: Players
