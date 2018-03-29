@@ -30,12 +30,13 @@ import           Labyrinth                 (Position)
 import qualified Labyrinth                 as Labyrinth
 import           Labyrinth.Direction       (Direction (..))
 import           Labyrinth.GameDescription (GameDescription (..),
-                                            TileDescription (..), mkTiles)
+                                            TileDescription (..))
+import qualified Labyrinth.GameDescription as GD
 import           Labyrinth.Gate            (Gate (..))
-import           Labyrinth.Players         (Color (..), Player, Players, color)
-import qualified Labyrinth.Players         as Players
-import           Labyrinth.Tile            (Terrain (..), Tile (..), players)
-import qualified Labyrinth.Tile            as Tile
+import           Labyrinth.Players         (Color (..), Player, Players)
+import qualified Labyrinth.Players         as P
+import           Labyrinth.Tile            (Terrain (..), Tile (..))
+import qualified Labyrinth.Tile            as T
 import           Lens.Micro                ((&), (.~), (^.))
 import           Lens.Micro.TH             (makeLenses)
 import           Lens.Micro.Type           (Lens')
@@ -58,10 +59,10 @@ makeLenses ''Game
 initialGame :: Players -> IO Game
 initialGame players' = do
   player' <- firstPlayer players'
-  tiles'  <- mkTiles BD { _bTiles     = tiles''
-                        , _bPlayers   = players'
-                        , _bPositions = positions
-                        }
+  tiles'  <- GD.mkTiles BD { _bTiles     = tiles''
+                           , _bPlayers   = players'
+                           , _bPositions = positions
+                           }
 
   return Game { _tile   = startPosition
               , _player = player'
@@ -163,25 +164,25 @@ toggleGates g = g & gates .~ (Map.mapWithKey toggleGate (g ^. gates))
       | otherwise        = Gate dir True
 
 nextPlayer :: Game -> Game
-nextPlayer g = nextPlayer' (g ^. (player.color)) g
+nextPlayer g = nextPlayer' (g ^. (player . P.color)) g
 
 nextPlayer' :: Color -> Game -> Game
 nextPlayer' c g = fromMaybe recurse $ do
   (_, p) <- Map.lookup c' (playerMap g)
   return $ g & player .~ p
   where
-    c' = Players.nextColor c
-    recurse = nextPlayer' (Players.nextColor c') g
+    c' = P.nextColor c
+    recurse = nextPlayer' (P.nextColor c') g
 
 --------------------------------------------------------------------------------
 -- Plan phase
 --------------------------------------------------------------------------------
 
 rotate :: Game -> Game
-rotate = rotateInternal Tile.rotate
+rotate = rotateInternal T.rotate
 
 rotate' :: Game -> Game
-rotate' = rotateInternal Tile.rotate'
+rotate' = rotateInternal T.rotate'
 
 rotateInternal :: (Tile -> Tile) -> Game -> Game
 rotateInternal r g = g & (tiles .~ (Map.adjust r (g ^.tile) (g ^. tiles)))
@@ -259,7 +260,7 @@ walk :: Direction -> Game -> Game
 walk d g = fromMaybe g $ do
   let player' = g ^. player
       tiles'  = g ^. tiles
-  from  <- playerPosition g (player' ^. color)
+  from  <- playerPosition g (player' ^. P.color)
 
   let to = nextPos from d
   void $ Map.lookup to tiles'
@@ -272,12 +273,12 @@ walk d g = fromMaybe g $ do
 insertPlayer :: Player -> Maybe Tile -> Maybe Tile
 insertPlayer p  mt = do
   t <- mt
-  return $ t & players .~ (p:(t ^. players))
+  return $ t & T.players .~ (p:(t ^. T.players))
 
 removePlayer :: Player -> Maybe Tile -> Maybe Tile
 removePlayer p mt = do
   t <- mt
-  return $ t & players .~ (filter (/= p) (t ^. players))
+  return $ t & T.players .~ (filter (/= p) (t ^. T.players))
 
 nextPos :: Position -> Direction -> Position
 nextPos (r,c) East  = (r, c+1)
@@ -310,13 +311,13 @@ spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
 spread mn mx g = [(g ^. mn)..(g ^. mx)]
 
 firstPlayer :: Players -> IO Player
-firstPlayer p = (Labyrinth.randomElem $ Players.toList p) >>= (return . fromJust)
+firstPlayer p = (Labyrinth.randomElem $ P.toList p) >>= (return . fromJust)
 
 playerMap :: Game -> Map Color (Position, Player)
 playerMap g = foldl f mempty (Map.toList (g ^. tiles))
   where
-    f m (p, t) = foldl (f' p) m (t ^. players)
-    f' p m p' = Map.insert (p' ^. color) (p,p') m
+    f m (p, t) = foldl (f' p) m (t ^. T.players)
+    f' p m p' = Map.insert (p' ^. P.color) (p,p') m
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = Map.lookup c (playerMap g) >>= (return.fst)
