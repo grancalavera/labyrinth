@@ -13,13 +13,13 @@ module Labyrinth.Players
     , next
     ) where
 
-import           Data.Map      (Map)
-import qualified Data.Map      as Map
-import           Data.Maybe    (fromJust)
-import qualified Data.List     as L
-import qualified Data.Text     as T
-import           Lens.Micro    ((^.))
-import           Lens.Micro.TH (makeLenses)
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
+import           Data.Maybe      (fromJust)
+import qualified Data.List       as L
+import qualified Data.Text       as T
+import           Lens.Micro      ((^.))
+import           Lens.Micro.TH   (makeLenses)
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 

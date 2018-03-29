@@ -8,7 +8,7 @@ module Labyrinth.GameDescription
 
 import           Control.Monad       (forM)
 import           Control.Monad.State (StateT, evalStateT, get, liftIO, put)
-import qualified Data.Map            as Map
+import qualified Data.Map.Strict     as Map
 import           Data.Maybe          (fromMaybe)
 import           Data.Maybe          (fromJust, isJust)
 import           Labyrinth           (Position)

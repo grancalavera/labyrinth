@@ -8,13 +8,13 @@ module Labyrinth
   , Position
   ) where
 
-import qualified Data.Array.IO  as AIO
-import           Data.Array.IO  (IOArray)
-import           Control.Monad  (forM)
-import           System.Random  (randomRIO)
-import qualified Data.Map       as Map
-import           Data.Map       (Map)
-import           Data.Maybe     (fromMaybe)
+import qualified Data.Array.IO   as AIO
+import           Data.Array.IO   (IOArray)
+import           Control.Monad   (forM)
+import           System.Random   (randomRIO)
+import qualified Data.Map.Strict as Map
+import           Data.Map.Strict (Map)
+import           Data.Maybe      (fromMaybe)
 
 type Row      = Int
 type Col      = Int

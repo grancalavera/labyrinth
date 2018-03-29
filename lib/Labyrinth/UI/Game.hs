@@ -10,8 +10,8 @@ import qualified Brick                     as Brick
 import qualified Brick.Widgets.Center      as C
 import           Control.Monad             (guard, void)
 import           Data.List                 (intercalate)
-import           Data.Map                  (Map)
-import qualified Data.Map                  as Map
+import           Data.Map.Strict           (Map)
+import qualified Data.Map.Strict           as Map
 import           Data.Maybe                (fromMaybe)
 import           Data.Monoid               ((<>))
 import           Graphics.Vty              (Attr)
