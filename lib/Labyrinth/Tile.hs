@@ -11,15 +11,10 @@ module Labyrinth.Tile
     , terrain
     , rotate
     , rotate'
-    , edges
     , players
-    , playerY
-    , playerR
-    , playerB
-    , playerG
+    , connected
     ) where
 
-import           Data.Maybe          (fromJust, isJust)
 import           Data.Set            (Set)
 import qualified Data.Set            as Set
 import           Labyrinth.Direction (Direction (..))
@@ -35,21 +30,9 @@ data Tile = Tile
   { _terrain   :: Terrain
   , _direction :: Direction
   , _goal      :: Maybe Goal
-  , _playerY   :: Maybe Player
-  , _playerR   :: Maybe Player
-  , _playerB   :: Maybe Player
-  , _playerG   :: Maybe Player
+  , _players   :: [Player]
   } deriving (Eq, Show)
 makeLenses ''Tile
-
-players :: Tile -> [Player]
-players Tile
-  { _playerY
-  , _playerR
-  , _playerB
-  , _playerG
-  , ..
-  } = map fromJust $ filter isJust [_playerY, _playerR, _playerB, _playerG]
 
 edges :: Tile -> Set Direction
 edges t = Set.fromList $ case (t ^. terrain, t ^. direction) of
@@ -77,3 +60,13 @@ randomRotate t = do
   i <- randomRIO (0, 3)
   let r = foldl (.) id $ replicate i rotate
   return (r t)
+
+hasExit :: Direction -> Tile -> Bool
+hasExit d = (Set.member d) . edges
+
+connected :: Direction -> Tile -> Tile -> Bool
+connected d exit enter = canExit && canEnter
+  where
+    canExit  = hasExit d exit
+    canEnter = hasExit (Direction.opposite d) enter
+

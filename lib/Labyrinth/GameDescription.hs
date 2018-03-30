@@ -8,7 +8,8 @@ module Labyrinth.GameDescription
 
 import           Control.Monad       (forM)
 import           Control.Monad.State (StateT, evalStateT, get, liftIO, put)
-import qualified Data.Map            as Map
+import qualified Data.Map.Strict     as Map
+import           Data.Maybe          (fromMaybe)
 import           Data.Maybe          (fromJust, isJust)
 import           Labyrinth           (Position)
 import qualified Labyrinth           as Labyrinth
@@ -34,14 +35,11 @@ data TileDescription = TD
   , _tPosition  :: Maybe Position
   , _tDirection :: Maybe Direction
   , _tGoal      :: Bool
-  , _tPlayerY   :: Bool
-  , _tPlayerR   :: Bool
-  , _tPlayerB   :: Bool
-  , _tPlayerG   :: Bool
+  , _tPlayer    :: Maybe Color
   } deriving (Show)
 makeLenses ''TileDescription
 
-data GameDescription = BD
+data GameDescription = GD
   { _bTiles     :: [TileDescription]
   , _bPositions :: [Position]
   , _bPlayers   :: Players
@@ -79,17 +77,11 @@ eval boardDesc = forM (boardDesc ^. bTiles) $ \tileDesc -> do
     position  <- getPosition tileDesc
     direction <- getDirection tileDesc
     goal      <- getGoal tileDesc
-    playerY   <- getPlayer (tileDesc ^. tPlayerY) Yellow
-    playerR   <- getPlayer (tileDesc ^. tPlayerR) Red
-    playerB   <- getPlayer (tileDesc ^. tPlayerB) Blue
-    playerG   <- getPlayer (tileDesc ^. tPlayerG) Green
+    player    <- getPlayer tileDesc
     return $ (position, Tile { _terrain = (tileDesc ^. tTerrain)
                              , _direction = direction
                              , _goal      = goal
-                             , _playerY   = playerY
-                             , _playerR   = playerR
-                             , _playerB   = playerB
-                             , _playerG   = playerG
+                             , _players   = player
                              })
 
 getPosition :: TileDescription -> Eval Position
@@ -115,9 +107,9 @@ getGoal tileDesc = case (tileDesc ^. tGoal) of
       []     -> return Nothing -- something went wrong, we should have enough
       (x:xs) -> put (env & eGoals .~ xs) >> return (Just x)
 
-getPlayer :: Bool -> Color -> Eval (Maybe Player)
-getPlayer hasColor color = if hasColor
-  then do
-    env <- get
-    return $ Map.lookup color $ Players.toMap (env ^. ePlayers)
-  else return Nothing
+getPlayer :: TileDescription -> Eval [Player]
+getPlayer tileDesc = do
+  env <- get
+  return $ fromMaybe [] $ do
+    color <- tileDesc ^. tPlayer
+    Map.lookup color (Players.toMap (env ^. ePlayers)) >>= return . (:[])

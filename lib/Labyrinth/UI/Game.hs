@@ -10,8 +10,8 @@ import qualified Brick                     as Brick
 import qualified Brick.Widgets.Center      as C
 import           Control.Monad             (guard, void)
 import           Data.List                 (intercalate)
-import           Data.Map                  (Map)
-import qualified Data.Map                  as Map
+import           Data.Map.Strict           (Map)
+import qualified Data.Map.Strict           as Map
 import           Data.Maybe                (fromMaybe)
 import           Data.Monoid               ((<>))
 import           Graphics.Vty              (Attr)
@@ -68,14 +68,20 @@ handleEvent g@(Game {_phase=Plan, ..}) e = case e of
   VtyEvent (V.EvKey V.KDown [])        -> continue $ Game.move South g
   VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotate  g
   VtyEvent (V.EvKey V.KLeft [MShift])  -> continue $ Game.rotate' g
-  VtyEvent (V.EvKey V.KEnter [])       -> continue $ Game.donePlanning g
-  VtyEvent (V.EvKey (V.KChar ' ') [])  -> continue $ Game.donePlanning g
+  _                                    -> handleEventCommon g e
+handleEvent g@(Game {_phase=Walk, ..}) e = case e of
+  VtyEvent (V.EvKey V.KRight [])       -> continue $ Game.walk East  g
+  VtyEvent (V.EvKey V.KLeft [])        -> continue $ Game.walk West  g
+  VtyEvent (V.EvKey V.KUp [])          -> continue $ Game.walk North g
+  VtyEvent (V.EvKey V.KDown [])        -> continue $ Game.walk South g
   _                                    -> handleEventCommon g e
 handleEvent g e = handleEventCommon g e
 
 handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt g
 handleEventCommon g (VtyEvent (V.EvKey V.KEsc []))        = halt g
+handleEventCommon g (VtyEvent (V.EvKey V.KEnter []))      = continue $ Game.done g
+handleEventCommon g (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ Game.done g
 handleEventCommon g _                                     = continue g
 
 toRawGate :: Gate -> RawCell
@@ -228,7 +234,7 @@ defaultAttr :: Attr
 defaultAttr = V.white `on` V.black
 
 fromTile :: Tile -> Widget Name
-fromTile t = case (Tile.players t) of
+fromTile t = case (t ^. Tile.players) of
   (p1:[])          -> Brick.withAttr (attr p1) $ fromRaw rawTile
   (p1:p2:[])       -> let (p1', p2') = twoPlayers $ extract rawTile
                       in Brick.vBox [ Brick.withAttr (attr p1) $ widget2p p1'
