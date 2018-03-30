@@ -274,15 +274,20 @@ walk d g = fromMaybe g $ do
   let player' = g ^. player
       tiles'  = g ^. tiles
 
-  from  <- playerPosition g (player' ^. P.color)
-  let to = step from d
+  fromP  <- playerPosition g (player' ^. P.color)
+  let toP = step fromP d
 
-  fromT <- Map.lookup from tiles'
-  toT   <- Map.lookup to tiles'
+  fromT <- Map.lookup fromP tiles'
+  toT   <- Map.lookup toP tiles'
 
-  guard (T.connected d fromT toT)
+  let isConnected = T.connected d fromT toT
+      isNotGate   = not $ isGate toP g
+  guard (isConnected && isNotGate)
 
-  return $ walk' from to player' g
+  return $ walk' fromP toP player' g
+
+isGate :: Position -> Game -> Bool
+isGate p g = fromMaybe False $ Map.lookup p (g ^. gates) >> return True
 
 walk' :: Position -> Position -> Player -> Game -> Game
 walk' from to player' g = g & tiles .~ (
