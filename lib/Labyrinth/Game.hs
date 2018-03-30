@@ -22,7 +22,7 @@ module Labyrinth.Game
     , players
     ) where
 
-import           Control.Monad             (guard, void)
+import           Control.Monad             (guard)
 import qualified Data.List                 as List
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as Map
@@ -273,10 +273,14 @@ walk :: Direction -> Game -> Game
 walk d g = fromMaybe g $ do
   let player' = g ^. player
       tiles'  = g ^. tiles
-  from  <- playerPosition g (player' ^. P.color)
 
-  let to = nextPos from d
-  void $ Map.lookup to tiles'
+  from  <- playerPosition g (player' ^. P.color)
+  let to = step from d
+
+  fromT <- Map.lookup from tiles'
+  toT   <- Map.lookup to tiles'
+
+  guard (T.connected d fromT toT)
 
   return $ walk' from to player' g
 
@@ -296,11 +300,11 @@ removePlayer p mt = do
   t <- mt
   return $ t & T.players .~ (filter (/= p) (t ^. T.players))
 
-nextPos :: Position -> Direction -> Position
-nextPos (r,c) East  = (r, c+1)
-nextPos (r,c) West  = (r,c-1)
-nextPos (r,c) North = (r-1, c)
-nextPos (r,c) South = (r+1, c)
+step :: Position -> Direction -> Position
+step (r,c) East  = (r, c+1)
+step (r,c) West  = (r,c-1)
+step (r,c) North = (r-1, c)
+step (r,c) South = (r+1, c)
 
 --------------------------------------------------------------------------------
 -- etc
@@ -350,12 +354,6 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
   where
     f m (p, t) = foldl (f' p) m (t ^. T.players)
     f' p m p' = Map.insert (p' ^. P.color) (p,p') m
-
-playerMap' :: Game -> Map Position Player
-playerMap' = (foldl f mempty) . Map.toList . playerMap
-  where
-    f :: Map Position Player -> (Color, (Position, Player)) -> Map Position Player
-    f m (_, (k, v)) = Map.insert k v m
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = Map.lookup c (playerMap g) >>= (return.fst)

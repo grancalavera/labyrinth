@@ -11,8 +11,8 @@ module Labyrinth.Tile
     , terrain
     , rotate
     , rotate'
-    , edges
     , players
+    , connected
     ) where
 
 import           Data.Set            (Set)
@@ -60,3 +60,13 @@ randomRotate t = do
   i <- randomRIO (0, 3)
   let r = foldl (.) id $ replicate i rotate
   return (r t)
+
+hasExit :: Direction -> Tile -> Bool
+hasExit d = (Set.member d) . edges
+
+connected :: Direction -> Tile -> Tile -> Bool
+connected d exit enter = canExit && canEnter
+  where
+    canExit  = hasExit d exit
+    canEnter = hasExit (Direction.opposite d) enter
+
