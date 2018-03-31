@@ -1,20 +1,21 @@
 module Labyrinth.Direction
-    ( Direction (..)
-    , next
-    , previous
-    , random
-    , opposite
-    ) where
+  ( Direction(..)
+  , next
+  , previous
+  , random
+  , opposite
+  )
+where
 
-import System.Random (randomRIO)
+import           System.Random                  ( randomRIO )
 
 data Direction = North | West | South | East deriving (Show, Eq, Ord, Enum)
 
 next :: Direction -> Direction
-next North  = West
-next West   = South
-next South  = East
-next East   = North
+next North = West
+next West  = South
+next South = East
+next East  = North
 
 opposite :: Direction -> Direction
 opposite North = South
@@ -26,4 +27,5 @@ previous :: Direction -> Direction
 previous = next . next . next
 
 random :: IO Direction
-random = randomRIO (0,3) >>= return . toEnum
+random = toEnum <$> randomRIO (0, 3)
+
