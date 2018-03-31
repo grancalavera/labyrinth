@@ -43,8 +43,7 @@ import           Labyrinth.Goal                 ( Goal(..)
                                                 , Treasure(..)
                                                 )
 import qualified Labyrinth.Goal                as Goal
-import           Labyrinth.Players              ( Players
-                                                , color
+import           Labyrinth.Players              ( color
                                                 )
 import           Labyrinth.Tile                 ( Terrain(..)
                                                 , Tile(..)
@@ -58,10 +57,8 @@ import           Lens.Micro                     ( (^.) )
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
 
-playGame :: Players -> IO Name
-playGame ps = do
-  g <- Game.initialGame ps
-  void $ Brick.defaultMain app g
+playGame :: Game -> IO Name
+playGame g = void $ Brick.defaultMain app g
 
 app :: App Game e Name
 app = App
@@ -327,5 +324,3 @@ fourPlayers xs =
       ([], [], [], [])
     $ zip [0 ..] xs
   where w = length xs `div` 4
-
-
