@@ -1,9 +1,10 @@
-module Labyrinth.Goal (
-    Goal (..)
+module Labyrinth.Goal
+  ( Goal(..)
   , Found
-  , Treasure (..)
+  , Treasure(..)
   , treasures
-  ) where
+  )
+where
 
 data Treasure = Bat |  Beetle | Book | Chandelier | Chest | Crown | Dragon
               | Emerald | Genie | Ghost | Goblin | Gold | Helmet | Keys
@@ -15,3 +16,4 @@ data Goal = Goal Treasure Found deriving (Eq, Show)
 
 treasures :: [Treasure]
 treasures = [(toEnum 0) ..]
+

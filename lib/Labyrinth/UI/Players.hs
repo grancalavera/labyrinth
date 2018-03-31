@@ -2,26 +2,36 @@
 {-# LANGUAGE TemplateHaskell   #-}
 
 module Labyrinth.UI.Players
-    (addPlayers) where
+  ( addPlayers
+  )
+where
 
 import           Brick
-import           Brick.Focus          (focusRingCursor)
-import           Brick.Forms          (Form, editTextField,
-                                       focusedFormInputAttr, formFocus,
-                                       formState, handleFormEvent,
-                                       invalidFormInputAttr, newForm,
-                                       renderForm, (@@=))
-import qualified Brick.Widgets.Border as B
-import qualified Brick.Widgets.Center as C
-import qualified Brick.Widgets.Edit   as E
-import qualified Data.Text            as T
-import           Graphics.Vty         (Attr)
-import qualified Graphics.Vty         as V
-import           Lens.Micro           ((^.))
+import           Brick.Focus                    ( focusRingCursor )
+import           Brick.Forms                    ( Form
+                                                , editTextField
+                                                , focusedFormInputAttr
+                                                , formFocus
+                                                , formState
+                                                , handleFormEvent
+                                                , invalidFormInputAttr
+                                                , newForm
+                                                , renderForm
+                                                , (@@=)
+                                                )
+import qualified Brick.Widgets.Border          as B
+import qualified Brick.Widgets.Center          as C
+import qualified Brick.Widgets.Edit            as E
+import qualified Data.Text                     as T
+import           Graphics.Vty                   ( Attr )
+import qualified Graphics.Vty                  as V
+import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH
 
-import           Labyrinth.Players    (Player (..), Players)
-import qualified Labyrinth.Players    as Players
+import           Labyrinth.Players              ( Player(..)
+                                                , Players
+                                                )
+import qualified Labyrinth.Players             as Players
 
 data PlayersInfo = PlayersInfo
   { _p1 :: T.Text
@@ -38,52 +48,46 @@ data Name = P1Field
           deriving (Eq, Ord, Show)
 
 addPlayers :: IO Players
-addPlayers = addPlayers' PlayersInfo { _p1 = ""
-                                     , _p2 = ""
-                                     , _p3 = ""
-                                     , _p4 = ""
-                                     }
+addPlayers = addPlayers' PlayersInfo {_p1 = "", _p2 = "", _p3 = "", _p4 = ""}
 
 addPlayers' :: PlayersInfo -> IO Players
 addPlayers' initialState = do
   f <- Brick.defaultMain app $ mkForm initialState
   let st = formState f
-      ps = map (uncurry Player)
-            $ filter ((/= "").snd)
-            $ map (\(c, l) -> (c, st ^. l))
-            $ zip Players.colors [p1, p2, p3, p4]
+      ps =
+        map (uncurry Player)
+          $ filter ((/= "") . snd)
+          $ map (\(c, l) -> (c, st ^. l))
+          $ zip Players.colors [p1, p2, p3, p4]
 
-  case (Players.fromList ps) of
+  case Players.fromList ps of
     (Just ps') -> return ps'
     Nothing    -> addPlayers' st
 
 mkForm :: PlayersInfo -> Form PlayersInfo e Name
 mkForm =
-  let chip a w = padBottom (Pad 1) $ ( padRight (Pad 1)
-                                     $ withAttr a
-                                     $ vLimit 1
-                                     $ hLimit 3
-                                     $ fill ' '
-                                     )
-                                   <+> w
-
-  in newForm
-    [ chip "yp" @@= editTextField p1 P1Field (Just 1)
-    , chip "rp" @@= editTextField p2 P2Field (Just 1)
-    , chip "bp" @@= editTextField p3 P3Field (Just 1)
-    , chip "gp" @@= editTextField p4 P4Field (Just 1)
-    ]
+  let chip a w =
+        padBottom (Pad 1)
+          $   padRight (Pad 1) (withAttr a $ vLimit 1 $ hLimit 3 $ fill ' ')
+          <+> w
+  in  newForm
+        [ chip "yp" @@= editTextField p1 P1Field (Just 1)
+        , chip "rp" @@= editTextField p2 P2Field (Just 1)
+        , chip "bp" @@= editTextField p3 P3Field (Just 1)
+        , chip "gp" @@= editTextField p4 P4Field (Just 1)
+        ]
 
 theMap :: AttrMap
-theMap = attrMap defaultAttr
-  [ (E.editAttr,           V.white `on` V.brightBlack)
-  , (E.editFocusedAttr,    V.brightBlack `on` V.brightYellow)
+theMap = attrMap
+  defaultAttr
+  [ (E.editAttr          , V.white `on` V.brightBlack)
+  , (E.editFocusedAttr   , V.brightBlack `on` V.brightYellow)
   , (invalidFormInputAttr, V.white `on` V.brightBlack)
   , (focusedFormInputAttr, V.black `on` V.white)
-  , ("yp", V.white `on` V.yellow)
-  , ("rp", V.white `on` V.red)
-  , ("bp", V.white `on` V.blue)
-  , ("gp", V.white `on` V.green)
+  , ("yp"                , V.white `on` V.yellow)
+  , ("rp"                , V.white `on` V.red)
+  , ("bp"                , V.white `on` V.blue)
+  , ("gp"                , V.white `on` V.green)
   ]
 
 defaultAttr :: Attr
@@ -91,8 +95,7 @@ defaultAttr = V.white `on` V.black
 
 draw :: Form PlayersInfo e Name -> [Widget Name]
 draw f = [C.vCenter $ C.hCenter form]
-  where
-    form = B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm f
+  where form = B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm f
 
 app :: App (Form PlayersInfo e Name) e Name
 app = App
@@ -103,10 +106,12 @@ app = App
   , appAttrMap      = const theMap
   }
 
-handleEvent :: Form PlayersInfo e Name
+handleEvent
+  :: Form PlayersInfo e Name
   -> BrickEvent Name e
   -> EventM Name (Next (Form PlayersInfo e Name))
 handleEvent s e = case e of
-  VtyEvent (V.EvKey V.KEsc [])   -> halt s
+  VtyEvent (V.EvKey V.KEsc   []) -> halt s
   VtyEvent (V.EvKey V.KEnter []) -> halt s
   _                              -> handleFormEvent e s >>= continue
+
