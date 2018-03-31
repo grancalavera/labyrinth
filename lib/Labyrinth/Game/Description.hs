@@ -29,7 +29,7 @@ import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
 import           Labyrinth                      ( Position )
-import qualified Labyrinth
+import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
 import           Labyrinth.Goal                 ( Goal(..) )
@@ -42,7 +42,7 @@ import qualified Labyrinth.Players             as Players
 import           Labyrinth.Tile                 ( Terrain(..)
                                                 , Tile(..)
                                                 )
-import Labyrinth.Gate (Gate(..))
+import           Labyrinth.Gate                 ( Gate(..) )
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 , (^.)
@@ -82,8 +82,8 @@ type Eval a = StateT Env IO a
 
 mkEnv :: DGame -> IO Env
 mkEnv boardDesc = do
-  positions <- Labyrinth.shuffle $ unknownPositions boardDesc
-  goals     <- Labyrinth.shuffle $ map (`Goal` False) Goal.treasures
+  positions <- Random.shuffle $ unknownPositions boardDesc
+  goals     <- Random.shuffle $ map (`Goal` False) Goal.treasures
 
   return Env
     { _ePositions = positions

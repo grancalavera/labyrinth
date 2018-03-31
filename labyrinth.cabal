@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a6aa22b682c2055d173a3999c5004d46d3a054d8cfbc84d6be795772f47ad6f5
+-- hash: c213edc13f0dceab1b863637eb37f24c7ae231cdfe86378d1d7b2eec6120281d
 
 name:           labyrinth
 version:        0.1.0.0
@@ -48,6 +48,7 @@ library
       Labyrinth.Tile
   other-modules:
       Labyrinth.Game.Description
+      Labyrinth.Random
       Paths_labyrinth
   default-language: Haskell2010
 

@@ -33,7 +33,7 @@ import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
 import           Labyrinth                      ( Position )
-import qualified Labyrinth
+import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..)
                                                 , DTile(..)
@@ -328,7 +328,7 @@ spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
 spread mn mx g = [(g ^. mn) .. (g ^. mx)]
 
 firstPlayer :: Players -> IO Player
-firstPlayer p = fromJust <$> Labyrinth.randomElem (P.toList p)
+firstPlayer p = fromJust <$> Random.choose (P.toList p)
 
 playerMap :: Game -> Map Color (Position, Player)
 playerMap g = foldl f mempty (Map.toList (g ^. tiles))
