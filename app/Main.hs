@@ -1,17 +1,7 @@
 module Main
 where
 
-import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Direction            ( Direction(..) )
-import           Labyrinth.Tile                 ( Terrain(..) )
-import           Labyrinth.Players              ( Players
-                                                , Color(..)
-                                                )
-import qualified Labyrinth.Game                as Game
-import           Labyrinth.Game                 ( DGame(..)
-                                                , DTile(..)
-                                                , Game
-                                                )
+import           Labyrinth
 import           UI.Players                     ( addPlayers )
 import           UI.Game                        ( playGame )
 
@@ -21,7 +11,7 @@ main = addPlayers >>= initialGame >>= playGame
 initialGame :: Players -> IO Game
 initialGame players = do
   let startPosition = (0, 2)
-  Game.make DGame
+  makeGame DGame
     { _gPlayers       = players
     , _gStartPosition = startPosition
     , _gRowMin        = 0

@@ -6,8 +6,6 @@
 module Labyrinth.Game
   ( Game(..)
   , Phase(..)
-  , DGame(..)
-  , DTile(..)
   , player
   , tileAt
   , tiles
@@ -36,7 +34,6 @@ import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..)
-                                                , DTile(..)
                                                 )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
