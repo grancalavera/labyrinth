@@ -21,7 +21,8 @@ import qualified Brick.Widgets.Center          as C
 import           Control.Monad                  ( guard
                                                 , void
                                                 )
-import           Data.List                      ( intercalate )
+import           Lens.Micro                     ( (^.) )
+import           qualified Data.List.Extended                      as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromMaybe )
@@ -30,7 +31,6 @@ import           Graphics.Vty                   ( Attr )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
 import           Labyrinth                      ( Position )
-import qualified Labyrinth
 import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game                 ( Game(..)
                                                 , Phase(..)
@@ -42,6 +42,7 @@ import           Labyrinth.Gate                 ( Gate(..) )
 import           Labyrinth.Goal                 ( Goal(..)
                                                 , Treasure(..)
                                                 )
+import qualified Labyrinth.Board as Board
 import qualified Labyrinth.Goal                as Goal
 import           Labyrinth.Players              ( color
                                                 )
@@ -52,7 +53,6 @@ import           Labyrinth.Tile                 ( Terrain(..)
                                                 , terrain
                                                 )
 import qualified Labyrinth.Tile                as Tile
-import           Lens.Micro                     ( (^.) )
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
@@ -72,7 +72,7 @@ app = App
 drawUI :: Game -> [Widget Name]
 drawUI g =
   [ C.vCenter $ C.hCenter $ Brick.vBox $ map (Brick.hBox . map snd)
-                                             (Labyrinth.toRows board')
+                                             (Board.toRows board')
   ]
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
@@ -227,7 +227,7 @@ widget4p = toWidget 9
 
 toWidget :: Int -> String -> Widget Name
 toWidget cols raw =
-  Brick.str $ intercalate "\n" $ Labyrinth.splitEvery cols raw
+  Brick.str $ L.intercalate "\n" $ L.splitEvery cols raw
 
 fromRaw :: RawCell -> Widget Name
 fromRaw = toWidget 9 . extract
