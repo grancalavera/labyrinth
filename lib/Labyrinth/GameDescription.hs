@@ -4,6 +4,16 @@ module Labyrinth.GameDescription
   ( mkTiles
   , TileDescription(..)
   , GameDescription(..)
+
+  , gTiles
+  , gGates
+  , gPositions
+  , gPlayers
+  , gStartPosition
+  , gRowMin
+  , gRowMax
+  , gColMin
+  , gColMax
   )
 where
 
@@ -33,6 +43,7 @@ import qualified Labyrinth.Players             as Players
 import           Labyrinth.Tile                 ( Terrain(..)
                                                 , Tile(..)
                                                 )
+import Labyrinth.Gate (Gate(..))
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 , (^.)
@@ -56,9 +67,15 @@ data TileDescription = TD
 makeLenses ''TileDescription
 
 data GameDescription = GD
-  { _bTiles     :: [TileDescription]
-  , _bPositions :: [Position]
-  , _bPlayers   :: Players
+  { _gTiles         :: [TileDescription]
+  , _gGates         :: [(Position, Gate)]
+  , _gPositions     :: [Position]
+  , _gPlayers       :: Players
+  , _gStartPosition :: Position
+  , _gRowMin        :: Int
+  , _gRowMax        :: Int
+  , _gColMin        :: Int
+  , _gColMax        :: Int
   } deriving (Show)
 makeLenses ''GameDescription
 
@@ -72,15 +89,15 @@ mkEnv boardDesc = do
   return Env
     { _ePositions = positions
     , _eGoals     = goals
-    , _ePlayers   = boardDesc ^. bPlayers
+    , _ePlayers   = boardDesc ^. gPlayers
     }
 
 unknownPositions :: GameDescription -> [Position]
 unknownPositions boardDesc = filter (not . (`elem` known)) ps
  where
-  ps = boardDesc ^. bPositions
+  ps = boardDesc ^. gPositions
   known =
-    map fromJust $ filter isJust $ map (^. tPosition) (boardDesc ^. bTiles)
+    map fromJust $ filter isJust $ map (^. tPosition) (boardDesc ^. gTiles)
 
 mkTiles :: GameDescription -> IO [(Position, Tile)]
 mkTiles boardDesc = do
@@ -88,7 +105,7 @@ mkTiles boardDesc = do
   evalStateT (eval boardDesc) env
 
 eval :: GameDescription -> Eval [(Position, Tile)]
-eval boardDesc = forM (boardDesc ^. bTiles) $ \tileDesc -> do
+eval boardDesc = forM (boardDesc ^. gTiles) $ \tileDesc -> do
   position  <- getPosition tileDesc
   direction <- getDirection tileDesc
   goal      <- getGoal tileDesc
@@ -132,5 +149,3 @@ getPlayer tileDesc = do
   return $ fromMaybe [] $ do
     color <- tileDesc ^. tPlayer
     (: []) <$> Map.lookup color (Players.toMap (env ^. ePlayers))
-
-

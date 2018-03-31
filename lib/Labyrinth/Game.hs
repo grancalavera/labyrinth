@@ -20,6 +20,7 @@ module Labyrinth.Game
   , done
   , walk
   , players
+  , mkGame
   )
 where
 
@@ -72,20 +73,36 @@ data Game = Game
     } deriving (Show, Eq)
 makeLenses ''Game
 
-initialGame :: Players -> IO Game
-initialGame players' = do
-  player' <- firstPlayer players'
-  tiles'  <- GD.mkTiles GD
-    { _bTiles     = tiles''
-    , _bPlayers   = players'
-    , _bPositions = positions
-    }
+mkGame :: GameDescription -> IO Game
+mkGame gd = do
+  let startPosition = (0, 2)
+
+  player' <- firstPlayer (gd ^. GD.gPlayers)
+  tiles'  <- GD.mkTiles gd
 
   return Game
     { _tileAt  = startPosition
     , _player  = player'
-    , _players = players'
-    , _gates   = Map.fromList gates'
+    , _players = gd ^. GD.gPlayers
+    , _gates   = Map.fromList $ gd ^. GD.gGates
+    , _tiles   = Map.fromList tiles'
+    , _phase   = Plan
+    , _rowMin  = 0
+    , _rowMax  = 8
+    , _colMin  = 0
+    , _colMax  = 8
+    }
+
+initialGame :: Players -> IO Game
+initialGame players' = do
+  player' <- firstPlayer $ gd ^. GD.gPlayers
+  tiles'  <- GD.mkTiles gd
+
+  return Game
+    { _tileAt  = startPosition
+    , _player  = player'
+    , _players = gd ^. GD.gPlayers
+    , _gates   = Map.fromList $ gd ^. GD.gGates
     , _tiles   = Map.fromList tiles'
     , _phase   = Plan
     , _rowMin  = 0
@@ -95,43 +112,49 @@ initialGame players' = do
     }
  where
   startPosition = (0, 2)
-  positions     = startPosition : [ (x, y) | x <- [1 .. 7], y <- [1 .. 7] ]
-  gates' =
-    [ ((0, 2), Gate South True)
-    , ((0, 4), Gate South True)
-    , ((0, 6), Gate South True)
-    , ((2, 0), Gate East True)
-    , ((4, 0), Gate East True)
-    , ((6, 0), Gate East True)
-    , ((2, 8), Gate West True)
-    , ((4, 8), Gate West True)
-    , ((6, 8), Gate West True)
-    , ((8, 2), Gate North True)
-    , ((8, 4), Gate North True)
-    , ((8, 6), Gate North True)
-    ]
-  tiles'' =
-    [ TD Corner (Just (1, 1)) (Just South) False (Just Yellow)
-      , TD Fork   (Just (1, 3)) (Just South) True  Nothing
-      , TD Fork   (Just (1, 5)) (Just South) True  Nothing
-      , TD Corner (Just (1, 7)) (Just West)  False (Just Red)
-      , TD Fork   (Just (3, 1)) (Just East)  True  Nothing
-      , TD Fork   (Just (3, 3)) (Just East)  True  Nothing
-      , TD Fork   (Just (3, 5)) (Just South) True  Nothing
-      , TD Fork   (Just (3, 7)) (Just West)  True  Nothing
-      , TD Fork   (Just (5, 1)) (Just East)  True  Nothing
-      , TD Fork   (Just (5, 3)) (Just North) True  Nothing
-      , TD Fork   (Just (5, 5)) (Just West)  True  Nothing
-      , TD Fork   (Just (5, 7)) (Just West)  True  Nothing
-      , TD Corner (Just (7, 1)) (Just East)  False (Just Green)
-      , TD Fork   (Just (7, 3)) (Just North) True  Nothing
-      , TD Fork   (Just (7, 5)) (Just North) True  Nothing
-      , TD Corner (Just (7, 7)) (Just North) False (Just Blue)
-      ]
+  gd            = GD
+    { _gPlayers       = players'
+    , _gStartPosition = startPosition
+    , _gRowMin        = 0
+    , _gRowMax        = 8
+    , _gColMin        = 0
+    , _gColMax        = 8
+    , _gGates         = [ ((0, 2), Gate South True)
+                        , ((0, 4), Gate South True)
+                        , ((0, 6), Gate South True)
+                        , ((2, 0), Gate East True)
+                        , ((4, 0), Gate East True)
+                        , ((6, 0), Gate East True)
+                        , ((2, 8), Gate West True)
+                        , ((4, 8), Gate West True)
+                        , ((6, 8), Gate West True)
+                        , ((8, 2), Gate North True)
+                        , ((8, 4), Gate North True)
+                        , ((8, 6), Gate North True)
+                        ]
+    , _gTiles = [ TD Corner (Just (1, 1)) (Just South) False (Just Yellow)
+                , TD Fork   (Just (1, 3)) (Just South) True  Nothing
+                , TD Fork   (Just (1, 5)) (Just South) True  Nothing
+                , TD Corner (Just (1, 7)) (Just West)  False (Just Red)
+                , TD Fork   (Just (3, 1)) (Just East)  True  Nothing
+                , TD Fork   (Just (3, 3)) (Just East)  True  Nothing
+                , TD Fork   (Just (3, 5)) (Just South) True  Nothing
+                , TD Fork   (Just (3, 7)) (Just West)  True  Nothing
+                , TD Fork   (Just (5, 1)) (Just East)  True  Nothing
+                , TD Fork   (Just (5, 3)) (Just North) True  Nothing
+                , TD Fork   (Just (5, 5)) (Just West)  True  Nothing
+                , TD Fork   (Just (5, 7)) (Just West)  True  Nothing
+                , TD Corner (Just (7, 1)) (Just East)  False (Just Green)
+                , TD Fork   (Just (7, 3)) (Just North) True  Nothing
+                , TD Fork   (Just (7, 5)) (Just North) True  Nothing
+                , TD Corner (Just (7, 7)) (Just North) False (Just Blue)
+                ]
       ++ replicate 12 (TD Path Nothing Nothing False Nothing)
       ++ replicate 6  (TD Corner Nothing Nothing True Nothing)
       ++ replicate 10 (TD Corner Nothing Nothing False Nothing)
       ++ replicate 6  (TD Fork Nothing Nothing True Nothing)
+    , _gPositions = startPosition : [ (x, y) | x <- [1 .. 7], y <- [1 .. 7] ]
+    }
 
 --------------------------------------------------------------------------------
 -- state transitions
@@ -379,9 +402,4 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = fst <$> Map.lookup c (playerMap g)
-
-
-
-
-
 
