@@ -35,7 +35,7 @@ library:
 executables:
   labyrinth:
     main: Main.hs
-    source-dirs: src
+    source-dirs: app
     ghc-options:
     - -Wall
     - -threaded

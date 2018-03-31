@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 66ef2ea364e5a85efea1602879ce9ae696ad962888967757641a97124e33dcba
+-- hash: 80ed35c3a25f3b2ce9957ac934dbbfa555863d8e591a3f37d3600bf5d4a04fa5
 
 name:           labyrinth
 version:        0.1.0.0
@@ -54,7 +54,7 @@ library
 executable labyrinth
   main-is: Main.hs
   hs-source-dirs:
-      src
+      app
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
