@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Labyrinth.UI.Game
+module UI.Game
   ( playGame
   )
 where

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4c52268acd8377791000402b484c64d1c15d4247d0cebd0386826a25b1f59287
+-- hash: 66ef2ea364e5a85efea1602879ce9ae696ad962888967757641a97124e33dcba
 
 name:           labyrinth
 version:        0.1.0.0
@@ -31,7 +31,6 @@ library
   build-depends:
       array
     , base >=4.7 && <5
-    , brick
     , containers
     , linear
     , microlens
@@ -39,7 +38,6 @@ library
     , mtl
     , random
     , text
-    , vty
   exposed-modules:
       Labyrinth
       Labyrinth.GameDescription
@@ -49,9 +47,6 @@ library
       Labyrinth.Goal
       Labyrinth.Players
       Labyrinth.Tile
-      Labyrinth.UI
-      Labyrinth.UI.Game
-      Labyrinth.UI.Players
   other-modules:
       Paths_labyrinth
   default-language: Haskell2010
@@ -63,8 +58,16 @@ executable labyrinth
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
+    , brick
+    , containers
     , labyrinth
+    , microlens
+    , microlens-th
+    , text
+    , vty
   other-modules:
+      UI.Game
+      UI.Players
       Paths_labyrinth
   default-language: Haskell2010
 
@@ -73,7 +76,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  ghc-options: -Wall -fno-warn-orphans -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base
