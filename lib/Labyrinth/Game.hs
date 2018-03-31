@@ -32,7 +32,7 @@ import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
-import           Labyrinth                      ( Position )
+import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..)

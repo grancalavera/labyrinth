@@ -1,19 +1,16 @@
 module Labyrinth
-  ( toRows
+  ( Position
+  , toRows
   , splitEvery
   , getRow
   , getCol
-  , Position
   )
 where
 
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( Map )
 import           Data.Maybe                     ( fromMaybe )
-
-type Row      = Int
-type Col      = Int
-type Position = (Row, Col)
+import           Labyrinth.Position (Position)
 
 toRows :: Map Position a -> [[(Position, a)]]
 toRows m = map (Map.toList . (`getRow` m)) (rowSpread m)

@@ -28,7 +28,7 @@ import           Data.Maybe                     ( fromJust
                                                 , isJust
                                                 , fromMaybe
                                                 )
-import           Labyrinth                      ( Position )
+import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
