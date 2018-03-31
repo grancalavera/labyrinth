@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module Labyrinth.UI.Game
+module UI.Game
   ( playGame
   )
 where
@@ -21,7 +21,8 @@ import qualified Brick.Widgets.Center          as C
 import           Control.Monad                  ( guard
                                                 , void
                                                 )
-import           Data.List                      ( intercalate )
+import           Lens.Micro                     ( (^.) )
+import qualified Data.List.Extended            as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromMaybe )
@@ -29,39 +30,20 @@ import           Data.Monoid                    ( (<>) )
 import           Graphics.Vty                   ( Attr )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
-import           Labyrinth                      ( Position )
-import qualified Labyrinth
-import           Labyrinth.Direction            ( Direction(..) )
-import           Labyrinth.Game                 ( Game(..)
-                                                , Phase(..)
-                                                , gates
-                                                , tiles
-                                                )
+
+
+import           Labyrinth
 import qualified Labyrinth.Game                as Game
-import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Goal                 ( Goal(..)
-                                                , Treasure(..)
-                                                )
+import qualified Labyrinth.Board               as Board
 import qualified Labyrinth.Goal                as Goal
-import           Labyrinth.Players              ( Players
-                                                , color
-                                                )
-import           Labyrinth.Tile                 ( Terrain(..)
-                                                , Tile(..)
-                                                , direction
-                                                , goal
-                                                , terrain
-                                                )
+import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
-import           Lens.Micro                     ( (^.) )
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
 
-playGame :: Players -> IO Name
-playGame ps = do
-  g <- Game.initialGame ps
-  void $ Brick.defaultMain app g
+playGame :: Game -> IO Name
+playGame g = void $ Brick.defaultMain app g
 
 app :: App Game e Name
 app = App
@@ -75,12 +57,12 @@ app = App
 drawUI :: Game -> [Widget Name]
 drawUI g =
   [ C.vCenter $ C.hCenter $ Brick.vBox $ map (Brick.hBox . map snd)
-                                             (Labyrinth.toRows board')
+                                             (Board.toRows board')
   ]
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
-  gates'           = Map.map (fromRaw . toRawGate) (g ^. gates)
-  tiles'           = Map.map fromTile (g ^. tiles)
+  gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
+  tiles'           = Map.map fromTile (g ^. Game.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
   emptyOf          = emptyBoard (Game.rowSpread g) (Game.colSpread g)
 
@@ -134,28 +116,29 @@ toRawTile t = mempty <> toRawFound t <> toRawTreasure t <> toRawTerrain t
 
 toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
-  (Goal t' _) <- t ^. goal
+  (Goal t' _) <- t ^. Tile.goal
   c           <- Map.lookup t' treasureMap
   return
     $  Cell
-    $  "         "
-    ++ "         "
-    ++ "    "
-    ++ [c]
-    ++ "    "
-    ++ "         "
+    $  "         " ++
+       "         " ++
+       "    "  ++ [c]  ++ "    " ++
+       "         "
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A' ..]
 
 toRawFound :: Tile -> RawCell
 toRawFound t = fromMaybe mempty $ do
-  (Goal _ isFound) <- t ^. goal
+  (Goal _ isFound) <- t ^. Tile.goal
   guard isFound
-  return $ Cell $ "         " ++ "         " ++ "    ✓    " ++ "         "
+  return $ Cell $ "         " ++
+                  "         " ++
+                  "    ✓    " ++
+                  "         "
 
 toRawTerrain :: Tile -> RawCell
-toRawTerrain t = Cell $ case (t ^. terrain, t ^. direction) of
+toRawTerrain t = Cell $ case (t ^. Tile.terrain, t ^. Tile.direction) of
   (Path  , North) -> " │     │ " ++
                      " │     │ " ++
                      " │     │ " ++
@@ -229,8 +212,7 @@ widget4p :: String -> Widget Name
 widget4p = toWidget 9
 
 toWidget :: Int -> String -> Widget Name
-toWidget cols raw =
-  Brick.str $ intercalate "\n" $ Labyrinth.splitEvery cols raw
+toWidget cols raw = Brick.str $ L.intercalate "\n" $ L.splitEvery cols raw
 
 fromRaw :: RawCell -> Widget Name
 fromRaw = toWidget 9 . extract
@@ -283,7 +265,7 @@ fromTile t = case t ^. Tile.players of
   _ -> Brick.withAttr "default" $ fromRaw rawTile
  where
   rawTile = toRawTile t
-  attr p = Brick.attrName $ show (p ^. color)
+  attr p = Brick.attrName $ show (p ^. Players.color)
 
 twoPlayers :: String -> (String, String)
 twoPlayers xs =
@@ -327,5 +309,3 @@ fourPlayers xs =
       ([], [], [], [])
     $ zip [0 ..] xs
   where w = length xs `div` 4
-
-

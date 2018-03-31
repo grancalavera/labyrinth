@@ -15,32 +15,27 @@ library:
   - -Wall
   exposed-modules:
   - Labyrinth
-  - Labyrinth.GameDescription
+  - Labyrinth.Board
   - Labyrinth.Direction
   - Labyrinth.Game
   - Labyrinth.Gate
   - Labyrinth.Goal
   - Labyrinth.Players
   - Labyrinth.Tile
-  - Labyrinth.UI
-  - Labyrinth.UI.Game
-  - Labyrinth.UI.Players
   dependencies:
   - base >=4.7 && <5
-  - brick
   - containers
   - linear
   - microlens
   - microlens-th
   - random
-  - vty
   - array
-  - mtl
   - text
+  - mtl
 executables:
   labyrinth:
     main: Main.hs
-    source-dirs: src
+    source-dirs: app
     ghc-options:
     - -Wall
     - -threaded
@@ -49,14 +44,19 @@ executables:
     - -optP-Wno-nonportable-include-path
     dependencies:
     - base
+    - brick
+    - containers
     - labyrinth
+    - microlens
+    - microlens-th
+    - text
+    - vty
 tests:
   labyrinth-test:
     main: Spec.hs
     source-dirs: test
     ghc-options:
     - -Wall
-    - -fno-warn-orphans
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N

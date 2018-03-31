@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
-module Labyrinth.UI.Players
+module UI.Players
   ( addPlayers
   )
 where

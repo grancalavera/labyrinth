@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4c52268acd8377791000402b484c64d1c15d4247d0cebd0386826a25b1f59287
+-- hash: c92e267830b0cd245ff9b4a0681a1c63f3fe491d4981a5996a9743a5b936b404
 
 name:           labyrinth
 version:        0.1.0.0
@@ -31,7 +31,6 @@ library
   build-depends:
       array
     , base >=4.7 && <5
-    , brick
     , containers
     , linear
     , microlens
@@ -39,32 +38,40 @@ library
     , mtl
     , random
     , text
-    , vty
   exposed-modules:
       Labyrinth
-      Labyrinth.GameDescription
+      Labyrinth.Board
       Labyrinth.Direction
       Labyrinth.Game
       Labyrinth.Gate
       Labyrinth.Goal
       Labyrinth.Players
       Labyrinth.Tile
-      Labyrinth.UI
-      Labyrinth.UI.Game
-      Labyrinth.UI.Players
   other-modules:
+      Labyrinth.Game.Description
+      Labyrinth.Position
+      Labyrinth.Random
       Paths_labyrinth
   default-language: Haskell2010
 
 executable labyrinth
   main-is: Main.hs
   hs-source-dirs:
-      src
+      app
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
+    , brick
+    , containers
     , labyrinth
+    , microlens
+    , microlens-th
+    , text
+    , vty
   other-modules:
+      Data.List.Extended
+      UI.Game
+      UI.Players
       Paths_labyrinth
   default-language: Haskell2010
 
@@ -73,7 +80,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  ghc-options: -Wall -fno-warn-orphans -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base

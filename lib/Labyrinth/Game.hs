@@ -13,13 +13,13 @@ module Labyrinth.Game
   , rowSpread
   , colSpread
   , phase
-  , initialGame
   , rotate
   , rotate'
   , move
   , done
   , walk
   , players
+  , make
   )
 where
 
@@ -30,22 +30,19 @@ import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
-import           Labyrinth                      ( Position )
-import qualified Labyrinth
+import           Labyrinth.Position             ( Position )
+import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
-import           Labyrinth.GameDescription      ( GameDescription(..)
-                                                , TileDescription(..)
+import           Labyrinth.Game.Description     ( DGame(..)
                                                 )
-import qualified Labyrinth.GameDescription     as GD
+import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
 import           Labyrinth.Players              ( Color(..)
                                                 , Player
                                                 , Players
                                                 )
 import qualified Labyrinth.Players             as P
-import           Labyrinth.Tile                 ( Terrain(..)
-                                                , Tile(..)
-                                                )
+import           Labyrinth.Tile                 ( Tile(..) )
 import qualified Labyrinth.Tile                as T
 import           Lens.Micro                     ( (&)
                                                 , (.~)
@@ -72,66 +69,25 @@ data Game = Game
     } deriving (Show, Eq)
 makeLenses ''Game
 
-initialGame :: Players -> IO Game
-initialGame players' = do
-  player' <- firstPlayer players'
-  tiles'  <- GD.mkTiles GD
-    { _bTiles     = tiles''
-    , _bPlayers   = players'
-    , _bPositions = positions
-    }
+make :: DGame -> IO Game
+make gd = do
+  let startPosition = (0, 2)
+
+  player' <- firstPlayer (gd ^. GD.gPlayers)
+  tiles'  <- GD.mkTiles gd
 
   return Game
     { _tileAt  = startPosition
     , _player  = player'
-    , _players = players'
-    , _gates   = Map.fromList gates'
+    , _players = gd ^. GD.gPlayers
+    , _gates   = Map.fromList $ gd ^. GD.gGates
     , _tiles   = Map.fromList tiles'
     , _phase   = Plan
-    , _rowMin  = 0
-    , _rowMax  = 8
-    , _colMin  = 0
-    , _colMax  = 8
+    , _rowMin  = gd ^. GD.gRowMin
+    , _rowMax  = gd ^. GD.gRowMax
+    , _colMin  = gd ^. GD.gColMin
+    , _colMax  = gd ^. GD.gColMax
     }
- where
-  startPosition = (0, 2)
-  positions     = startPosition : [ (x, y) | x <- [1 .. 7], y <- [1 .. 7] ]
-  gates' =
-    [ ((0, 2), Gate South True)
-    , ((0, 4), Gate South True)
-    , ((0, 6), Gate South True)
-    , ((2, 0), Gate East True)
-    , ((4, 0), Gate East True)
-    , ((6, 0), Gate East True)
-    , ((2, 8), Gate West True)
-    , ((4, 8), Gate West True)
-    , ((6, 8), Gate West True)
-    , ((8, 2), Gate North True)
-    , ((8, 4), Gate North True)
-    , ((8, 6), Gate North True)
-    ]
-  tiles'' =
-    [ TD Corner (Just (1, 1)) (Just South) False (Just Yellow)
-      , TD Fork   (Just (1, 3)) (Just South) True  Nothing
-      , TD Fork   (Just (1, 5)) (Just South) True  Nothing
-      , TD Corner (Just (1, 7)) (Just West)  False (Just Red)
-      , TD Fork   (Just (3, 1)) (Just East)  True  Nothing
-      , TD Fork   (Just (3, 3)) (Just East)  True  Nothing
-      , TD Fork   (Just (3, 5)) (Just South) True  Nothing
-      , TD Fork   (Just (3, 7)) (Just West)  True  Nothing
-      , TD Fork   (Just (5, 1)) (Just East)  True  Nothing
-      , TD Fork   (Just (5, 3)) (Just North) True  Nothing
-      , TD Fork   (Just (5, 5)) (Just West)  True  Nothing
-      , TD Fork   (Just (5, 7)) (Just West)  True  Nothing
-      , TD Corner (Just (7, 1)) (Just East)  False (Just Green)
-      , TD Fork   (Just (7, 3)) (Just North) True  Nothing
-      , TD Fork   (Just (7, 5)) (Just North) True  Nothing
-      , TD Corner (Just (7, 7)) (Just North) False (Just Blue)
-      ]
-      ++ replicate 12 (TD Path Nothing Nothing False Nothing)
-      ++ replicate 6  (TD Corner Nothing Nothing True Nothing)
-      ++ replicate 10 (TD Corner Nothing Nothing False Nothing)
-      ++ replicate 6  (TD Fork Nothing Nothing True Nothing)
 
 --------------------------------------------------------------------------------
 -- state transitions
@@ -333,9 +289,9 @@ step (r, c) South = (r + 1, c)
 --------------------------------------------------------------------------------
 
 edge :: Position -> Game -> Maybe Direction
-edge (r, c) g | r == c             = Nothing
-              | --  because we don't care about corners
-                r == (g ^. rowMin) = Just North
+edge (r, c) g | --  because we don't care about corners
+                r == c             = Nothing
+              | r == (g ^. rowMin) = Just North
               | r == (g ^. rowMax) = Just South
               | c == (g ^. colMin) = Just West
               | c == (g ^. colMax) = Just East
@@ -369,7 +325,7 @@ spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
 spread mn mx g = [(g ^. mn) .. (g ^. mx)]
 
 firstPlayer :: Players -> IO Player
-firstPlayer p = fromJust <$> Labyrinth.randomElem (P.toList p)
+firstPlayer p = fromJust <$> Random.choose (P.toList p)
 
 playerMap :: Game -> Map Color (Position, Player)
 playerMap g = foldl f mempty (Map.toList (g ^. tiles))
@@ -379,9 +335,3 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = fst <$> Map.lookup c (playerMap g)
-
-
-
-
-
-
