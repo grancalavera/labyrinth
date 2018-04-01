@@ -12,7 +12,7 @@ module Labyrinth
   , Terrain(..)
   , Tile
   , Treasure(..)
-  , makeGame
+  , gameFromDescription
   )
 where
 
@@ -36,5 +36,5 @@ import           Labyrinth.Tile                 ( Terrain(..)
                                                 , Tile
                                                 )
 
-makeGame :: DGame -> IO Game
-makeGame = Game.make
+gameFromDescription :: DGame -> IO Game
+gameFromDescription = Game.fromDescription

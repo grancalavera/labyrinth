@@ -31,7 +31,6 @@ import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
-import qualified Labyrinth.Board               as Board
 import qualified Labyrinth.Goal                as Goal
 import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
@@ -53,8 +52,9 @@ app = App
 
 drawUI :: Game -> [Widget Name]
 drawUI g =
-  [ C.vCenter $ C.hCenter $ Brick.vBox $ map (Brick.hBox . map snd)
-                                             (Board.toRows board')
+  [ C.vCenter $ C.hCenter $ Brick.vBox $ map
+      (Brick.hBox . map snd)
+      (toRows (g ^. Game.rowMin) (g ^. Game.rowMax) board')
   ]
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
@@ -65,18 +65,18 @@ drawUI g =
 
 handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEvent g@Game { _phase = Plan, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []      ) -> continue $ Game.move East g
-  VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ Game.move West g
-  VtyEvent (V.EvKey V.KUp    []      ) -> continue $ Game.move North g
-  VtyEvent (V.EvKey V.KDown  []      ) -> continue $ Game.move South g
-  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotate g
-  VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotate' g
+  VtyEvent (V.EvKey V.KRight []      ) -> continue $ Game.moveTile East g
+  VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ Game.moveTile West g
+  VtyEvent (V.EvKey V.KUp    []      ) -> continue $ Game.moveTile North g
+  VtyEvent (V.EvKey V.KDown  []      ) -> continue $ Game.moveTile South g
+  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotateTile g
+  VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotateTile' g
   _ -> handleEventCommon g e
 handleEvent g@Game { _phase = Walk, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.walk East g
-  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.walk West g
-  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.walk North g
-  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.walk South g
+  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.movePlayer East g
+  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.movePlayer West g
+  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.movePlayer North g
+  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.movePlayer South g
   _                              -> handleEventCommon g e
 handleEvent g e = handleEventCommon g e
 
@@ -119,7 +119,7 @@ toRawTreasure t = fromMaybe mempty $ do
     $  Cell
     $  "         " ++
        "         " ++
-       "    "  ++ [c]  ++ "    " ++
+       "    " ++ [c] ++ "    " ++
        "         "
 
 treasureMap :: Map Treasure Char
@@ -302,3 +302,9 @@ fourPlayers xs =
       ([], [], [], [])
     $ zip [0 ..] xs
   where w = length xs `div` 4
+
+toRows :: Int -> Int -> Map Position a -> [[(Position, a)]]
+toRows mn mx m = map (Map.toList . (`getRow` m)) [mn .. mx]
+
+getRow :: Int -> Map Position a -> Map Position a
+getRow r = Map.filterWithKey (curry $ (== r) . fst . fst)
