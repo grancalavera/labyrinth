@@ -4,27 +4,37 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Game
-  ( Game(..)
-  , Phase(..)
-  , player
-  , tileAt
+  (
+  -- Working with Games
+    Game(..)
+  , fromDescription
   , tiles
+  , tileAt
   , gates
+  , phase
+  , rowMin
+  , rowMax
+  , colMin
+  , colMax
+  , player
+  , players
   , rowSpread
   , colSpread
-  , phase
-  , rotate
-  , rotate'
-  , move
+
+  -- State transitions
+  , Phase(..)
   , done
-  , walk
-  , players
-  , make
+
+  -- Game play
+  , moveTile
+  , rotateTile
+  , rotateTile'
+  , movePlayer
   )
 where
 
 import           Control.Monad                  ( guard )
-import qualified Data.List                     as List
+import qualified Data.List                     as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
@@ -33,8 +43,7 @@ import           Data.Maybe                     ( fromJust
 import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
-import           Labyrinth.Game.Description     ( DGame(..)
-                                                )
+import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
 import           Labyrinth.Players              ( Color(..)
@@ -69,8 +78,8 @@ data Game = Game
     } deriving (Show, Eq)
 makeLenses ''Game
 
-make :: DGame -> IO Game
-make gd = do
+fromDescription :: DGame -> IO Game
+fromDescription gd = do
   let startPosition = (0, 2)
 
   player' <- firstPlayer (gd ^. GD.gPlayers)
@@ -132,7 +141,7 @@ teleport g =
     pd <- padding op g'
     -- TODO: refactor to use Linear.V2
     let to = (op ^. _1 + pd ^. _1, op ^. _2 + pd ^. _2)
-    return $ walk' from to p g'
+    return $ walk from to p g'
 
 updateCurrentTilePosition :: Game -> Game
 updateCurrentTilePosition g = g & tileAt .~ update (g ^. tileAt)
@@ -164,25 +173,25 @@ nextPlayer g = g & player .~ P.next (g ^. player) (g ^. players)
 -- Plan phase
 --------------------------------------------------------------------------------
 
-rotate :: Game -> Game
-rotate = rotateInternal T.rotate
+moveTile :: Direction -> Game -> Game
+moveTile dir g = fromMoves moves' g where moves' = moves dir g
 
-rotate' :: Game -> Game
-rotate' = rotateInternal T.rotate'
+rotateTile :: Game -> Game
+rotateTile = rotate T.rotate
 
-rotateInternal :: (Tile -> Tile) -> Game -> Game
-rotateInternal r g = g & (tiles .~ Map.adjust r (g ^. tileAt) (g ^. tiles))
+rotateTile' :: Game -> Game
+rotateTile' = rotate T.rotate'
 
-move :: Direction -> Game -> Game
-move dir g = fromMoves moves' g where moves' = moves dir g
+rotate :: (Tile -> Tile) -> Game -> Game
+rotate r g = g & (tiles .~ Map.adjust r (g ^. tileAt) (g ^. tiles))
 
 fromMoves :: [Position] -> Game -> Game
 fromMoves []          g = g
 fromMoves (newP : ps) g = fromMaybe (fromMoves ps g) $ do
   _ <- Map.lookup newP (g ^. gates)
-  Just $ (updatePos . moveTile) g
+  Just $ (updatePos . moveTile') g
  where
-  moveTile  = tiles .~ Map.mapKeys moveKey (g ^. tiles)
+  moveTile' = tiles .~ Map.mapKeys moveKey (g ^. tiles)
   updatePos = tileAt .~ newP
   moveKey p | p == g ^. tileAt = newP
             | otherwise        = p
@@ -199,35 +208,35 @@ moves dir g = fromMaybe [] $ do
   Just $ case (e, dir) of
     (North, East) ->
       [ (rMin, i) | i <- [c + 1 .. cMax] ]
-        `List.union` [ (i, cMax) | i <- [rMin .. rMax] ]
+        `L.union` [ (i, cMax) | i <- [rMin .. rMax] ]
 
     (North, West) ->
       [ (rMin, i) | i <- reverse [cMin .. c - 1] ]
-        `List.union` [ (i, cMin) | i <- [rMin .. rMax] ]
+        `L.union` [ (i, cMin) | i <- [rMin .. rMax] ]
 
     (South, East) ->
       [ (rMax, i) | i <- [c + 1 .. cMax] ]
-        `List.union` [ (i, cMax) | i <- reverse [rMin .. rMax] ]
+        `L.union` [ (i, cMax) | i <- reverse [rMin .. rMax] ]
 
     (South, West) ->
       [ (rMax, i) | i <- reverse [cMin .. c - 1] ]
-        `List.union` [ (i, cMin) | i <- reverse [rMin .. rMax] ]
+        `L.union` [ (i, cMin) | i <- reverse [rMin .. rMax] ]
 
     (West, North) ->
       [ (i, cMin) | i <- reverse [rMin .. r - 1] ]
-        `List.union` [ (rMin, i) | i <- [cMin .. cMax] ]
+        `L.union` [ (rMin, i) | i <- [cMin .. cMax] ]
 
     (West, South) ->
       [ (i, cMin) | i <- [r + 1 .. rMax] ]
-        `List.union` [ (rMax, i) | i <- [cMin .. cMax] ]
+        `L.union` [ (rMax, i) | i <- [cMin .. cMax] ]
 
     (East, North) ->
       [ (i, cMax) | i <- reverse [rMin .. r - 1] ]
-        `List.union` [ (rMin, i) | i <- reverse [cMin .. cMax] ]
+        `L.union` [ (rMin, i) | i <- reverse [cMin .. cMax] ]
 
     (East, South) ->
       [ (i, cMax) | i <- [r + 1 .. rMax] ]
-        `List.union` [ (rMax, i) | i <- reverse [cMin .. cMax] ]
+        `L.union` [ (rMax, i) | i <- reverse [cMin .. cMax] ]
 
     (North, South) -> [ (i, c) | i <- [r + 1 .. rMax] ]
     (West , East ) -> [ (r, i) | i <- [c + 1 .. cMax] ]
@@ -239,8 +248,8 @@ moves dir g = fromMaybe [] $ do
 -- Walk phase
 --------------------------------------------------------------------------------
 
-walk :: Direction -> Game -> Game
-walk d g = fromMaybe g $ do
+movePlayer :: Direction -> Game -> Game
+movePlayer d g = fromMaybe g $ do
   let player' = g ^. player
       tiles'  = g ^. tiles
 
@@ -254,13 +263,13 @@ walk d g = fromMaybe g $ do
       isNotGate   = not $ isGate toP g
   guard (isConnected && isNotGate)
 
-  return $ walk' fromP toP player' g
+  return $ walk fromP toP player' g
 
 isGate :: Position -> Game -> Bool
 isGate p g = fromMaybe False $ Map.lookup p (g ^. gates) >> return True
 
-walk' :: Position -> Position -> Player -> Game -> Game
-walk' from to player' g =
+walk :: Position -> Position -> Player -> Game -> Game
+walk from to player' g =
   g
     &  tiles
     .~ ( Map.alter (removePlayer player') from

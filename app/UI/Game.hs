@@ -68,18 +68,18 @@ drawUI g =
 
 handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEvent g@Game { _phase = Plan, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []      ) -> continue $ Game.move East g
-  VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ Game.move West g
-  VtyEvent (V.EvKey V.KUp    []      ) -> continue $ Game.move North g
-  VtyEvent (V.EvKey V.KDown  []      ) -> continue $ Game.move South g
-  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotate g
-  VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotate' g
-  _ -> handleEventCommon g e
+  VtyEvent (V.EvKey V.KRight []      ) -> continue $ Game.moveTile East g
+  VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ Game.moveTile West g
+  VtyEvent (V.EvKey V.KUp    []      ) -> continue $ Game.moveTile North g
+  VtyEvent (V.EvKey V.KDown  []      ) -> continue $ Game.moveTile South g
+  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotateTile g
+  VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotateTile' g
+  _                                    -> handleEventCommon g e
 handleEvent g@Game { _phase = Walk, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.walk East g
-  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.walk West g
-  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.walk North g
-  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.walk South g
+  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.movePlayer East g
+  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.movePlayer West g
+  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.movePlayer North g
+  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.movePlayer South g
   _                              -> handleEventCommon g e
 handleEvent g e = handleEventCommon g e
 

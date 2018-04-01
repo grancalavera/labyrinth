@@ -11,7 +11,7 @@ main = addPlayers >>= initialGame >>= playGame
 initialGame :: Players -> IO Game
 initialGame players = do
   let startPosition = (0, 2)
-  makeGame DGame
+  gameFromDescription DGame
     { _gPlayers       = players
     , _gStartPosition = startPosition
     , _gRowMin        = 0
