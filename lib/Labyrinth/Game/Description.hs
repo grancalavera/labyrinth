@@ -6,7 +6,6 @@ module Labyrinth.Game.Description
   , DGame(..)
   , gTiles
   , gGates
-  , gPositions
   , gPlayers
   , gStartPosition
   , gRowMin
@@ -24,6 +23,7 @@ import           Control.Monad.State            ( StateT
                                                 , liftIO
                                                 , put
                                                 )
+import qualified Data.List                     as L
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
                                                 , isJust
@@ -33,7 +33,9 @@ import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Goal                 ( Goal(..), Treasure )
+import           Labyrinth.Goal                 ( Goal(..)
+                                                , Treasure
+                                                )
 import           Labyrinth.Players              ( Color(..)
                                                 , Player
                                                 , Players
@@ -68,7 +70,6 @@ makeLenses ''DTile
 data DGame = DGame
   { _gTiles         :: [DTile]
   , _gGates         :: [(Position, Gate)]
-  , _gPositions     :: [Position]
   , _gPlayers       :: Players
   , _gStartPosition :: Position
   , _gRowMin        :: Int
@@ -93,11 +94,18 @@ mkEnv description = do
     }
 
 unknownPositions :: DGame -> [Position]
-unknownPositions description = filter (not . (`elem` known)) ps
+unknownPositions description = filter (not . (`elem` known))
+                                      (derivePositions description)
  where
-  ps = description ^. gPositions
   known =
     map fromJust $ filter isJust $ map (^. tPosition) (description ^. gTiles)
+
+derivePositions :: DGame -> [Position]
+derivePositions description =
+  [description ^. gStartPosition] `L.union` [ (x, y) | x <- xs, y <- ys ]
+ where
+  xs = [(description ^. gColMin + 1) .. (description ^. gColMax - 1)]
+  ys = [(description ^. gRowMin + 1) .. (description ^. gRowMax - 1)]
 
 mkTiles :: DGame -> IO [(Position, Tile)]
 mkTiles description = do
