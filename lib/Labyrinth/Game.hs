@@ -109,7 +109,7 @@ done g = case g ^. phase of
     guard isOpen
     return
       $ ( nextPhase
-        . teleport
+        . teleportPlayer
         . toggleGates
         . updateCurrentTilePosition
         . slideTile
@@ -129,8 +129,8 @@ slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
       West  -> if r == cr then (r, c + 1) else pos
       East  -> if r == cr then (r, c - 1) else pos
 
-teleport :: Game -> Game
-teleport g =
+teleportPlayer :: Game -> Game
+teleportPlayer g =
   foldl f g
     $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.players))
     $ Map.toList
