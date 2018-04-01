@@ -15,7 +15,6 @@ library:
   - -Wall
   exposed-modules:
   - Labyrinth
-  - Labyrinth.Board
   - Labyrinth.Direction
   - Labyrinth.Game
   - Labyrinth.Gate
