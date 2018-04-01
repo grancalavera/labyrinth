@@ -23,7 +23,6 @@ import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
 import qualified Brick.Widgets.Edit            as E
 import qualified Data.Text                     as T
-import           Graphics.Vty                   ( Attr )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH
@@ -79,9 +78,8 @@ mkForm =
 
 theMap :: AttrMap
 theMap = attrMap
-  defaultAttr
-  [ (E.editAttr          , V.white `on` V.brightBlack)
-  , (E.editFocusedAttr   , V.brightBlack `on` V.brightYellow)
+  V.defAttr
+  [ (E.editFocusedAttr   , V.brightBlack `on` V.white)
   , (invalidFormInputAttr, V.white `on` V.brightBlack)
   , (focusedFormInputAttr, V.black `on` V.white)
   , ("yp"                , V.white `on` V.yellow)
@@ -89,9 +87,6 @@ theMap = attrMap
   , ("bp"                , V.white `on` V.blue)
   , ("gp"                , V.white `on` V.green)
   ]
-
-defaultAttr :: Attr
-defaultAttr = V.white `on` V.black
 
 draw :: Form PlayersInfo e Name -> [Widget Name]
 draw f = [C.vCenter $ C.hCenter form]
@@ -114,4 +109,3 @@ handleEvent s e = case e of
   VtyEvent (V.EvKey V.KEsc   []) -> halt s
   VtyEvent (V.EvKey V.KEnter []) -> halt s
   _                              -> handleFormEvent e s >>= continue
-

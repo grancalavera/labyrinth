@@ -27,11 +27,8 @@ import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromMaybe )
 import           Data.Monoid                    ( (<>) )
-import           Graphics.Vty                   ( Attr )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
-
-
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
 import qualified Labyrinth.Goal                as Goal
@@ -227,16 +224,12 @@ emptyBoard rows cols empty =
 
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap
-  defaultAttr
-  [ ("default", defaultAttr)
-  , ("Yellow" , V.white `on` V.yellow)
+  V.defAttr
+  [ ("Yellow" , V.white `on` V.yellow)
   , ("Blue"   , V.white `on` V.blue)
   , ("Green"  , V.white `on` V.green)
   , ("Red"    , V.white `on` V.red)
   ]
-
-defaultAttr :: Attr
-defaultAttr = V.white `on` V.black
 
 fromTile :: Tile -> Widget Name
 fromTile t = case t ^. Tile.players of
