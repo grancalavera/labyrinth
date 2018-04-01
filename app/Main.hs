@@ -20,7 +20,7 @@ main = addPlayers >>= fastGame >>= playGame
 fastGame :: Players -> IO Game
 fastGame players = do
   let startPosition = (0, 2)
-  Labyrinth.makeGame DGame
+  Labyrinth.gameFromDescription DGame
     { _gPlayers       = players
     , _gStartPosition = startPosition
     , _gTreasures     = take 12 Labyrinth.treasures
@@ -56,7 +56,7 @@ fastGame players = do
 regularGame :: Players -> IO Game
 regularGame players = do
   let startPosition = (0, 2)
-  Labyrinth.makeGame DGame
+  Labyrinth.gameFromDescription DGame
     { _gPlayers       = players
     , _gStartPosition = startPosition
     , _gTreasures     = Labyrinth.treasures
