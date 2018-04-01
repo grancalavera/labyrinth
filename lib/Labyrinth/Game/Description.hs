@@ -13,6 +13,7 @@ module Labyrinth.Game.Description
   , gRowMax
   , gColMin
   , gColMax
+  , gTreasures
   )
 where
 
@@ -32,8 +33,7 @@ import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Goal                 ( Goal(..) )
-import qualified Labyrinth.Goal                as Goal
+import           Labyrinth.Goal                 ( Goal(..), Treasure )
 import           Labyrinth.Players              ( Color(..)
                                                 , Player
                                                 , Players
@@ -75,36 +75,37 @@ data DGame = DGame
   , _gRowMax        :: Int
   , _gColMin        :: Int
   , _gColMax        :: Int
+  , _gTreasures     :: [Treasure]
   } deriving (Show)
 makeLenses ''DGame
 
 type Eval a = StateT Env IO a
 
 mkEnv :: DGame -> IO Env
-mkEnv boardDesc = do
-  positions <- Random.shuffle $ unknownPositions boardDesc
-  goals     <- Random.shuffle $ map (`Goal` False) Goal.treasures
+mkEnv description = do
+  positions <- Random.shuffle $ unknownPositions description
+  goals     <- Random.shuffle $ map (`Goal` False) (description ^. gTreasures)
 
   return Env
     { _ePositions = positions
     , _eGoals     = goals
-    , _ePlayers   = boardDesc ^. gPlayers
+    , _ePlayers   = description ^. gPlayers
     }
 
 unknownPositions :: DGame -> [Position]
-unknownPositions boardDesc = filter (not . (`elem` known)) ps
+unknownPositions description = filter (not . (`elem` known)) ps
  where
-  ps = boardDesc ^. gPositions
+  ps = description ^. gPositions
   known =
-    map fromJust $ filter isJust $ map (^. tPosition) (boardDesc ^. gTiles)
+    map fromJust $ filter isJust $ map (^. tPosition) (description ^. gTiles)
 
 mkTiles :: DGame -> IO [(Position, Tile)]
-mkTiles boardDesc = do
-  env <- mkEnv boardDesc
-  evalStateT (eval boardDesc) env
+mkTiles description = do
+  env <- mkEnv description
+  evalStateT (eval description) env
 
 eval :: DGame -> Eval [(Position, Tile)]
-eval boardDesc = forM (boardDesc ^. gTiles) $ \tileDesc -> do
+eval description = forM (description ^. gTiles) $ \tileDesc -> do
   position  <- getPosition tileDesc
   direction <- getDirection tileDesc
   goal      <- getGoal tileDesc
