@@ -21,6 +21,7 @@ library:
   - Labyrinth.Goal
   - Labyrinth.Players
   - Labyrinth.Tile
+  - Data.List.Extended
   dependencies:
   - base >=4.7 && <5
   - containers

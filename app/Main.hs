@@ -23,10 +23,8 @@ testGame players = Labyrinth.gameFromDescription DGame
     { _gPlayers       = players
     , _gStartPosition = V2 0 2
     , _gTreasures     = []
-    , _gRowMin        = 0
-    , _gRowMax        = 5
-    , _gColMin        = 0
-    , _gColMax        = 4
+    , _gRows          = 6
+    , _gCols          = 5
     , _gGates         = []
     , _gTiles         = [ DTile Path (Just $ V2 1 1) (Just North) False (Just Yellow)
                         , DTile Corner (Just $ V2 1 2) (Just North) False Nothing
@@ -48,10 +46,8 @@ regularGame players = Labyrinth.gameFromDescription DGame
     { _gPlayers       = players
     , _gStartPosition = V2 0 2
     , _gTreasures     = Labyrinth.treasures
-    , _gRowMin        = 0
-    , _gRowMax        = 8
-    , _gColMin        = 0
-    , _gColMax        = 8
+    , _gRows          = 9
+    , _gCols          = 9
     , _gGates         = [ (V2 0 2, Gate South True)
                         , (V2 0 4, Gate South True)
                         , (V2 0 6, Gate South True)

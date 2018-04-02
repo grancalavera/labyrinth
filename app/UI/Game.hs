@@ -17,6 +17,7 @@ import           Brick                          ( App(..)
                                                 , on
                                                 )
 import qualified Brick
+import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
 import           Control.Monad                  ( guard
                                                 , void
@@ -29,7 +30,9 @@ import           Data.Maybe                     ( fromMaybe )
 import           Data.Monoid                    ( (<>) )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
-import           Linear.V2                      ( V2(..), _x )
+import           Linear.V2                      ( V2(..)
+                                                , _x
+                                                )
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
 import qualified Labyrinth.Goal                as Goal
@@ -53,16 +56,16 @@ app = App
 
 drawUI :: Game -> [Widget Name]
 drawUI g =
-  [ C.vCenter $ C.hCenter $ Brick.vBox $ map
+  [ C.vCenter $ C.hCenter $ B.border $ Brick.vBox $ map
       (Brick.hBox . map snd)
-      (toRows (g ^. Game.rowMin) (g ^. Game.rowMax) board')
+      (toRows 0 (Game.lastRow g) board')
   ]
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
   tiles'           = Map.map fromTile (g ^. Game.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
-  emptyOf          = emptyBoard (Game.rowSpread g) (Game.colSpread g)
+  emptyOf          = emptyBoard (g ^. Game.rows) (g ^. Game.cols)
 
 handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEvent g@Game { _phase = Plan, ..} e = case e of
@@ -83,10 +86,9 @@ handleEvent g e = handleEventCommon g e
 
 handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
 handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEsc [])) = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEnter [])) = continue $ Game.done g
-handleEventCommon g (VtyEvent (V.EvKey (V.KChar ' ') [])) =
-  continue $ Game.done g
+handleEventCommon g (VtyEvent (V.EvKey V.KEsc        [])) = halt g
+handleEventCommon g (VtyEvent (V.EvKey V.KEnter      [])) = continue $ Game.done g
+handleEventCommon g (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ Game.done g
 handleEventCommon g _ = continue g
 
 toRawGate :: Gate -> RawCell
@@ -117,11 +119,10 @@ toRawTreasure t = fromMaybe mempty $ do
   (Goal t' _) <- t ^. Tile.goal
   c           <- Map.lookup t' treasureMap
   return
-    $  Cell
-    $  "         " ++
-       "         " ++
-       "    " ++ [c] ++ "    " ++
-       "         "
+    $  Cell $  "         " ++
+               "         " ++
+               "    " ++ [c] ++ "    " ++
+               "         "
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A' ..]
@@ -220,16 +221,15 @@ extract Empty     = replicate (9 * 4) ' '
 extract (Cell xs) = xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
-emptyBoard rows cols empty =
-  Map.fromList [ (V2 x y, empty) | x <- rows, y <- cols ]
+emptyBoard rows cols empty = Map.fromList [ (V2 x y, empty) | x <- rows, y <- cols ]
 
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap
   V.defAttr
-  [ ("Yellow" , V.white `on` V.yellow)
-  , ("Blue"   , V.white `on` V.blue)
-  , ("Green"  , V.white `on` V.green)
-  , ("Red"    , V.white `on` V.red)
+  [ ("Yellow", V.white `on` V.yellow)
+  , ("Blue"  , V.white `on` V.blue)
+  , ("Green" , V.white `on` V.green)
+  , ("Red"   , V.white `on` V.red)
   ]
 
 fromTile :: Tile -> Widget Name
@@ -308,4 +308,4 @@ toRows :: Int -> Int -> Map Position a -> [[(Position, a)]]
 toRows mn mx m = map (Map.toList . (`getRow` m)) [mn .. mx]
 
 getRow :: Int -> Map Position a -> Map Position a
-getRow r = Map.filterWithKey (\ p _ -> p ^. _x == r)
+getRow r = Map.filterWithKey (\p _ -> p ^. _x == r)

@@ -12,14 +12,12 @@ module Labyrinth.Game
   , tileAt
   , gates
   , phase
-  , rowMin
-  , rowMax
-  , colMin
-  , colMax
   , player
   , players
-  , rowSpread
-  , colSpread
+  , rows
+  , cols
+  , lastRow
+  , lastColumn
 
   -- State transitions
   , Phase(..)
@@ -34,7 +32,7 @@ module Labyrinth.Game
 where
 
 import           Control.Monad                  ( guard )
-import qualified Data.List                     as L
+import qualified Data.List.Extended            as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
@@ -68,10 +66,8 @@ data Game = Game
     , _tiles   :: Map Position Tile
     , _gates   :: Map Position Gate
     , _phase   :: Phase
-    , _rowMin  :: Int
-    , _rowMax  :: Int
-    , _colMin  :: Int
-    , _colMax  :: Int
+    , _rows    :: [Int]
+    , _cols    :: [Int]
     , _player  :: Player
     , _players :: Players
     } deriving (Show, Eq)
@@ -90,10 +86,8 @@ fromDescription gd = do
     , _gates   = Map.fromList $ gd ^. GD.gGates
     , _tiles   = Map.fromList tiles'
     , _phase   = Plan
-    , _rowMin  = gd ^. GD.gRowMin
-    , _rowMax  = gd ^. GD.gRowMax
-    , _colMin  = gd ^. GD.gColMin
-    , _colMax  = gd ^. GD.gColMax
+    , _rows    = GD.rows gd
+    , _cols    = GD.cols gd
     }
 
 --------------------------------------------------------------------------------
@@ -146,10 +140,19 @@ updateCurrentTilePosition g = g & tileAt .~ update (g ^. tileAt)
   update pos@(V2 r c) = fromMaybe pos $ do
     edge' <- edge (g ^. tileAt) g
     Just $ case edge' of
-      North -> V2 (g ^. rowMax) c
-      South -> V2 (g ^. rowMin) c
-      West  -> V2 r (g ^. colMax)
-      East  -> V2 r (g ^. colMin)
+      North -> V2 (lastRow g) c
+      South -> V2 0 c
+      West  -> V2 r (lastColumn  g)
+      East  -> V2 r 0
+
+lastColumn  :: Game -> Int
+lastColumn  = far cols
+
+lastRow :: Game -> Int
+lastRow = far rows
+
+far :: Lens' Game [Int] -> Game -> Int
+far l g = fromMaybe 0 $ L.safeLast $ g ^. l
 
 nextPhase :: Game -> Game
 nextPhase g = g & phase .~ nextPhase' (g ^. phase)
@@ -197,10 +200,10 @@ moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
   edge' <- edge (g ^. tileAt) g
   let V2 r c = g ^. tileAt
-      rMin   = g ^. rowMin
-      rMax   = g ^. rowMax
-      cMin   = g ^. colMin
-      cMax   = g ^. colMax
+      rMin   = 0
+      rMax   = lastRow g
+      cMin   = 0
+      cMax   = lastColumn  g
   Just $ case (edge', dir) of
     (North, East) ->
       [ V2 rMin i | i <- [c + 1 .. cMax] ]
@@ -293,21 +296,21 @@ step (V2 r c) South = V2 (r + 1) c
 
 edge :: Position -> Game -> Maybe Direction
 edge (V2 r c) g | --  because we don't care about corners
-                  r == c             = Nothing
-                | r == (g ^. rowMin) = Just North
-                | r == (g ^. rowMax) = Just South
-                | c == (g ^. colMin) = Just West
-                | c == (g ^. colMax) = Just East
-                | otherwise          = Nothing
+                  r == c        = Nothing
+                | r == 0        = Just North
+                | r == lastRow g = Just South
+                | c == 0        = Just West
+                | c == lastColumn  g = Just East
+                | otherwise     = Nothing
 
 oppositeEdge :: Position -> Game -> Maybe Position
 oppositeEdge pos@(V2 r c) g = do
   edge' <- edge pos g
   return $ case edge' of
-    North -> V2 (g ^. rowMax) c
-    South -> V2 (g ^. rowMin) c
-    East  -> V2 r (g ^. colMin)
-    West  -> V2 r (g ^. colMax)
+    North -> V2 (lastRow g) c
+    South -> V2 0 c
+    East  -> V2 r 0
+    West  -> V2 r (lastColumn  g)
 
 -- after refactoring this can be just a multiplication
 padding :: Position -> Game -> Maybe Position
@@ -318,15 +321,6 @@ padding p g = do
     South -> V2 (-1) 0
     East  -> V2 0 (-1)
     West  -> V2 0 1
-
-rowSpread :: Game -> [Int]
-rowSpread = spread rowMin rowMax
-
-colSpread :: Game -> [Int]
-colSpread = spread colMin colMax
-
-spread :: Lens' Game Int -> Lens' Game Int -> Game -> [Int]
-spread mn mx g = [(g ^. mn) .. (g ^. mx)]
 
 firstPlayer :: Players -> IO Player
 firstPlayer p = fromJust <$> Random.choose (P.toList p)
