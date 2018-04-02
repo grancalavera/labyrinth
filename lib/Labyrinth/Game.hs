@@ -130,8 +130,7 @@ teleportPlayer g =
  where
   f g' (from, p) = fromMaybe g' $ do
     op <- oppositeEdge from g'
-    pd <- padding op g'
-    let to = op + pd
+    to <- pad op g'
     return $ walk from to p g'
 
 updateCurrentTilePosition :: Game -> Game
@@ -142,11 +141,11 @@ updateCurrentTilePosition g = g & tileAt .~ update (g ^. tileAt)
     Just $ case edge' of
       North -> V2 (lastRow g) c
       South -> V2 0 c
-      West  -> V2 r (lastColumn  g)
+      West  -> V2 r (lastColumn g)
       East  -> V2 r 0
 
-lastColumn  :: Game -> Int
-lastColumn  = far cols
+lastColumn :: Game -> Int
+lastColumn = far cols
 
 lastRow :: Game -> Int
 lastRow = far rows
@@ -203,7 +202,7 @@ moves dir g = fromMaybe [] $ do
       rMin   = 0
       rMax   = lastRow g
       cMin   = 0
-      cMax   = lastColumn  g
+      cMax   = lastColumn g
   Just $ case (edge', dir) of
     (North, East) ->
       [ V2 rMin i | i <- [c + 1 .. cMax] ]
@@ -285,10 +284,17 @@ removePlayer p mt = do
   return $ t & T.players .~ filter (/= p) (t ^. T.players)
 
 step :: Position -> Direction -> Position
-step (V2 r c) East  = V2 r (c + 1)
-step (V2 r c) West  = V2 r (c - 1)
-step (V2 r c) North = V2 (r - 1) c
-step (V2 r c) South = V2 (r + 1) c
+step p d = p + case d of
+  East  -> east
+  West  -> west
+  North -> north
+  South -> south
+
+east, west, north, south :: Position
+east = V2 0 1
+west = V2 0 (-1)
+north = V2 (-1) 0
+south = V2 1 0
 
 --------------------------------------------------------------------------------
 -- etc
@@ -296,12 +302,12 @@ step (V2 r c) South = V2 (r + 1) c
 
 edge :: Position -> Game -> Maybe Direction
 edge (V2 r c) g | --  because we don't care about corners
-                  r == c        = Nothing
-                | r == 0        = Just North
-                | r == lastRow g = Just South
-                | c == 0        = Just West
-                | c == lastColumn  g = Just East
-                | otherwise     = Nothing
+                  r == c            = Nothing
+                | r == 0            = Just North
+                | r == lastRow g    = Just South
+                | c == 0            = Just West
+                | c == lastColumn g = Just East
+                | otherwise         = Nothing
 
 oppositeEdge :: Position -> Game -> Maybe Position
 oppositeEdge pos@(V2 r c) g = do
@@ -310,17 +316,16 @@ oppositeEdge pos@(V2 r c) g = do
     North -> V2 (lastRow g) c
     South -> V2 0 c
     East  -> V2 r 0
-    West  -> V2 r (lastColumn  g)
+    West  -> V2 r (lastColumn g)
 
--- after refactoring this can be just a multiplication
-padding :: Position -> Game -> Maybe Position
-padding p g = do
+pad :: Position -> Game -> Maybe Position
+pad p g = do
   edge' <- edge p g
-  return $ case edge' of
-    North -> V2 1 0
-    South -> V2 (-1) 0
-    East  -> V2 0 (-1)
-    West  -> V2 0 1
+  return $ p + case edge' of
+    North -> south
+    South -> north
+    East  -> west
+    West  -> east
 
 firstPlayer :: Players -> IO Player
 firstPlayer p = fromJust <$> Random.choose (P.toList p)
