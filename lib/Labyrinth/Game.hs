@@ -40,6 +40,7 @@ import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
+import           Linear.V2                      ( V2(..) )
 import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
@@ -56,8 +57,6 @@ import qualified Labyrinth.Tile                as T
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 , (^.)
-                                                , _1
-                                                , _2
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 import           Lens.Micro.Type                ( Lens' )
@@ -80,13 +79,12 @@ makeLenses ''Game
 
 fromDescription :: DGame -> IO Game
 fromDescription gd = do
-  let startPosition = (0, 2)
 
   player' <- firstPlayer (gd ^. GD.gPlayers)
   tiles'  <- GD.mkTiles gd
 
   return Game
-    { _tileAt  = startPosition
+    { _tileAt  = gd ^. GD.gStartPosition
     , _player  = player'
     , _players = gd ^. GD.gPlayers
     , _gates   = Map.fromList $ gd ^. GD.gGates
@@ -120,14 +118,14 @@ done g = case g ^. phase of
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
  where
-  (cr, cc) = g ^. tileAt
-  slide pos@(r, c) = fromMaybe pos $ do
+  V2 cr cc = g ^. tileAt
+  slide pos@(V2 r c) = fromMaybe pos $ do
     edge' <- edge (g ^. tileAt) g
     Just $ case edge' of
-      North -> if c == cc then (r + 1, c) else pos
-      South -> if c == cc then (r - 1, c) else pos
-      West  -> if r == cr then (r, c + 1) else pos
-      East  -> if r == cr then (r, c - 1) else pos
+      North -> if c == cc then V2 (r + 1) c else pos
+      South -> if c == cc then V2 (r - 1) c else pos
+      West  -> if r == cr then V2 r (c + 1) else pos
+      East  -> if r == cr then V2 r (c - 1) else pos
 
 teleportPlayer :: Game -> Game
 teleportPlayer g =
@@ -139,20 +137,19 @@ teleportPlayer g =
   f g' (from, p) = fromMaybe g' $ do
     op <- oppositeEdge from g'
     pd <- padding op g'
-    -- TODO: refactor to use Linear.V2
-    let to = (op ^. _1 + pd ^. _1, op ^. _2 + pd ^. _2)
+    let to = op + pd
     return $ walk from to p g'
 
 updateCurrentTilePosition :: Game -> Game
 updateCurrentTilePosition g = g & tileAt .~ update (g ^. tileAt)
  where
-  update pos@(r, c) = fromMaybe pos $ do
+  update pos@(V2 r c) = fromMaybe pos $ do
     edge' <- edge (g ^. tileAt) g
     Just $ case edge' of
-      North -> (g ^. rowMax, c)
-      South -> (g ^. rowMin, c)
-      West  -> (r, g ^. colMax)
-      East  -> (r, g ^. colMin)
+      North -> V2 (g ^. rowMax) c
+      South -> V2 (g ^. rowMin) c
+      West  -> V2 r (g ^. colMax)
+      East  -> V2 r (g ^. colMin)
 
 nextPhase :: Game -> Game
 nextPhase g = g & phase .~ nextPhase' (g ^. phase)
@@ -198,50 +195,49 @@ fromMoves (newP : ps) g = fromMaybe (fromMoves ps g) $ do
 
 moves :: Direction -> Game -> [Position]
 moves dir g = fromMaybe [] $ do
-  e <- edge (g ^. tileAt) g
-  let (r, c) = g ^. tileAt
+  edge' <- edge (g ^. tileAt) g
+  let V2 r c = g ^. tileAt
       rMin   = g ^. rowMin
       rMax   = g ^. rowMax
       cMin   = g ^. colMin
       cMax   = g ^. colMax
-
-  Just $ case (e, dir) of
+  Just $ case (edge', dir) of
     (North, East) ->
-      [ (rMin, i) | i <- [c + 1 .. cMax] ]
-        `L.union` [ (i, cMax) | i <- [rMin .. rMax] ]
+      [ V2 rMin i | i <- [c + 1 .. cMax] ]
+        `L.union` [ V2 i cMax | i <- [rMin .. rMax] ]
 
     (North, West) ->
-      [ (rMin, i) | i <- reverse [cMin .. c - 1] ]
-        `L.union` [ (i, cMin) | i <- [rMin .. rMax] ]
+      [ V2 rMin i | i <- reverse [cMin .. c - 1] ]
+        `L.union` [ V2 i cMin | i <- [rMin .. rMax] ]
 
     (South, East) ->
-      [ (rMax, i) | i <- [c + 1 .. cMax] ]
-        `L.union` [ (i, cMax) | i <- reverse [rMin .. rMax] ]
+      [ V2 rMax i | i <- [c + 1 .. cMax] ]
+        `L.union` [ V2 i cMax | i <- reverse [rMin .. rMax] ]
 
     (South, West) ->
-      [ (rMax, i) | i <- reverse [cMin .. c - 1] ]
-        `L.union` [ (i, cMin) | i <- reverse [rMin .. rMax] ]
+      [ V2 rMax i | i <- reverse [cMin .. c - 1] ]
+        `L.union` [ V2 i cMin | i <- reverse [rMin .. rMax] ]
 
     (West, North) ->
-      [ (i, cMin) | i <- reverse [rMin .. r - 1] ]
-        `L.union` [ (rMin, i) | i <- [cMin .. cMax] ]
+      [ V2 i cMin | i <- reverse [rMin .. r - 1] ]
+        `L.union` [ V2 rMin i | i <- [cMin .. cMax] ]
 
     (West, South) ->
-      [ (i, cMin) | i <- [r + 1 .. rMax] ]
-        `L.union` [ (rMax, i) | i <- [cMin .. cMax] ]
+      [ V2 i cMin | i <- [r + 1 .. rMax] ]
+        `L.union` [ V2 rMax i | i <- [cMin .. cMax] ]
 
     (East, North) ->
-      [ (i, cMax) | i <- reverse [rMin .. r - 1] ]
-        `L.union` [ (rMin, i) | i <- reverse [cMin .. cMax] ]
+      [ V2 i cMax | i <- reverse [rMin .. r - 1] ]
+        `L.union` [ V2 rMin i | i <- reverse [cMin .. cMax] ]
 
     (East, South) ->
-      [ (i, cMax) | i <- [r + 1 .. rMax] ]
-        `L.union` [ (rMax, i) | i <- reverse [cMin .. cMax] ]
+      [ V2 i cMax | i <- [r + 1 .. rMax] ]
+        `L.union` [ V2 rMax i | i <- reverse [cMin .. cMax] ]
 
-    (North, South) -> [ (i, c) | i <- [r + 1 .. rMax] ]
-    (West , East ) -> [ (r, i) | i <- [c + 1 .. cMax] ]
-    (South, North) -> [ (i, c) | i <- reverse [rMin .. r - 1] ]
-    (East , West ) -> [ (r, i) | i <- reverse [cMin .. c - 1] ]
+    (North, South) -> [ V2 i c | i <- [r + 1 .. rMax] ]
+    (West , East ) -> [ V2 r i | i <- [c + 1 .. cMax] ]
+    (South, North) -> [ V2 i c | i <- reverse [rMin .. r - 1] ]
+    (East , West ) -> [ V2 r i | i <- reverse [cMin .. c - 1] ]
     _              -> [] --  ¯\_(ツ)_/¯
 
 --------------------------------------------------------------------------------
@@ -272,9 +268,7 @@ walk :: Position -> Position -> Player -> Game -> Game
 walk from to player' g =
   g
     &  tiles
-    .~ ( Map.alter (removePlayer player') from
-       . Map.alter (insertPlayer player') to
-       )
+    .~ (Map.alter (removePlayer player') from . Map.alter (insertPlayer player') to)
          (g ^. tiles)
 
 insertPlayer :: Player -> Maybe Tile -> Maybe Tile
@@ -288,41 +282,42 @@ removePlayer p mt = do
   return $ t & T.players .~ filter (/= p) (t ^. T.players)
 
 step :: Position -> Direction -> Position
-step (r, c) East  = (r, c + 1)
-step (r, c) West  = (r, c - 1)
-step (r, c) North = (r - 1, c)
-step (r, c) South = (r + 1, c)
+step (V2 r c) East  = V2 r (c + 1)
+step (V2 r c) West  = V2 r (c - 1)
+step (V2 r c) North = V2 (r - 1) c
+step (V2 r c) South = V2 (r + 1) c
 
 --------------------------------------------------------------------------------
 -- etc
 --------------------------------------------------------------------------------
 
 edge :: Position -> Game -> Maybe Direction
-edge (r, c) g | --  because we don't care about corners
-                r == c             = Nothing
-              | r == (g ^. rowMin) = Just North
-              | r == (g ^. rowMax) = Just South
-              | c == (g ^. colMin) = Just West
-              | c == (g ^. colMax) = Just East
-              | otherwise          = Nothing
+edge (V2 r c) g | --  because we don't care about corners
+                  r == c             = Nothing
+                | r == (g ^. rowMin) = Just North
+                | r == (g ^. rowMax) = Just South
+                | c == (g ^. colMin) = Just West
+                | c == (g ^. colMax) = Just East
+                | otherwise          = Nothing
 
 oppositeEdge :: Position -> Game -> Maybe Position
-oppositeEdge p@(r, c) g = do
-  edge' <- edge p g
+oppositeEdge pos@(V2 r c) g = do
+  edge' <- edge pos g
   return $ case edge' of
-    North -> (g ^. rowMax, c)
-    South -> (g ^. rowMin, c)
-    East  -> (r, g ^. colMin)
-    West  -> (r, g ^. colMax)
+    North -> V2 (g ^. rowMax) c
+    South -> V2 (g ^. rowMin) c
+    East  -> V2 r (g ^. colMin)
+    West  -> V2 r (g ^. colMax)
 
+-- after refactoring this can be just a multiplication
 padding :: Position -> Game -> Maybe Position
 padding p g = do
   edge' <- edge p g
   return $ case edge' of
-    North -> (1, 0)
-    South -> (-1, 0)
-    East  -> (0, -1)
-    West  -> (0, 1)
+    North -> V2 1 0
+    South -> V2 (-1) 0
+    East  -> V2 0 (-1)
+    West  -> V2 0 1
 
 rowSpread :: Game -> [Int]
 rowSpread = spread rowMin rowMax

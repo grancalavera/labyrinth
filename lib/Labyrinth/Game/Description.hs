@@ -29,6 +29,7 @@ import           Data.Maybe                     ( fromJust
                                                 , isJust
                                                 , fromMaybe
                                                 )
+import           Linear.V2                      ( V2(..) )
 import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
@@ -97,12 +98,11 @@ unknownPositions :: DGame -> [Position]
 unknownPositions description = filter (not . (`elem` known))
                                       (derivePositions description)
  where
-  known =
-    map fromJust $ filter isJust $ map (^. tPosition) (description ^. gTiles)
+  known = map fromJust $ filter isJust $ map (^. tPosition) (description ^. gTiles)
 
 derivePositions :: DGame -> [Position]
 derivePositions description =
-  [description ^. gStartPosition] `L.union` [ (x, y) | x <- xs, y <- ys ]
+  [description ^. gStartPosition] `L.union` [ V2 x y | x <- xs, y <- ys ]
  where
   xs = [(description ^. gColMin + 1) .. (description ^. gColMax - 1)]
   ys = [(description ^. gRowMin + 1) .. (description ^. gRowMax - 1)]
@@ -134,7 +134,7 @@ getPosition tileDesc = case tileDesc ^. tPosition of
   _             -> do
     env <- get
     case env ^. ePositions of
-      []       -> return (-1, -1) -- something went wrong, we should have enough
+      []       -> return $ pure (-1) -- something went wrong, we should have enough
       (x : xs) -> put (env & ePositions .~ xs) >> return x
 
 getDirection :: DTile -> Eval Direction

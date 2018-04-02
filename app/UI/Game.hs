@@ -29,6 +29,7 @@ import           Data.Maybe                     ( fromMaybe )
 import           Data.Monoid                    ( (<>) )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
+import           Linear.V2                      ( V2(..), _x )
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
 import qualified Labyrinth.Goal                as Goal
@@ -220,7 +221,7 @@ extract (Cell xs) = xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
 emptyBoard rows cols empty =
-  Map.fromList [ ((x, y), empty) | x <- rows, y <- cols ]
+  Map.fromList [ (V2 x y, empty) | x <- rows, y <- cols ]
 
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap
@@ -307,4 +308,4 @@ toRows :: Int -> Int -> Map Position a -> [[(Position, a)]]
 toRows mn mx m = map (Map.toList . (`getRow` m)) [mn .. mx]
 
 getRow :: Int -> Map Position a -> Map Position a
-getRow r = Map.filterWithKey (curry $ (== r) . fst . fst)
+getRow r = Map.filterWithKey (\ p _ -> p ^. _x == r)

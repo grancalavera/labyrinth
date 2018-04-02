@@ -46,6 +46,7 @@ executables:
     - brick
     - containers
     - labyrinth
+    - linear
     - microlens
     - microlens-th
     - text
