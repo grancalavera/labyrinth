@@ -313,10 +313,10 @@ oppositeEdge :: Position -> Game -> Maybe Position
 oppositeEdge pos@(V2 r c) g = do
   edge' <- edge pos g
   return $ case edge' of
-    North -> V2 (lastRow g) c
+    North -> V2 (lastColumn g) c
     South -> V2 0 c
     East  -> V2 r 0
-    West  -> V2 r (lastColumn g)
+    West  -> V2 r (lastRow g)
 
 pad :: Position -> Game -> Maybe Position
 pad p g = do
@@ -338,3 +338,4 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = fst <$> Map.lookup c (playerMap g)
+
