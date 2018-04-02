@@ -112,14 +112,17 @@ done g = case g ^. phase of
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
  where
-  V2 cr cc = g ^. tileAt
-  slide pos@(V2 r c) = fromMaybe pos $ do
-    edge' <- edge (g ^. tileAt) g
+  tilePos = g ^. tileAt
+  sameR = sameRow tilePos
+  sameC = sameColumn tilePos
+
+  slide p = fromMaybe p $ do
+    edge' <- edge tilePos g
     Just $ case edge' of
-      North -> if c == cc then V2 (r + 1) c else pos
-      South -> if c == cc then V2 (r - 1) c else pos
-      West  -> if r == cr then V2 r (c + 1) else pos
-      East  -> if r == cr then V2 r (c - 1) else pos
+      North -> if sameC p then nudgeSouth p else p
+      West  -> if sameR p then nudgeEast p else p
+      South -> if sameC p then nudgeNorth p else p
+      East  -> if sameR p then nudgeWest p else p
 
 teleportPlayer :: Game -> Game
 teleportPlayer g =
@@ -140,8 +143,8 @@ updateCurrentTilePosition g = g & tileAt .~ update (g ^. tileAt)
     edge' <- edge (g ^. tileAt) g
     Just $ case edge' of
       North -> V2 (lastRow g) c
-      South -> V2 0 c
       West  -> V2 r (lastColumn g)
+      South -> V2 0 c
       East  -> V2 r 0
 
 lastColumn :: Game -> Int
@@ -252,7 +255,7 @@ movePlayer d g = fromMaybe g $ do
       tiles'  = g ^. tiles
 
   fromP <- playerPosition g (player' ^. P.color)
-  let toP = step fromP d
+  let toP = nudge d fromP
 
   fromT <- Map.lookup fromP tiles'
   toT   <- Map.lookup toP tiles'
@@ -283,22 +286,28 @@ removePlayer p mt = do
   t <- mt
   return $ t & T.players .~ filter (/= p) (t ^. T.players)
 
-step :: Position -> Direction -> Position
-step p d = p + case d of
-  East  -> east
-  West  -> west
-  North -> north
-  South -> south
-
-east, west, north, south :: Position
-east = V2 0 1
-west = V2 0 (-1)
-north = V2 (-1) 0
-south = V2 1 0
-
 --------------------------------------------------------------------------------
 -- etc
 --------------------------------------------------------------------------------
+
+nudge :: Direction -> Position -> Position
+nudge d = (nudge' +)
+ where
+  nudge' = case d of
+    North -> V2 (-1) 0
+    West -> V2 0 (-1)
+    South -> V2 1 0
+    East -> V2 0 1
+
+nudgeNorth, nudgeWest, nudgeSouth, nudgeEast :: Position -> Position
+nudgeNorth = nudge North
+nudgeWest = nudge West
+nudgeSouth = nudge South
+nudgeEast = nudge East
+
+sameRow, sameColumn :: Position -> Position -> Bool
+sameRow (V2 r _) (V2 r' _) = r == r'
+sameColumn (V2 _ c) (V2 _ c') = c == c'
 
 edge :: Position -> Game -> Maybe Direction
 edge (V2 r c) g | --  because we don't care about corners
@@ -314,18 +323,18 @@ oppositeEdge pos@(V2 r c) g = do
   edge' <- edge pos g
   return $ case edge' of
     North -> V2 (lastColumn g) c
+    West  -> V2 r (lastRow g)
     South -> V2 0 c
     East  -> V2 r 0
-    West  -> V2 r (lastRow g)
 
 pad :: Position -> Game -> Maybe Position
 pad p g = do
   edge' <- edge p g
-  return $ p + case edge' of
-    North -> south
-    South -> north
-    East  -> west
-    West  -> east
+  return $ ($ p) $ case edge' of
+    North -> nudgeSouth
+    West  -> nudgeEast
+    South -> nudgeNorth
+    East  -> nudgeWest
 
 firstPlayer :: Players -> IO Player
 firstPlayer p = fromJust <$> Random.choose (P.toList p)
@@ -338,4 +347,3 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = fst <$> Map.lookup c (playerMap g)
-
