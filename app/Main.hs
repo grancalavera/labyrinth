@@ -15,7 +15,37 @@ import           UI.Players                     ( addPlayers )
 import           UI.Game                        ( playGame )
 
 main :: IO ()
-main = addPlayers >>= fastGame >>= playGame
+main = addPlayers >>= testGame >>= playGame
+
+testGame :: Players -> IO Game
+testGame players = do
+  let startPosition = (0, 2)
+  Labyrinth.gameFromDescription DGame
+    { _gPlayers       = players
+    , _gStartPosition = startPosition
+    , _gTreasures     = []
+    , _gRowMin        = 0
+    , _gRowMax        = 5
+    , _gColMin        = 0
+    , _gColMax        = 4
+    , _gGates         = []
+    , _gTiles         = [ DTile Path   (Just (1, 1)) (Just North) False (Just Yellow)
+                        , DTile Corner (Just (1, 2)) (Just North) False Nothing
+                        , DTile Fork   (Just (1, 3)) (Just North) False Nothing
+
+                        , DTile Path   (Just (2, 1)) (Just North) False (Just Red)
+                        , DTile Corner (Just (2, 2)) (Just North) False Nothing
+                        , DTile Fork   (Just (2, 3)) (Just North) False Nothing
+
+                        , DTile Path   (Just (3, 1)) (Just North) False (Just Blue)
+                        , DTile Corner (Just (3, 2)) (Just North) False Nothing
+                        , DTile Fork   (Just (3, 3)) (Just North) False Nothing
+
+                        , DTile Path   (Just (4, 1)) (Just North) False (Just Green)
+                        , DTile Corner (Just (4, 2)) (Just North) False Nothing
+                        , DTile Fork   (Just (4, 3)) (Just North) False Nothing
+                        ]
+    }
 
 fastGame :: Players -> IO Game
 fastGame players = do
