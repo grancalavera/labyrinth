@@ -38,6 +38,7 @@ import qualified Labyrinth.Game                as Game
 import qualified Labyrinth.Goal                as Goal
 import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
+import qualified UI.Graphics                   as Graphics
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
@@ -55,11 +56,11 @@ app = App
   }
 
 drawUI :: Game -> [Widget Name]
-drawUI g =
-  [ C.vCenter $ C.hCenter $ B.border $ Brick.vBox $ map
-      (Brick.hBox . map snd)
-      (toRows 0 (Game.lastRow g) board')
-  ]
+drawUI g = [C.vCenter $ C.hCenter $ B.border $ board g]
+
+
+board :: Game -> Widget Name
+board g = Brick.vBox $ map (Brick.hBox . map snd) (toRows 0 (Game.lastRow g) board')
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
@@ -93,23 +94,7 @@ handleEventCommon g _ = continue g
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
-toRawGate (Gate d _    ) = Cell $ case d of
-  North -> "         " ++
-           "   ▲ ▲   " ++
-           "         " ++
-           "         "
-  West  -> "         " ++
-           "   ◄     " ++
-           "   ◄     " ++
-           "         "
-  South -> "         " ++
-           "         " ++
-           "   ▼ ▼   " ++
-           "         "
-  East  -> "         " ++
-           "     ►   " ++
-           "     ►   " ++
-           "         "
+toRawGate (Gate d _    ) = Cell $ Graphics.gate d
 
 toRawTile :: Tile -> RawCell
 toRawTile t = mempty <> toRawFound t <> toRawTreasure t <> toRawTerrain t
@@ -118,11 +103,7 @@ toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
   (Goal t' _) <- t ^. Tile.goal
   c           <- Map.lookup t' treasureMap
-  return
-    $  Cell $  "         " ++
-               "         " ++
-               "    " ++ [c] ++ "    " ++
-               "         "
+  return $ Cell $ Graphics.treasure c
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A' ..]
@@ -131,61 +112,10 @@ toRawFound :: Tile -> RawCell
 toRawFound t = fromMaybe mempty $ do
   (Goal _ isFound) <- t ^. Tile.goal
   guard isFound
-  return $ Cell $ "         " ++
-                  "         " ++
-                  "    ✓    " ++
-                  "         "
+  return $ Cell $ Graphics.treasure '✓'
 
 toRawTerrain :: Tile -> RawCell
-toRawTerrain t = Cell $ case (t ^. Tile.terrain, t ^. Tile.direction) of
-  (Path  , North) -> " │     │ " ++
-                     " │     │ " ++
-                     " │     │ " ++
-                     " │     │ "
-  (Path  , West ) -> "─────────" ++
-                     "         " ++
-                     "         " ++
-                     "─────────"
-  (Path  , South) -> " │     │ " ++
-                     " │     │ " ++
-                     " │     │ " ++
-                     " │     │ "
-  (Path  , East ) -> "─────────" ++
-                     "         " ++
-                     "         " ++
-                     "─────────"
-  (Corner, North) -> "─┘     │ " ++
-                     "       │ " ++
-                     "       │ " ++
-                     "───────┘ "
-  (Corner, West ) -> "───────┐ " ++
-                     "       │ " ++
-                     "       │ " ++
-                     "─┐     │ "
-  (Corner, South) -> " ┌───────" ++
-                     " │       " ++
-                     " │       " ++
-                     " │     ┌─"
-  (Corner, East ) -> " │     └─" ++
-                     " │       " ++
-                     " │       " ++
-                     " └───────"
-  (Fork  , North) -> "─┘     └─" ++
-                     "         " ++
-                     "         " ++
-                     "─────────"
-  (Fork  , West ) -> "─┘     │ " ++
-                     "       │ " ++
-                     "       │ " ++
-                     "─┐     │ "
-  (Fork  , South) -> "─────────" ++
-                     "         " ++
-                     "         " ++
-                     "─┐     ┌─"
-  (Fork  , East ) -> " │     └─" ++
-                     " │       " ++
-                     " │       " ++
-                     " │     ┌─"
+toRawTerrain t = Cell $ Graphics.tile (t ^. Tile.terrain) (t ^. Tile.direction)
 
 data RawCell = Cell String | Empty
 
