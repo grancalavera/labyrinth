@@ -33,6 +33,7 @@ import           Graphics.Vty.Input.Events      ( Modifier(..) )
 import           Linear.V2                      ( V2(..)
                                                 , _x
                                                 )
+import qualified Data.Text                     as T
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
 import qualified Labyrinth.Goal                as Goal
@@ -56,11 +57,27 @@ app = App
   }
 
 drawUI :: Game -> [Widget Name]
-drawUI g = [C.vCenter $ C.hCenter $ B.border $ board g]
+drawUI g = [C.vCenter $ C.hCenter $ Brick.vBox [player g, board g]]
 
+player :: Game -> Widget Name
+player g =
+  Brick.withAttr c
+    $  Brick.vLimit 1
+    $  Brick.hLimit ((length (g ^. Game.cols) * 9) +  2)
+    $  C.vCenter
+    $  C.hCenter
+    $  Brick.str
+    $  T.unpack
+    $  p
+    ^. Players.name
+ where
+  p = g ^. Game.player
+  c = Brick.attrName $ show $ p ^. Players.color
 
 board :: Game -> Widget Name
-board g = Brick.vBox $ map (Brick.hBox . map snd) (toRows 0 (Game.lastRow g) board')
+board g = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
+  (Brick.hBox . map snd)
+  (toRows 0 (Game.lastRow g) board')
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
@@ -156,10 +173,10 @@ emptyBoard rows cols empty = Map.fromList [ (V2 x y, empty) | x <- rows, y <- co
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap
   V.defAttr
-  [ ("Yellow", V.white `on` V.yellow)
-  , ("Blue"  , V.white `on` V.blue)
-  , ("Green" , V.white `on` V.green)
-  , ("Red"   , V.white `on` V.red)
+  [ ("Yellow", V.black `on` V.yellow)
+  , ("Blue"  , V.black `on` V.blue)
+  , ("Green" , V.black `on` V.green)
+  , ("Red"   , V.black `on` V.red)
   ]
 
 fromTile :: Tile -> Widget Name
