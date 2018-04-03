@@ -13,6 +13,7 @@ module Labyrinth
   , Tile
   , Treasure(..)
   , gameFromDescription
+  , treasures
   )
 where
 
@@ -25,6 +26,7 @@ import           Labyrinth.Game.Description     ( DGame(..)
                                                 , DTile(..)
                                                 )
 import           Labyrinth.Gate                 ( Gate(..) )
+import qualified Labyrinth.Goal                as Goal
 import           Labyrinth.Goal                 ( Goal(..)
                                                 , Treasure(..)
                                                 )
@@ -38,3 +40,6 @@ import           Labyrinth.Tile                 ( Terrain(..)
 
 gameFromDescription :: DGame -> IO Game
 gameFromDescription = Game.fromDescription
+
+treasures :: [Treasure]
+treasures = Goal.treasures

@@ -1,10 +1,7 @@
 module Labyrinth.Position
-  ( Row
-  , Col
-  , Position
+  ( Position
   )
 where
+import           Linear.V2                      ( V2 )
 
-type Row      = Int
-type Col      = Int
-type Position = (Row, Col)
+type Position = V2 Int

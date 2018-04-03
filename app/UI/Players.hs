@@ -47,7 +47,7 @@ data Name = P1Field
           deriving (Eq, Ord, Show)
 
 addPlayers :: IO Players
-addPlayers = addPlayers' PlayersInfo {_p1 = "", _p2 = "", _p3 = "", _p4 = ""}
+addPlayers = addPlayers' PlayersInfo {_p1 = "a", _p2 = "b", _p3 = "c", _p4 = "d"}
 
 addPlayers' :: PlayersInfo -> IO Players
 addPlayers' initialState = do

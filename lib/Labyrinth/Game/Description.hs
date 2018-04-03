@@ -1,18 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Game.Description
-  ( mkTiles
-  , DTile(..)
+  ( DTile(..)
   , DGame(..)
   , gTiles
   , gGates
-  , gPositions
   , gPlayers
   , gStartPosition
-  , gRowMin
-  , gRowMax
-  , gColMin
-  , gColMax
+  , gRows
+  , gCols
+  , gTreasures
+  , mkTiles
+  , rows
+  , cols
   )
 where
 
@@ -23,17 +23,20 @@ import           Control.Monad.State            ( StateT
                                                 , liftIO
                                                 , put
                                                 )
+import qualified Data.List.Extended            as L
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
                                                 , isJust
                                                 , fromMaybe
                                                 )
+import           Linear.V2                      ( V2(..) )
 import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Goal                 ( Goal(..) )
-import qualified Labyrinth.Goal                as Goal
+import           Labyrinth.Goal                 ( Goal(..)
+                                                , Treasure
+                                                )
 import           Labyrinth.Players              ( Color(..)
                                                 , Player
                                                 , Players
@@ -68,43 +71,40 @@ makeLenses ''DTile
 data DGame = DGame
   { _gTiles         :: [DTile]
   , _gGates         :: [(Position, Gate)]
-  , _gPositions     :: [Position]
   , _gPlayers       :: Players
   , _gStartPosition :: Position
-  , _gRowMin        :: Int
-  , _gRowMax        :: Int
-  , _gColMin        :: Int
-  , _gColMax        :: Int
+  , _gRows          :: Int
+  , _gCols          :: Int
+  , _gTreasures     :: [Treasure]
   } deriving (Show)
 makeLenses ''DGame
 
 type Eval a = StateT Env IO a
 
 mkEnv :: DGame -> IO Env
-mkEnv boardDesc = do
-  positions <- Random.shuffle $ unknownPositions boardDesc
-  goals     <- Random.shuffle $ map (`Goal` False) Goal.treasures
+mkEnv d = do
+  positions <- Random.shuffle $ unknownPositions d
+  goals     <- Random.shuffle $ map (`Goal` False) (d ^. gTreasures)
 
-  return Env
-    { _ePositions = positions
-    , _eGoals     = goals
-    , _ePlayers   = boardDesc ^. gPlayers
-    }
+  return Env {_ePositions = positions, _eGoals = goals, _ePlayers = d ^. gPlayers}
 
 unknownPositions :: DGame -> [Position]
-unknownPositions boardDesc = filter (not . (`elem` known)) ps
- where
-  ps = boardDesc ^. gPositions
-  known =
-    map fromJust $ filter isJust $ map (^. tPosition) (boardDesc ^. gTiles)
+unknownPositions d = filter (not . (`elem` known)) (derivePositions d)
+  where known = map fromJust $ filter isJust $ map (^. tPosition) (d ^. gTiles)
+
+derivePositions :: DGame -> [Position]
+derivePositions d = fromMaybe [] $ do
+  xs <- L.middle $ rows d
+  ys <- L.middle $ cols d
+  Just $ [d ^. gStartPosition] `L.union` [ V2 x y | x <- xs, y <- ys ]
 
 mkTiles :: DGame -> IO [(Position, Tile)]
-mkTiles boardDesc = do
-  env <- mkEnv boardDesc
-  evalStateT (eval boardDesc) env
+mkTiles d = do
+  env <- mkEnv d
+  evalStateT (eval d) env
 
 eval :: DGame -> Eval [(Position, Tile)]
-eval boardDesc = forM (boardDesc ^. gTiles) $ \tileDesc -> do
+eval d = forM (d ^. gTiles) $ \tileDesc -> do
   position  <- getPosition tileDesc
   direction <- getDirection tileDesc
   goal      <- getGoal tileDesc
@@ -125,7 +125,7 @@ getPosition tileDesc = case tileDesc ^. tPosition of
   _             -> do
     env <- get
     case env ^. ePositions of
-      []       -> return (-1, -1) -- something went wrong, we should have enough
+      []       -> return $ pure (-1) -- something went wrong, we should have enough
       (x : xs) -> put (env & ePositions .~ xs) >> return x
 
 getDirection :: DTile -> Eval Direction
@@ -148,3 +148,9 @@ getPlayer tileDesc = do
   return $ fromMaybe [] $ do
     color <- tileDesc ^. tPlayer
     (: []) <$> Map.lookup color (Players.toMap (env ^. ePlayers))
+
+rows :: DGame -> [Int]
+rows d = [0 .. (d ^. gRows - 1)]
+
+cols :: DGame -> [Int]
+cols d = [0 .. (d ^. gCols - 1)]

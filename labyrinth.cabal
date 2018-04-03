@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 488924d66a917abec72188933b0d2380c5c1762d896cf9a726d4f1b027bb7544
+-- hash: 7db213f2cb4642e68dfa983d8603cd1e8f429af806a1fd0065855f8d05e373e6
 
 name:           labyrinth
 version:        0.1.0.0
@@ -63,6 +63,7 @@ executable labyrinth
     , brick
     , containers
     , labyrinth
+    , linear
     , microlens
     , microlens-th
     , text
