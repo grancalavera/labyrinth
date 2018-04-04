@@ -45,6 +45,8 @@ import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
+import           Labyrinth.Goal                 ( Treasure )
+import qualified Labyrinth.Players             as Players
 import           Labyrinth.Players              ( Color(..)
                                                 , Player
                                                 , Players
@@ -76,19 +78,29 @@ makeLenses ''Game
 fromDescription :: DGame -> IO Game
 fromDescription gd = do
 
+  treasures <- Random.shuffle (gd ^. GD.gTreasures)
+  let gd' = gd & GD.gPlayers .~ addTreasures treasures (gd ^. GD.gPlayers)
+
   player' <- firstPlayer (gd ^. GD.gPlayers)
   tiles'  <- GD.mkTiles gd
 
   return Game
-    { _tileAt  = gd ^. GD.gStartPosition
+    { _tileAt  = gd' ^. GD.gStartPosition
     , _player  = player'
-    , _players = gd ^. GD.gPlayers
-    , _gates   = Map.fromList $ gd ^. GD.gGates
+    , _players = gd' ^. GD.gPlayers
+    , _gates   = Map.fromList $ gd' ^. GD.gGates
     , _tiles   = Map.fromList tiles'
     , _phase   = Plan
-    , _rows    = GD.rows gd
-    , _cols    = GD.cols gd
+    , _rows    = GD.rows gd'
+    , _cols    = GD.cols gd'
     }
+
+addTreasures :: [Treasure] -> Players -> Players
+addTreasures ts ps = fromJust . Players.fromList $ zipWith
+  (\t p -> p & Players.treasures .~ t)
+  (L.splitEvery (length ts `div` length ps') ts)
+  ps'
+  where ps' = Players.toList ps
 
 --------------------------------------------------------------------------------
 -- state transitions
@@ -113,8 +125,8 @@ slideTile :: Game -> Game
 slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
  where
   tilePos = g ^. tileAt
-  sameR = sameRow tilePos
-  sameC = sameColumn tilePos
+  sameR   = sameRow tilePos
+  sameC   = sameColumn tilePos
 
   slide p = fromMaybe p $ do
     edge' <- edge tilePos g
@@ -295,9 +307,9 @@ nudge d = (nudge' +)
  where
   nudge' = case d of
     North -> V2 (-1) 0
-    West -> V2 0 (-1)
+    West  -> V2 0 (-1)
     South -> V2 1 0
-    East -> V2 0 1
+    East  -> V2 0 1
 
 nudgeNorth, nudgeWest, nudgeSouth, nudgeEast :: Position -> Position
 nudgeNorth = nudge North
