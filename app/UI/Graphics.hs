@@ -2,11 +2,19 @@ module UI.Graphics
   ( gate
   , tile
   , treasure
+  , width
+  , height
   )
 where
 
 import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Tile                 ( Terrain(..) )
+
+width :: Int
+width = 9
+
+height :: Int
+height = 4
 
 gate :: Direction -> String
 gate North = "         " ++

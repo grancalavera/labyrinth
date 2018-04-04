@@ -63,7 +63,7 @@ player :: Game -> Widget Name
 player g =
   Brick.withAttr c
     $  Brick.vLimit 1
-    $  Brick.hLimit ((length (g ^. Game.cols) * 9) +  2)
+    $  Brick.hLimit ((length (g ^. Game.cols) * Graphics.width) + 2)
     $  C.vCenter
     $  C.hCenter
     $  Brick.str
@@ -149,22 +149,22 @@ choose c   ' ' = c
 choose c   _   = c
 
 widget2p :: String -> Widget Name
-widget2p = toWidget 9
+widget2p = toWidget Graphics.width
 
 widget3p :: String -> Widget Name
 widget3p = toWidget 3
 
 widget4p :: String -> Widget Name
-widget4p = toWidget 9
+widget4p = toWidget Graphics.width
 
 toWidget :: Int -> String -> Widget Name
 toWidget cols raw = Brick.str $ L.intercalate "\n" $ L.splitEvery cols raw
 
 fromRaw :: RawCell -> Widget Name
-fromRaw = toWidget 9 . extract
+fromRaw = toWidget Graphics.width . extract
 
 extract :: RawCell -> String
-extract Empty     = replicate (9 * 4) ' '
+extract Empty     = replicate (Graphics.width * Graphics.height) ' '
 extract (Cell xs) = xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
@@ -232,10 +232,8 @@ threePlayers xs =
       ([], [], [])
     $ zip [0 ..] xs
  where
-  cols  = 9
+  group i = ((i `mod` Graphics.width) `div` count) `mod` count
   count = 3
-  group :: Int -> Int
-  group i = ((i `mod` cols) `div` count) `mod` count
 
 fourPlayers :: String -> (String, String, String, String)
 fourPlayers xs =
