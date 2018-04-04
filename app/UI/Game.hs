@@ -33,11 +33,13 @@ import           Graphics.Vty.Input.Events      ( Modifier(..) )
 import           Linear.V2                      ( V2(..)
                                                 , _x
                                                 )
+import qualified Data.Text                     as T
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
 import qualified Labyrinth.Goal                as Goal
 import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
+import qualified UI.Graphics                   as Graphics
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
@@ -55,11 +57,27 @@ app = App
   }
 
 drawUI :: Game -> [Widget Name]
-drawUI g =
-  [ C.vCenter $ C.hCenter $ B.border $ Brick.vBox $ map
-      (Brick.hBox . map snd)
-      (toRows 0 (Game.lastRow g) board')
-  ]
+drawUI g = [C.vCenter $ C.hCenter $ Brick.vBox [player g, board g]]
+
+player :: Game -> Widget Name
+player g =
+  Brick.withAttr c
+    $  Brick.vLimit 1
+    $  Brick.hLimit ((length (g ^. Game.cols) * Graphics.width) + 2)
+    $  C.vCenter
+    $  C.hCenter
+    $  Brick.str
+    $  T.unpack
+    $  p
+    ^. Players.name
+ where
+  p = g ^. Game.player
+  c = Brick.attrName $ show $ p ^. Players.color
+
+board :: Game -> Widget Name
+board g = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
+  (Brick.hBox . map snd)
+  (toRows 0 (Game.lastRow g) board')
  where
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
@@ -93,23 +111,7 @@ handleEventCommon g _ = continue g
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
-toRawGate (Gate d _    ) = Cell $ case d of
-  North -> "         " ++
-           "   ▲ ▲   " ++
-           "         " ++
-           "         "
-  West  -> "         " ++
-           "   ◄     " ++
-           "   ◄     " ++
-           "         "
-  South -> "         " ++
-           "         " ++
-           "   ▼ ▼   " ++
-           "         "
-  East  -> "         " ++
-           "     ►   " ++
-           "     ►   " ++
-           "         "
+toRawGate (Gate d _    ) = Cell $ Graphics.gate d
 
 toRawTile :: Tile -> RawCell
 toRawTile t = mempty <> toRawFound t <> toRawTreasure t <> toRawTerrain t
@@ -118,11 +120,7 @@ toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
   (Goal t' _) <- t ^. Tile.goal
   c           <- Map.lookup t' treasureMap
-  return
-    $  Cell $  "         " ++
-               "         " ++
-               "    " ++ [c] ++ "    " ++
-               "         "
+  return $ Cell $ Graphics.treasure c
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Goal.treasures ['A' ..]
@@ -131,61 +129,10 @@ toRawFound :: Tile -> RawCell
 toRawFound t = fromMaybe mempty $ do
   (Goal _ isFound) <- t ^. Tile.goal
   guard isFound
-  return $ Cell $ "         " ++
-                  "         " ++
-                  "    ✓    " ++
-                  "         "
+  return $ Cell $ Graphics.treasure '✓'
 
 toRawTerrain :: Tile -> RawCell
-toRawTerrain t = Cell $ case (t ^. Tile.terrain, t ^. Tile.direction) of
-  (Path  , North) -> " │     │ " ++
-                     " │     │ " ++
-                     " │     │ " ++
-                     " │     │ "
-  (Path  , West ) -> "─────────" ++
-                     "         " ++
-                     "         " ++
-                     "─────────"
-  (Path  , South) -> " │     │ " ++
-                     " │     │ " ++
-                     " │     │ " ++
-                     " │     │ "
-  (Path  , East ) -> "─────────" ++
-                     "         " ++
-                     "         " ++
-                     "─────────"
-  (Corner, North) -> "─┘     │ " ++
-                     "       │ " ++
-                     "       │ " ++
-                     "───────┘ "
-  (Corner, West ) -> "───────┐ " ++
-                     "       │ " ++
-                     "       │ " ++
-                     "─┐     │ "
-  (Corner, South) -> " ┌───────" ++
-                     " │       " ++
-                     " │       " ++
-                     " │     ┌─"
-  (Corner, East ) -> " │     └─" ++
-                     " │       " ++
-                     " │       " ++
-                     " └───────"
-  (Fork  , North) -> "─┘     └─" ++
-                     "         " ++
-                     "         " ++
-                     "─────────"
-  (Fork  , West ) -> "─┘     │ " ++
-                     "       │ " ++
-                     "       │ " ++
-                     "─┐     │ "
-  (Fork  , South) -> "─────────" ++
-                     "         " ++
-                     "         " ++
-                     "─┐     ┌─"
-  (Fork  , East ) -> " │     └─" ++
-                     " │       " ++
-                     " │       " ++
-                     " │     ┌─"
+toRawTerrain t = Cell $ Graphics.tile (t ^. Tile.terrain) (t ^. Tile.direction)
 
 data RawCell = Cell String | Empty
 
@@ -202,22 +149,22 @@ choose c   ' ' = c
 choose c   _   = c
 
 widget2p :: String -> Widget Name
-widget2p = toWidget 9
+widget2p = toWidget Graphics.width
 
 widget3p :: String -> Widget Name
 widget3p = toWidget 3
 
 widget4p :: String -> Widget Name
-widget4p = toWidget 9
+widget4p = toWidget Graphics.width
 
 toWidget :: Int -> String -> Widget Name
 toWidget cols raw = Brick.str $ L.intercalate "\n" $ L.splitEvery cols raw
 
 fromRaw :: RawCell -> Widget Name
-fromRaw = toWidget 9 . extract
+fromRaw = toWidget Graphics.width . extract
 
 extract :: RawCell -> String
-extract Empty     = replicate (9 * 4) ' '
+extract Empty     = replicate (Graphics.width * Graphics.height) ' '
 extract (Cell xs) = xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
@@ -226,10 +173,10 @@ emptyBoard rows cols empty = Map.fromList [ (V2 x y, empty) | x <- rows, y <- co
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap
   V.defAttr
-  [ ("Yellow", V.white `on` V.yellow)
-  , ("Blue"  , V.white `on` V.blue)
-  , ("Green" , V.white `on` V.green)
-  , ("Red"   , V.white `on` V.red)
+  [ ("Yellow", V.black `on` V.yellow)
+  , ("Blue"  , V.black `on` V.blue)
+  , ("Green" , V.black `on` V.green)
+  , ("Red"   , V.black `on` V.red)
   ]
 
 fromTile :: Tile -> Widget Name
@@ -285,10 +232,8 @@ threePlayers xs =
       ([], [], [])
     $ zip [0 ..] xs
  where
-  cols  = 9
+  group i = ((i `mod` Graphics.width) `div` count) `mod` count
   count = 3
-  group :: Int -> Int
-  group i = ((i `mod` cols) `div` count) `mod` count
 
 fourPlayers :: String -> (String, String, String, String)
 fourPlayers xs =
