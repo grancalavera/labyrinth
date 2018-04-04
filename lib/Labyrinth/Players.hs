@@ -6,6 +6,7 @@ module Labyrinth.Players
   , Players
   , color
   , name
+  , treasures
   , colors
   , fromList
   , toList
@@ -21,12 +22,14 @@ import qualified Data.List                     as L
 import qualified Data.Text                     as T
 import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH                  ( makeLenses )
+import           Labyrinth.Goal                 ( Treasure )
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 
 data Player = Player
-  { _color :: Color
-  , _name  :: T.Text
+  { _color     :: Color
+  , _name      :: T.Text
+  , _treasures :: [Treasure]
   } deriving (Show, Eq)
 makeLenses ''Player
 
@@ -61,5 +64,3 @@ next p ps = cycle l !! (i + 1)
  where
   i = fromJust $ L.elemIndex p l
   l = toList ps
-
-
