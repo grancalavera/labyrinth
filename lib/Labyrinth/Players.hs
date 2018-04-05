@@ -12,6 +12,7 @@ module Labyrinth.Players
   , toList
   , toMap
   , next
+  , found
   )
 where
 
@@ -30,6 +31,7 @@ data Player = Player
   { _color     :: Color
   , _name      :: T.Text
   , _treasures :: [Treasure]
+  , _found     :: [Treasure]
   } deriving (Show, Eq)
 makeLenses ''Player
 
