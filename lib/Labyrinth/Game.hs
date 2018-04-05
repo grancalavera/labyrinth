@@ -71,7 +71,6 @@ data Game = Game
     , _rows    :: [Int]
     , _cols    :: [Int]
     , _player  :: Player
-    , _players :: Players
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -85,14 +84,13 @@ fromDescription gd = do
   tiles'  <- GD.mkTiles gd'
 
   return Game
-    { _tileAt  = gd' ^. GD.gStartPosition
-    , _player  = player'
-    , _players = gd' ^. GD.gPlayers
-    , _gates   = Map.fromList $ gd' ^. GD.gGates
-    , _tiles   = Map.fromList tiles'
-    , _phase   = Plan
-    , _rows    = GD.rows gd'
-    , _cols    = GD.cols gd'
+    { _tileAt = gd' ^. GD.gStartPosition
+    , _player = player'
+    , _gates  = Map.fromList $ gd' ^. GD.gGates
+    , _tiles  = Map.fromList tiles'
+    , _phase  = Plan
+    , _rows   = GD.rows gd'
+    , _cols   = GD.cols gd'
     }
 
 addTreasures :: [Treasure] -> Players -> Players
@@ -179,9 +177,6 @@ toggleGates g = g & gates .~ Map.mapWithKey toggleGate (g ^. gates)
  where
   toggleGate pos (Gate dir _) | pos == g ^. tileAt = Gate dir False
                               | otherwise          = Gate dir True
-
-nextPlayer :: Game -> Game
-nextPlayer g = g & player .~ P.next (g ^. player) (g ^. players)
 
 --------------------------------------------------------------------------------
 -- Plan phase
@@ -359,3 +354,9 @@ playerMap g = foldl f mempty (Map.toList (g ^. tiles))
 
 playerPosition :: Game -> Color -> Maybe Position
 playerPosition g c = fst <$> Map.lookup c (playerMap g)
+
+players :: Game -> Players
+players g = fromJust $ Players.fromList $ map (snd . snd) $ Map.toList $ playerMap g
+
+nextPlayer :: Game -> Game
+nextPlayer g = g & player .~ P.next (g ^. player) (players g)
