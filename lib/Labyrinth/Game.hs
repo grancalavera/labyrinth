@@ -45,7 +45,7 @@ import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Goal                 ( Treasure )
+import           Labyrinth.Treasure             ( Treasure )
 import qualified Labyrinth.Players             as Players
 import           Labyrinth.Players              ( Color(..)
                                                 , Player

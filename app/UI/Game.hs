@@ -19,9 +19,7 @@ import           Brick                          ( App(..)
 import qualified Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Control.Monad                  ( guard
-                                                , void
-                                                )
+import           Control.Monad                  ( void )
 import           Lens.Micro                     ( (^.) )
 import qualified Data.List.Extended            as L
 import           Data.Map.Strict                ( Map )
@@ -36,7 +34,7 @@ import           Linear.V2                      ( V2(..)
 import qualified Data.Text                     as T
 import           Labyrinth
 import qualified Labyrinth.Game                as Game
-import qualified Labyrinth.Goal                as Goal
+import qualified Labyrinth.Treasure            as Treasure
 import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
 import qualified UI.Graphics                   as Graphics
@@ -114,22 +112,16 @@ toRawGate (Gate _ False) = Empty
 toRawGate (Gate d _    ) = Cell $ Graphics.gate d
 
 toRawTile :: Tile -> RawCell
-toRawTile t = mempty <> toRawFound t <> toRawTreasure t <> toRawTerrain t
+toRawTile t = mempty <> toRawTreasure t <> toRawTerrain t
 
 toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
-  (Goal t' _) <- t ^. Tile.goal
-  c           <- Map.lookup t' treasureMap
+  t' <- t ^. Tile.treasure
+  c  <- Map.lookup t' treasureMap
   return $ Cell $ Graphics.treasure c
 
 treasureMap :: Map Treasure Char
-treasureMap = Map.fromList $ zip Goal.treasures ['A' ..]
-
-toRawFound :: Tile -> RawCell
-toRawFound t = fromMaybe mempty $ do
-  (Goal _ isFound) <- t ^. Tile.goal
-  guard isFound
-  return $ Cell $ Graphics.treasure '✓'
+treasureMap = Map.fromList $ zip Treasure.treasures ['A' ..]
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = Cell $ Graphics.tile (t ^. Tile.terrain) (t ^. Tile.direction)

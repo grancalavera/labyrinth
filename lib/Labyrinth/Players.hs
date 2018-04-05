@@ -22,7 +22,7 @@ import qualified Data.List                     as L
 import qualified Data.Text                     as T
 import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH                  ( makeLenses )
-import           Labyrinth.Goal                 ( Treasure )
+import           Labyrinth.Treasure             ( Treasure )
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 

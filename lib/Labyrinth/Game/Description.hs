@@ -34,9 +34,7 @@ import           Labyrinth.Position             ( Position )
 import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Goal                 ( Goal(..)
-                                                , Treasure
-                                                )
+import           Labyrinth.Treasure             ( Treasure(..) )
 import           Labyrinth.Players              ( Color(..)
                                                 , Player
                                                 , Players
@@ -54,7 +52,7 @@ import           Lens.Micro.TH                  ( makeLenses )
 
 data Env = Env
   { _ePositions :: [Position]
-  , _eGoals     :: [Goal]
+  , _eTreasures :: [Treasure]
   , _ePlayers   :: Players
   } deriving (Show)
 makeLenses ''Env
@@ -63,7 +61,7 @@ data DTile = DTile
   { _tTerrain   :: Terrain
   , _tPosition  :: Maybe Position
   , _tDirection :: Maybe Direction
-  , _tGoal      :: Bool
+  , _tTreasure      :: Bool
   , _tPlayer    :: Maybe Color
   } deriving (Show)
 makeLenses ''DTile
@@ -84,9 +82,9 @@ type Eval a = StateT Env IO a
 mkEnv :: DGame -> IO Env
 mkEnv d = do
   positions <- Random.shuffle $ unknownPositions d
-  goals     <- Random.shuffle $ map (`Goal` False) (d ^. gTreasures)
+  treasures <- Random.shuffle $ d ^. gTreasures
 
-  return Env {_ePositions = positions, _eGoals = goals, _ePlayers = d ^. gPlayers}
+  return Env {_ePositions = positions, _eTreasures = treasures, _ePlayers = d ^. gPlayers}
 
 unknownPositions :: DGame -> [Position]
 unknownPositions d = filter (not . (`elem` known)) (derivePositions d)
@@ -107,14 +105,14 @@ eval :: DGame -> Eval [(Position, Tile)]
 eval d = forM (d ^. gTiles) $ \tileDesc -> do
   position  <- getPosition tileDesc
   direction <- getDirection tileDesc
-  goal      <- getGoal tileDesc
+  treasure  <- getTreasure tileDesc
   player    <- getPlayer tileDesc
   return
     ( position
     , Tile
       { _terrain   = tileDesc ^. tTerrain
       , _direction = direction
-      , _goal      = goal
+      , _treasure  = treasure
       , _players   = player
       }
     )
@@ -133,13 +131,13 @@ getDirection tileDesc = case tileDesc ^. tDirection of
   Just direction -> return direction
   _              -> liftIO Direction.random
 
-getGoal :: DTile -> Eval (Maybe Goal)
-getGoal tileDesc = if tileDesc ^. tGoal
+getTreasure :: DTile -> Eval (Maybe Treasure)
+getTreasure tileDesc = if tileDesc ^. tTreasure
   then do
     env <- get
-    case env ^. eGoals of
+    case env ^. eTreasures of
       []       -> return Nothing -- something went wrong, we should have enough
-      (x : xs) -> put (env & eGoals .~ xs) >> return (Just x)
+      (x : xs) -> put (env & eTreasures .~ xs) >> return (Just x)
   else return Nothing
 
 getPlayer :: DTile -> Eval [Player]
