@@ -81,8 +81,8 @@ fromDescription gd = do
   treasures <- Random.shuffle (gd ^. GD.gTreasures)
   let gd' = gd & GD.gPlayers .~ addTreasures treasures (gd ^. GD.gPlayers)
 
-  player' <- firstPlayer (gd ^. GD.gPlayers)
-  tiles'  <- GD.mkTiles gd
+  player' <- firstPlayer (gd' ^. GD.gPlayers)
+  tiles'  <- GD.mkTiles gd'
 
   return Game
     { _tileAt  = gd' ^. GD.gStartPosition
