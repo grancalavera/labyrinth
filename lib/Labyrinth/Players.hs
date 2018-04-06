@@ -6,13 +6,13 @@ module Labyrinth.Players
   , Players
   , color
   , name
-  , treasures
+  , search
+  , found
   , colors
   , fromList
   , toList
   , toMap
   , next
-  , found
   )
 where
 
@@ -28,10 +28,10 @@ import           Labyrinth.Treasure             ( Treasure )
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 
 data Player = Player
-  { _color     :: Color
-  , _name      :: T.Text
-  , _treasures :: [Treasure]
-  , _found     :: [Treasure]
+  { _color  :: Color
+  , _name   :: T.Text
+  , _search :: [Treasure]
+  , _found  :: [Treasure]
   } deriving (Show, Eq)
 makeLenses ''Player
 

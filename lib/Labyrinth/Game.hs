@@ -95,7 +95,7 @@ fromDescription gd = do
 
 addTreasures :: [Treasure] -> Players -> Players
 addTreasures ts ps = fromJust . Players.fromList $ zipWith
-  (\t p -> p & Players.treasures .~ t)
+  (\t p -> p & Players.search .~ t)
   (L.splitEvery (length ts `div` length ps') ts)
   ps'
   where ps' = Players.toList ps
@@ -346,8 +346,9 @@ pad p g = do
 firstPlayer :: Players -> IO Player
 firstPlayer p = fromJust <$> Random.choose (P.toList p)
 
+
 playerMap :: Game -> Map Color (Position, Player)
-playerMap g = foldl f mempty (Map.toList (g ^. tiles))
+playerMap g = foldl f mempty (Map.toList $ g ^. tiles)
  where
   f m (p, t) = foldl (f' p) m (t ^. T.players)
   f' p m p' = Map.insert (p' ^. P.color) (p, p') m
@@ -360,3 +361,11 @@ players g = fromJust $ Players.fromList $ map (snd . snd) $ Map.toList $ playerM
 
 nextPlayer :: Game -> Game
 nextPlayer g = g & player .~ P.next (g ^. player) (players g)
+
+playerList :: Game -> [Player]
+playerList g = foldl f [] (map snd $ Map.toList $ g ^. tiles)
+  where f ps t = ps ++ t ^. T.players
+
+treasuresFound :: Game -> [Treasure]
+treasuresFound g = foldl f [] $ playerList g
+  where f ts p = ts ++ p ^. P.found
