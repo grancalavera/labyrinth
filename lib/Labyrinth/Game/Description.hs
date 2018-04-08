@@ -29,6 +29,7 @@ import           Control.Monad.State            ( StateT
                                                 , put
                                                 )
 import qualified Data.List.Extended            as L
+import qualified Data.Set                      as Set
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( Map )
 import           Data.Maybe                     ( fromJust
@@ -50,6 +51,7 @@ import           Labyrinth.Players              ( Color(..)
 import qualified Labyrinth.Players             as Players
 import           Labyrinth.Tile                 ( Terrain(..)
                                                 , Tile(..)
+                                                , Tokens
                                                 )
 import           Labyrinth.Gate                 ( Gate(..) )
 import           Lens.Micro                     ( (&)
@@ -89,7 +91,7 @@ type Eval a = StateT Env IO a
 
 mkEnv :: DGame -> IO Env
 mkEnv d = do
-  positions  <- Random.shuffle $ unknownPositions d
+  positions    <- Random.shuffle $ unknownPositions d
   treasureMap' <- Random.shuffle $ d ^. gTreasures
 
   return Env
@@ -175,10 +177,10 @@ getTreasure tileDesc = if tileDesc ^. tTreasure
       (x : xs) -> put (env & eTreasures .~ xs) >> return (Just x)
   else return Nothing
 
-getTokens :: DTile -> Eval [Color]
+getTokens :: DTile -> Eval Tokens
 getTokens tileDesc = do
   env <- get
-  return $ fromMaybe [] $ do
+  return $ fromMaybe mempty $ do
     token <- tileDesc ^. tToken
     guard $ Map.member token (Players.toMap (env ^. ePlayers))
-    return [token]
+    return $ Set.fromList [token]

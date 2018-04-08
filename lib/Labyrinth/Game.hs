@@ -36,6 +36,7 @@ where
 import           Control.Monad                  ( guard )
 import qualified Data.List.Extended            as L
 import qualified Data.Tuple                    as Tu
+import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
@@ -134,7 +135,7 @@ slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
 teleportToken :: Game -> Game
 teleportToken g =
   foldl f g
-    $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.tokens))
+    $ concatMap (\(p, t) -> zip (repeat p) (T.tokenList t))
     $ Map.toList
     $ Map.intersection (g ^. tiles) (g ^. gates)
  where
@@ -275,18 +276,18 @@ isGate p g = fromMaybe False $ Map.lookup p (g ^. gates) >> return True
 
 walk :: Position -> Position -> Color -> Game -> Game
 walk from to c g =
-  g & tiles .~ (Map.alter (grabToken c) from . Map.alter (dropToken c) to)
+  g & tiles .~ (Map.alter (grabToken c) from . Map.alter (placeToken c) to)
     (g ^. tiles)
 
-dropToken :: Color -> Maybe Tile -> Maybe Tile
-dropToken c mt = do
+placeToken :: Color -> Maybe Tile -> Maybe Tile
+placeToken c mt = do
   t <- mt
-  return $ t & T.tokens .~ (c : (t ^. T.tokens))
+  return $ t & T.tokens .~ Set.insert c (t ^. T.tokens)
 
 grabToken :: Color -> Maybe Tile -> Maybe Tile
 grabToken c mt = do
   t <- mt
-  return $ t & T.tokens .~ filter (/= c) (t ^. T.tokens)
+  return $ t & T.tokens .~ Set.delete c (t ^. T.tokens)
 
 --------------------------------------------------------------------------------
 -- etc
@@ -345,7 +346,7 @@ positionByColor :: Game -> Map Color Position
 positionByColor g =
   Map.fromList
     $ map Tu.swap
-    $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.tokens))
+    $ concatMap (\(p, t) -> zip (repeat p) (T.tokenList t))
     $ filter (not . null . (^. T.tokens) . snd) -- this line might be redundant
     $ Map.toList (g ^. tiles)
 

@@ -170,7 +170,7 @@ attributeMap = Brick.attrMap
   ]
 
 fromTile :: Tile -> Widget Name
-fromTile t = case t ^. Tile.tokens of
+fromTile t = case Tile.tokenList t of
   [p1] -> Brick.withAttr (attr p1) $ fromRaw rawTile
   [p1, p2] ->
     let (p1', p2') = twoPlayers $ extract rawTile
