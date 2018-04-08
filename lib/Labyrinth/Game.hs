@@ -20,6 +20,7 @@ module Labyrinth.Game
   , lastRow
   , lastColumn
   , player
+  , goal
 
   -- State transitions
   , Phase(..)
@@ -48,7 +49,7 @@ import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Treasure             ( Searching
+import           Labyrinth.Treasure             ( Goal
                                                 , Found
                                                 )
 import qualified Labyrinth.Players             as P
@@ -76,7 +77,7 @@ data Game = Game
     , _players     :: Players
     , _gates       :: Map Position Gate
     , _tiles       :: Map Position Tile
-    , _treasureMap :: Map Color ([Searching], [Found])
+    , _treasureMap :: Map Color ([Goal], [Found])
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -362,3 +363,6 @@ tokens g = Map.keys $ P.toMap (g ^. players)
 
 player :: Game -> Player
 player g = fromJust $ Map.lookup (g ^. playing) (P.toMap $ g ^. players)
+
+goal :: Game -> Maybe Goal
+goal g = Map.lookup (g ^. playing) (g ^. treasureMap) >>= (L.safeHead . fst)

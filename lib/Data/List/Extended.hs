@@ -3,6 +3,7 @@ module Data.List.Extended
   , splitEvery
   , middle
   , safeLast
+  , safeHead
   )
 where
 
@@ -16,10 +17,12 @@ splitEvery n list = first : splitEvery n rest
 middle :: [a] -> Maybe [a]
 middle xs = safe (drop 1) xs >>= safe init
 
-safe :: ([a] -> [a]) -> [a] -> Maybe [a]
-safe _ []  = Nothing
-safe f xs  = Just $ f xs
-
 safeLast :: [a] -> Maybe a
-safeLast [] = Nothing
-safeLast xs = Just $ last xs
+safeLast = safe last
+
+safeHead :: [a] -> Maybe a
+safeHead = safe head
+
+safe :: ([a] -> b) -> [a] -> Maybe b
+safe _ [] = Nothing
+safe f xs = Just $ f xs

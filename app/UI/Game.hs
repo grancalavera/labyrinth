@@ -53,7 +53,7 @@ data UI = UI {
 makeLenses ''UI
 
 playGame :: Game -> IO Name
-playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = ""}
+playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = hintCTA}
 
 app :: App UI e Name
 app = App
@@ -68,24 +68,25 @@ drawUI :: UI -> [Widget Name]
 drawUI g = [C.vCenter $ C.hCenter $ Brick.vBox [player g, board g]]
 
 player :: UI -> Widget Name
-player gui =
+player ui =
   Brick.withAttr c
     $ Brick.vLimit 1
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
     $ C.vCenter
-    $ C.hCenter
-    $ Brick.str label
+    $ Brick.hBox [theLabel, theHint]
  where
-  g     = gui ^. game
-  c     = Brick.attrName $ show $ g ^. G.playing
-  label = "Playing: " ++ T.unpack (G.player g ^. Players.name)
+  g = ui ^. game
+  c = Brick.attrName $ show $ g ^. G.playing
+  theLabel =
+    C.hCenter $ Brick.str $ "Playing: " ++ T.unpack (G.player g ^. Players.name)
+  theHint = C.hCenter $ Brick.str (ui ^. hint)
 
 board :: UI -> Widget Name
-board gui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
+board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
   (Brick.hBox . map snd)
   (toRows 0 (G.lastRow g) board')
  where
-  g                = gui ^. game
+  g                = ui ^. game
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. G.gates)
   tiles'           = Map.map fromTile (g ^. G.tiles)
@@ -93,6 +94,8 @@ board gui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
   emptyOf          = emptyBoard (g ^. G.rows) (g ^. G.cols)
 
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
+handleEvent ui (VtyEvent (V.EvKey (V.KChar 's') [])) = continue $ showHint ui
+handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ hideHint ui
 handleEvent ui e = case ui ^. game of
   Game { _phase = Plan, ..} -> case e of
     VtyEvent (V.EvKey V.KRight []      ) -> continue $ inGame (G.moveTile East) ui
@@ -259,3 +262,15 @@ toRows mn mx m = map (Map.toList . (`getRow` m)) [mn .. mx]
 
 getRow :: Int -> Map Position a -> Map Position a
 getRow r = Map.filterWithKey (\p _ -> p ^. _x == r)
+
+hintCTA :: String
+hintCTA = "?"
+
+showHint :: UI -> UI
+showHint ui = fromMaybe ui $ do
+  g <- G.goal (ui ^. game)
+  c <- Map.lookup g treasureMap
+  return $ ui & hint .~ (show g ++ " (" ++ [c] ++ ")")
+
+hideHint :: UI -> UI
+hideHint ui = ui & hint .~ hintCTA

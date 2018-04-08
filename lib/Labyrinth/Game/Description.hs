@@ -42,7 +42,7 @@ import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
 import           Labyrinth.Treasure             ( Treasure(..)
-                                                , Searching
+                                                , Goal
                                                 , Found
                                                 )
 import           Labyrinth.Players              ( Color(..)
@@ -128,7 +128,7 @@ gates d = Map.fromList (d ^. gGates)
 firstToken :: DGame -> IO Color
 firstToken d = fromJust <$> Random.choose (colors d)
 
-treasureMap :: DGame -> IO (Map Color ([Searching], [Found]))
+treasureMap :: DGame -> IO (Map Color ([Goal], [Found]))
 treasureMap d = do
   ts' <- Random.shuffle $ d ^. gTreasures
   let cs = colors d
