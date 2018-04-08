@@ -66,11 +66,9 @@ player g =
     $  C.hCenter
     $  Brick.str
     $  T.unpack
-    $  p
+    $  Game.player g
     ^. Players.name
- where
-  p = g ^. Game.player
-  c = Brick.attrName $ show $ p ^. Players.color
+  where c = Brick.attrName $ show $ g ^. Game.playing
 
 board :: Game -> Widget Name
 board g = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
@@ -93,10 +91,10 @@ handleEvent g@Game { _phase = Plan, ..} e = case e of
   VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotateTile' g
   _ -> handleEventCommon g e
 handleEvent g@Game { _phase = Walk, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.movePlayer East g
-  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.movePlayer West g
-  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.movePlayer North g
-  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.movePlayer South g
+  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.moveToken East g
+  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.moveToken West g
+  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.moveToken North g
+  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.moveToken South g
   _                              -> handleEventCommon g e
 handleEvent g e = handleEventCommon g e
 
@@ -172,7 +170,7 @@ attributeMap = Brick.attrMap
   ]
 
 fromTile :: Tile -> Widget Name
-fromTile t = case t ^. Tile.players of
+fromTile t = case t ^. Tile.tokens of
   [p1] -> Brick.withAttr (attr p1) $ fromRaw rawTile
   [p1, p2] ->
     let (p1', p2') = twoPlayers $ extract rawTile
@@ -198,7 +196,7 @@ fromTile t = case t ^. Tile.players of
   _ -> Brick.withAttr "default" $ fromRaw rawTile
  where
   rawTile = toRawTile t
-  attr p = Brick.attrName $ show (p ^. Players.color)
+  attr c = Brick.attrName $ show c
 
 twoPlayers :: String -> (String, String)
 twoPlayers xs =

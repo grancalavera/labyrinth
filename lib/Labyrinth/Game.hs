@@ -7,17 +7,19 @@ module Labyrinth.Game
   (
   -- Working with Games
     Game(..)
-  , fromDescription
-  , tiles
   , tileAt
-  , gates
+  , playing
   , phase
-  , player
-  , players
   , rows
   , cols
+  , players
+  , gates
+  , tiles
+  , treasureMap
+  , fromDescription
   , lastRow
   , lastColumn
+  , player
 
   -- State transitions
   , Phase(..)
@@ -27,12 +29,13 @@ module Labyrinth.Game
   , moveTile
   , rotateTile
   , rotateTile'
-  , movePlayer
+  , moveToken
   )
 where
 
 import           Control.Monad                  ( guard )
 import qualified Data.List.Extended            as L
+import qualified Data.Tuple                    as Tu
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromJust
@@ -40,18 +43,18 @@ import           Data.Maybe                     ( fromJust
                                                 )
 import           Linear.V2                      ( V2(..) )
 import           Labyrinth.Position             ( Position )
-import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Treasure             ( Treasure )
-import qualified Labyrinth.Players             as Players
-import           Labyrinth.Players              ( Color(..)
-                                                , Player
-                                                , Players
+import           Labyrinth.Treasure             ( Searching
+                                                , Found
                                                 )
 import qualified Labyrinth.Players             as P
+import           Labyrinth.Players              ( Color(..)
+                                                , Players
+                                                , Player
+                                                )
 import           Labyrinth.Tile                 ( Tile(..) )
 import qualified Labyrinth.Tile                as T
 import           Lens.Micro                     ( (&)
@@ -64,41 +67,35 @@ import           Lens.Micro.Type                ( Lens' )
 data Phase = Plan | Walk | End deriving (Show, Eq)
 
 data Game = Game
-    { _tileAt  :: Position
-    , _tiles   :: Map Position Tile
-    , _gates   :: Map Position Gate
-    , _phase   :: Phase
-    , _rows    :: [Int]
-    , _cols    :: [Int]
-    , _player  :: Player
+    { _tileAt      :: Position
+    , _playing     :: Color
+    , _phase       :: Phase
+    , _rows        :: [Int]
+    , _cols        :: [Int]
+    , _players     :: Players
+    , _gates       :: Map Position Gate
+    , _tiles       :: Map Position Tile
+    , _treasureMap :: Map Color ([Searching], [Found])
     } deriving (Show, Eq)
 makeLenses ''Game
 
 fromDescription :: DGame -> IO Game
 fromDescription gd = do
 
-  treasures <- Random.shuffle (gd ^. GD.gTreasures)
-  let gd' = gd & GD.gPlayers .~ addTreasures treasures (gd ^. GD.gPlayers)
-
-  player' <- firstPlayer (gd' ^. GD.gPlayers)
-  tiles'  <- GD.mkTiles gd'
+  tiles'   <- GD.tiles gd
+  playing' <- GD.firstToken gd
 
   return Game
-    { _tileAt = gd' ^. GD.gStartPosition
-    , _player = player'
-    , _gates  = Map.fromList $ gd' ^. GD.gGates
-    , _tiles  = Map.fromList tiles'
-    , _phase  = Plan
-    , _rows   = GD.rows gd'
-    , _cols   = GD.cols gd'
+    { _tileAt      = gd ^. GD.gStartPosition
+    , _playing     = playing'
+    , _phase       = Plan
+    , _rows        = GD.rows gd
+    , _cols        = GD.cols gd
+    , _gates       = GD.gates gd
+    , _tiles       = tiles'
+    , _players     = gd ^. GD.gPlayers
+    , _treasureMap = GD.treasureMap gd
     }
-
-addTreasures :: [Treasure] -> Players -> Players
-addTreasures ts ps = fromJust . Players.fromList $ zipWith
-  (\t p -> p & Players.search .~ t)
-  (L.splitEvery (length ts `div` length ps') ts)
-  ps'
-  where ps' = Players.toList ps
 
 --------------------------------------------------------------------------------
 -- state transitions
@@ -111,13 +108,13 @@ done g = case g ^. phase of
     guard isOpen
     return
       $ ( nextPhase
-        . teleportPlayer
+        . teleportToken
         . toggleGates
         . updateCurrentTilePosition
         . slideTile
         )
           g
-  _ -> (nextPhase . nextPlayer) g
+  _ -> (nextPhase . nextToken) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
@@ -134,10 +131,10 @@ slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
       South -> if sameC p then nudgeNorth p else p
       East  -> if sameR p then nudgeWest p else p
 
-teleportPlayer :: Game -> Game
-teleportPlayer g =
+teleportToken :: Game -> Game
+teleportToken g =
   foldl f g
-    $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.players))
+    $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.tokens))
     $ Map.toList
     $ Map.intersection (g ^. tiles) (g ^. gates)
  where
@@ -256,12 +253,12 @@ moves dir g = fromMaybe [] $ do
 -- Walk phase
 --------------------------------------------------------------------------------
 
-movePlayer :: Direction -> Game -> Game
-movePlayer d g = fromMaybe g $ do
-  let player' = g ^. player
-      tiles'  = g ^. tiles
+moveToken :: Direction -> Game -> Game
+moveToken d g = fromMaybe g $ do
+  let token' = g ^. playing
+      tiles' = g ^. tiles
 
-  fromP <- playerPosition g (player' ^. P.color)
+  fromP <- tokenPosition g token'
   let toP = nudge d fromP
 
   fromT <- Map.lookup fromP tiles'
@@ -271,27 +268,25 @@ movePlayer d g = fromMaybe g $ do
       isNotGate   = not $ isGate toP g
   guard (isConnected && isNotGate)
 
-  return $ walk fromP toP player' g
+  return $ walk fromP toP token' g
 
 isGate :: Position -> Game -> Bool
 isGate p g = fromMaybe False $ Map.lookup p (g ^. gates) >> return True
 
-walk :: Position -> Position -> Player -> Game -> Game
-walk from to player' g =
-  g
-    &  tiles
-    .~ (Map.alter (removePlayer player') from . Map.alter (insertPlayer player') to)
-         (g ^. tiles)
+walk :: Position -> Position -> Color -> Game -> Game
+walk from to c g =
+  g & tiles .~ (Map.alter (grabToken c) from . Map.alter (dropToken c) to)
+    (g ^. tiles)
 
-insertPlayer :: Player -> Maybe Tile -> Maybe Tile
-insertPlayer p mt = do
+dropToken :: Color -> Maybe Tile -> Maybe Tile
+dropToken c mt = do
   t <- mt
-  return $ t & T.players .~ (p : (t ^. T.players))
+  return $ t & T.tokens .~ (c : (t ^. T.tokens))
 
-removePlayer :: Player -> Maybe Tile -> Maybe Tile
-removePlayer p mt = do
+grabToken :: Color -> Maybe Tile -> Maybe Tile
+grabToken c mt = do
   t <- mt
-  return $ t & T.players .~ filter (/= p) (t ^. T.players)
+  return $ t & T.tokens .~ filter (/= c) (t ^. T.tokens)
 
 --------------------------------------------------------------------------------
 -- etc
@@ -343,29 +338,25 @@ pad p g = do
     South -> nudgeNorth
     East  -> nudgeWest
 
-firstPlayer :: Players -> IO Player
-firstPlayer p = fromJust <$> Random.choose (P.toList p)
+tokenPosition :: Game -> Color -> Maybe Position
+tokenPosition g c = Map.lookup c (positionByColor g)
 
+positionByColor :: Game -> Map Color Position
+positionByColor g =
+  Map.fromList
+    $ map Tu.swap
+    $ concatMap (\(p, t) -> zip (repeat p) (t ^. T.tokens))
+    $ filter (not . null . (^. T.tokens) . snd) -- this line might be redundant
+    $ Map.toList (g ^. tiles)
 
-playerMap :: Game -> Map Color (Position, Player)
-playerMap g = foldl f mempty (Map.toList $ g ^. tiles)
+nextToken :: Game -> Game
+nextToken g = g & playing .~ (cycle ts !! (i + 1))
  where
-  f m (p, t) = foldl (f' p) m (t ^. T.players)
-  f' p m p' = Map.insert (p' ^. P.color) (p, p') m
+  ts = tokens g
+  i  = fromJust $ L.elemIndex (g ^. playing) ts
 
-playerPosition :: Game -> Color -> Maybe Position
-playerPosition g c = fst <$> Map.lookup c (playerMap g)
+tokens :: Game -> [Color]
+tokens g = Map.keys $ P.toMap (g ^. players)
 
-players :: Game -> Players
-players g = fromJust $ Players.fromList $ map (snd . snd) $ Map.toList $ playerMap g
-
-nextPlayer :: Game -> Game
-nextPlayer g = g & player .~ P.next (g ^. player) (players g)
-
-playerList :: Game -> [Player]
-playerList g = foldl f [] (map snd $ Map.toList $ g ^. tiles)
-  where f ps t = ps ++ t ^. T.players
-
-treasuresFound :: Game -> [Treasure]
-treasuresFound g = foldl f [] $ playerList g
-  where f ts p = ts ++ p ^. P.found
+player :: Game -> Player
+player g = fromJust $ Map.lookup (g ^. playing) (P.toMap $ g ^. players)

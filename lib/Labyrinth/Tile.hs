@@ -11,7 +11,7 @@ module Labyrinth.Tile
   , terrain
   , rotate
   , rotate'
-  , players
+  , tokens
   , connected
   )
 where
@@ -21,7 +21,7 @@ import qualified Data.Set                      as Set
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
 import           Labyrinth.Treasure             ( Treasure )
-import           Labyrinth.Players              ( Player )
+import           Labyrinth.Players              ( Color )
 import           Lens.Micro                     ( (%~)
                                                 , (^.)
                                                 )
@@ -33,7 +33,7 @@ data Tile = Tile
   { _terrain   :: Terrain
   , _direction :: Direction
   , _treasure  :: Maybe Treasure
-  , _players   :: [Player]
+  , _tokens    :: [Color]
   } deriving (Eq, Show)
 makeLenses ''Tile
 

@@ -54,7 +54,7 @@ addPlayers' initialState = do
   f <- Brick.defaultMain app $ mkForm initialState
   let st = formState f
       ps =
-        map (\(c, n) -> Player {_color = c, _name = n, _search=[], _found=[]})
+        map (\(c, n) -> (c, Player {_name = n}))
           $ filter ((/= "") . snd)
           $ map (\(c, l) -> (c, st ^. l))
           $ zip Players.colors [p1, p2, p3, p4]
