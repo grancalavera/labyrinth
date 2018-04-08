@@ -30,7 +30,7 @@ module Labyrinth.Game
   , moveTile
   , rotateTile
   , rotateTile'
-  , moveToken
+  , search
   )
 where
 
@@ -66,7 +66,7 @@ import           Lens.Micro                     ( (&)
 import           Lens.Micro.TH                  ( makeLenses )
 import           Lens.Micro.Type                ( Lens' )
 
-data Phase = Plan | Walk | Over deriving (Show, Eq)
+data Phase = Plan | Search | Over deriving (Show, Eq)
 
 data Game = Game
     { _tileAt      :: Position
@@ -169,7 +169,7 @@ far l g = fromMaybe 0 $ L.safeLast $ g ^. l
 nextPhase :: Game -> Game
 nextPhase g = g & phase .~ nextPhase' (g ^. phase)
  where
-  nextPhase' Plan = Walk
+  nextPhase' Plan = Search
   nextPhase' _    = Plan
 
 toggleGates :: Game -> Game
@@ -253,8 +253,14 @@ moves dir g = fromMaybe [] $ do
     _              -> [] --  ¯\_(ツ)_/¯
 
 --------------------------------------------------------------------------------
--- Walk phase
+-- Search phase
 --------------------------------------------------------------------------------
+
+search :: Direction -> Game -> Game
+search d = (find . (moveToken d))
+
+find :: Game -> Game
+find = id
 
 moveToken :: Direction -> Game -> Game
 moveToken d g = fromMaybe g $ do

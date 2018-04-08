@@ -97,7 +97,7 @@ handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 's') [])) = continue $ showHint ui
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ hideHint ui
 handleEvent ui e = case ui ^. game of
-  Game { _phase = Plan, ..} -> case e of
+  Game { _phase = Plan, ..}   -> case e of
     VtyEvent (V.EvKey V.KRight []      ) -> continue $ inGame (G.moveTile East) ui
     VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ inGame (G.moveTile West) ui
     VtyEvent (V.EvKey V.KUp    []      ) -> continue $ inGame (G.moveTile North) ui
@@ -105,13 +105,13 @@ handleEvent ui e = case ui ^. game of
     VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ inGame G.rotateTile ui
     VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ inGame G.rotateTile' ui
     _ -> handleCommon ui e
-  Game { _phase = Walk, ..} -> case e of
-    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.moveToken East) ui
-    VtyEvent (V.EvKey V.KLeft  []) -> continue $ inGame (G.moveToken West) ui
-    VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.moveToken North) ui
-    VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.moveToken South) ui
+  Game { _phase = Search, ..} -> case e of
+    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.search East) ui
+    VtyEvent (V.EvKey V.KLeft  []) -> continue $ inGame (G.search West) ui
+    VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.search North) ui
+    VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.search South) ui
     _                              -> handleCommon ui e
-  Game { _phase = Over, ..} -> handleCommon ui e
+  Game { _phase = Over, ..}   -> handleCommon ui e
 
 handleCommon :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleCommon ui (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt ui
@@ -121,7 +121,7 @@ handleCommon ui (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ inGame G.done
 handleCommon ui _ = continue ui
 
 inGame :: (Game -> Game) -> UI -> UI
-inGame f ui = ui & game .~ f (ui ^. game)
+inGame f ui = game .~ f (ui ^. game) $ hideHint ui
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
