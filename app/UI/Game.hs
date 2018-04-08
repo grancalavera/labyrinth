@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module UI.Game
   ( playGame
@@ -20,7 +21,11 @@ import qualified Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
 import           Control.Monad                  ( void )
-import           Lens.Micro                     ( (^.) )
+import           Lens.Micro                     ( (^.)
+                                                , (&)
+                                                , (.~)
+                                                )
+import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.List.Extended            as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
@@ -33,7 +38,7 @@ import           Linear.V2                      ( V2(..)
                                                 )
 import qualified Data.Text                     as T
 import           Labyrinth
-import qualified Labyrinth.Game                as Game
+import qualified Labyrinth.Game                as G
 import qualified Labyrinth.Treasure            as Treasure
 import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
@@ -41,11 +46,16 @@ import qualified UI.Graphics                   as Graphics
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
+data UI = UI {
+  _game :: Game
+, _hint :: String
+} deriving (Show)
+makeLenses ''UI
 
 playGame :: Game -> IO Name
-playGame g = void $ Brick.defaultMain app g
+playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = ""}
 
-app :: App Game e Name
+app :: App UI e Name
 app = App
   { appDraw         = drawUI
   , appHandleEvent  = handleEvent
@@ -54,56 +64,61 @@ app = App
   , appChooseCursor = Brick.neverShowCursor
   }
 
-drawUI :: Game -> [Widget Name]
+drawUI :: UI -> [Widget Name]
 drawUI g = [C.vCenter $ C.hCenter $ Brick.vBox [player g, board g]]
 
-player :: Game -> Widget Name
-player g =
+player :: UI -> Widget Name
+player gui =
   Brick.withAttr c
-    $  Brick.vLimit 1
-    $  Brick.hLimit ((length (g ^. Game.cols) * Graphics.width) + 2)
-    $  C.vCenter
-    $  C.hCenter
-    $  Brick.str
-    $  T.unpack
-    $  Game.player g
-    ^. Players.name
-  where c = Brick.attrName $ show $ g ^. Game.playing
-
-board :: Game -> Widget Name
-board g = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
-  (Brick.hBox . map snd)
-  (toRows 0 (Game.lastRow g) board')
+    $ Brick.vLimit 1
+    $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
+    $ C.vCenter
+    $ C.hCenter
+    $ Brick.str label
  where
+  g     = gui ^. game
+  c     = Brick.attrName $ show $ g ^. G.playing
+  label = "Playing: " ++ T.unpack (G.player g ^. Players.name)
+
+board :: UI -> Widget Name
+board gui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
+  (Brick.hBox . map snd)
+  (toRows 0 (G.lastRow g) board')
+ where
+  g                = gui ^. game
   emptyWidgetBoard = emptyOf (fromRaw mempty)
-  gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
-  tiles'           = Map.map fromTile (g ^. Game.tiles)
+  gates'           = Map.map (fromRaw . toRawGate) (g ^. G.gates)
+  tiles'           = Map.map fromTile (g ^. G.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
-  emptyOf          = emptyBoard (g ^. Game.rows) (g ^. Game.cols)
+  emptyOf          = emptyBoard (g ^. G.rows) (g ^. G.cols)
 
-handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
-handleEvent g@Game { _phase = Plan, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []      ) -> continue $ Game.moveTile East g
-  VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ Game.moveTile West g
-  VtyEvent (V.EvKey V.KUp    []      ) -> continue $ Game.moveTile North g
-  VtyEvent (V.EvKey V.KDown  []      ) -> continue $ Game.moveTile South g
-  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotateTile g
-  VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotateTile' g
-  _ -> handleEventCommon g e
-handleEvent g@Game { _phase = Walk, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.moveToken East g
-  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.moveToken West g
-  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.moveToken North g
-  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.moveToken South g
-  _                              -> handleEventCommon g e
-handleEvent g e = handleEventCommon g e
+handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
+handleEvent ui e = case ui ^. game of
+  Game { _phase = Plan, ..} -> case e of
+    VtyEvent (V.EvKey V.KRight []      ) -> continue $ inGame (G.moveTile East) ui
+    VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ inGame (G.moveTile West) ui
+    VtyEvent (V.EvKey V.KUp    []      ) -> continue $ inGame (G.moveTile North) ui
+    VtyEvent (V.EvKey V.KDown  []      ) -> continue $ inGame (G.moveTile South) ui
+    VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ inGame G.rotateTile ui
+    VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ inGame G.rotateTile' ui
+    _ -> handleCommon ui e
+  Game { _phase = Walk, ..} -> case e of
+    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.moveToken East) ui
+    VtyEvent (V.EvKey V.KLeft  []) -> continue $ inGame (G.moveToken West) ui
+    VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.moveToken North) ui
+    VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.moveToken South) ui
+    _                              -> handleCommon ui e
+  Game { _phase = Over, ..} -> handleCommon ui e
 
-handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
-handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEsc        [])) = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEnter      [])) = continue $ Game.done g
-handleEventCommon g (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ Game.done g
-handleEventCommon g _ = continue g
+handleCommon :: UI -> BrickEvent Name e -> EventM Name (Next UI)
+handleCommon ui (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt ui
+handleCommon ui (VtyEvent (V.EvKey V.KEsc        [])) = halt ui
+handleCommon ui (VtyEvent (V.EvKey V.KEnter      [])) = continue $ inGame G.done ui
+handleCommon ui (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ inGame G.done ui
+handleCommon ui _ = continue ui
+
+inGame :: (Game -> Game) -> UI -> UI
+inGame f ui = ui & game .~ f (ui ^. game)
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty

@@ -65,7 +65,7 @@ import           Lens.Micro                     ( (&)
 import           Lens.Micro.TH                  ( makeLenses )
 import           Lens.Micro.Type                ( Lens' )
 
-data Phase = Plan | Walk | End deriving (Show, Eq)
+data Phase = Plan | Walk | Over deriving (Show, Eq)
 
 data Game = Game
     { _tileAt      :: Position
