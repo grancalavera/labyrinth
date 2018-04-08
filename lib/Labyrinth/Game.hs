@@ -83,8 +83,9 @@ makeLenses ''Game
 fromDescription :: DGame -> IO Game
 fromDescription gd = do
 
-  tiles'   <- GD.tiles gd
-  playing' <- GD.firstToken gd
+  tiles'       <- GD.tiles gd
+  playing'     <- GD.firstToken gd
+  treasureMap' <- GD.treasureMap gd
 
   return Game
     { _tileAt      = gd ^. GD.gStartPosition
@@ -95,7 +96,7 @@ fromDescription gd = do
     , _gates       = GD.gates gd
     , _tiles       = tiles'
     , _players     = gd ^. GD.gPlayers
-    , _treasureMap = GD.treasureMap gd
+    , _treasureMap = treasureMap'
     }
 
 --------------------------------------------------------------------------------
@@ -115,7 +116,7 @@ done g = case g ^. phase of
         . slideTile
         )
           g
-  _ -> (nextPhase . nextToken) g
+  _    -> (nextPhase . nextToken) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)

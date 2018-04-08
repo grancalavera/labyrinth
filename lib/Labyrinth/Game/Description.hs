@@ -128,12 +128,12 @@ gates d = Map.fromList (d ^. gGates)
 firstToken :: DGame -> IO Color
 firstToken d = fromJust <$> Random.choose (colors d)
 
-treasureMap :: DGame -> Map Color ([Searching], [Found])
-treasureMap d = Map.fromList $ zipWith (\c t -> (c, (t, []))) cs ts
- where
-  cs  = colors d
-  ts  = L.splitEvery (length ts' `div` length cs) ts'
-  ts' = d ^. gTreasures
+treasureMap :: DGame -> IO (Map Color ([Searching], [Found]))
+treasureMap d = do
+  ts' <- Random.shuffle $ d ^. gTreasures
+  let cs = colors d
+      ts = L.splitEvery (length ts' `div` length cs) ts'
+  return $ Map.fromList $ zipWith (\c t -> (c, (t, []))) cs ts
 
 rows :: DGame -> [Int]
 rows d = [0 .. (d ^. gRows - 1)]
