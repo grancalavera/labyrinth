@@ -1,6 +1,6 @@
 module Labyrinth.Treasure
   ( Treasure(..)
-  , Search
+  , Searching
   , Found
   , treasures
   )
@@ -11,7 +11,7 @@ data Treasure = Bat |  Beetle | Book | Chandelier | Chest | Crown | Dragon
               | Lizzard | Map | Moth | Owl | Princess | Rat | Ring | Skull
               | Spider | Sword deriving (Eq, Show, Enum, Ord)
 
-type Search = Treasure
+type Searching = Treasure
 type Found = Treasure
 
 treasures :: [Treasure]

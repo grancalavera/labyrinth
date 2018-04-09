@@ -29,7 +29,7 @@ import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.List.Extended            as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
-import           Data.Maybe                     ( fromMaybe )
+import           Data.Maybe                     ( fromMaybe, fromJust )
 import           Data.Monoid                    ( (<>) )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
@@ -65,14 +65,13 @@ app = App
   }
 
 drawUI :: UI -> [Widget Name]
-drawUI g = [C.vCenter $ C.hCenter $ Brick.vBox [player g, board g]]
+drawUI ui = [C.vCenter $ C.hCenter $ Brick.vBox [player ui, board ui, status ui]]
 
 player :: UI -> Widget Name
 player ui =
   Brick.withAttr c
     $ Brick.vLimit 1
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
-    $ C.vCenter
     $ Brick.hBox [theLabel, theHint]
  where
   g = ui ^. game
@@ -92,6 +91,16 @@ board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
   tiles'           = Map.map fromTile (g ^. G.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
   emptyOf          = emptyBoard (g ^. G.rows) (g ^. G.cols)
+
+status :: UI -> Widget Name
+status ui =
+  Brick.vLimit 1
+    $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
+    $ Brick.hBox
+        [ C.hCenter $ Brick.str $ getHint ui
+        , C.hCenter $ Brick.str $ getCurrent ui
+        ]
+  where g = ui ^. game
 
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 's') [])) = continue $ showHint ui
@@ -267,10 +276,22 @@ hintCTA :: String
 hintCTA = "?"
 
 showHint :: UI -> UI
-showHint ui = fromMaybe ui $ do
-  g <- G.goal (ui ^. game)
-  c <- Map.lookup g treasureMap
-  return $ ui & hint .~ (show g ++ " (" ++ [c] ++ ")")
+showHint ui = ui & hint .~ getHint ui
+
+getHint :: UI -> String
+getHint ui = fromMaybe "" $ do
+  t <- G.searchingFor (ui ^. game)
+  return $ hintLabel t
+
+getCurrent :: UI -> String
+getCurrent ui = fromMaybe "-" $ do
+  t <-  G.thisTreasure (ui ^. game)
+  return $ hintLabel t
 
 hideHint :: UI -> UI
 hideHint ui = ui & hint .~ hintCTA
+
+hintLabel :: Treasure -> String
+hintLabel t = fromJust $ do
+  c <- Map.lookup t treasureMap
+  return (show t ++ " (" ++ [c] ++ ")")

@@ -20,7 +20,9 @@ module Labyrinth.Game
   , lastRow
   , lastColumn
   , player
-  , goal
+  , searchingFor
+  , thisTreasure
+  , tokenPosition
 
   -- State transitions
   , Phase(..)
@@ -38,6 +40,7 @@ import           Control.Monad                  ( guard )
 import qualified Data.List.Extended            as L
 import qualified Data.Tuple                    as Tu
 import qualified Data.Set                      as Set
+import           Data.Set                       ( Set )
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( Map )
 import           Data.Maybe                     ( fromJust
@@ -49,7 +52,8 @@ import           Labyrinth.Direction            ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
 import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Treasure             ( Search
+import           Labyrinth.Treasure             ( Treasure
+                                                , Searching
                                                 , Found
                                                 )
 import qualified Labyrinth.Players             as P
@@ -70,14 +74,14 @@ data Phase = Plan | Search | Over deriving (Show, Eq)
 
 data Game = Game
     { _tileAt      :: Position
-    , _token     :: Color
+    , _token       :: Color
     , _phase       :: Phase
     , _rows        :: [Int]
     , _cols        :: [Int]
     , _players     :: Players
     , _gates       :: Map Position Gate
     , _tiles       :: Map Position Tile
-    , _treasureMap :: Map Color ([Search], [Found])
+    , _treasureMap :: Map Color (Set Searching, Set Found)
     } deriving (Show, Eq)
 makeLenses ''Game
 
@@ -260,14 +264,33 @@ moveToken :: Direction -> Game -> Game
 moveToken d = search . moveToken' d
 
 search :: Game -> Game
-search = id
+search g = fromMaybe g $ do
+  let c = g ^. token
+  t  <- searchingFor g
+  t' <- thisTreasure g
+  guard (t == t')
+  (searching, found) <- Map.lookup c (g ^. treasureMap)
+  return $ done $ g & treasureMap .~ Map.insert
+    c
+    (Set.delete t searching, Set.insert t found)
+    (g ^. treasureMap)
+
+searchingFor :: Game -> Maybe Searching
+searchingFor g =
+  Map.lookup (g ^. token) (g ^. treasureMap) >>= Set.minView . fst >>= Just . fst
+
+thisTreasure :: Game -> Maybe Treasure
+thisTreasure g = do
+  p <- tokenPosition g
+  t <- Map.lookup p (g ^. tiles)
+  t ^. T.treasure
 
 moveToken' :: Direction -> Game -> Game
 moveToken' d g = fromMaybe g $ do
   let token' = g ^. token
       tiles' = g ^. tiles
 
-  fromP <- tokenPosition g token'
+  fromP <- tokenPosition g
   let toP = nudge d fromP
 
   fromT <- Map.lookup fromP tiles'
@@ -341,8 +364,8 @@ pad p g = do
     South -> nudgeNorth
     East  -> nudgeWest
 
-tokenPosition :: Game -> Color -> Maybe Position
-tokenPosition g c = Map.lookup c (positionByColor g)
+tokenPosition :: Game -> Maybe Position
+tokenPosition g = Map.lookup (g ^. token) (positionByColor g)
 
 positionByColor :: Game -> Map Color Position
 positionByColor g =
@@ -363,6 +386,3 @@ tokens g = Map.keys $ P.toMap (g ^. players)
 
 player :: Game -> Player
 player g = fromJust $ Map.lookup (g ^. token) (P.toMap $ g ^. players)
-
-goal :: Game -> Maybe Search
-goal g = Map.lookup (g ^. token) (g ^. treasureMap) >>= (L.safeHead . fst)

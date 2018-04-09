@@ -29,6 +29,7 @@ import           Control.Monad.State            ( StateT
                                                 , put
                                                 )
 import qualified Data.List.Extended            as L
+import           Data.Set                       ( Set )
 import qualified Data.Set                      as Set
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( Map )
@@ -42,7 +43,7 @@ import qualified Labyrinth.Random              as Random
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
 import           Labyrinth.Treasure             ( Treasure(..)
-                                                , Search
+                                                , Searching
                                                 , Found
                                                 )
 import           Labyrinth.Players              ( Color(..)
@@ -128,12 +129,12 @@ gates d = Map.fromList (d ^. gGates)
 firstToken :: DGame -> IO Color
 firstToken d = fromJust <$> Random.choose (colors d)
 
-treasureMap :: DGame -> IO (Map Color ([Search], [Found]))
+treasureMap :: DGame -> IO (Map Color (Set Searching, Set Found))
 treasureMap d = do
   ts' <- Random.shuffle $ d ^. gTreasures
   let cs = colors d
       ts = L.splitEvery (length ts' `div` length cs) ts'
-  return $ Map.fromList $ zipWith (\c t -> (c, (t, []))) cs ts
+  return $ Map.fromList $ zipWith (\c t -> (c, (Set.fromList t, Set.empty))) cs ts
 
 rows :: DGame -> [Int]
 rows d = [0 .. (d ^. gRows - 1)]
