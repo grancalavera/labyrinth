@@ -76,7 +76,7 @@ player ui =
     $ Brick.hBox [theLabel, theHint]
  where
   g = ui ^. game
-  c = Brick.attrName $ show $ g ^. G.playing
+  c = Brick.attrName $ show $ g ^. G.token
   theLabel =
     C.hCenter $ Brick.str $ "Playing: " ++ T.unpack (G.player g ^. Players.name)
   theHint = C.hCenter $ Brick.str (ui ^. hint)
@@ -106,10 +106,10 @@ handleEvent ui e = case ui ^. game of
     VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ inGame G.rotateTile' ui
     _ -> handleCommon ui e
   Game { _phase = Search, ..} -> case e of
-    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.search East) ui
-    VtyEvent (V.EvKey V.KLeft  []) -> continue $ inGame (G.search West) ui
-    VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.search North) ui
-    VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.search South) ui
+    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.moveToken East) ui
+    VtyEvent (V.EvKey V.KLeft  []) -> continue $ inGame (G.moveToken West) ui
+    VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.moveToken North) ui
+    VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.moveToken South) ui
     _                              -> handleCommon ui e
   Game { _phase = Over, ..}   -> handleCommon ui e
 
