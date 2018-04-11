@@ -91,13 +91,15 @@ board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
 
 status :: UI -> Widget Name
 status ui =
-  Brick.vLimit 1
+  Brick.vLimit rows
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
-    $ Brick.hBox
-        [ C.hCenter $ Brick.str $ getHint ui
-        , C.hCenter $ Brick.str $ getCurrent ui
-        ]
-  where g = ui ^. game
+    $ Brick.hBox (map statusRow treasureGroups)
+  where
+    g = ui ^. game
+    treasureGroups = L.splitEvery rows Treasure.treasures
+    statusRow = Brick.vBox . map statusCell
+    statusCell t = Brick.hBox [Brick.str (hintLabel t), Brick.fill ' ']
+    rows = 6
 
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 's') [])) = continue $ showHint ui
@@ -276,14 +278,10 @@ showHint :: UI -> UI
 showHint ui = ui & hint .~ getHint ui
 
 getHint :: UI -> String
-getHint ui = fromMaybe "" $ do
-  t <- G.searchingFor (ui ^. game)
-  return $ hintLabel t
+getHint ui = maybe "" hintLabel (G.searchingFor (ui ^. game))
 
 getCurrent :: UI -> String
-getCurrent ui = fromMaybe "-" $ do
-  t <-  G.thisTreasure (ui ^. game)
-  return $ hintLabel t
+getCurrent ui = maybe "-" hintLabel (G.thisTreasure (ui ^. game))
 
 hideHint :: UI -> UI
 hideHint ui = ui & hint .~ hintCTA
@@ -291,4 +289,4 @@ hideHint ui = ui & hint .~ hintCTA
 hintLabel :: Treasure -> String
 hintLabel t = fromJust $ do
   c <- Map.lookup t treasureMap
-  return (show t ++ " (" ++ [c] ++ ")")
+  return ([c] ++ ": " ++ show t)
