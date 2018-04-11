@@ -72,13 +72,10 @@ player ui =
   Brick.withAttr c
     $ Brick.vLimit 1
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
-    $ Brick.hBox [theLabel, theHint]
+    $ C.hCenter $ Brick.str $ T.unpack (G.player g ^. Players.name)
  where
   g = ui ^. game
   c = Brick.attrName $ show $ g ^. G.token
-  theLabel =
-    C.hCenter $ Brick.str $ "Playing: " ++ T.unpack (G.player g ^. Players.name)
-  theHint = C.hCenter $ Brick.str (ui ^. hint)
 
 board :: UI -> Widget Name
 board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
