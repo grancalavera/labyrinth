@@ -21,7 +21,7 @@ module Labyrinth.Game
   , lastColumn
   , player
   , searchingFor
-  , thisTreasure
+  , treasureOnThisTile
   , tokenPosition
 
   -- State transitions
@@ -267,7 +267,7 @@ search :: Game -> Game
 search g = fromMaybe g $ do
   let c = g ^. token
   t  <- searchingFor g
-  t' <- thisTreasure g
+  t' <- treasureOnThisTile g
   guard (t == t')
   (searching, found) <- Map.lookup c (g ^. treasureMap)
   return $ done $ g & treasureMap .~ Map.insert
@@ -279,8 +279,8 @@ searchingFor :: Game -> Maybe Searching
 searchingFor g =
   Map.lookup (g ^. token) (g ^. treasureMap) >>= Set.minView . fst >>= Just . fst
 
-thisTreasure :: Game -> Maybe Treasure
-thisTreasure g = do
+treasureOnThisTile :: Game -> Maybe Treasure
+treasureOnThisTile g = do
   p <- tokenPosition g
   t <- Map.lookup p (g ^. tiles)
   t ^. T.treasure

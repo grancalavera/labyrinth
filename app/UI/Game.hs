@@ -20,7 +20,9 @@ import           Brick                          ( App(..)
 import qualified Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Control.Monad                  ( void )
+import           Control.Monad                  ( void
+                                                , guard
+                                                )
 import           Lens.Micro                     ( (^.)
                                                 , (&)
                                                 , (.~)
@@ -29,7 +31,9 @@ import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.List.Extended            as L
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
-import           Data.Maybe                     ( fromMaybe, fromJust )
+import           Data.Maybe                     ( fromMaybe
+                                                , fromJust
+                                                )
 import           Data.Monoid                    ( (<>) )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
@@ -48,12 +52,12 @@ import qualified UI.Graphics                   as Graphics
 type Name = ()
 data UI = UI {
   _game :: Game
-, _hint :: String
+, _hint :: Bool
 } deriving (Show)
 makeLenses ''UI
 
 playGame :: Game -> IO Name
-playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = hintCTA}
+playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = False}
 
 app :: App UI e Name
 app = App
@@ -69,13 +73,13 @@ drawUI ui = [C.vCenter $ C.hCenter $ Brick.vBox [player ui, board ui, status ui]
 
 player :: UI -> Widget Name
 player ui =
-  Brick.withAttr c
+  withTokenAttr ui
     $ Brick.vLimit 1
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
-    $ C.hCenter $ Brick.str $ T.unpack (G.player g ^. Players.name)
- where
-  g = ui ^. game
-  c = Brick.attrName $ show $ g ^. G.token
+    $ C.hCenter
+    $ Brick.str
+    $ T.unpack (G.player g ^. Players.name)
+  where g = ui ^. game
 
 board :: UI -> Widget Name
 board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
@@ -85,25 +89,28 @@ board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
   g                = ui ^. game
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. G.gates)
-  tiles'           = Map.map fromTile (g ^. G.tiles)
+  tiles'           = Map.map hintedTile (g ^. G.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
   emptyOf          = emptyBoard (g ^. G.rows) (g ^. G.cols)
+  hintedTile t = fromMaybe (fromTile t) $ do
+    t' <- t ^. Tile.treasure
+    return $ withHintAttr t' ui $ fromTile t
 
 status :: UI -> Widget Name
 status ui =
   Brick.vLimit rows
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
     $ Brick.hBox (map statusRow treasureGroups)
-  where
-    g = ui ^. game
-    treasureGroups = L.splitEvery rows Treasure.treasures
-    statusRow = Brick.vBox . map statusCell
-    statusCell t = Brick.hBox [Brick.str (hintLabel t), Brick.fill ' ']
-    rows = 6
+ where
+  g              = ui ^. game
+  treasureGroups = L.splitEvery rows Treasure.treasures
+  statusRow      = Brick.vBox . map statusCell
+  statusCell t =
+    Brick.hBox [withHintAttr t ui $ Brick.str (hintLabel t), Brick.fill ' ']
+  rows = 6
 
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
-handleEvent ui (VtyEvent (V.EvKey (V.KChar 's') [])) = continue $ showHint ui
-handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ hideHint ui
+handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ showHint ui
 handleEvent ui e = case ui ^. game of
   Game { _phase = Plan, ..}   -> case e of
     VtyEvent (V.EvKey V.KRight []      ) -> continue $ inGame (G.moveTile East) ui
@@ -219,7 +226,7 @@ fromTile t = case Tile.tokenList t of
           , Brick.withAttr (attr p3) $ widget4p p3'
           , Brick.withAttr (attr p4) $ widget4p p4'
           ]
-  _ -> Brick.withAttr "default" $ fromRaw rawTile
+  _ -> fromRaw rawTile
  where
   rawTile = toRawTile t
   attr c = Brick.attrName $ show c
@@ -271,22 +278,23 @@ toRows mn mx m = map (Map.toList . (`getRow` m)) [mn .. mx]
 getRow :: Int -> Map Position a -> Map Position a
 getRow r = Map.filterWithKey (\p _ -> p ^. _x == r)
 
-hintCTA :: String
-hintCTA = "?"
-
 showHint :: UI -> UI
-showHint ui = ui & hint .~ getHint ui
-
-getHint :: UI -> String
-getHint ui = maybe "" hintLabel (G.searchingFor (ui ^. game))
-
-getCurrent :: UI -> String
-getCurrent ui = maybe "-" hintLabel (G.thisTreasure (ui ^. game))
+showHint ui = ui & hint .~ True
 
 hideHint :: UI -> UI
-hideHint ui = ui & hint .~ hintCTA
+hideHint ui = ui & hint .~ False
 
 hintLabel :: Treasure -> String
 hintLabel t = fromJust $ do
   c <- Map.lookup t treasureMap
   return ([c] ++ ": " ++ show t)
+
+withHintAttr :: Treasure -> UI -> Widget Name -> Widget Name
+withHintAttr t ui = fromMaybe id $ do
+  guard (ui ^. hint)
+  t' <- G.searchingFor (ui ^. game)
+  guard (t == t')
+  return $ withTokenAttr ui
+
+withTokenAttr :: UI -> Widget Name -> Widget Name
+withTokenAttr ui = Brick.withAttr (Brick.attrName $ show (ui ^. game . G.token))
