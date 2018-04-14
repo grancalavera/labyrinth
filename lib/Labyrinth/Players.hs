@@ -7,6 +7,7 @@ module Labyrinth.Players
   , name
   , Players
   , toMap
+  , toList
   , fromList
   , next
   )
@@ -37,8 +38,11 @@ fromList ps | s >= 2 && s <= 4 = Just $ Players ps'
   ps' = Map.fromList ps
   s   = Map.size ps'
 
+toList :: Players -> [(Color, Player)]
+toList = Map.toList . toMap
+
 next :: Player -> Players -> Player
 next p ps = cycle l !! (i + 1)
  where
   i = fromJust $ L.elemIndex p l
-  l = map snd $ Map.toList $ toMap ps
+  l = map snd $ toList ps

@@ -35,6 +35,7 @@ import           Data.Maybe                     ( fromMaybe
                                                 , fromJust
                                                 )
 import           Data.Monoid                    ( (<>) )
+import           Data.Text                      ( unpack )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
 import           Linear.V2                      ( V2(..)
@@ -100,14 +101,29 @@ status :: UI -> Widget Name
 status ui =
   Brick.vLimit rows
     $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
-    $ Brick.hBox (map statusRow treasureGroups)
+    $ Brick.hBox
+    $ playerStats ui
+    : treasureLegends rows ui
  where
-  g              = ui ^. game
-  treasureGroups = L.splitEvery rows Treasure.treasures
-  statusRow      = Brick.vBox . map statusCell
+  g    = ui ^. game
+  rows = 8
+
+treasureLegends :: Int -> UI -> [Widget Name]
+treasureLegends rows ui = map statusRow $ L.splitEvery rows Treasure.treasures
+ where
+  statusRow = Brick.vBox . map statusCell
   statusCell t =
     Brick.hBox [withHintAttr t ui $ Brick.str (hintLabel t), Brick.fill ' ']
-  rows = 6
+
+playerStats :: UI -> Widget Name
+playerStats ui =
+  Brick.padLeftRight 1
+    $  Brick.vBox
+    $  map stats (Players.toList $ ui ^. game . G.players)
+ where
+  stats cp = Brick.vBox [nameWidget cp, statsWidget cp]
+  nameWidget = Brick.str . unpack . (^. Players.name) . snd
+  statsWidget _ = Brick.str  "✓✓✓✓✓✓______"
 
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ showHint ui
@@ -133,7 +149,7 @@ handleCommon ui (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt ui
 handleCommon ui (VtyEvent (V.EvKey V.KEsc        [])) = halt ui
 handleCommon ui (VtyEvent (V.EvKey V.KEnter      [])) = continue $ inGame G.done ui
 handleCommon ui (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ inGame G.done ui
-handleCommon ui _ = continue ui
+handleCommon ui _ = continue $ hideHint ui
 
 inGame :: (Game -> Game) -> UI -> UI
 inGame f ui = game .~ f (ui ^. game) $ hideHint ui
