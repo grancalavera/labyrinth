@@ -29,6 +29,7 @@ import           Lens.Micro                     ( (^.)
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.List.Extended            as L
+import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
 import           Data.Maybe                     ( fromMaybe
@@ -116,14 +117,17 @@ treasureLegends rows ui = map statusRow $ L.splitEvery rows Treasure.treasures
     Brick.hBox [withHintAttr t ui $ Brick.str (hintLabel t), Brick.fill ' ']
 
 playerStats :: UI -> Widget Name
-playerStats ui =
-  Brick.padLeftRight 1
-    $  Brick.vBox
-    $  map stats (Players.toList $ ui ^. game . G.players)
+playerStats ui = Brick.padLeftRight 1 $ Brick.vBox $ map
+  stats
+  (Players.toList $ ui ^. game . G.players)
  where
-  stats cp = Brick.vBox [nameWidget cp, statsWidget cp]
-  nameWidget = Brick.str . unpack . (^. Players.name) . snd
-  statsWidget _ = Brick.str  "✓✓✓✓✓✓______"
+  stats (c, p) = Brick.vBox [nameWidget p, statsWidget c]
+  nameWidget = Brick.str . unpack . (^. Players.name)
+  statsWidget c = fromMaybe (Brick.fill ' ') $ do
+    (searching, found) <- Map.lookup c (ui ^. game . G.treasureMap)
+    let found'     = replicate (Set.size found) '✓'
+        searching' = replicate (Set.size searching) '_'
+    return $ Brick.str $ found' ++ searching'
 
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ showHint ui
