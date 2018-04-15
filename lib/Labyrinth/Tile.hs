@@ -5,14 +5,16 @@
 module Labyrinth.Tile
   ( Tile(..)
   , Terrain(..)
+  , Tokens
   , randomRotate
   , direction
-  , goal
+  , treasure
   , terrain
   , rotate
   , rotate'
-  , players
+  , tokens
   , connected
+  , tokenList
   )
 where
 
@@ -20,20 +22,21 @@ import           Data.Set                       ( Set )
 import qualified Data.Set                      as Set
 import           Labyrinth.Direction            ( Direction(..) )
 import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Goal                 ( Goal )
-import           Labyrinth.Players              ( Player )
+import           Labyrinth.Treasure             ( Treasure )
+import           Labyrinth.Players              ( Color )
 import           Lens.Micro                     ( (%~)
                                                 , (^.)
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 import           System.Random                  ( randomRIO )
 
+type Tokens = Set Color
 data Terrain = Path | Corner | Fork deriving (Show, Eq)
 data Tile = Tile
   { _terrain   :: Terrain
   , _direction :: Direction
-  , _goal      :: Maybe Goal
-  , _players   :: [Player]
+  , _treasure  :: Maybe Treasure
+  , _tokens    :: Tokens
   } deriving (Eq, Show)
 makeLenses ''Tile
 
@@ -73,4 +76,5 @@ connected d exit enter = canExit && canEnter
   canExit  = hasExit d exit
   canEnter = hasExit (Direction.opposite d) enter
 
-
+tokenList :: Tile -> [Color]
+tokenList = Set.toList . (^. tokens)

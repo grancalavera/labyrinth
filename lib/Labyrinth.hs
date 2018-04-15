@@ -5,7 +5,6 @@ module Labyrinth
   , DTile(..)
   , Game(..)
   , Gate(..)
-  , Goal(..)
   , Phase(..)
   , Players
   , Position
@@ -26,10 +25,8 @@ import           Labyrinth.Game.Description     ( DGame(..)
                                                 , DTile(..)
                                                 )
 import           Labyrinth.Gate                 ( Gate(..) )
-import qualified Labyrinth.Goal                as Goal
-import           Labyrinth.Goal                 ( Goal(..)
-                                                , Treasure(..)
-                                                )
+import qualified Labyrinth.Treasure            as Treasure
+import           Labyrinth.Treasure             ( Treasure(..) )
 import           Labyrinth.Players              ( Players
                                                 , Color(..)
                                                 )
@@ -42,4 +39,4 @@ gameFromDescription :: DGame -> IO Game
 gameFromDescription = Game.fromDescription
 
 treasures :: [Treasure]
-treasures = Goal.treasures
+treasures = Treasure.treasures

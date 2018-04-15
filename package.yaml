@@ -18,9 +18,9 @@ library:
   - Labyrinth.Direction
   - Labyrinth.Game
   - Labyrinth.Gate
-  - Labyrinth.Goal
   - Labyrinth.Players
   - Labyrinth.Tile
+  - Labyrinth.Treasure
   - Data.List.Extended
   dependencies:
   - base >=4.7 && <5

@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TemplateHaskell   #-}
 
 module UI.Game
   ( playGame
@@ -19,15 +20,23 @@ import           Brick                          ( App(..)
 import qualified Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Control.Monad                  ( guard
-                                                , void
+import           Control.Monad                  ( void
+                                                , guard
                                                 )
-import           Lens.Micro                     ( (^.) )
+import           Lens.Micro                     ( (^.)
+                                                , (&)
+                                                , (.~)
+                                                )
+import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.List.Extended            as L
+import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map )
 import qualified Data.Map.Strict               as Map
-import           Data.Maybe                     ( fromMaybe )
+import           Data.Maybe                     ( fromMaybe
+                                                , fromJust
+                                                )
 import           Data.Monoid                    ( (<>) )
+import           Data.Text                      ( unpack )
 import qualified Graphics.Vty                  as V
 import           Graphics.Vty.Input.Events      ( Modifier(..) )
 import           Linear.V2                      ( V2(..)
@@ -35,19 +44,24 @@ import           Linear.V2                      ( V2(..)
                                                 )
 import qualified Data.Text                     as T
 import           Labyrinth
-import qualified Labyrinth.Game                as Game
-import qualified Labyrinth.Goal                as Goal
+import qualified Labyrinth.Game                as G
+import qualified Labyrinth.Treasure            as Treasure
 import qualified Labyrinth.Players             as Players
 import qualified Labyrinth.Tile                as Tile
 import qualified UI.Graphics                   as Graphics
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
 type Name = ()
+data UI = UI {
+  _game :: Game
+, _hint :: Bool
+} deriving (Show)
+makeLenses ''UI
 
 playGame :: Game -> IO Name
-playGame g = void $ Brick.defaultMain app g
+playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = False}
 
-app :: App Game e Name
+app :: App UI e Name
 app = App
   { appDraw         = drawUI
   , appHandleEvent  = handleEvent
@@ -56,83 +70,110 @@ app = App
   , appChooseCursor = Brick.neverShowCursor
   }
 
-drawUI :: Game -> [Widget Name]
-drawUI g = [C.vCenter $ C.hCenter $ Brick.vBox [player g, board g]]
+drawUI :: UI -> [Widget Name]
+drawUI ui = [C.vCenter $ C.hCenter $ Brick.vBox [player ui, board ui, status ui]]
 
-player :: Game -> Widget Name
-player g =
-  Brick.withAttr c
-    $  Brick.vLimit 1
-    $  Brick.hLimit ((length (g ^. Game.cols) * Graphics.width) + 2)
-    $  C.vCenter
-    $  C.hCenter
-    $  Brick.str
-    $  T.unpack
-    $  p
-    ^. Players.name
- where
-  p = g ^. Game.player
-  c = Brick.attrName $ show $ p ^. Players.color
+player :: UI -> Widget Name
+player ui =
+  withTokenAttr ui
+    $ Brick.vLimit 1
+    $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
+    $ C.hCenter
+    $ Brick.str
+    $ T.unpack (G.player g ^. Players.name)
+  where g = ui ^. game
 
-board :: Game -> Widget Name
-board g = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
+board :: UI -> Widget Name
+board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
   (Brick.hBox . map snd)
-  (toRows 0 (Game.lastRow g) board')
+  (toRows 0 (G.lastRow g) board')
  where
+  g                = ui ^. game
   emptyWidgetBoard = emptyOf (fromRaw mempty)
-  gates'           = Map.map (fromRaw . toRawGate) (g ^. Game.gates)
-  tiles'           = Map.map fromTile (g ^. Game.tiles)
+  gates'           = Map.map (fromRaw . toRawGate) (g ^. G.gates)
+  tiles'           = Map.map toTile (g ^. G.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
-  emptyOf          = emptyBoard (g ^. Game.rows) (g ^. Game.cols)
+  emptyOf          = emptyBoard (g ^. G.rows) (g ^. G.cols)
+  toTile t = fromMaybe (fromTile toRawTerrain t) $ do
+    t' <- t ^. Tile.treasure
+    guard (not $ G.isFound t' g)
+    return $ withHintAttr t' ui $ fromTile toRawTile t
 
-handleEvent :: Game -> BrickEvent Name e -> EventM Name (Next Game)
-handleEvent g@Game { _phase = Plan, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []      ) -> continue $ Game.moveTile East g
-  VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ Game.moveTile West g
-  VtyEvent (V.EvKey V.KUp    []      ) -> continue $ Game.moveTile North g
-  VtyEvent (V.EvKey V.KDown  []      ) -> continue $ Game.moveTile South g
-  VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ Game.rotateTile g
-  VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ Game.rotateTile' g
-  _ -> handleEventCommon g e
-handleEvent g@Game { _phase = Walk, ..} e = case e of
-  VtyEvent (V.EvKey V.KRight []) -> continue $ Game.movePlayer East g
-  VtyEvent (V.EvKey V.KLeft  []) -> continue $ Game.movePlayer West g
-  VtyEvent (V.EvKey V.KUp    []) -> continue $ Game.movePlayer North g
-  VtyEvent (V.EvKey V.KDown  []) -> continue $ Game.movePlayer South g
-  _                              -> handleEventCommon g e
-handleEvent g e = handleEventCommon g e
+status :: UI -> Widget Name
+status ui =
+  Brick.vLimit rows
+    $ Brick.hLimit ((length (g ^. G.cols) * Graphics.width) + 2)
+    $ Brick.hBox
+    $ playerStats ui
+    : treasureLegends rows ui
+ where
+  g    = ui ^. game
+  rows = 8
 
-handleEventCommon :: Game -> BrickEvent Name e -> EventM Name (Next Game)
-handleEventCommon g (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEsc        [])) = halt g
-handleEventCommon g (VtyEvent (V.EvKey V.KEnter      [])) = continue $ Game.done g
-handleEventCommon g (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ Game.done g
-handleEventCommon g _ = continue g
+treasureLegends :: Int -> UI -> [Widget Name]
+treasureLegends rows ui = map statusRow $ L.splitEvery rows Treasure.treasures
+ where
+  statusRow = Brick.vBox . map statusCell
+  statusCell t =
+    Brick.hBox [withHintAttr t ui $ Brick.str (hintLabel t), Brick.fill ' ']
+
+playerStats :: UI -> Widget Name
+playerStats ui = Brick.padLeftRight 1 $ Brick.vBox $ map
+  stats
+  (Players.toList $ ui ^. game . G.players)
+ where
+  stats (c, p) = Brick.vBox [nameWidget p, statsWidget c]
+  nameWidget = Brick.str . unpack . (^. Players.name)
+  statsWidget c = fromMaybe (Brick.fill ' ') $ do
+    (searching, found) <- Map.lookup c (ui ^. game . G.treasureMap)
+    let found'     = replicate (Set.size found) '✓'
+        searching' = replicate (Set.size searching) '_'
+    return $ Brick.str $ found' ++ searching'
+
+handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
+handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ showHint ui
+handleEvent ui e = case ui ^. game of
+  Game { _phase = Plan, ..}   -> case e of
+    VtyEvent (V.EvKey V.KRight []      ) -> continue $ inGame (G.moveTile East) ui
+    VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ inGame (G.moveTile West) ui
+    VtyEvent (V.EvKey V.KUp    []      ) -> continue $ inGame (G.moveTile North) ui
+    VtyEvent (V.EvKey V.KDown  []      ) -> continue $ inGame (G.moveTile South) ui
+    VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ inGame G.rotateTile ui
+    VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ inGame G.rotateTile' ui
+    _ -> handleCommon ui e
+  Game { _phase = Search, ..} -> case e of
+    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.moveToken East) ui
+    VtyEvent (V.EvKey V.KLeft  []) -> continue $ inGame (G.moveToken West) ui
+    VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.moveToken North) ui
+    VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.moveToken South) ui
+    _                              -> handleCommon ui e
+  Game { _phase = Over, ..}   -> handleCommon ui e
+
+handleCommon :: UI -> BrickEvent Name e -> EventM Name (Next UI)
+handleCommon ui (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt ui
+handleCommon ui (VtyEvent (V.EvKey V.KEsc        [])) = halt ui
+handleCommon ui (VtyEvent (V.EvKey V.KEnter      [])) = continue $ inGame G.done ui
+handleCommon ui (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ inGame G.done ui
+handleCommon ui _ = continue $ hideHint ui
+
+inGame :: (Game -> Game) -> UI -> UI
+inGame f ui = game .~ f (ui ^. game) $ hideHint ui
 
 toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
 toRawGate (Gate d _    ) = Cell $ Graphics.gate d
 
-toRawTile :: Tile -> RawCell
-toRawTile t = mempty <> toRawFound t <> toRawTreasure t <> toRawTerrain t
-
 toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
-  (Goal t' _) <- t ^. Tile.goal
-  c           <- Map.lookup t' treasureMap
+  t' <- t ^. Tile.treasure
+  c  <- Map.lookup t' treasureMap
   return $ Cell $ Graphics.treasure c
-
-treasureMap :: Map Treasure Char
-treasureMap = Map.fromList $ zip Goal.treasures ['A' ..]
-
-toRawFound :: Tile -> RawCell
-toRawFound t = fromMaybe mempty $ do
-  (Goal _ isFound) <- t ^. Tile.goal
-  guard isFound
-  return $ Cell $ Graphics.treasure '✓'
 
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = Cell $ Graphics.tile (t ^. Tile.terrain) (t ^. Tile.direction)
+
+toRawTile :: Tile -> RawCell
+toRawTile t = toRawTreasure t <> toRawTerrain t
 
 data RawCell = Cell String | Empty
 
@@ -179,8 +220,8 @@ attributeMap = Brick.attrMap
   , ("Red"   , V.black `on` V.red)
   ]
 
-fromTile :: Tile -> Widget Name
-fromTile t = case t ^. Tile.players of
+fromTile :: (Tile -> RawCell) -> Tile -> Widget Name
+fromTile toTile t = case Tile.tokenList t of
   [p1] -> Brick.withAttr (attr p1) $ fromRaw rawTile
   [p1, p2] ->
     let (p1', p2') = twoPlayers $ extract rawTile
@@ -203,10 +244,10 @@ fromTile t = case t ^. Tile.players of
           , Brick.withAttr (attr p3) $ widget4p p3'
           , Brick.withAttr (attr p4) $ widget4p p4'
           ]
-  _ -> Brick.withAttr "default" $ fromRaw rawTile
+  _ -> fromRaw rawTile
  where
-  rawTile = toRawTile t
-  attr p = Brick.attrName $ show (p ^. Players.color)
+  rawTile = toTile t
+  attr c = Brick.attrName $ show c
 
 twoPlayers :: String -> (String, String)
 twoPlayers xs =
@@ -254,3 +295,27 @@ toRows mn mx m = map (Map.toList . (`getRow` m)) [mn .. mx]
 
 getRow :: Int -> Map Position a -> Map Position a
 getRow r = Map.filterWithKey (\p _ -> p ^. _x == r)
+
+showHint :: UI -> UI
+showHint ui = ui & hint .~ True
+
+hideHint :: UI -> UI
+hideHint ui = ui & hint .~ False
+
+hintLabel :: Treasure -> String
+hintLabel t = fromJust $ do
+  c <- Map.lookup t treasureMap
+  return ([c] ++ ": " ++ show t)
+
+withHintAttr :: Treasure -> UI -> Widget Name -> Widget Name
+withHintAttr t ui = fromMaybe id $ do
+  guard (ui ^. hint)
+  t' <- G.searchingFor (ui ^. game)
+  guard (t == t')
+  return $ withTokenAttr ui
+
+withTokenAttr :: UI -> Widget Name -> Widget Name
+withTokenAttr ui = Brick.withAttr (Brick.attrName $ show (ui ^. game . G.token))
+
+treasureMap :: Map Treasure Char
+treasureMap = Map.fromList $ zip Treasure.treasures ['A' ..]
