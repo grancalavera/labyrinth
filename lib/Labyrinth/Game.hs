@@ -23,6 +23,7 @@ module Labyrinth.Game
   , searchingFor
   , treasureOnThisTile
   , tokenPosition
+  , isFound
 
   -- State transitions
   , Phase(..)
@@ -37,6 +38,7 @@ module Labyrinth.Game
 where
 
 import           Control.Monad                  ( guard )
+import           Data.Monoid                    ( (<>) )
 import qualified Data.List.Extended            as L
 import qualified Data.Tuple                    as Tu
 import qualified Data.Set                      as Set
@@ -386,3 +388,14 @@ tokens g = Map.keys $ P.toMap (g ^. players)
 
 player :: Game -> Player
 player g = fromJust $ Map.lookup (g ^. token) (P.toMap $ g ^. players)
+
+globalStats :: Game -> (Set Searching, Set Found)
+globalStats g =
+  foldl (\(s, f) (s', f') -> (s <> s', f <> f')) (mempty, mempty)
+    $  map snd
+    $  Map.toList
+    $  g
+    ^. treasureMap
+
+isFound :: Treasure -> Game -> Bool
+isFound t g = let (_, found) = globalStats g in Set.member t found

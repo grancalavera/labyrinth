@@ -91,12 +91,13 @@ board ui = Brick.padTop (Brick.Pad 1) $ B.border $ Brick.vBox $ map
   g                = ui ^. game
   emptyWidgetBoard = emptyOf (fromRaw mempty)
   gates'           = Map.map (fromRaw . toRawGate) (g ^. G.gates)
-  tiles'           = Map.map hintedTile (g ^. G.tiles)
+  tiles'           = Map.map toTile (g ^. G.tiles)
   board'           = tiles' <> gates' <> emptyWidgetBoard
   emptyOf          = emptyBoard (g ^. G.rows) (g ^. G.cols)
-  hintedTile t = fromMaybe (fromTile t) $ do
+  toTile t = fromMaybe (fromTile toRawTerrain t) $ do
     t' <- t ^. Tile.treasure
-    return $ withHintAttr t' ui $ fromTile t
+    guard (not $ G.isFound t' g)
+    return $ withHintAttr t' ui $ fromTile toRawTile t
 
 status :: UI -> Widget Name
 status ui =
@@ -162,20 +163,17 @@ toRawGate :: Gate -> RawCell
 toRawGate (Gate _ False) = Empty
 toRawGate (Gate d _    ) = Cell $ Graphics.gate d
 
-toRawTile :: Tile -> RawCell
-toRawTile t = mempty <> toRawTreasure t <> toRawTerrain t
-
 toRawTreasure :: Tile -> RawCell
 toRawTreasure t = fromMaybe mempty $ do
   t' <- t ^. Tile.treasure
   c  <- Map.lookup t' treasureMap
   return $ Cell $ Graphics.treasure c
 
-treasureMap :: Map Treasure Char
-treasureMap = Map.fromList $ zip Treasure.treasures ['A' ..]
-
 toRawTerrain :: Tile -> RawCell
 toRawTerrain t = Cell $ Graphics.tile (t ^. Tile.terrain) (t ^. Tile.direction)
+
+toRawTile :: Tile -> RawCell
+toRawTile t = toRawTreasure t <> toRawTerrain t
 
 data RawCell = Cell String | Empty
 
@@ -222,8 +220,8 @@ attributeMap = Brick.attrMap
   , ("Red"   , V.black `on` V.red)
   ]
 
-fromTile :: Tile -> Widget Name
-fromTile t = case Tile.tokenList t of
+fromTile :: (Tile -> RawCell) -> Tile -> Widget Name
+fromTile toTile t = case Tile.tokenList t of
   [p1] -> Brick.withAttr (attr p1) $ fromRaw rawTile
   [p1, p2] ->
     let (p1', p2') = twoPlayers $ extract rawTile
@@ -248,7 +246,7 @@ fromTile t = case Tile.tokenList t of
           ]
   _ -> fromRaw rawTile
  where
-  rawTile = toRawTile t
+  rawTile = toTile t
   attr c = Brick.attrName $ show c
 
 twoPlayers :: String -> (String, String)
@@ -318,3 +316,6 @@ withHintAttr t ui = fromMaybe id $ do
 
 withTokenAttr :: UI -> Widget Name -> Widget Name
 withTokenAttr ui = Brick.withAttr (Brick.attrName $ show (ui ^. game . G.token))
+
+treasureMap :: Map Treasure Char
+treasureMap = Map.fromList $ zip Treasure.treasures ['A' ..]
