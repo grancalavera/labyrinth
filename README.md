@@ -6,7 +6,7 @@
 
 I have only tested this project using [Stack](https://docs.haskellstack.org/en/stable/README/). Currently the only way to get the project runnig is building it from source:
 
-```hs
+```bash
 ~ git clone git@github.com:grancalavera/labyrinth.git
 ~ cd labyrinth
 ~ stack build
