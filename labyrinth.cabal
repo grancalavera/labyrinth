@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f57a3dc841e3cff2ae7c7d8f0e0f4bee7c0c1cd38a0ec931d06127bed3063dfe
+-- hash: 534beecac0ef079507d35fa6a024616f5e4d433786f0ee3472a10352b90c8766
 
 name:           labyrinth
 version:        0.1.0.0
@@ -16,7 +16,6 @@ license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
-
 extra-source-files:
     README.md
 

@@ -177,12 +177,14 @@ toRawTile t = toRawTreasure t <> toRawTerrain t
 
 data RawCell = Cell String | Empty
 
+instance Semigroup RawCell where
+  Empty  <> Empty  = Empty
+  Empty  <> Cell x = Cell x
+  Cell x <> Empty  = Cell x
+  Cell x <> Cell y = Cell (zipWith choose x y)
+
 instance Monoid RawCell where
   mempty = Empty
-  Empty     `mappend` Empty  = Empty
-  Empty     `mappend` Cell x = Cell x
-  Cell x    `mappend` Empty  = Cell x
-  Cell x    `mappend` Cell y = Cell (zipWith choose x y)
 
 choose :: Char -> Char -> Char
 choose ' ' c   = c
