@@ -134,7 +134,9 @@ treasureMap d = do
   ts' <- Random.shuffle $ d ^. gTreasures
   let cs = colors d
       ts = L.splitEvery (length ts' `div` length cs) ts'
-  return $ Map.fromList $ zipWith (\c t -> (c, (Set.fromList t, Set.empty))) cs ts
+  return $ Map.fromList $ zipWith (\c t -> (c, (Set.fromList t, Set.empty)))
+                                  cs
+                                  ts
 
 rows :: DGame -> [Int]
 rows d = [0 .. (d ^. gRows - 1)]

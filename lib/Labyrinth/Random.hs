@@ -1,5 +1,4 @@
-module Labyrinth.Random
-where
+module Labyrinth.Random where
 
 import qualified Data.Array.IO                 as AIO
 import           Data.Array.IO                  ( IOArray )
@@ -23,3 +22,4 @@ shuffle xs = do
   n = length xs
   newArray :: Int -> [a] -> IO (IOArray Int a)
   newArray n' = AIO.newListArray (1, n')
+

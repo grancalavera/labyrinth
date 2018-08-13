@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f57a3dc841e3cff2ae7c7d8f0e0f4bee7c0c1cd38a0ec931d06127bed3063dfe
+-- hash: cadedd98e1d3af13fc77affaa5dbe79e30c20ddcf796ec9d57beb5c2f2d1057f
 
 name:           labyrinth
 version:        0.1.0.0
@@ -16,7 +16,6 @@ license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
-
 extra-source-files:
     README.md
 
@@ -27,7 +26,7 @@ source-repository head
 library
   hs-source-dirs:
       lib
-  ghc-options: -Wall
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
     , base >=4.7 && <5
@@ -58,7 +57,7 @@ executable labyrinth
   main-is: Main.hs
   hs-source-dirs:
       app
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
     , brick
@@ -81,7 +80,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base

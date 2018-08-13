@@ -13,6 +13,10 @@ library:
   - lib
   ghc-options:
   - -Wall
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Labyrinth
   - Labyrinth.Direction
@@ -38,6 +42,10 @@ executables:
     source-dirs: app
     ghc-options:
     - -Wall
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
@@ -58,6 +66,10 @@ tests:
     source-dirs: test
     ghc-options:
     - -Wall
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
