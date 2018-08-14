@@ -15,33 +15,10 @@ import           UI.Players                     ( addPlayers )
 import           UI.Game                        ( playGame )
 
 main :: IO ()
-main = addPlayers >>= regularGame >>= playGame
+main = addPlayers >>= game >>= playGame
 
-testGame :: Players -> IO Game
-testGame players = Labyrinth.gameFromDescription DGame
-  { _gPlayers       = players
-  , _gStartPosition = V2 0 2
-  , _gTreasures     = []
-  , _gRows          = 6
-  , _gCols          = 5
-  , _gGates         = []
-  , _gTiles = [ DTile Path   (Just $ V2 1 1) (Just North) False (Just Yellow)
-              , DTile Corner (Just $ V2 1 2) (Just North) False Nothing
-              , DTile Fork   (Just $ V2 1 3) (Just North) False Nothing
-              , DTile Path   (Just $ V2 2 1) (Just North) False (Just Red)
-              , DTile Corner (Just $ V2 2 2) (Just North) False Nothing
-              , DTile Fork   (Just $ V2 2 3) (Just North) False Nothing
-              , DTile Path   (Just $ V2 3 1) (Just North) False (Just Blue)
-              , DTile Corner (Just $ V2 3 2) (Just North) False Nothing
-              , DTile Fork   (Just $ V2 3 3) (Just North) False Nothing
-              , DTile Path   (Just $ V2 4 1) (Just North) False (Just Green)
-              , DTile Corner (Just $ V2 4 2) (Just North) False Nothing
-              , DTile Fork   (Just $ V2 4 3) (Just North) False Nothing
-              ]
-  }
-
-regularGame :: Players -> IO Game
-regularGame players = Labyrinth.gameFromDescription DGame
+game :: Players -> IO Game
+game players = Labyrinth.gameFromDescription DGame
   { _gPlayers       = players
   , _gStartPosition = V2 0 2
   , _gTreasures     = Labyrinth.treasures
@@ -82,7 +59,3 @@ regularGame players = Labyrinth.gameFromDescription DGame
     ++ replicate 10 (DTile Corner Nothing Nothing False Nothing)
     ++ replicate 6  (DTile Fork Nothing Nothing True Nothing)
   }
-
-
-f :: IO ()
-f = putStrLn "Hello  world"
