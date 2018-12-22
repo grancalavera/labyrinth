@@ -47,14 +47,14 @@ data Name = P1Field
           deriving (Eq, Ord, Show)
 
 addPlayers :: IO Players
-addPlayers = addPlayers' PlayersInfo {_p1 = "", _p2 = "", _p3 = "", _p4 = ""}
+addPlayers = addPlayers' PlayersInfo { _p1 = "", _p2 = "", _p3 = "", _p4 = "" }
 
 addPlayers' :: PlayersInfo -> IO Players
 addPlayers' initialState = do
   f <- Brick.defaultMain app $ mkForm initialState
   let st = formState f
       ps =
-        map (\(c, n) -> (c, Player {_name = n}))
+        map (\(c, n) -> (c, Player { _name = n }))
           $ filter ((/= "") . snd)
           $ map (\(c, l) -> (c, st ^. l))
           $ zip Players.colors [p1, p2, p3, p4]
@@ -93,13 +93,12 @@ draw f = [C.vCenter $ C.hCenter form]
   where form = B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm f
 
 app :: App (Form PlayersInfo e Name) e Name
-app = App
-  { appDraw         = draw
-  , appHandleEvent  = handleEvent
-  , appChooseCursor = focusRingCursor formFocus
-  , appStartEvent   = return
-  , appAttrMap      = const theMap
-  }
+app = App { appDraw         = draw
+          , appHandleEvent  = handleEvent
+          , appChooseCursor = focusRingCursor formFocus
+          , appStartEvent   = return
+          , appAttrMap      = const theMap
+          }
 
 handleEvent
   :: Form PlayersInfo e Name

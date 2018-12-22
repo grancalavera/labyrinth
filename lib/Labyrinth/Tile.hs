@@ -46,10 +46,12 @@ edges t = Set.fromList $ case (t ^. terrain, t ^. direction) of
   (Path  , West ) -> [West, East]
   (Path  , South) -> [North, South]
   (Path  , East ) -> [West, East]
+
   (Corner, North) -> [North, West]
   (Corner, West ) -> [West, South]
   (Corner, South) -> [South, East]
   (Corner, East ) -> [East, North]
+
   (Fork  , North) -> [North, West, East]
   (Fork  , West ) -> [North, West, South]
   (Fork  , South) -> [West, South, East]

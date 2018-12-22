@@ -54,8 +54,8 @@ game players = Labyrinth.gameFromDescription DGame
               , DTile Fork   (Just $ V2 3 5) (Just South) True  Nothing
               , DTile Fork   (Just $ V2 5 5) (Just West)  True  Nothing
               ]
-    ++ replicate 12 (DTile Path Nothing Nothing False Nothing)
-    ++ replicate 6  (DTile Corner Nothing Nothing True Nothing)
-    ++ replicate 10 (DTile Corner Nothing Nothing False Nothing)
-    ++ replicate 6  (DTile Fork Nothing Nothing True Nothing)
+              ++ replicate 12 (DTile Path Nothing Nothing False Nothing)
+              ++ replicate 6  (DTile Corner Nothing Nothing True Nothing)
+              ++ replicate 10 (DTile Corner Nothing Nothing False Nothing)
+              ++ replicate 6  (DTile Fork Nothing Nothing True Nothing)
   }

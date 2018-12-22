@@ -28,4 +28,3 @@ previous = next . next . next
 
 random :: IO Direction
 random = toEnum <$> randomRIO (0, 3)
-

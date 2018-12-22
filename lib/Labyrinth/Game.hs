@@ -1,6 +1,4 @@
-{-# LANGUAGE NamedFieldPuns  #-}
 {-# LANGUAGE RankNTypes      #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Labyrinth.Game
@@ -123,7 +121,7 @@ done g = case g ^. phase of
         . slideTile
         )
           g
-  _    -> (nextPhase . nextToken) g
+  _ -> (nextPhase . nextToken) g
 
 slideTile :: Game -> Game
 slideTile g = g & tiles .~ Map.mapKeys slide (g ^. tiles)
@@ -279,7 +277,11 @@ search g = fromMaybe g $ do
 
 searchingFor :: Game -> Maybe Searching
 searchingFor g =
-  Map.lookup (g ^. token) (g ^. treasureMap) >>= Set.minView . fst >>= Just . fst
+  Map.lookup (g ^. token) (g ^. treasureMap)
+    >>= Set.minView
+    .   fst
+    >>= Just
+    .   fst
 
 treasureOnThisTile :: Game -> Maybe Treasure
 treasureOnThisTile g = do

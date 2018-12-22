@@ -71,7 +71,8 @@ app = App
   }
 
 drawUI :: UI -> [Widget Name]
-drawUI ui = [C.vCenter $ C.hCenter $ Brick.vBox [player ui, board ui, status ui]]
+drawUI ui =
+  [C.vCenter $ C.hCenter $ Brick.vBox [player ui, board ui, status ui]]
 
 player :: UI -> Widget Name
 player ui =
@@ -133,13 +134,13 @@ playerStats ui = Brick.padLeftRight 1 $ Brick.vBox $ map
 handleEvent :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleEvent ui (VtyEvent (V.EvKey (V.KChar 'h') [])) = continue $ showHint ui
 handleEvent ui e = case ui ^. game of
-  Game { _phase = Plan, ..}   -> case e of
-    VtyEvent (V.EvKey V.KRight []      ) -> continue $ inGame (G.moveTile East) ui
-    VtyEvent (V.EvKey V.KLeft  []      ) -> continue $ inGame (G.moveTile West) ui
-    VtyEvent (V.EvKey V.KUp    []      ) -> continue $ inGame (G.moveTile North) ui
-    VtyEvent (V.EvKey V.KDown  []      ) -> continue $ inGame (G.moveTile South) ui
+  Game { _phase = Plan, ..} -> case e of
+    VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.moveTile East) ui
+    VtyEvent (V.EvKey V.KLeft []) -> continue $ inGame (G.moveTile West) ui
+    VtyEvent (V.EvKey V.KUp []) -> continue $ inGame (G.moveTile North) ui
+    VtyEvent (V.EvKey V.KDown []) -> continue $ inGame (G.moveTile South) ui
     VtyEvent (V.EvKey V.KRight [MShift]) -> continue $ inGame G.rotateTile ui
-    VtyEvent (V.EvKey V.KLeft  [MShift]) -> continue $ inGame G.rotateTile' ui
+    VtyEvent (V.EvKey V.KLeft [MShift]) -> continue $ inGame G.rotateTile' ui
     _ -> handleCommon ui e
   Game { _phase = Search, ..} -> case e of
     VtyEvent (V.EvKey V.KRight []) -> continue $ inGame (G.moveToken East) ui
@@ -147,13 +148,14 @@ handleEvent ui e = case ui ^. game of
     VtyEvent (V.EvKey V.KUp    []) -> continue $ inGame (G.moveToken North) ui
     VtyEvent (V.EvKey V.KDown  []) -> continue $ inGame (G.moveToken South) ui
     _                              -> handleCommon ui e
-  Game { _phase = Over, ..}   -> handleCommon ui e
+  Game { _phase = Over, ..} -> handleCommon ui e
 
 handleCommon :: UI -> BrickEvent Name e -> EventM Name (Next UI)
 handleCommon ui (VtyEvent (V.EvKey (V.KChar 'q') [])) = halt ui
-handleCommon ui (VtyEvent (V.EvKey V.KEsc        [])) = halt ui
-handleCommon ui (VtyEvent (V.EvKey V.KEnter      [])) = continue $ inGame G.done ui
-handleCommon ui (VtyEvent (V.EvKey (V.KChar ' ') [])) = continue $ inGame G.done ui
+handleCommon ui (VtyEvent (V.EvKey V.KEsc [])) = halt ui
+handleCommon ui (VtyEvent (V.EvKey V.KEnter [])) = continue $ inGame G.done ui
+handleCommon ui (VtyEvent (V.EvKey (V.KChar ' ') [])) =
+  continue $ inGame G.done ui
 handleCommon ui _ = continue $ hideHint ui
 
 inGame :: (Game -> Game) -> UI -> UI
@@ -211,7 +213,8 @@ extract Empty     = replicate (Graphics.width * Graphics.height) ' '
 extract (Cell xs) = xs
 
 emptyBoard :: [Int] -> [Int] -> a -> Map Position a
-emptyBoard rows cols empty = Map.fromList [ (V2 x y, empty) | x <- rows, y <- cols ]
+emptyBoard rows cols empty =
+  Map.fromList [ (V2 x y, empty) | x <- rows, y <- cols ]
 
 attributeMap :: AttrMap
 attributeMap = Brick.attrMap
@@ -317,7 +320,8 @@ withHintAttr t ui = fromMaybe id $ do
   return $ withTokenAttr ui
 
 withTokenAttr :: UI -> Widget Name -> Widget Name
-withTokenAttr ui = Brick.withAttr (Brick.attrName $ show (ui ^. game . G.token))
+withTokenAttr ui =
+  Brick.withAttr (Brick.attrName $ show (ui ^. game . G.token))
 
 treasureMap :: Map Treasure Char
 treasureMap = Map.fromList $ zip Treasure.treasures ['A' ..]
