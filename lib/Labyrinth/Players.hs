@@ -52,10 +52,10 @@ toMap :: Players -> PlayerMap
 toMap ps = ps ^. players
 
 add :: Players -> Player -> Players
-add ps p = ps & players .~ newPlayers & hasEnoughPlayers .~ enough
+add ps p = ps & players .~ players' & hasEnoughPlayers .~ hasEnoughPlayers'
  where
-  newPlayers = Map.insert (p ^. color) p (toMap ps)
-  enough     = ps ^. minPlayers <= Map.size newPlayers
+  players'          = Map.insert (p ^. color) p (toMap ps)
+  hasEnoughPlayers' = ps ^. minPlayers <= Map.size players'
 
 fromList :: [(Color, Player)] -> Maybe Players
 fromList _ = Just empty
@@ -67,10 +67,7 @@ freeColors :: Players -> [Color]
 freeColors ps = Set.toList $ Set.difference existing taken
  where
   existing = Set.fromList colors
-  taken    = Set.fromList $ takenColors ps
-
-takenColors :: Players -> [Color]
-takenColors ps = Map.keys $ ps ^. players
+  taken    = Set.fromList $ Map.keys $ ps ^. players
 
 -- fromList :: [(Color, Player)] -> Maybe Players
 -- fromList ps | s >= 2 && s <= 4 = Just $ Players ps'

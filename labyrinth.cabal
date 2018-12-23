@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f4f8155d8e6d28a9c67c2f24f52c84797dcef89593ea0bb6884171e1b4675a3c
+-- hash: 45bcee582709a41126e3b365f5044723342b107c7a067d05f0d60dfb998ed3bf
 
 name:           labyrinth
 version:        0.1.0.0
@@ -26,11 +26,12 @@ source-repository head
 library
   hs-source-dirs:
       lib
-  default-extensions: NamedFieldPuns RankNTypes RecordWildCards TemplateHaskell
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
     , base >=4.7 && <5
+    , brick
     , containers
     , linear
     , microlens
@@ -46,11 +47,14 @@ library
       Labyrinth.Players
       Labyrinth.Tile
       Labyrinth.Treasure
+      Labyrinth.Widgets
       Data.List.Extended
   other-modules:
       Labyrinth.Game.Description
       Labyrinth.Position
       Labyrinth.Random
+      Labyrinth.Widgets.Internal
+      Labyrinth.Widgets.PlayerForm
       Paths_labyrinth
   default-language: Haskell2010
 
@@ -58,7 +62,7 @@ executable labyrinth
   main-is: Main.hs
   hs-source-dirs:
       app
-  default-extensions: NamedFieldPuns RankNTypes RecordWildCards TemplateHaskell
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
@@ -83,7 +87,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  default-extensions: NamedFieldPuns RankNTypes RecordWildCards TemplateHaskell
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck

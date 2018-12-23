@@ -33,9 +33,11 @@ library:
     - Labyrinth.Players
     - Labyrinth.Tile
     - Labyrinth.Treasure
+    - Labyrinth.Widgets
     - Data.List.Extended
   dependencies:
     - base >=4.7 && <5
+    - brick
     - containers
     - linear
     - microlens
