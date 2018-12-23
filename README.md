@@ -23,7 +23,23 @@ This is still work in progress, but so far it looks like this:
 
 ![Game play](./etc/labyrinth-2.png)
 
-
 ## Game Rules
 
 > Read the rules [here](./etc/rules.md).
+
+## Extensions
+
+- [`DuplicateRecordFields`][duplicaterecordfields]
+- [`NamedFieldPuns`][namedfieldpuns]
+- [`OverloadedStrings`][overloadedstrings]
+- [`RankNTypes`][rankntypes]
+- [`RecordWildCards`][recordwildcards]: This exension implies [DisambiguateRecordFields][disambiguaterecordfields].
+- [`TemplateHaskell`][templatehaskell]
+
+[disambiguaterecordfields]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-DisambiguateRecordFields
+[duplicaterecordfields]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#duplicate-record-fields
+[namedfieldpuns]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-NamedFieldPuns
+[overloadedstrings]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#overloaded-string-literals
+[rankntypes]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-RankNTypes
+[recordwildcards]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-RecordWildCards
+[templatehaskell]: http://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-TemplateHaskell

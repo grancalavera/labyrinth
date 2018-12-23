@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2843e0a5d5a329fb768502667e1335111048df0923b21f6272bed5d5a3e0c328
+-- hash: f4f8155d8e6d28a9c67c2f24f52c84797dcef89593ea0bb6884171e1b4675a3c
 
 name:           labyrinth
 version:        0.1.0.0
@@ -26,6 +26,7 @@ source-repository head
 library
   hs-source-dirs:
       lib
+  default-extensions: NamedFieldPuns RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
@@ -57,6 +58,7 @@ executable labyrinth
   main-is: Main.hs
   hs-source-dirs:
       app
+  default-extensions: NamedFieldPuns RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
@@ -81,6 +83,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   hs-source-dirs:
       test
+  default-extensions: NamedFieldPuns RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck

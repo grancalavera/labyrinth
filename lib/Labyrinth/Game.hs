@@ -1,6 +1,3 @@
-{-# LANGUAGE RankNTypes      #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Labyrinth.Game
   (
   -- Working with Games

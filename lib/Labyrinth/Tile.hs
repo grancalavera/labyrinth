@@ -1,7 +1,3 @@
-{-# LANGUAGE NamedFieldPuns  #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Labyrinth.Tile
   ( Tile(..)
   , Terrain(..)

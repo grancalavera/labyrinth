@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Labyrinth.Game.Description
   ( DTile(..)
   , DGame(..)
@@ -95,11 +93,10 @@ mkEnv d = do
   positions    <- Random.shuffle $ unknownPositions d
   treasureMap' <- Random.shuffle $ d ^. gTreasures
 
-  return Env
-    { _ePositions = positions
-    , _eTreasures = treasureMap'
-    , _ePlayers   = d ^. gPlayers
-    }
+  return Env { _ePositions = positions
+             , _eTreasures = treasureMap'
+             , _ePlayers   = d ^. gPlayers
+             }
 
 eval :: DGame -> Eval [(Position, Tile)]
 eval d = forM (d ^. gTiles) $ \tileDesc -> do
@@ -109,12 +106,11 @@ eval d = forM (d ^. gTiles) $ \tileDesc -> do
   tokens    <- getTokens tileDesc
   return
     ( position
-    , Tile
-      { _terrain   = tileDesc ^. tTerrain
-      , _direction = direction
-      , _treasure  = treasure
-      , _tokens    = tokens
-      }
+    , Tile { _terrain   = tileDesc ^. tTerrain
+           , _direction = direction
+           , _treasure  = treasure
+           , _tokens    = tokens
+           }
     )
 
 tiles :: DGame -> IO (Map Position Tile)

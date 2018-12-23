@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Labyrinth.Players
   ( Color(..)
   , colors
@@ -28,6 +26,7 @@ import           Lens.Micro                     ( (^.)
                                                 )
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
+
 colors :: [Color]
 colors = [(toEnum 0) ..]
 
