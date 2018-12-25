@@ -1,7 +1,9 @@
 module Main where
 
 import qualified Labyrinth.Players             as Players
-import           Labyrinth.Players              ( Player )
+import           Labyrinth.Players              ( Player
+                                                , Players
+                                                )
 import qualified Labyrinth.Widgets             as Widgets
 import           Labyrinth.Widgets              ( ResourceName )
 import           Brick
@@ -23,21 +25,23 @@ import           Lens.Micro                     ( (^.)
                                                 , (&)
                                                 , (.~)
                                                 )
-
+import           Control.Monad                  ( void )
 
 type PlayerForm e = Form Player e ResourceName
 
+data RegistrationScreen e = RegistrationScreen
+  { _playerForm :: PlayerForm e }
+makeLenses ''RegistrationScreen
+
+data State e = Splash | Registration (RegistrationScreen e) Players
+
 data Store e = Store
-  { _playerForm :: PlayerForm e
+  { _state :: State e
   }
 makeLenses ''Store
 
 main :: IO ()
-main = do
-  let options = fromJust $ Widgets.playerFormOptions Players.empty
-      store   = Store $ Widgets.playerForm options
-  _ <- customMain buildVty Nothing app store
-  putStrLn "done"
+main = void $ customMain buildVty Nothing app (Store Splash)
 
 app :: App (Store e) e ResourceName
 app = App { appDraw         = draw
@@ -48,10 +52,18 @@ app = App { appDraw         = draw
           }
 
 draw :: Store e -> [Widget ResourceName]
-draw store = [C.vCenter $ C.hCenter form <=> C.hCenter help]
+draw s = case s ^. state of
+  Splash                      -> splashScreen
+  Registration screen players -> registrationScreen screen players
+
+splashScreen :: [Widget ResourceName]
+splashScreen = [str "Welcome and instructions on how to create a game"]
+
+registrationScreen :: RegistrationScreen s -> Players -> [Widget ResourceName]
+registrationScreen screen _ = [C.vCenter $ C.hCenter form <=> C.hCenter help]
  where
   form =
-    B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm (store ^. playerForm)
+    B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm (screen ^. playerForm)
   help = padTop (Pad 1) $ B.borderWithLabel (str "Help") body
   body = str "Foo bar help"
 
@@ -59,11 +71,37 @@ handleEvent
   :: Store e
   -> BrickEvent ResourceName e
   -> EventM ResourceName (Next (Store e))
-handleEvent s ev = case ev of
-  VtyEvent (V.EvKey V.KEsc []) -> halt s
+handleEvent s ev = case s ^. state of
+  Splash                      -> handleSplashEvent s ev
+  Registration screen players -> handleRegistrationEvent screen players ev
+
+handleSplashEvent
+  :: Store e
+  -> BrickEvent ResourceName e
+  -> EventM ResourceName (Next (Store e))
+handleSplashEvent s ev = case ev of
+  VtyEvent (V.EvKey V.KEsc   []) -> halt s
+  VtyEvent (V.EvKey V.KEnter []) -> continue toRegistration
+  _                              -> continue s
+
+handleRegistrationEvent
+  :: RegistrationScreen e
+  -> Players
+  -> BrickEvent ResourceName e
+  -> EventM ResourceName (Next (Store e))
+handleRegistrationEvent screen players ev = case ev of
+  VtyEvent (V.EvKey V.KEsc []) -> halt $ Store $ Registration screen players
   _                            -> do
-    playerForm' <- handleFormEvent ev (s ^. playerForm)
-    continue (s & playerForm .~ playerForm')
+    playerForm' <- handleFormEvent ev (screen ^. playerForm)
+    continue $ Store $ Registration (screen & playerForm .~ playerForm') players
+
+toRegistration :: Store s
+toRegistration = Store $ Registration screen players
+ where
+  players = Players.empty
+  options = fromJust $ Widgets.playerFormOptions players
+  form    = Widgets.playerForm options
+  screen  = RegistrationScreen form
 
 attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap
@@ -79,11 +117,10 @@ buildVty = do
   V.setMode (V.outputIface v) V.Mouse True
   return v
 
--- in the future we'll need to check the state of the
--- application and choose how to handle focus, right
--- now this works as POC only.
 chooseCursor
   :: Store e
   -> [CursorLocation ResourceName]
   -> Maybe (CursorLocation ResourceName)
-chooseCursor = focusRingCursor formFocus . (^. playerForm)
+chooseCursor s = case s ^. state of
+  Registration screen _ -> focusRingCursor formFocus (screen ^. playerForm)
+  _                     -> neverShowCursor s

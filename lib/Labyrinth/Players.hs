@@ -1,10 +1,10 @@
 module Labyrinth.Players
   ( Color(..)
-  , colors
   , Player(..)
+  , Players
+  , colors
   , name
   , color
-  , Players
   , empty
   , toMap
   , toList
@@ -12,6 +12,9 @@ module Labyrinth.Players
   , add
   , hasEnoughPlayers
   , freeColors
+  , players
+  , minPlayers
+  , maxPlayers
   )
 where
 
@@ -42,11 +45,12 @@ data Players = Players
   { _players :: Map Color Player
   , _hasEnoughPlayers :: Bool
   , _minPlayers :: Int
+  , _maxPlayers :: Int
   } deriving (Show, Eq)
 makeLenses ''Players
 
 empty :: Players
-empty = Players mempty False 2
+empty = Players mempty False 2 (length colors)
 
 toMap :: Players -> PlayerMap
 toMap ps = ps ^. players
