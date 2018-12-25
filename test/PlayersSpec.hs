@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module PlayersSpec where
 
 import           Labyrinth.Players              ( Color(..)
