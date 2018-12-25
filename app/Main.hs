@@ -24,9 +24,6 @@ main = do
         v <- V.mkVty =<< V.standardIOConfig
         V.setMode (V.outputIface v) V.Mouse True
         return v
-      -- we can only use `fromJust` safely here because we know
-      -- that by construction `Players.empty` will yield a
-      -- `PlayerFormOptions` with all the `Color` available
       options = fromJust $ Widgets.playerFormOptions Players.empty
       f       = Widgets.playerForm options
   _ <- customMain buildVty Nothing app f
