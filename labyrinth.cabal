@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 45bcee582709a41126e3b365f5044723342b107c7a067d05f0d60dfb998ed3bf
+-- hash: 67e5517b9c324e6d2ef5382fdc81304c8445972afbe64889d77b95a777293249
 
 name:           labyrinth
 version:        0.1.0.0
@@ -98,6 +98,7 @@ test-suite labyrinth-test
     , labyrinth
     , microlens
   other-modules:
+      PlayerFormSpec
       PlayersSpec
       Paths_labyrinth
   default-language: Haskell2010
