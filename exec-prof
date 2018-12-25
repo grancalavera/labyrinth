@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+./profile exec -- labyrinth +RTS -xc

@@ -1,6 +1,5 @@
 module Labyrinth.Widgets.PlayerForm
   ( PlayerFormOptions
-  , PlayerForm
   , playerForm
   , playerFormOptions
   )
@@ -36,9 +35,8 @@ data PlayerFormOptions = PlayerFormOptions
 makeLenses ''PlayerFormOptions
 
 type ColorFieldMap = Map Color ResourceName
-type PlayerForm e = Form Player e ResourceName
 
-playerForm :: PlayerFormOptions -> PlayerForm e
+playerForm :: PlayerFormOptions -> Form Player e ResourceName
 playerForm options =
   newForm [nameField, colorField options] $ defaultPlayer options
 

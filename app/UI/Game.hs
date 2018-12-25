@@ -55,16 +55,15 @@ data UI = UI {
 makeLenses ''UI
 
 playGame :: Game -> IO Name
-playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = False}
+playGame g = void $ Brick.defaultMain app UI { _game = g, _hint = False }
 
 app :: App UI e Name
-app = App
-  { appDraw         = drawUI
-  , appHandleEvent  = handleEvent
-  , appStartEvent   = return
-  , appAttrMap      = const attributeMap
-  , appChooseCursor = Brick.neverShowCursor
-  }
+app = App { appDraw         = drawUI
+          , appHandleEvent  = handleEvent
+          , appStartEvent   = return
+          , appAttrMap      = const attributeMap
+          , appChooseCursor = Brick.neverShowCursor
+          }
 
 drawUI :: UI -> [Widget Name]
 drawUI ui =

@@ -26,6 +26,7 @@ import           Lens.Micro.TH
 
 import           Labyrinth.Players              ( Player(..)
                                                 , Players
+                                                , Color(..)
                                                 )
 import qualified Labyrinth.Players             as Players
 
@@ -51,7 +52,7 @@ addPlayers' initialState = do
   f <- Brick.defaultMain app $ mkForm initialState
   let st = formState f
       ps =
-        map (\(c, n) -> (c, Player { _name = n }))
+        map (\(c, n) -> (c, Player n Yellow))
           $ filter ((/= "") . snd)
           $ map (\(c, l) -> (c, st ^. l))
           $ zip Players.colors [p1, p2, p3, p4]

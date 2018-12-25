@@ -78,6 +78,7 @@ executables:
       - microlens-th
       - text
       - vty
+
 tests:
   labyrinth-test:
     main: Spec.hs
