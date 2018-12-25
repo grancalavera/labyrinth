@@ -16,6 +16,7 @@ import           Brick.Forms                    ( formFocus
                                                 )
 import           Brick.Focus                    ( focusRingCursor )
 import qualified Graphics.Vty                  as V
+import           Data.Maybe                     ( fromJust )
 
 main :: IO ()
 main = do
@@ -23,7 +24,10 @@ main = do
         v <- V.mkVty =<< V.standardIOConfig
         V.setMode (V.outputIface v) V.Mouse True
         return v
-      options = Widgets.playerFormOptions Players.empty
+      -- we can only use `fromJust` safely here because we know
+      -- that by construction `Players.empty` will yield a
+      -- `PlayerFormOptions` with all the `Color` available
+      options = fromJust $ Widgets.playerFormOptions Players.empty
       f       = Widgets.playerForm options
   _ <- customMain buildVty Nothing app f
   putStrLn "done"
