@@ -36,11 +36,16 @@ makeLenses ''PlayerFormOptions
 type ColorFieldMap = Map Color ResourceName
 type PlayerForm e = Form Player e ResourceName
 
-playerForm :: PlayerFormOptions -> Player -> PlayerForm e
-playerForm options = newForm [nameField, colorField options]
+playerForm :: PlayerFormOptions -> PlayerForm e
+playerForm options =
+  newForm [nameField, colorField options] $ defaultPlayer options
 
 playerFormOptions :: Players -> PlayerFormOptions
 playerFormOptions ps = PlayerFormOptions (Player.freeColors ps)
+
+-- this is actually not safe...
+defaultPlayer :: PlayerFormOptions -> Player
+defaultPlayer = Player "" . head . (^. availableColors)
 
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Player.name NameField (Just 1)
