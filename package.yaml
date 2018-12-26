@@ -33,19 +33,25 @@ library:
     - Labyrinth.Players
     - Labyrinth.Tile
     - Labyrinth.Treasure
-    - Labyrinth.Widgets
+    - Labyrinth.Screens
+    - Labyrinth.Screens.Registration
+    - Labyrinth.Screens.Splash
+    - Labyrinth.Store
+    - Labyrinth.Store.SplashEvent
+    - Labyrinth.Store.RegistrationEvent
     - Data.List.Extended
   dependencies:
     - base >=4.7 && <5
+    - array
     - brick
     - containers
     - linear
     - microlens
     - microlens-th
-    - random
-    - array
-    - text
     - mtl
+    - random
+    - text
+    - vty
 
 executables:
   labyrinth:

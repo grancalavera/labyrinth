@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 67e5517b9c324e6d2ef5382fdc81304c8445972afbe64889d77b95a777293249
+-- hash: f703c00452b96b3d192bf6aeb0e7ff5b6b74142f97ddae3ffae57218bfc6b7e2
 
 name:           labyrinth
 version:        0.1.0.0
@@ -39,6 +39,7 @@ library
     , mtl
     , random
     , text
+    , vty
   exposed-modules:
       Labyrinth
       Labyrinth.Direction
@@ -47,14 +48,19 @@ library
       Labyrinth.Players
       Labyrinth.Tile
       Labyrinth.Treasure
-      Labyrinth.Widgets
+      Labyrinth.Screens
+      Labyrinth.Screens.Registration
+      Labyrinth.Screens.Splash
+      Labyrinth.Store
+      Labyrinth.Store.SplashEvent
+      Labyrinth.Store.RegistrationEvent
       Data.List.Extended
   other-modules:
       Labyrinth.Game.Description
       Labyrinth.Position
       Labyrinth.Random
-      Labyrinth.Widgets.Internal
-      Labyrinth.Widgets.PlayerForm
+      Labyrinth.Screens.Internal
+      Labyrinth.Store.Internal
       Paths_labyrinth
   default-language: Haskell2010
 
@@ -98,7 +104,7 @@ test-suite labyrinth-test
     , labyrinth
     , microlens
   other-modules:
-      PlayerFormSpec
       PlayersSpec
+      RegistrationScreenSpec
       Paths_labyrinth
   default-language: Haskell2010
