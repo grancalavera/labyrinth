@@ -7,8 +7,8 @@ module Labyrinth.Store.Internal
 where
 
 import           Lens.Micro.TH                  ( makeLenses )
-import           Labyrinth.Screens              ( RegistrationScreen(..)
-                                                , SplashScreen(..)
+import           Labyrinth.Screens              ( RegistrationScreen
+                                                , SplashScreen
                                                 , ResourceName
                                                 )
 import           Brick

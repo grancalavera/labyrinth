@@ -1,8 +1,7 @@
 module Labyrinth.Screens
   ( ResourceName
-  , RegistrationFormOptions
-  , RegistrationScreen(..)
-  , SplashScreen(..)
+  , RegistrationScreen
+  , SplashScreen
   , attributeMap
   )
 where
@@ -12,10 +11,8 @@ import qualified Brick.Widgets.Edit            as E
 import           Brick.Forms                    ( focusedFormInputAttr )
 import qualified Graphics.Vty                  as V
 import           Labyrinth.Screens.Internal     ( ResourceName )
-import           Labyrinth.Screens.Registration ( RegistrationFormOptions
-                                                , RegistrationScreen(..)
-                                                )
-import           Labyrinth.Screens.Splash       ( SplashScreen(..) )
+import           Labyrinth.Screens.Registration ( RegistrationScreen )
+import           Labyrinth.Screens.Splash       ( SplashScreen )
 
 attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap

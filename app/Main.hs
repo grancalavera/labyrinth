@@ -7,9 +7,7 @@ import           Lens.Micro                     ( (^.) )
 import           Control.Monad                  ( void )
 
 import qualified Labyrinth.Screens             as Screens
-import           Labyrinth.Screens              ( ResourceName
-                                                , SplashScreen(..)
-                                                )
+import           Labyrinth.Screens              ( ResourceName )
 import qualified Labyrinth.Screens.Registration
                                                as Registration
 import qualified Labyrinth.Screens.Splash      as Splash
@@ -23,7 +21,7 @@ import           Labyrinth.Store                ( Store(..)
 
 main :: IO ()
 main = do
-  let store = Store (Splash SplashScreen)
+  let store = Store (Splash Splash.initialScreen)
   void $ customMain buildVty Nothing app store
 
 app :: App (Store e) e ResourceName

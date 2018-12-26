@@ -1,13 +1,13 @@
 module Labyrinth.Screens.Registration
-  ( mkForm
-  , draw
-  , optionsFromPlayers
+  ( RegistrationScreen
   , chooseCursor
-  , initialScreen
+  , draw
   , form
+  , hasEnoughPlayers
+  , initialScreen
   , players
-  , RegistrationFormOptions
-  , RegistrationScreen(..)
+  , register
+  , isFull
   )
 where
 
@@ -25,16 +25,17 @@ import           Brick.Forms                    ( Form
                                                 , (@@=)
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (^.) )
+import           Lens.Micro                     ( (^.)
+                                                , (.~)
+                                                , (&)
+                                                )
 import           Data.Text                      ( Text )
 import qualified Data.Text                     as Text
 import qualified Data.Map.Strict               as Map
-import qualified Data.List.NonEmpty            as NonEmpty
-import           Data.List.NonEmpty             ( NonEmpty(..) )
+import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map
                                                 , (!)
                                                 )
-import           Data.Maybe                     ( fromJust )
 import           Labyrinth.Players              ( Player(..)
                                                 , Color(..)
                                                 , Players
@@ -49,12 +50,10 @@ type ColorFieldMap = Map Color ResourceName
 data RegistrationScreen e = RegistrationScreen
   { _form :: RegistrationForm e
   , _players :: Players
+  , _minPlayers :: Int
+  , _maxPlayers :: Int
   }
 makeLenses ''RegistrationScreen
-
-data RegistrationFormOptions = RegistrationFormOptions
-  { _availableColors :: NonEmpty Color }
-makeLenses ''RegistrationFormOptions
 
 draw :: RegistrationScreen s -> [Widget ResourceName]
 draw screen = [C.vCenter $ C.hCenter f <=> C.hCenter help]
@@ -64,45 +63,40 @@ draw screen = [C.vCenter $ C.hCenter f <=> C.hCenter help]
   body = str "Foo bar help"
 
 initialScreen :: RegistrationScreen e
-initialScreen = RegistrationScreen (mkForm options) ps
- where
-  ps      = Players.empty
-  options = fromJust $ optionsFromPlayers ps
-
+initialScreen = RegistrationScreen { _form       = mkForm mempty
+                                   , _players    = mempty
+                                   , _minPlayers = 2
+                                   , _maxPlayers = 4
+                                   }
 chooseCursor
   :: RegistrationScreen e
   -> [CursorLocation ResourceName]
   -> Maybe (CursorLocation ResourceName)
 chooseCursor screen = focusRingCursor formFocus (screen ^. form)
 
-mkForm :: RegistrationFormOptions -> RegistrationForm e
-mkForm options =
-  newForm [nameField, colorField options] $ defaultPlayer options
+mkForm :: Players -> RegistrationForm e
+mkForm players' =
+  newForm [nameField, colorField players'] $ defaultPlayer players'
 
-optionsFromPlayers :: Players -> Maybe RegistrationFormOptions
-optionsFromPlayers ps = case (Players.freeColors ps) of
-  [] -> Nothing
-  cs -> Just $ RegistrationFormOptions (NonEmpty.fromList cs)
-
-defaultPlayer :: RegistrationFormOptions -> Player
-defaultPlayer = Player "" . NonEmpty.head . (^. availableColors)
+-- this isn't safe anymore, but it might be fine as long as
+-- we don't offer it as an API
+defaultPlayer :: Players -> Player
+defaultPlayer = Player "" . head . availableColors
 
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)
 
-colorField
-  :: RegistrationFormOptions -> Player -> FormFieldState Player e ResourceName
-colorField options = label "Color"
-  @@= radioField Players.color (colorOptions options colorFieldMap)
+colorField :: Players -> Player -> FormFieldState Player e ResourceName
+colorField players' = label "Color"
+  @@= radioField Players.color (colorOptions players' colorFieldMap)
 
 label :: String -> Widget n -> Widget n
 label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w
 
-colorOptions
-  :: RegistrationFormOptions -> ColorFieldMap -> [(Color, ResourceName, Text)]
-colorOptions options fieldsMap = zip3 colors fields labels
+colorOptions :: Players -> ColorFieldMap -> [(Color, ResourceName, Text)]
+colorOptions players' fieldsMap = zip3 colors fields labels
  where
-  colors = NonEmpty.toList $ options ^. availableColors
+  colors = availableColors players'
   labels = map (Text.pack . show) colors
   fields = map (\k -> fieldsMap ! k) colors
 
@@ -113,3 +107,28 @@ colorFieldMap = Map.fromList
   , (Blue  , BlueField)
   , (Green , GreenField)
   ]
+
+availableColors :: Players -> [Color]
+availableColors ps = Set.toList $ Set.difference existing taken
+ where
+  existing = Set.fromList Players.colors
+  taken    = Set.fromList $ Map.keys ps
+
+hasEnoughPlayers :: RegistrationScreen e -> Bool
+hasEnoughPlayers screen = minCount <= currentCount
+ where
+  currentCount = Map.size $ screen ^. players
+  minCount     = screen ^. minPlayers
+
+isFull :: RegistrationScreen e -> Bool
+isFull screen = maxCount == currentCount
+ where
+  currentCount = Map.size $ screen ^. players
+  maxCount     = screen ^. maxPlayers
+
+register :: RegistrationScreen e -> Player -> RegistrationScreen e
+register screen player = screen'
+ where
+  players' = Map.insert (player ^. Players.color) player (screen ^. players)
+  form'    = mkForm players'
+  screen'  = screen & form .~ form' & players .~ players'

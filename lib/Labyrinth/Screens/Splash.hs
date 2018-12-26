@@ -1,6 +1,7 @@
 module Labyrinth.Screens.Splash
   ( draw
-  , SplashScreen(..)
+  , SplashScreen
+  , initialScreen
   )
 where
 
@@ -12,3 +13,6 @@ data SplashScreen = SplashScreen
 
 draw :: SplashScreen -> [Widget ResourceName]
 draw _ = [str "Welcome and instructions on how to create a game"]
+
+initialScreen :: SplashScreen
+initialScreen = SplashScreen
