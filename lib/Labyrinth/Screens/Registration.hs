@@ -76,12 +76,12 @@ chooseCursor screen = focusRingCursor formFocus (screen ^. form)
 
 mkForm :: Players -> RegistrationForm e
 mkForm players' =
-  newForm [nameField, colorField players'] $ defaultPlayer players'
+  newForm [nameField, colorField players'] $ nextFormState players'
 
 -- this isn't safe anymore, but it might be fine as long as
 -- we don't offer it as an API
-defaultPlayer :: Players -> Player
-defaultPlayer = Player "" . head . availableColors
+nextFormState :: Players -> Player
+nextFormState = Player "" . head . availableColors
 
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)

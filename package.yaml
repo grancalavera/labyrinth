@@ -107,6 +107,7 @@ tests:
       - TemplateHaskell
     dependencies:
       - base
+      - brick
       - containers
       - labyrinth
       - hspec

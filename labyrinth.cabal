@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f2db21d87bf7f2668ca5f2509c8f23c72299c2ae089855555b57f4703e395850
+-- hash: 499d58612ddff187a67cfede8e8b2568777400c7dd2eabc7b8ac119f49bf6ff9
 
 name:           labyrinth
 version:        0.1.0.0
@@ -98,6 +98,7 @@ test-suite labyrinth-test
   build-depends:
       QuickCheck
     , base
+    , brick
     , containers
     , hspec
     , hspec-discover

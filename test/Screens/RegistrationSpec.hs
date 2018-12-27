@@ -1,6 +1,9 @@
 module Screens.RegistrationSpec where
 
 import           Test.Hspec
+import           Brick.Forms                    ( formState )
+import           Lens.Micro                     ( (^.) )
+
 import           Labyrinth.Players              ( Color(..)
                                                 , Player(..)
                                                 )
@@ -8,6 +11,7 @@ import           Labyrinth.Screens.Registration ( register
                                                 , hasEnoughPlayers
                                                 , initialScreen
                                                 , isFull
+                                                , form
                                                 )
 
 spec :: Spec
@@ -22,8 +26,16 @@ spec = describe "Registration" $ do
       twoPlayers  = onePlayer `register` playerB
       fourPlayers = twoPlayers `register` playerC `register` playerD
 
+  it "initally a registration form should have the default player" $ do
+    let defaultPlayer = formState (initialScreen ^. form)
+    defaultPlayer `shouldBe` Player "" Yellow
+
   it "registering one player should not be enough to start a game" $ do
     hasEnoughPlayers onePlayer `shouldBe` False
+
+  it "should move to the next player after registering the first player" $ do
+    let nextPlayer = formState (onePlayer ^. form)
+    nextPlayer `shouldBe` Player "" Red
 
   it "adding players to the same colour should not increase the count" $ do
     let stillOnePlayer =
