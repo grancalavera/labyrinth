@@ -55,6 +55,8 @@ chooseCursor
   :: Store e
   -> [CursorLocation ResourceName]
   -> Maybe (CursorLocation ResourceName)
-chooseCursor store = case store ^. state of
-  Registration screen -> Registration.chooseCursor screen
-  _                   -> neverShowCursor store
+chooseCursor = neverShowCursor
+
+-- chooseCursor store = case store ^. state of
+--   Registration screen -> Registration.chooseCursor store screen
+--   _                   -> neverShowCursor store

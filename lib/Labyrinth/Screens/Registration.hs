@@ -1,6 +1,5 @@
 module Labyrinth.Screens.Registration
   ( RegistrationScreen
-  , chooseCursor
   , draw
   , form
   , hasEnoughPlayers
@@ -14,14 +13,12 @@ where
 import           Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Brick.Focus                    ( focusRingCursor )
 import           Brick.Forms                    ( Form
                                                 , FormFieldState
                                                 , newForm
                                                 , radioField
                                                 , editTextField
                                                 , renderForm
-                                                , formFocus
                                                 , (@@=)
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
@@ -48,7 +45,7 @@ type RegistrationForm e = Form Player e ResourceName
 type ColorFieldMap = Map Color ResourceName
 
 data RegistrationScreen e = RegistrationScreen
-  { _form :: RegistrationForm e
+  { _form :: Maybe (RegistrationForm e)
   , _players :: Players
   , _minPlayers :: Int
   , _maxPlayers :: Int
@@ -56,11 +53,14 @@ data RegistrationScreen e = RegistrationScreen
 makeLenses ''RegistrationScreen
 
 draw :: RegistrationScreen s -> [Widget ResourceName]
-draw screen = [C.vCenter $ C.hCenter f <=> C.hCenter help]
+draw screen = [C.vCenter $ C.hCenter layout <=> C.hCenter help]
  where
-  f    = B.border $ padTop (Pad 1) $ hLimit 50 $ renderForm (screen ^. form)
-  help = padTop (Pad 1) $ B.borderWithLabel (str "Help") body
-  body = str "Foo bar help"
+  layout = B.border $ padTop (Pad 1) $ hLimit 50 body
+  body   = case (screen ^. form) of
+    Just form' -> renderForm form'
+    Nothing    -> str "Game is full"
+  help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
+  helpBody = str "Foo bar help"
 
 initialScreen :: RegistrationScreen e
 initialScreen = RegistrationScreen { _form       = mkForm mempty
@@ -68,20 +68,23 @@ initialScreen = RegistrationScreen { _form       = mkForm mempty
                                    , _minPlayers = 2
                                    , _maxPlayers = 4
                                    }
-chooseCursor
-  :: RegistrationScreen e
-  -> [CursorLocation ResourceName]
-  -> Maybe (CursorLocation ResourceName)
-chooseCursor screen = focusRingCursor formFocus (screen ^. form)
+-- chooseCursor
+--   :: RegistrationScreen e
+--   -> [CursorLocation ResourceName]
+--   -> Maybe (CursorLocation ResourceName)
+-- chooseCursor screen = case (screen ^. form) of
+--   Just form' -> focusRingCursor formFocus form'
+--   Nothing ->
 
-mkForm :: Players -> RegistrationForm e
-mkForm players' =
-  newForm [nameField, colorField players'] $ nextFormState players'
+mkForm :: Players -> Maybe (RegistrationForm e)
+mkForm players' = case nextFormState players' of
+  Just player' -> Just $ newForm [nameField, colorField players'] player'
+  Nothing      -> Nothing
 
--- this isn't safe anymore, but it might be fine as long as
--- we don't offer it as an API
-nextFormState :: Players -> Player
-nextFormState = Player "" . head . availableColors
+nextFormState :: Players -> Maybe Player
+nextFormState players' = case availableColors players' of
+  []      -> Nothing
+  colors' -> Just (Player "" $ head colors')
 
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)
