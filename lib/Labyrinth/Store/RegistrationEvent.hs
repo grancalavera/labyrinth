@@ -16,7 +16,9 @@ import           Labyrinth.Store.Internal       ( EventHandler
                                                 , state
                                                 )
 import           Labyrinth.Screens              ( RegistrationScreen )
-import           Labyrinth.Screens.Registration ( form )
+import           Labyrinth.Screens.Registration ( form
+                                                , submit
+                                                )
 
 handle :: EventHandler (RegistrationScreen e) e
 handle store screen ev = case screen ^. form of
@@ -24,10 +26,12 @@ handle store screen ev = case screen ^. form of
   Just form' -> case ev of
 
     VtyEvent (V.EvKey V.KEsc []) -> halt store
-    _                            -> do
+    VtyEvent (V.EvKey V.KEnter []) ->
+      continue $ store & state .~ Registration (submit screen)
+    _ -> do
       form'' <- handleFormEvent ev form'
-      let screen' = screen & form ?~ form''
-          store'  = store & state .~ Registration screen'
-      continue store'
+      continue $ store & state .~ Registration (screen & form ?~ form'')
 
-  Nothing -> continue store
+  Nothing -> case ev of
+    VtyEvent (V.EvKey V.KEsc []) -> halt store
+    _                            -> continue store

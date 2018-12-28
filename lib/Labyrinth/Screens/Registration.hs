@@ -1,11 +1,12 @@
 module Labyrinth.Screens.Registration
   ( RegistrationScreen
-  , draw
   , form
-  , hasEnoughPlayers
-  , initialScreen
   , players
+  , initialScreen
+  , draw
+  , submit
   , register
+  , hasEnoughPlayers
   , isFull
   )
 where
@@ -19,6 +20,7 @@ import           Brick.Forms                    ( Form
                                                 , radioField
                                                 , editTextField
                                                 , renderForm
+                                                , formState
                                                 , (@@=)
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
@@ -33,6 +35,7 @@ import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map
                                                 , (!)
                                                 )
+import           Data.Maybe                     ( fromMaybe )
 import           Labyrinth.Players              ( Player(..)
                                                 , Color(..)
                                                 , Players
@@ -52,6 +55,13 @@ data RegistrationScreen e = RegistrationScreen
   }
 makeLenses ''RegistrationScreen
 
+initialScreen :: RegistrationScreen e
+initialScreen = RegistrationScreen { _form       = mkForm mempty
+                                   , _players    = mempty
+                                   , _minPlayers = 2
+                                   , _maxPlayers = 4
+                                   }
+
 draw :: RegistrationScreen s -> [Widget ResourceName]
 draw screen = [C.vCenter $ C.hCenter layout <=> C.hCenter help]
  where
@@ -62,19 +72,18 @@ draw screen = [C.vCenter $ C.hCenter layout <=> C.hCenter help]
   help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
   helpBody = str "Foo bar help"
 
-initialScreen :: RegistrationScreen e
-initialScreen = RegistrationScreen { _form       = mkForm mempty
-                                   , _players    = mempty
-                                   , _minPlayers = 2
-                                   , _maxPlayers = 4
-                                   }
--- chooseCursor
---   :: RegistrationScreen e
---   -> [CursorLocation ResourceName]
---   -> Maybe (CursorLocation ResourceName)
--- chooseCursor screen = case (screen ^. form) of
---   Just form' -> focusRingCursor formFocus form'
---   Nothing ->
+submit :: RegistrationScreen e -> RegistrationScreen e
+submit screen = fromMaybe screen $ do
+  form' <- screen ^. form
+  let player = formState form'
+  return $ register screen player
+
+register :: RegistrationScreen e -> Player -> RegistrationScreen e
+register screen player = screen'
+ where
+  players' = Map.insert (player ^. Players.color) player (screen ^. players)
+  form'    = mkForm players'
+  screen'  = screen & form .~ form' & players .~ players'
 
 mkForm :: Players -> Maybe (RegistrationForm e)
 mkForm players' = case nextFormState players' of
@@ -129,9 +138,10 @@ isFull screen = maxCount == currentCount
   currentCount = Map.size $ screen ^. players
   maxCount     = screen ^. maxPlayers
 
-register :: RegistrationScreen e -> Player -> RegistrationScreen e
-register screen player = screen'
- where
-  players' = Map.insert (player ^. Players.color) player (screen ^. players)
-  form'    = mkForm players'
-  screen'  = screen & form .~ form' & players .~ players'
+-- chooseCursor
+--   :: RegistrationScreen e
+--   -> [CursorLocation ResourceName]
+--   -> Maybe (CursorLocation ResourceName)
+-- chooseCursor screen = case (screen ^. form) of
+--   Just form' -> focusRingCursor formFocus form'
+--   Nothing ->
