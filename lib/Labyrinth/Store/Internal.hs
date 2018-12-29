@@ -21,7 +21,7 @@ data Store e = Store
 makeLenses ''Store
 
 type EventHandler screen e
-  =  Store e
-  -> screen
+  =  screen
+  -> Store e
   -> BrickEvent ResourceName e
   -> EventM ResourceName (Next (Store e))

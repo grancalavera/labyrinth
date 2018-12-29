@@ -17,7 +17,7 @@ import qualified Labyrinth.Screens.Registration
                                                as Registration
 
 handle :: EventHandler SplashScreen e
-handle store _ ev = case ev of
+handle _ store ev = case ev of
   VtyEvent (V.EvKey V.KEsc   []) -> halt store
   VtyEvent (V.EvKey V.KEnter []) -> continue toRegistration
   _                              -> continue store

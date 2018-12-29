@@ -41,9 +41,11 @@ handleEvent
   :: Store e
   -> BrickEvent ResourceName e
   -> EventM ResourceName (Next (Store e))
-handleEvent store ev = case store ^. state of
-  Splash       screen -> SplashEvent.handle store screen ev
-  Registration screen -> RegistrationEvent.handle store screen ev
+handleEvent store = handle store
+ where
+  handle = case store ^. state of
+    Splash       screen -> SplashEvent.handle screen
+    Registration screen -> RegistrationEvent.handle screen
 
 buildVty :: IO Vty
 buildVty = do

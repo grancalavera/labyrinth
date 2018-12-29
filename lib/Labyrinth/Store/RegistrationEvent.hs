@@ -21,7 +21,7 @@ import           Labyrinth.Screens.Registration ( form
                                                 )
 
 handle :: EventHandler (RegistrationScreen e) e
-handle store screen ev = case screen ^. form of
+handle screen store ev = case screen ^. form of
 
   Just form' -> case ev of
 
