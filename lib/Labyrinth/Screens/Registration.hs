@@ -8,12 +8,14 @@ module Labyrinth.Screens.Registration
   , register
   , hasEnoughPlayers
   , isFull
+  , chooseCursor
   )
 where
 
 import           Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
+import           Brick.Focus                    ( focusRingCursor )
 import           Brick.Forms                    ( Form
                                                 , FormFieldState
                                                 , newForm
@@ -21,6 +23,7 @@ import           Brick.Forms                    ( Form
                                                 , editTextField
                                                 , renderForm
                                                 , formState
+                                                , formFocus
                                                 , (@@=)
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
@@ -138,10 +141,10 @@ isFull screen = maxCount == currentCount
   currentCount = Map.size $ screen ^. players
   maxCount     = screen ^. maxPlayers
 
--- chooseCursor
---   :: RegistrationScreen e
---   -> [CursorLocation ResourceName]
---   -> Maybe (CursorLocation ResourceName)
--- chooseCursor screen = case (screen ^. form) of
---   Just form' -> focusRingCursor formFocus form'
---   Nothing ->
+chooseCursor
+  :: RegistrationScreen e
+  -> Maybe
+       ([CursorLocation ResourceName] -> Maybe (CursorLocation ResourceName))
+chooseCursor screen = case (screen ^. form) of
+  Nothing    -> Nothing
+  Just form' -> Just (focusRingCursor formFocus form')

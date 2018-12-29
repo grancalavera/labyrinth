@@ -5,7 +5,7 @@ import           Graphics.Vty                   ( Vty )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
 import           Control.Monad                  ( void )
-
+import           Data.Maybe                     ( fromMaybe )
 import qualified Labyrinth.Screens             as Screens
 import           Labyrinth.Screens              ( ResourceName )
 import qualified Labyrinth.Screens.Registration
@@ -55,8 +55,7 @@ chooseCursor
   :: Store e
   -> [CursorLocation ResourceName]
   -> Maybe (CursorLocation ResourceName)
-chooseCursor = neverShowCursor
-
--- chooseCursor store = case store ^. state of
---   Registration screen -> Registration.chooseCursor store screen
---   _                   -> neverShowCursor store
+chooseCursor store = case store ^. state of
+  Registration screen -> fromMaybe noCursor $ Registration.chooseCursor screen
+  _                   -> noCursor
+  where noCursor = neverShowCursor store
