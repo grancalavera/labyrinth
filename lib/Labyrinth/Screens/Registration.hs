@@ -39,6 +39,7 @@ import           Data.Map.Strict                ( Map
                                                 , (!)
                                                 )
 import           Data.Maybe                     ( fromMaybe )
+import qualified Labyrinth.Players             as Player
 import           Labyrinth.Players              ( Player(..)
                                                 , Color(..)
                                                 , Players
@@ -66,14 +67,17 @@ initialScreen = RegistrationScreen { _form       = mkForm mempty
                                    }
 
 draw :: RegistrationScreen s -> [Widget ResourceName]
-draw screen = [C.vCenter $ C.hCenter layout <=> C.hCenter help]
+draw screen = [C.vCenter $ C.hCenter content <=> C.hCenter help]
  where
-  layout = B.border $ padTop (Pad 1) $ hLimit 50 body
-  body   = case (screen ^. form) of
+  content = B.border $ padTop (Pad 1) $ hLimit 50 $ vBox ([body] <> registered)
+  body    = case screen ^. form of
     Just form' -> renderForm form'
-    Nothing    -> str "Game is full"
-  help     = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpBody
-  helpBody = str "Foo bar help"
+    Nothing    -> ready
+  help        = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpContent
+  helpContent = padTop (Pad 1) $ padBottom (Pad 1) $ str "Foo bar help"
+  ready       = padBottom (Pad 1) $ str "Ready to play!"
+  registered  = map (regPlayer . snd) (Map.toList $ screen ^. players)
+  regPlayer p = padBottom (Pad 1) $ str (Text.unpack $ p ^. Player.name)
 
 submit :: RegistrationScreen e -> RegistrationScreen e
 submit screen = fromMaybe screen $ do
@@ -140,6 +144,7 @@ isFull screen = maxCount == currentCount
  where
   currentCount = Map.size $ screen ^. players
   maxCount     = screen ^. maxPlayers
+
 
 chooseCursor
   :: RegistrationScreen e

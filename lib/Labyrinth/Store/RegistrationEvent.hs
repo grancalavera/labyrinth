@@ -26,12 +26,12 @@ handle screen store ev = case screen ^. form of
   Just form' -> case ev of
 
     VtyEvent (V.EvKey V.KEsc   []) -> halt store
-    VtyEvent (V.EvKey V.KEnter []) -> continue $ newStore (submit screen)
+    VtyEvent (V.EvKey V.KEnter []) -> continue $ updateStore (submit screen)
     _                              -> do
       form'' <- handleFormEvent ev form'
-      continue $ newStore (screen & form ?~ form'')
+      continue $ updateStore (screen & form ?~ form'')
 
   Nothing -> case ev of
     VtyEvent (V.EvKey V.KEsc []) -> halt store
     _                            -> continue store
-  where newStore newScreen = store & state .~ Registration newScreen
+  where updateStore s = store & state .~ Registration s

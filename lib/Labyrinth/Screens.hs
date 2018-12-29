@@ -18,6 +18,6 @@ attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap
   V.defAttr
   [ (E.editAttr          , V.white `on` V.black)
-  , (E.editFocusedAttr   , V.black `on` V.yellow)
-  , (focusedFormInputAttr, V.black `on` V.yellow)
+  , (E.editFocusedAttr   , V.black `on` V.white)
+  , (focusedFormInputAttr, V.black `on` V.white)
   ]
