@@ -9,6 +9,7 @@ module Labyrinth.UI.Screen.Registration
   , hasEnoughPlayers
   , isFull
   , chooseCursor
+  , hasValidName
   )
 where
 
@@ -40,6 +41,7 @@ import           Data.Map.Strict                ( Map
 import           Labyrinth.Game.Players         ( Player(..)
                                                 , Color(..)
                                                 , Players
+                                                , name
                                                 )
 import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
@@ -78,7 +80,7 @@ draw screen = [appContainer 50 $ content]
     ps -> titleBox " Players " $ vBox $ map toPlayer ps
   toPlayer = playerLabel 50 . snd
 
-  help     = box $ vLimit 5 $ fill ' '
+  help     = emptyWidget
 
 submit :: RegistrationScreen e -> RegistrationScreen e
 submit screen = maybe screen (register screen . formState) (screen ^. form)
@@ -143,6 +145,9 @@ isFull screen = maxCount == currentCount
   currentCount = Map.size $ screen ^. players
   maxCount     = screen ^. maxPlayers
 
+hasValidName :: RegistrationScreen e -> Bool
+hasValidName screen = maybe False validate (screen ^. form)
+  where validate = (0 <) . Text.length . (^. name) . formState
 
 chooseCursor
   :: RegistrationScreen e

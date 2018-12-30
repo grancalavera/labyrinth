@@ -20,6 +20,7 @@ import           Labyrinth.UI                   ( Screen(..)
 import           Labyrinth.UI.Screen.Registration
                                                 ( form
                                                 , submit
+                                                , hasValidName
                                                 )
 
 handle :: EventHandler (RegistrationScreen e) e
@@ -28,8 +29,10 @@ handle screen store ev = case screen ^. form of
   Just form' -> case ev of
 
     VtyEvent (V.EvKey V.KEsc   []) -> halt store
-    VtyEvent (V.EvKey V.KEnter []) -> continue $ updateStore (submit screen)
-    _                              -> do
+    VtyEvent (V.EvKey V.KEnter []) -> if hasValidName screen
+      then continue $ updateStore (submit screen)
+      else continue store
+    _ -> do
       form'' <- handleFormEvent ev form'
       continue $ updateStore (screen & form ?~ form'')
 
