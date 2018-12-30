@@ -14,6 +14,7 @@ module Labyrinth.UI.Screen.Registration
 where
 
 import           Brick
+import qualified Brick.Widgets.Center          as C
 import           Brick.Focus                    ( focusRingCursor )
 import           Brick.Forms                    ( Form
                                                 , FormFieldState
@@ -78,9 +79,18 @@ draw screen = [appContainer 50 $ content]
   registered = case (Map.toList $ screen ^. players) of
     [] -> emptyWidget
     ps -> titleBox " Players " $ vBox $ map toPlayer ps
-  toPlayer = playerLabel 50 . snd
+  toPlayer      = playerLabel 50 . snd
 
-  help     = emptyWidget
+  help          = beginCommand <=> submitCommand
+
+  submitCommand = if hasValidName screen
+    then C.hCenter $ txt "Enter: submit player"
+    else emptyWidget
+
+  beginCommand = if hasEnoughPlayers screen
+    then C.hCenter $ txt "Ctr+Enter: begin game"
+    else emptyWidget
+
 
 submit :: RegistrationScreen e -> RegistrationScreen e
 submit screen = maybe screen (register screen . formState) (screen ^. form)
