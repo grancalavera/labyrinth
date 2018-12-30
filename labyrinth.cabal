@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1510bd21bea6e999a6e5e24aa5d3717bfc711ebd9db2fbce39ae324ebe570191
+-- hash: 19a7a860b43da9f99c79882e839f8d4208b702d3d015353ab2c16117a69effd2
 
 name:           labyrinth
 version:        0.1.0.0
@@ -82,10 +82,6 @@ executable labyrinth
     , text
     , vty
   other-modules:
-      OldMain
-      UI.Game
-      UI.Graphics
-      UI.Players
       Paths_labyrinth
   default-language: Haskell2010
 

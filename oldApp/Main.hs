@@ -1,4 +1,4 @@
-module OldMain where
+module Main where
 
 import           Linear.V2                      ( V2(..) )
 import qualified Labyrinth
