@@ -76,7 +76,7 @@ draw screen = [appContainer 50 $ content]
     Just form' -> titleBox " Add Player " $ renderForm form'
     Nothing    -> emptyWidget
 
-  registered = case (Map.toList $ screen ^. players) of
+  registered = case (Players.toList $ screen ^. players) of
     [] -> emptyWidget
     ps -> titleBox " Players " $ vBox $ map toPlayer ps
   toPlayer      = playerLabel 50 . snd
