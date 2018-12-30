@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3c33806f79e29c3fc7f54990f9bfd1f13eb987bdf4750b718bc291d0ccca2a8f
+-- hash: 1510bd21bea6e999a6e5e24aa5d3717bfc711ebd9db2fbce39ae324ebe570191
 
 name:           labyrinth
 version:        0.1.0.0
@@ -61,6 +61,7 @@ library
       Labyrinth.Game.Position
       Labyrinth.Store.Internal
       Labyrinth.UI.Internal
+      Labyrinth.UI.Widget
       Paths_labyrinth
   default-language: Haskell2010
 

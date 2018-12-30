@@ -13,8 +13,6 @@ module Labyrinth.UI.Screen.Registration
 where
 
 import           Brick
-import qualified Brick.Widgets.Border          as B
-import qualified Brick.Widgets.Center          as C
 import           Brick.Focus                    ( focusRingCursor )
 import           Brick.Forms                    ( Form
                                                 , FormFieldState
@@ -38,17 +36,16 @@ import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map
                                                 , (!)
                                                 )
-import           Data.Maybe                     ( fromMaybe )
-import qualified Labyrinth.Game.Players             as Player
-import           Labyrinth.Game.Players              ( Player(..)
+
+import           Labyrinth.Game.Players         ( Player(..)
                                                 , Color(..)
                                                 , Players
                                                 )
-import qualified Labyrinth.Game.Players             as Players
+import qualified Labyrinth.Game.Players        as Players
+import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal          ( ResourceName(..) )
 
 type RegistrationForm e = Form Player e ResourceName
-
 type ColorFieldMap = Map Color ResourceName
 
 data RegistrationScreen e = RegistrationScreen
@@ -67,23 +64,24 @@ initialScreen = RegistrationScreen { _form       = mkForm mempty
                                    }
 
 draw :: RegistrationScreen s -> [Widget ResourceName]
-draw screen = [C.vCenter $ C.hCenter content <=> C.hCenter help]
+draw screen = [appContainer 50 $ content]
+
  where
-  content = B.border $ padTop (Pad 1) $ hLimit 50 $ vBox ([body] <> registered)
-  body    = case screen ^. form of
-    Just form' -> renderForm form'
-    Nothing    -> ready
-  help        = padTop (Pad 1) $ B.borderWithLabel (str "Help") helpContent
-  helpContent = padTop (Pad 1) $ padBottom (Pad 1) $ str "Foo bar help"
-  ready       = padBottom (Pad 1) $ str "Ready to play!"
-  registered  = map (regPlayer . snd) (Map.toList $ screen ^. players)
-  regPlayer p = padBottom (Pad 1) $ str (Text.unpack $ p ^. Player.name)
+  content      = registration <=> registered <=> help
+
+  registration = case screen ^. form of
+    Just form' -> titleBox " Add Player " $ renderForm form'
+    Nothing    -> emptyWidget
+
+  registered = case (Map.toList $ screen ^. players) of
+    [] -> emptyWidget
+    ps -> titleBox " Players " $ vBox $ map toPlayer ps
+  toPlayer = playerLabel 50 . snd
+
+  help     = box $ vLimit 5 $ fill ' '
 
 submit :: RegistrationScreen e -> RegistrationScreen e
-submit screen = fromMaybe screen $ do
-  form' <- screen ^. form
-  let player = formState form'
-  return $ register screen player
+submit screen = maybe screen (register screen . formState) (screen ^. form)
 
 register :: RegistrationScreen e -> Player -> RegistrationScreen e
 register screen player = screen'

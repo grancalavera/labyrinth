@@ -24,4 +24,8 @@ attributeMap = const $ attrMap
   [ (E.editAttr          , V.white `on` V.black)
   , (E.editFocusedAttr   , V.black `on` V.white)
   , (focusedFormInputAttr, V.black `on` V.white)
+  , ("Yellow"            , V.black `on` V.yellow)
+  , ("Blue"              , V.black `on` V.blue)
+  , ("Green"             , V.black `on` V.green)
+  , ("Red"               , V.black `on` V.red)
   ]
