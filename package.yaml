@@ -27,12 +27,12 @@ library:
     - -Wredundant-constraints
   exposed-modules:
     - Labyrinth
-    - Labyrinth.Direction
     - Labyrinth.Game
-    - Labyrinth.Gate
-    - Labyrinth.Players
-    - Labyrinth.Tile
-    - Labyrinth.Treasure
+    - Labyrinth.Game.Direction
+    - Labyrinth.Game.Gate
+    - Labyrinth.Game.Players
+    - Labyrinth.Game.Tile
+    - Labyrinth.Game.Treasure
     - Labyrinth.UI
     - Labyrinth.UI.Screen.Registration
     - Labyrinth.UI.Screen.Splash

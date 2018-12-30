@@ -1,4 +1,4 @@
-module Labyrinth.Tile
+module Labyrinth.Game.Tile
   ( Tile(..)
   , Terrain(..)
   , Tokens
@@ -16,10 +16,10 @@ where
 
 import           Data.Set                       ( Set )
 import qualified Data.Set                      as Set
-import           Labyrinth.Direction            ( Direction(..) )
-import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Treasure             ( Treasure )
-import           Labyrinth.Players              ( Color )
+import           Labyrinth.Game.Direction       ( Direction(..) )
+import qualified Labyrinth.Game.Direction      as Direction
+import           Labyrinth.Game.Treasure        ( Treasure )
+import           Labyrinth.Game.Players         ( Color )
 import           Lens.Micro                     ( (%~)
                                                 , (^.)
                                                 )

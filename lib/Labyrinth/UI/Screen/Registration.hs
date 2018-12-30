@@ -39,12 +39,12 @@ import           Data.Map.Strict                ( Map
                                                 , (!)
                                                 )
 import           Data.Maybe                     ( fromMaybe )
-import qualified Labyrinth.Players             as Player
-import           Labyrinth.Players              ( Player(..)
+import qualified Labyrinth.Game.Players             as Player
+import           Labyrinth.Game.Players              ( Player(..)
                                                 , Color(..)
                                                 , Players
                                                 )
-import qualified Labyrinth.Players             as Players
+import qualified Labyrinth.Game.Players             as Players
 import           Labyrinth.UI.Internal          ( ResourceName(..) )
 
 type RegistrationForm e = Form Player e ResourceName

@@ -1,4 +1,4 @@
-module Labyrinth.Players
+module Labyrinth.Game.Players
   ( Color(..)
   , Player(..)
   , Players

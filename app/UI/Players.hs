@@ -24,11 +24,11 @@ import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH
 
-import           Labyrinth.Players              ( Player(..)
+import           Labyrinth.Game.Players         ( Player(..)
                                                 , Players
                                                 , Color(..)
                                                 )
-import qualified Labyrinth.Players             as Players
+import qualified Labyrinth.Game.Players        as Players
 
 data PlayersInfo = PlayersInfo
   { _p1 :: T.Text

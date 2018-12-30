@@ -6,7 +6,7 @@ import           Lens.Micro                     ( (^.) )
 import           Data.Maybe                     ( fromJust
                                                 , isNothing
                                                 )
-import           Labyrinth.Players              ( Color(..)
+import           Labyrinth.Game.Players         ( Color(..)
                                                 , Player(..)
                                                 )
 import           Labyrinth.UI.Screen.Registration

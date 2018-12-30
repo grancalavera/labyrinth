@@ -41,9 +41,9 @@ import           Linear.V2                      ( V2(..)
 import qualified Data.Text                     as T
 import           Labyrinth
 import qualified Labyrinth.Game                as G
-import qualified Labyrinth.Treasure            as Treasure
-import qualified Labyrinth.Players             as Players
-import qualified Labyrinth.Tile                as Tile
+import qualified Labyrinth.Game.Treasure       as Treasure
+import qualified Labyrinth.Game.Players        as Players
+import qualified Labyrinth.Game.Tile           as Tile
 import qualified UI.Graphics                   as Graphics
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names

@@ -7,8 +7,8 @@ module UI.Graphics
   )
 where
 
-import           Labyrinth.Direction            ( Direction(..) )
-import           Labyrinth.Tile                 ( Terrain(..) )
+import           Labyrinth.Game.Direction            ( Direction(..) )
+import           Labyrinth.Game.Tile                 ( Terrain(..) )
 
 width :: Int
 width = 9

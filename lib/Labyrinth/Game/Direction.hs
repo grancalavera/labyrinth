@@ -1,4 +1,4 @@
-module Labyrinth.Direction
+module Labyrinth.Game.Direction
   ( Direction(..)
   , next
   , previous

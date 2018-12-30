@@ -36,23 +36,23 @@ import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
 import           Linear.V2                      ( V2(..) )
-import           Labyrinth.Position             ( Position )
-import qualified Labyrinth.Random              as Random
-import           Labyrinth.Direction            ( Direction(..) )
-import qualified Labyrinth.Direction           as Direction
-import           Labyrinth.Treasure             ( Treasure(..)
+import           Labyrinth.Game.Position        ( Position )
+import qualified Labyrinth.Random         as Random
+import           Labyrinth.Game.Direction       ( Direction(..) )
+import qualified Labyrinth.Game.Direction      as Direction
+import           Labyrinth.Game.Treasure        ( Treasure(..)
                                                 , Searching
                                                 , Found
                                                 )
-import           Labyrinth.Players              ( Color(..)
+import           Labyrinth.Game.Players         ( Color(..)
                                                 , Players
                                                 )
-import qualified Labyrinth.Players             as Players
-import           Labyrinth.Tile                 ( Terrain(..)
+import qualified Labyrinth.Game.Players        as Players
+import           Labyrinth.Game.Tile            ( Terrain(..)
                                                 , Tile(..)
                                                 , Tokens
                                                 )
-import           Labyrinth.Gate                 ( Gate(..) )
+import           Labyrinth.Game.Gate            ( Gate(..) )
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 , (^.)
