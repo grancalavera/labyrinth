@@ -4,6 +4,7 @@ module Labyrinth.Game.Players
   , Players
   , colors
   , name
+  , order
   , color
   , toMap
   , toList
@@ -24,6 +25,7 @@ colors = [(toEnum 0) ..]
 data Player = Player
   { _name  :: Text
   , _color :: Color
+  , _order :: Int
   } deriving (Show, Eq)
 makeLenses ''Player
 

@@ -110,7 +110,7 @@ mkForm players' = case nextFormState players' of
 nextFormState :: Players -> Maybe Player
 nextFormState players' = case availableColors players' of
   []      -> Nothing
-  colors' -> Just (Player "" $ head colors')
+  colors' -> Just (Player "" (head colors') (length Players.colors - length colors'))
 
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)

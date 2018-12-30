@@ -20,10 +20,10 @@ import           Labyrinth.UI.Screen.Registration
 spec :: Spec
 spec = describe "Registration" $ do
 
-  let playerA      = Player "A" Yellow
-      playerB      = Player "B" Red
-      playerC      = Player "C" Blue
-      playerD      = Player "D" Green
+  let playerA      = Player "A" Yellow 0
+      playerB      = Player "B" Red 1
+      playerC      = Player "C" Blue 2
+      playerD      = Player "D" Green 3
 
       onePlayer    = initialScreen `register` playerA
       twoPlayers   = onePlayer `register` playerB
@@ -33,7 +33,7 @@ spec = describe "Registration" $ do
   it "initally a registration form should have the default player" $ do
     let form'         = fromJust (initialScreen ^. form)
         defaultPlayer = formState form'
-    defaultPlayer `shouldBe` Player "" Yellow
+    defaultPlayer `shouldBe` Player "" Yellow 0
 
   it "registering one player should not be enough to start a game" $ do
     hasEnoughPlayers onePlayer `shouldBe` False
@@ -41,15 +41,15 @@ spec = describe "Registration" $ do
   it "should move to the next player after registering the first player" $ do
     let form'         = fromJust (onePlayer ^. form)
         defaultPlayer = formState form'
-    defaultPlayer `shouldBe` Player "" Red
+    defaultPlayer `shouldBe` Player "" Red 1
 
   it "adding players to the same colour should not increase the count" $ do
     let stillOnePlayer =
           initialScreen
-            `register` Player "A" Yellow
-            `register` Player "B" Yellow
-            `register` Player "C" Yellow
-            `register` Player "D" Yellow
+            `register` Player "A" Yellow 0
+            `register` Player "B" Yellow 0
+            `register` Player "C" Yellow 0
+            `register` Player "D" Yellow 0
 
     hasEnoughPlayers stillOnePlayer `shouldBe` False
 
