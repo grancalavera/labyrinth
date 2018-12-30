@@ -33,12 +33,12 @@ library:
     - Labyrinth.Players
     - Labyrinth.Tile
     - Labyrinth.Treasure
-    - Labyrinth.Screens
-    - Labyrinth.Screens.Registration
-    - Labyrinth.Screens.Splash
+    - Labyrinth.UI
+    - Labyrinth.UI.Screen.Registration
+    - Labyrinth.UI.Screen.Splash
     - Labyrinth.Store
-    - Labyrinth.Store.SplashEvent
-    - Labyrinth.Store.RegistrationEvent
+    - Labyrinth.Store.Event.Splash
+    - Labyrinth.Store.Event.Registration
     - Data.List.Extended
   dependencies:
     - base >=4.7 && <5

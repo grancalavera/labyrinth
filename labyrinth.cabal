@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 499d58612ddff187a67cfede8e8b2568777400c7dd2eabc7b8ac119f49bf6ff9
+-- hash: de3a1105d4ae65da6b2fc5af13843053adb65a0f35221fb136bd79dedc8345dd
 
 name:           labyrinth
 version:        0.1.0.0
@@ -48,19 +48,19 @@ library
       Labyrinth.Players
       Labyrinth.Tile
       Labyrinth.Treasure
-      Labyrinth.Screens
-      Labyrinth.Screens.Registration
-      Labyrinth.Screens.Splash
+      Labyrinth.UI
+      Labyrinth.UI.Screen.Registration
+      Labyrinth.UI.Screen.Splash
       Labyrinth.Store
-      Labyrinth.Store.SplashEvent
-      Labyrinth.Store.RegistrationEvent
+      Labyrinth.Store.Event.Splash
+      Labyrinth.Store.Event.Registration
       Data.List.Extended
   other-modules:
       Labyrinth.Game.Description
       Labyrinth.Position
       Labyrinth.Random
-      Labyrinth.Screens.Internal
       Labyrinth.Store.Internal
+      Labyrinth.UI.Internal
       Paths_labyrinth
   default-language: Haskell2010
 

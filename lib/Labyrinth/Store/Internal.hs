@@ -1,22 +1,18 @@
 module Labyrinth.Store.Internal
-  ( State(..)
-  , Store(..)
+  ( Store(..)
   , EventHandler
   , state
   )
 where
 
 import           Lens.Micro.TH                  ( makeLenses )
-import           Labyrinth.Screens              ( RegistrationScreen
-                                                , SplashScreen
-                                                , ResourceName
+import           Labyrinth.UI                   ( ResourceName
+                                                , Screen
                                                 )
 import           Brick
 
-data State e = Splash SplashScreen | Registration (RegistrationScreen e)
-
 data Store e = Store
-  { _state :: State e
+  { _state :: Screen e
   }
 makeLenses ''Store
 

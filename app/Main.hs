@@ -6,30 +6,36 @@ import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
 import           Control.Monad                  ( void )
 import           Data.Maybe                     ( fromMaybe )
-import qualified Labyrinth.Screens             as Screens
-import           Labyrinth.Screens              ( ResourceName )
-import qualified Labyrinth.Screens.Registration
+
+
+
+import qualified Labyrinth.UI                  as UI
+import           Labyrinth.UI                   ( ResourceName
+                                                , Screen(..)
+                                                )
+
+import qualified Labyrinth.UI.Screen.Splash    as Splash
+import qualified Labyrinth.Store.Event.Splash  as Splash
+
+import qualified Labyrinth.UI.Screen.Registration
                                                as Registration
-import qualified Labyrinth.Screens.Splash      as Splash
-import qualified Labyrinth.Store.SplashEvent   as SplashEvent
-import qualified Labyrinth.Store.RegistrationEvent
-                                               as RegistrationEvent
-import           Labyrinth.Store                ( Store(..)
-                                                , State(..)
+import qualified Labyrinth.Store.Event.Registration
+                                               as Registration
+
+import qualified Labyrinth.Store               as Store
+import           Labyrinth.Store                ( Store
                                                 , state
                                                 )
 
 main :: IO ()
-main = do
-  let store = Store (Splash Splash.initialScreen)
-  void $ customMain buildVty Nothing app store
+main = void $ customMain buildVty Nothing app Store.initial
 
 app :: App (Store e) e ResourceName
 app = App { appDraw         = draw
           , appChooseCursor = chooseCursor
           , appHandleEvent  = handleEvent
           , appStartEvent   = return
-          , appAttrMap      = Screens.attributeMap
+          , appAttrMap      = UI.attributeMap
           }
 
 draw :: Store e -> [Widget ResourceName]
@@ -44,8 +50,8 @@ handleEvent
 handleEvent store = handle store
  where
   handle = case store ^. state of
-    Splash       screen -> SplashEvent.handle screen
-    Registration screen -> RegistrationEvent.handle screen
+    Splash       screen -> Splash.handle screen
+    Registration screen -> Registration.handle screen
 
 buildVty :: IO Vty
 buildVty = do

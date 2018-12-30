@@ -9,7 +9,8 @@ import           Data.Maybe                     ( fromJust
 import           Labyrinth.Players              ( Color(..)
                                                 , Player(..)
                                                 )
-import           Labyrinth.Screens.Registration ( register
+import           Labyrinth.UI.Screen.Registration
+                                                ( register
                                                 , hasEnoughPlayers
                                                 , initialScreen
                                                 , isFull

@@ -1,4 +1,4 @@
-module Labyrinth.Store.SplashEvent
+module Labyrinth.Store.Event.Splash
   ( handle
   )
 where
@@ -9,11 +9,12 @@ import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 )
 import           Labyrinth.Store.Internal       ( EventHandler
-                                                , State(..)
                                                 , state
                                                 )
-import           Labyrinth.Screens              ( SplashScreen )
-import qualified Labyrinth.Screens.Registration
+import           Labyrinth.UI                   ( Screen(..)
+                                                , SplashScreen
+                                                )
+import qualified Labyrinth.UI.Screen.Registration
                                                as Registration
 
 handle :: EventHandler SplashScreen e

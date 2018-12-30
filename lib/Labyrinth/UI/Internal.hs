@@ -1,4 +1,4 @@
-module Labyrinth.Screens.Internal
+module Labyrinth.UI.Internal
   ( ResourceName(..)
   )
 where

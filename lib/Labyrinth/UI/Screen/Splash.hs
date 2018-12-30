@@ -1,4 +1,4 @@
-module Labyrinth.Screens.Splash
+module Labyrinth.UI.Screen.Splash
   ( draw
   , SplashScreen
   , initialScreen

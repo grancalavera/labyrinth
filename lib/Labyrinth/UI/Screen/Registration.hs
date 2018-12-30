@@ -1,4 +1,4 @@
-module Labyrinth.Screens.Registration
+module Labyrinth.UI.Screen.Registration
   ( RegistrationScreen
   , form
   , players
@@ -45,7 +45,7 @@ import           Labyrinth.Players              ( Player(..)
                                                 , Players
                                                 )
 import qualified Labyrinth.Players             as Players
-import           Labyrinth.Screens.Internal     ( ResourceName(..) )
+import           Labyrinth.UI.Internal          ( ResourceName(..) )
 
 type RegistrationForm e = Form Player e ResourceName
 

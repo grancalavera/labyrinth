@@ -1,4 +1,4 @@
-module Labyrinth.Store.RegistrationEvent
+module Labyrinth.Store.Event.Registration
   ( handle
   )
 where
@@ -12,11 +12,13 @@ import           Lens.Micro                     ( (^.)
                                                 , (?~)
                                                 )
 import           Labyrinth.Store.Internal       ( EventHandler
-                                                , State(..)
                                                 , state
                                                 )
-import           Labyrinth.Screens              ( RegistrationScreen )
-import           Labyrinth.Screens.Registration ( form
+import           Labyrinth.UI                   ( Screen(..)
+                                                , RegistrationScreen
+                                                )
+import           Labyrinth.UI.Screen.Registration
+                                                ( form
                                                 , submit
                                                 )
 
