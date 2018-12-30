@@ -84,11 +84,11 @@ draw screen = [appContainer 50 $ content]
   help          = beginCommand <=> submitCommand
 
   submitCommand = if hasValidName screen
-    then C.hCenter $ txt "Enter: submit player"
+    then C.hCenter $ txt "Ctrl+a: add player"
     else emptyWidget
 
   beginCommand = if hasEnoughPlayers screen
-    then C.hCenter $ txt "Ctr+Enter: begin game"
+    then C.hCenter $ txt "Ctrl+p: begin game"
     else emptyWidget
 
 
