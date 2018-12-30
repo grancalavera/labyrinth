@@ -37,7 +37,7 @@ import           Data.Maybe                     ( fromJust
                                                 )
 import           Linear.V2                      ( V2(..) )
 import           Labyrinth.Game.Position        ( Position )
-import qualified Labyrinth.Random         as Random
+import qualified Data.Random         as Random
 import           Labyrinth.Game.Direction       ( Direction(..) )
 import qualified Labyrinth.Game.Direction      as Direction
 import           Labyrinth.Game.Treasure        ( Treasure(..)
