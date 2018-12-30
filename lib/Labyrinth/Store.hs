@@ -5,7 +5,4 @@ module Labyrinth.Store
   )
 where
 
-import           Labyrinth.Store.Internal       ( State(..)
-                                                , Store(..)
-                                                , state
-                                                )
+import           Labyrinth.Store.Internal
