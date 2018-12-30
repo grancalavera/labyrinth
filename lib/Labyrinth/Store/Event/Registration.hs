@@ -29,10 +29,11 @@ handle screen store ev = case screen ^. form of
 
   Just form' -> case ev of
 
-    VtyEvent (V.EvKey V.KEsc   []) -> halt store
+    VtyEvent (V.EvKey V.KEsc []) -> halt store
 
-    VtyEvent (V.EvKey (V.KChar 'a') [V.MCtrl]) -> continue
-      $ if hasValidName screen then updateStore (submit screen) else store
+    VtyEvent (V.EvKey (V.KChar 'a') [V.MCtrl]) ->
+      continue
+        $ if hasValidName screen then updateStore (submit screen) else store
 
     VtyEvent (V.EvKey (V.KChar 'p') [V.MCtrl]) ->
       if hasEnoughPlayers screen then halt store else continue store
