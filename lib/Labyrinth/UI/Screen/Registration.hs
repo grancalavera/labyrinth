@@ -43,6 +43,7 @@ import           Labyrinth.Game.Players         ( Player(..)
                                                 , Color(..)
                                                 , Players
                                                 , name
+                                                , order
                                                 )
 import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
@@ -78,8 +79,8 @@ draw screen = [appContainer 50 $ content]
 
   registered = case (Players.toList $ screen ^. players) of
     [] -> emptyWidget
-    ps -> titleBox " Players " $ vBox $ map toPlayer ps
-  toPlayer      = playerLabel 50 . snd
+    ps -> titleBox " Players " $ vBox $ map (toPlayer. snd) ps
+  toPlayer p     = playerLabel 39 p  <+> editPlayerLabel p
 
   help          = beginCommand <=> submitCommand
 
@@ -90,6 +91,8 @@ draw screen = [appContainer 50 $ content]
   beginCommand = if hasEnoughPlayers screen
     then C.hCenter $ txt "Ctrl+p: begin game"
     else emptyWidget
+
+  editPlayerLabel p = str $ " " <> "Edit: F" <> (show $ (p ^. order) + 1)
 
 
 submit :: RegistrationScreen e -> RegistrationScreen e
