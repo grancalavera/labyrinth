@@ -79,18 +79,18 @@ draw screen = [appContainer 50 $ content]
 
   registered = case (Players.toList $ screen ^. players) of
     [] -> emptyWidget
-    ps -> titleBox " Players " $ vBox $ map (toPlayer. snd) ps
-  toPlayer p     = playerLabel 39 p  <+> editPlayerLabel p
+    ps -> titleBox " Players " $ vBox $ map (toPlayer . snd) ps
+  toPlayer p = playerLabel 39 p <+> editPlayerLabel p
 
-  help          = beginCommand <=> submitCommand
+  help        = beginCommand <=> submitCommand <=> quitCommand
 
-  submitCommand = if hasValidName screen
-    then C.hCenter $ txt "Ctrl+a: add player"
-    else emptyWidget
+  quitCommand = txt "Ctrl+q: quit"
 
-  beginCommand = if hasEnoughPlayers screen
-    then C.hCenter $ txt "Ctrl+p: begin game"
-    else emptyWidget
+  submitCommand =
+    if hasValidName screen then txt "Enter: add player" else emptyWidget
+
+  beginCommand =
+    if hasEnoughPlayers screen then txt "Ctrl+p: begin game" else emptyWidget
 
   editPlayerLabel p = str $ " " <> "Edit: F" <> (show $ (p ^. order) + 1)
 
@@ -112,8 +112,9 @@ mkForm players' = case nextFormState players' of
 
 nextFormState :: Players -> Maybe Player
 nextFormState players' = case availableColors players' of
-  []      -> Nothing
-  colors' -> Just (Player "" (head colors') (length Players.colors - length colors'))
+  [] -> Nothing
+  colors' ->
+    Just (Player "" (head colors') (length Players.colors - length colors'))
 
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)

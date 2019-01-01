@@ -12,6 +12,7 @@ import           Lens.Micro                     ( (^.)
                                                 , (?~)
                                                 )
 import           Labyrinth.Store.Internal       ( EventHandler
+                                                , Store
                                                 , state
                                                 )
 import           Labyrinth.UI                   ( Screen(..)
@@ -24,25 +25,35 @@ import           Labyrinth.UI.Screen.Registration
                                                 , hasEnoughPlayers
                                                 )
 
-handle :: EventHandler (RegistrationScreen e) e
-handle screen store ev = case screen ^. form of
+type RegistrationEventHandler e = EventHandler (RegistrationScreen e) e
 
-  Just form' -> case ev of
+handle :: RegistrationEventHandler e
+handle screen store ev = handleEvent screen store ev
+ where
+  handleEvent = case ev of
+    VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl]) -> quit
+    VtyEvent (V.EvKey (V.KChar 'p') [V.MCtrl]) -> beginGame
+    VtyEvent (V.EvKey V.KEnter []) -> submitPlayer
+    _ -> processInput
 
-    VtyEvent (V.EvKey V.KEsc []) -> halt store
+quit :: RegistrationEventHandler e
+quit _ store _ = halt store
 
-    VtyEvent (V.EvKey (V.KChar 'a') [V.MCtrl]) ->
-      continue
-        $ if hasValidName screen then updateStore (submit screen) else store
+submitPlayer :: RegistrationEventHandler e
+submitPlayer screen store _ = continue $ if hasValidName screen
+  then update store (Registration $ submit screen)
+  else store
 
-    VtyEvent (V.EvKey (V.KChar 'p') [V.MCtrl]) ->
-      if hasEnoughPlayers screen then halt store else continue store
+beginGame :: RegistrationEventHandler e
+beginGame screen store _ =
+  if hasEnoughPlayers screen then halt store else continue store
 
-    _ -> do
-      form'' <- handleFormEvent ev form'
-      continue $ updateStore (screen & form ?~ form'')
+processInput :: RegistrationEventHandler e
+processInput screen store ev = case screen ^. form of
+  Nothing    -> continue store
+  Just form' -> do
+    form'' <- handleFormEvent ev form'
+    continue $ update store $ Registration (screen & form ?~ form'')
 
-  Nothing -> case ev of
-    VtyEvent (V.EvKey V.KEsc []) -> halt store
-    _                            -> continue store
-  where updateStore s = store & state .~ Registration s
+update :: Store e -> Screen e -> Store e
+update store screen = store & state .~ screen
