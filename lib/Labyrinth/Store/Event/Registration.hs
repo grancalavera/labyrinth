@@ -40,9 +40,8 @@ quit :: RegistrationEventHandler e
 quit _ store _ = halt store
 
 submitPlayer :: RegistrationEventHandler e
-submitPlayer screen store _ = continue $ if hasValidName screen
-  then update store (Registration $ submit screen)
-  else store
+submitPlayer screen store _ =
+  continue $ if hasValidName screen then update store (submit screen) else store
 
 beginGame :: RegistrationEventHandler e
 beginGame screen store _ =
@@ -53,7 +52,7 @@ processInput screen store ev = case screen ^. form of
   Nothing    -> continue store
   Just form' -> do
     form'' <- handleFormEvent ev form'
-    continue $ update store $ Registration (screen & form ?~ form'')
+    continue $ update store $ screen & form ?~ form''
 
-update :: Store e -> Screen e -> Store e
-update store screen = store & state .~ screen
+update :: Store e -> RegistrationScreen e -> Store e
+update store screen = store & state .~ (Registration screen)
