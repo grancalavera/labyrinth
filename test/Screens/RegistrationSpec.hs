@@ -15,6 +15,7 @@ import           Labyrinth.UI.Screen.Registration
                                                 , initialScreen
                                                 , isFull
                                                 , form
+                                                , extractForm
                                                 )
 
 spec :: Spec
@@ -31,7 +32,7 @@ spec = describe "Registration" $ do
       fourPlayers  = threePlayers `register` playerD
 
   it "initally a registration form should have the default player" $ do
-    let form'         = fromJust (initialScreen ^. form)
+    let form'         = extractForm $ fromJust (initialScreen ^. form)
         defaultPlayer = formState form'
     defaultPlayer `shouldBe` Player "" Yellow 0
 
@@ -39,7 +40,7 @@ spec = describe "Registration" $ do
     hasEnoughPlayers onePlayer `shouldBe` False
 
   it "should move to the next player after registering the first player" $ do
-    let form'         = fromJust (onePlayer ^. form)
+    let form'         = extractForm $ fromJust (onePlayer ^. form)
         defaultPlayer = formState form'
     defaultPlayer `shouldBe` Player "" Red 1
 

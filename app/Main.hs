@@ -4,7 +4,7 @@ import           Brick
 import           Graphics.Vty                   ( Vty )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
-import           Control.Monad                  ( void )
+-- import           Control.Monad                  ( void )
 import           Data.Maybe                     ( fromMaybe )
 
 
@@ -28,7 +28,19 @@ import           Labyrinth.Store                ( Store
                                                 )
 
 main :: IO ()
-main = void $ customMain buildVty Nothing app Store.initial
+main = do
+  store <- customMain buildVty Nothing app Store.initial
+  case store ^. state of
+
+    Splash _ -> putStrLn $ "\n\n\n" <> "Finished at Splash." <> "\n\n\n"
+
+    Registration screen ->
+      putStrLn
+        $  "\n\n\n"
+        <> "Finished at Registration:\n"
+        <> (show $ screen ^. Registration.players)
+        <> "\n\n\n"
+
 
 app :: App (Store e) e ResourceName
 app = App { appDraw         = draw

@@ -6,10 +6,8 @@ where
 import           Brick
 import           Brick.Forms                    ( handleFormEvent )
 import qualified Graphics.Vty                  as V
-import           Lens.Micro                     ( (^.)
-                                                , (&)
+import           Lens.Micro                     ( (&)
                                                 , (.~)
-                                                , (?~)
                                                 )
 import           Labyrinth.Store.Internal       ( EventHandler
                                                 , Store
@@ -19,9 +17,9 @@ import           Labyrinth.UI                   ( Screen(..)
                                                 , RegistrationScreen
                                                 )
 import           Labyrinth.UI.Screen.Registration
-                                                ( form
-                                                , submit
-                                                , hasValidName
+                                                ( submit
+                                                , validate
+                                                , processForm
                                                 , hasEnoughPlayers
                                                 )
 
@@ -41,18 +39,15 @@ quit _ store _ = halt store
 
 submitPlayer :: RegistrationEventHandler e
 submitPlayer screen store _ =
-  continue $ if hasValidName screen then update store (submit screen) else store
+  continue $ if validate screen then update store (submit screen) else store
 
 beginGame :: RegistrationEventHandler e
 beginGame screen store _ =
   if hasEnoughPlayers screen then halt store else continue store
 
 processInput :: RegistrationEventHandler e
-processInput screen store ev = case screen ^. form of
-  Nothing    -> continue store
-  Just form' -> do
-    form'' <- handleFormEvent ev form'
-    continue $ update store $ screen & form ?~ form''
+processInput screen store ev =
+  processForm screen (handleFormEvent ev) >>= continue . update store
 
 update :: Store e -> RegistrationScreen e -> Store e
-update store screen = store & state .~ (Registration screen)
+update store screen = store & state .~ Registration screen
