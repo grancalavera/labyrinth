@@ -1,16 +1,18 @@
 module Labyrinth.UI.Screen.Registration
   ( RegistrationScreen
+  , submitPlayer
+  , validate
+  , editPlayer
+  , playerAt
+  , processForm
+  , hasEnoughPlayers
   , form
   , players
   , initialScreen
   , draw
-  , submit
   , register
-  , hasEnoughPlayers
   , isFull
   , chooseCursor
-  , validate
-  , processForm
   , extractForm
   )
 where
@@ -39,11 +41,11 @@ import qualified Data.Map.Strict               as Map
 import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map
                                                 , (!)
+                                                , (!?)
                                                 )
 
 import           Labyrinth.Game.Players         ( Player(..)
                                                 , Color(..)
-                                                , Players
                                                 , name
                                                 , order
                                                 )
@@ -51,6 +53,7 @@ import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal          ( ResourceName(..) )
 
+type PlayerIndex = Map Int Player
 type ColorFieldMap = Map Color ResourceName
 type PlayerForm e = Form Player e ResourceName
 type FormProcessor e = PlayerForm e -> EventM ResourceName (PlayerForm e)
@@ -59,26 +62,33 @@ data TheForm e = AddPlayer ( PlayerForm e) | EditPlayer ( PlayerForm e)
 
 data RegistrationScreen e = RegistrationScreen
   { _form :: Maybe (TheForm e)
-  , _players :: Players
+  , _players :: PlayerIndex
   , _minPlayers :: Int
   , _maxPlayers :: Int
   }
 makeLenses ''RegistrationScreen
 
 initialScreen :: RegistrationScreen e
-initialScreen = RegistrationScreen { _form       = registerForm mempty
+initialScreen = RegistrationScreen { _form       = addPlayerForm mempty
                                    , _players    = mempty
                                    , _minPlayers = 2
                                    , _maxPlayers = 4
                                    }
 
-submit :: RegistrationScreen e -> RegistrationScreen e
-submit screen =
+submitPlayer :: RegistrationScreen e -> RegistrationScreen e
+submitPlayer screen =
   maybe screen (register screen . formState . extractForm) (screen ^. form)
 
 validate :: RegistrationScreen e -> Bool
 validate screen = maybe False (val . extractForm) (screen ^. form)
   where val = (0 <) . Text.length . (^. name) . formState
+
+editPlayer :: RegistrationScreen e -> Player -> RegistrationScreen e
+editPlayer screen player =
+  screen & form ?~ editPlayerForm (screen ^. players) player
+
+playerAt :: RegistrationScreen e -> Int -> Maybe Player
+playerAt screen = ((screen ^. players) !?)
 
 processForm
   :: RegistrationScreen e
@@ -104,11 +114,11 @@ draw screen = [appContainer 50 $ content]
     Just (EditPlayer form') -> titleBox " Edit Player " $ renderForm form'
     _                       -> emptyWidget
 
-  registered = case (Players.toList $ screen ^. players) of
+  registered = case (Map.toList $ screen ^. players) of
     [] -> emptyWidget
     ps -> titleBox " Players " $ vBox $ map (toPlayer . snd) ps
 
-  toPlayer p = playerLabel 39 p <+> editPlayerLabel p
+  toPlayer p = playerLabel 35 p <+> editPlayerLabel p
 
   help        = beginCommand <=> submitCommand <=> quitCommand
 
@@ -120,7 +130,7 @@ draw screen = [appContainer 50 $ content]
   beginCommand =
     if hasEnoughPlayers screen then txt "Ctrl+p: begin game" else emptyWidget
 
-  editPlayerLabel p = str $ " " <> "Edit: F" <> show ((p ^. order) + 1)
+  editPlayerLabel p = str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !!  (p ^. order)
 
 extractForm :: TheForm e -> PlayerForm e
 extractForm (AddPlayer  f) = f
@@ -135,22 +145,23 @@ asEdit = EditPlayer
 register :: RegistrationScreen e -> Player -> RegistrationScreen e
 register screen player = screen'
  where
-  players' = Map.insert (player ^. Players.color) player (screen ^. players)
-  form'    = registerForm players'
+  players' = Map.insert (player ^. Players.order) player (screen ^. players)
+  form'    = addPlayerForm players'
   screen'  = screen & form .~ form' & players .~ players'
 
-registerForm :: Players -> Maybe (TheForm e)
-registerForm players' = case nextFormState players' of
+addPlayerForm :: PlayerIndex -> Maybe (TheForm e)
+addPlayerForm players' = case nextFormState players' of
   Just player -> Just $ AddPlayer (mkForm players' player)
   Nothing     -> Nothing
 
--- editForm :: Players -> Player -> PlayerForm e
--- editForm ps p = mkForm ps' p where ps' = Map.delete (p ^. Players.color) ps
+editPlayerForm :: PlayerIndex -> Player -> TheForm e
+editPlayerForm ps p = EditPlayer (mkForm ps' p)
+  where ps' = Map.delete (p ^. Players.order) ps
 
-mkForm :: Players -> Player -> PlayerForm e
+mkForm :: PlayerIndex -> Player -> PlayerForm e
 mkForm ps = newForm [nameField, colorField ps]
 
-nextFormState :: Players -> Maybe Player
+nextFormState :: PlayerIndex -> Maybe Player
 nextFormState players' = case availableColors players' of
   [] -> Nothing
   colors' ->
@@ -159,14 +170,14 @@ nextFormState players' = case availableColors players' of
 nameField :: Player -> FormFieldState Player e ResourceName
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)
 
-colorField :: Players -> Player -> FormFieldState Player e ResourceName
+colorField :: PlayerIndex -> Player -> FormFieldState Player e ResourceName
 colorField players' = label "Color"
   @@= radioField Players.color (colorOptions players' colorFieldMap)
 
 label :: String -> Widget n -> Widget n
 label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w
 
-colorOptions :: Players -> ColorFieldMap -> [(Color, ResourceName, Text)]
+colorOptions :: PlayerIndex -> ColorFieldMap -> [(Color, ResourceName, Text)]
 colorOptions players' fieldsMap = zip3 colors fields labels
  where
   colors = availableColors players'
@@ -181,11 +192,11 @@ colorFieldMap = Map.fromList
   , (Green , GreenField)
   ]
 
-availableColors :: Players -> [Color]
+availableColors :: PlayerIndex -> [Color]
 availableColors ps = Set.toList $ Set.difference existing taken
  where
   existing = Set.fromList Players.colors
-  taken    = Set.fromList $ Map.keys ps
+  taken    = Set.fromList $ map ((^. Players.color) . snd) (Map.toList ps)
 
 hasEnoughPlayers :: RegistrationScreen e -> Bool
 hasEnoughPlayers screen = minCount <= currentCount
