@@ -11,6 +11,7 @@ import           Labyrinth.UI                   ( Name
                                                 , Screen(..)
                                                 )
 import           Labyrinth.UI.Widget
+import qualified Labyrinth.Store.Event.Global  as Global
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 import qualified Labyrinth.Store.Event.Splash  as Splash
 
@@ -21,6 +22,7 @@ import qualified Labyrinth.Store.Event.Registration
 
 import qualified Labyrinth.Store               as Store
 import           Labyrinth.Store                ( Store
+                                                , Ev
                                                 , state
                                                 )
 
@@ -39,7 +41,7 @@ main = do
         <> "\n\n\n"
 
 
-app :: App (Store e) e Name
+app :: App (Store Ev) Ev Name
 app = App { appDraw         = draw
           , appChooseCursor = chooseCursor
           , appHandleEvent  = handleEvent
@@ -54,13 +56,15 @@ draw store = [appContainer 50 screen]
     Splash       s -> Splash.draw s
     Registration s -> Registration.draw s
 
-handleEvent :: Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
-handleEvent store ev = handleScreenEvent store ev
-
+handleEvent
+  :: Ord e => Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
+handleEvent store ev = handle store ev
  where
-  handleScreenEvent = case store ^. state of
-    Splash       screen -> Splash.handle screen
-    Registration screen -> Registration.handle screen
+  handle = if Store.handleGlobalEvent store ev
+    then Global.handle
+    else case store ^. state of
+      Splash       screen -> Splash.handle screen
+      Registration screen -> Registration.handle screen
 
 buildVty :: IO Vty
 buildVty = do
@@ -68,10 +72,7 @@ buildVty = do
   V.setMode (V.outputIface v) V.Mouse True
   return v
 
-chooseCursor
-  :: Store e
-  -> [CursorLocation Name]
-  -> Maybe (CursorLocation Name)
+chooseCursor :: Store e -> [CursorLocation Name] -> Maybe (CursorLocation Name)
 chooseCursor store = case store ^. state of
   Registration screen -> fromMaybe noCursor $ Registration.chooseCursor screen
   _                   -> noCursor

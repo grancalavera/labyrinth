@@ -1,9 +1,10 @@
 module Labyrinth.Store
   ( Store
+  , Ev
   , state
   , global
   , initial
-  , shouldHandleAsGlobalEvent
+  , handleGlobalEvent
   )
 where
 
@@ -20,7 +21,6 @@ import qualified Labyrinth.UI.Screen.Splash    as Splash
 initial :: Store e
 initial = Store { _state = Splash Splash.initial, _global = Global.initial }
 
-
-shouldHandleAsGlobalEvent :: Ord e => Store e -> BrickEvent Name e -> Bool
-shouldHandleAsGlobalEvent store ev =
+handleGlobalEvent :: Ord e => Store e -> BrickEvent Name e -> Bool
+handleGlobalEvent store ev =
   Global.screenIsBlocked (store ^. global) || Global.isGlobalEvent ev

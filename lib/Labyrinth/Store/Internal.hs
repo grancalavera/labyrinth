@@ -1,5 +1,6 @@
 module Labyrinth.Store.Internal
   ( Store(..)
+  , Ev
   , EventHandler
   , state
   , global
@@ -12,6 +13,8 @@ import           Labyrinth.UI                   ( Name
                                                 , Screen
                                                 , Global
                                                 )
+
+data Ev = Ev deriving (Show, Eq, Ord)
 
 data Store e = Store
   { _state :: Screen e

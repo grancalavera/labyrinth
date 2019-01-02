@@ -24,7 +24,7 @@ handle :: Ord e => GlobalEventHandler e
 handle store ev = (fromMaybe (const . continue) $ eventMap !? ev) store ev
 
 promptToQuit :: GlobalEventHandler e
-promptToQuit = undefined
+promptToQuit store _ = halt store
 
 eventMap :: Ord e => Map (BrickEvent Name e) (GlobalEventHandler e)
 eventMap =
