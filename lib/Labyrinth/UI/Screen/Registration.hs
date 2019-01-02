@@ -51,7 +51,7 @@ import           Labyrinth.Game.Players         ( Player(..)
                                                 )
 import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
-import           Labyrinth.UI.Internal          ( Name(..) )
+import           Labyrinth.UI.Internal
 
 type PlayerIndex = Map Int Player
 type ColorFieldMap = Map Color Name

@@ -11,6 +11,7 @@ import           Labyrinth.UI                   ( Name
                                                 , Screen(..)
                                                 )
 import           Labyrinth.UI.Widget
+import qualified Labyrinth.UI.Global           as Global
 import qualified Labyrinth.Store.Event.Global  as Global
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 import qualified Labyrinth.Store.Event.Splash  as Splash
@@ -24,6 +25,7 @@ import qualified Labyrinth.Store               as Store
 import           Labyrinth.Store                ( Store
                                                 , Ev
                                                 , state
+                                                , global
                                                 )
 
 main :: IO ()
@@ -73,7 +75,13 @@ buildVty = do
   return v
 
 chooseCursor :: Store e -> [CursorLocation Name] -> Maybe (CursorLocation Name)
-chooseCursor store = case store ^. state of
-  Registration screen -> fromMaybe noCursor $ Registration.chooseCursor screen
-  _                   -> noCursor
-  where noCursor = neverShowCursor store
+chooseCursor store = if isBlocked then globalCursor else screenCursor
+ where
+  glob         = store ^. global
+  noCursor     = neverShowCursor store
+  cursorOrNot  = fromMaybe noCursor
+  isBlocked    = Global.screenIsBlocked glob
+  globalCursor = cursorOrNot $ Global.chooseCursor glob
+  screenCursor = case store ^. state of
+    Registration screen -> cursorOrNot $ Registration.chooseCursor screen
+    _                   -> noCursor
