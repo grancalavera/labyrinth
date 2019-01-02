@@ -34,9 +34,12 @@ library:
     - Labyrinth.Game.Tile
     - Labyrinth.Game.Treasure
     - Labyrinth.UI
+    - Labyrinth.UI.Global
     - Labyrinth.UI.Screen.Registration
     - Labyrinth.UI.Screen.Splash
+    - Labyrinth.UI.Widget
     - Labyrinth.Store
+    - Labyrinth.Store.Event.Global
     - Labyrinth.Store.Event.Splash
     - Labyrinth.Store.Event.Registration
     - Data.List.Extended

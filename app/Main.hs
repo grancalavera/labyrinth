@@ -4,16 +4,13 @@ import           Brick
 import           Graphics.Vty                   ( Vty )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
--- import           Control.Monad                  ( void )
 import           Data.Maybe                     ( fromMaybe )
 
-
-
 import qualified Labyrinth.UI                  as UI
-import           Labyrinth.UI                   ( ResourceName
+import           Labyrinth.UI                   ( Name
                                                 , Screen(..)
                                                 )
-
+import           Labyrinth.UI.Widget
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 import qualified Labyrinth.Store.Event.Splash  as Splash
 
@@ -42,7 +39,7 @@ main = do
         <> "\n\n\n"
 
 
-app :: App (Store e) e ResourceName
+app :: App (Store e) e Name
 app = App { appDraw         = draw
           , appChooseCursor = chooseCursor
           , appHandleEvent  = handleEvent
@@ -50,18 +47,18 @@ app = App { appDraw         = draw
           , appAttrMap      = UI.attributeMap
           }
 
-draw :: Store e -> [Widget ResourceName]
-draw store = case store ^. state of
-  Splash       screen -> Splash.draw screen
-  Registration screen -> Registration.draw screen
-
-handleEvent
-  :: Store e
-  -> BrickEvent ResourceName e
-  -> EventM ResourceName (Next (Store e))
-handleEvent store = handle store
+draw :: Store e -> [Widget Name]
+draw store = [appContainer 50 screen]
  where
-  handle = case store ^. state of
+  screen = case store ^. state of
+    Splash       s -> Splash.draw s
+    Registration s -> Registration.draw s
+
+handleEvent :: Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
+handleEvent store ev = handleScreenEvent store ev
+
+ where
+  handleScreenEvent = case store ^. state of
     Splash       screen -> Splash.handle screen
     Registration screen -> Registration.handle screen
 
@@ -73,8 +70,8 @@ buildVty = do
 
 chooseCursor
   :: Store e
-  -> [CursorLocation ResourceName]
-  -> Maybe (CursorLocation ResourceName)
+  -> [CursorLocation Name]
+  -> Maybe (CursorLocation Name)
 chooseCursor store = case store ^. state of
   Registration screen -> fromMaybe noCursor $ Registration.chooseCursor screen
   _                   -> noCursor

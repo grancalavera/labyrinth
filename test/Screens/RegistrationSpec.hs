@@ -12,7 +12,7 @@ import           Labyrinth.Game.Players         ( Color(..)
 import           Labyrinth.UI.Screen.Registration
                                                 ( register
                                                 , hasEnoughPlayers
-                                                , initialScreen
+                                                , initial
                                                 , isFull
                                                 , form
                                                 , extractForm
@@ -26,13 +26,13 @@ spec = describe "Registration" $ do
       playerC      = Player "C" Blue 2
       playerD      = Player "D" Green 3
 
-      onePlayer    = initialScreen `register` playerA
+      onePlayer    = initial `register` playerA
       twoPlayers   = onePlayer `register` playerB
       threePlayers = twoPlayers `register` playerC
       fourPlayers  = threePlayers `register` playerD
 
   it "initally a registration form should have the default player" $ do
-    let form'         = extractForm $ fromJust (initialScreen ^. form)
+    let form'         = extractForm $ fromJust (initial ^. form)
         defaultPlayer = formState form'
     defaultPlayer `shouldBe` Player "" Yellow 0
 
@@ -46,7 +46,7 @@ spec = describe "Registration" $ do
 
   it "adding players to the same colour should not increase the count" $ do
     let stillOnePlayer =
-          initialScreen
+          initial
             `register` Player "A" Yellow 0
             `register` Player "B" Yellow 0
             `register` Player "C" Yellow 0

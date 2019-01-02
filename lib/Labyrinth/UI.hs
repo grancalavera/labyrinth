@@ -1,8 +1,10 @@
 module Labyrinth.UI
   ( Screen(..)
+  , Modal(..)
+  , Global
   , SplashScreen
   , RegistrationScreen
-  , ResourceName(..)
+  , Name(..)
   , attributeMap
   )
 where
@@ -13,10 +15,12 @@ import           Brick.Forms                    ( focusedFormInputAttr )
 import qualified Graphics.Vty                  as V
 
 import           Labyrinth.UI.Internal
+import           Labyrinth.UI.Global
 import           Labyrinth.UI.Screen.Splash
 import           Labyrinth.UI.Screen.Registration
 
 data Screen e = Splash SplashScreen | Registration (RegistrationScreen e)
+
 
 attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap

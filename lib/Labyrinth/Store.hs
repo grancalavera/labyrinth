@@ -1,13 +1,26 @@
 module Labyrinth.Store
   ( Store
   , state
+  , global
   , initial
+  , shouldHandleAsGlobalEvent
   )
 where
 
+import           Brick
+import           Lens.Micro                     ( (^.) )
 import           Labyrinth.Store.Internal
-import           Labyrinth.UI                   ( Screen(..) )
+import qualified Labyrinth.Store.Event.Global  as Global
+import qualified Labyrinth.UI.Global           as Global
+import           Labyrinth.UI                   ( Name
+                                                , Screen(..)
+                                                )
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 
 initial :: Store e
-initial = Store $ Splash Splash.initialScreen
+initial = Store { _state = Splash Splash.initial, _global = Global.initial }
+
+
+shouldHandleAsGlobalEvent :: Ord e => Store e -> BrickEvent Name e -> Bool
+shouldHandleAsGlobalEvent store ev =
+  Global.screenIsBlocked (store ^. global) || Global.isGlobalEvent ev

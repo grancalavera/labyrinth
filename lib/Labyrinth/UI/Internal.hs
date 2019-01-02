@@ -1,9 +1,9 @@
 module Labyrinth.UI.Internal
-  ( ResourceName(..)
+  ( Name(..)
   )
 where
 
-data ResourceName
+data Name
     = NameField
     | YellowField
     | RedField

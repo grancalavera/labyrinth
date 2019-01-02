@@ -9,10 +9,7 @@ import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 )
-import           Labyrinth.Store.Internal       ( EventHandler
-                                                , Store
-                                                , state
-                                                )
+import           Labyrinth.Store.Internal
 import           Labyrinth.UI                   ( Screen(..)
                                                 , RegistrationScreen
                                                 )

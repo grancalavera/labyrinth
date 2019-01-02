@@ -8,7 +8,7 @@ module Labyrinth.UI.Screen.Registration
   , hasEnoughPlayers
   , form
   , players
-  , initialScreen
+  , initial
   , draw
   , register
   , isFull
@@ -51,12 +51,12 @@ import           Labyrinth.Game.Players         ( Player(..)
                                                 )
 import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
-import           Labyrinth.UI.Internal          ( ResourceName(..) )
+import           Labyrinth.UI.Internal          ( Name(..) )
 
 type PlayerIndex = Map Int Player
-type ColorFieldMap = Map Color ResourceName
-type PlayerForm e = Form Player e ResourceName
-type FormProcessor e = PlayerForm e -> EventM ResourceName (PlayerForm e)
+type ColorFieldMap = Map Color Name
+type PlayerForm e = Form Player e Name
+type FormProcessor e = PlayerForm e -> EventM Name (PlayerForm e)
 
 data TheForm e = AddPlayer ( PlayerForm e) | EditPlayer ( PlayerForm e)
 
@@ -68,12 +68,12 @@ data RegistrationScreen e = RegistrationScreen
   }
 makeLenses ''RegistrationScreen
 
-initialScreen :: RegistrationScreen e
-initialScreen = RegistrationScreen { _form       = addPlayerForm mempty
-                                   , _players    = mempty
-                                   , _minPlayers = 2
-                                   , _maxPlayers = 4
-                                   }
+initial :: RegistrationScreen e
+initial = RegistrationScreen { _form       = addPlayerForm mempty
+                             , _players    = mempty
+                             , _minPlayers = 2
+                             , _maxPlayers = 4
+                             }
 
 submitPlayer :: RegistrationScreen e -> RegistrationScreen e
 submitPlayer screen =
@@ -93,7 +93,7 @@ playerAt screen = ((screen ^. players) !?)
 processForm
   :: RegistrationScreen e
   -> FormProcessor e
-  -> EventM ResourceName (RegistrationScreen e)
+  -> EventM Name (RegistrationScreen e)
 processForm screen process = case screen ^. form of
   Just (AddPlayer  form') -> processAndPack asAdd form'
   Just (EditPlayer form') -> processAndPack asEdit form'
@@ -103,8 +103,8 @@ processForm screen process = case screen ^. form of
     f' <- process f
     return $ screen & form ?~ packAs f'
 
-draw :: RegistrationScreen s -> [Widget ResourceName]
-draw screen = [appContainer 50 $ content]
+draw :: RegistrationScreen s -> Widget Name
+draw screen = content
 
  where
   content = theForm <=> registered <=> help
@@ -130,7 +130,8 @@ draw screen = [appContainer 50 $ content]
   beginCommand =
     if hasEnoughPlayers screen then txt "Ctrl+p: begin game" else emptyWidget
 
-  editPlayerLabel p = str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !!  (p ^. order)
+  editPlayerLabel p =
+    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! (p ^. order)
 
 extractForm :: TheForm e -> PlayerForm e
 extractForm (AddPlayer  f) = f
@@ -167,17 +168,17 @@ nextFormState players' = case availableColors players' of
   colors' ->
     Just (Player "" (head colors') (length Players.colors - length colors'))
 
-nameField :: Player -> FormFieldState Player e ResourceName
+nameField :: Player -> FormFieldState Player e Name
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)
 
-colorField :: PlayerIndex -> Player -> FormFieldState Player e ResourceName
+colorField :: PlayerIndex -> Player -> FormFieldState Player e Name
 colorField players' = label "Color"
   @@= radioField Players.color (colorOptions players' colorFieldMap)
 
 label :: String -> Widget n -> Widget n
 label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w
 
-colorOptions :: PlayerIndex -> ColorFieldMap -> [(Color, ResourceName, Text)]
+colorOptions :: PlayerIndex -> ColorFieldMap -> [(Color, Name, Text)]
 colorOptions players' fieldsMap = zip3 colors fields labels
  where
   colors = availableColors players'
@@ -212,8 +213,7 @@ isFull screen = maxCount == currentCount
 
 chooseCursor
   :: RegistrationScreen e
-  -> Maybe
-       ([CursorLocation ResourceName] -> Maybe (CursorLocation ResourceName))
+  -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
 chooseCursor screen = case (screen ^. form) of
   Nothing    -> Nothing
   Just form' -> Just (focusRingCursor formFocus $ extractForm form')

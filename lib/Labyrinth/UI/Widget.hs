@@ -6,6 +6,7 @@ module Labyrinth.UI.Widget
   , box
   , line
   , playerLabel
+  , dialog
   )
 where
 
@@ -43,3 +44,6 @@ playerLabel w p = playerAttr p $ hLimit w $ C.hCenter $ txt $ (p ^. name)
 
 playerAttr :: Player -> Widget n -> Widget n
 playerAttr = withAttr . attrName . show . (^. color)
+
+dialog :: Widget n
+dialog = C.centerLayer $B.border $  padAll 4 $ txt "Layer floating \nOn top of it all."
