@@ -3,7 +3,7 @@ module Labyrinth.Store.Internal
   , Ev
   , EventHandler
   , state
-  , global
+  , modal
   )
 where
 
@@ -11,14 +11,14 @@ import           Brick
 import           Lens.Micro.TH                  ( makeLenses )
 import           Labyrinth.UI                   ( Name
                                                 , Screen
-                                                , Global
+                                                , Modal
                                                 )
 
 data Ev = Ev deriving (Show, Eq, Ord)
 
 data Store e = Store
   { _state :: Screen e
-  , _global :: Global e
+  , _modal :: Maybe (Modal Store e)
   }
 makeLenses ''Store
 

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 632e058658cbf1b21c997374173d7cb1491de92fce68139e18e5983b8f767fbb
+-- hash: 06b633992ca3efe7339170475e8b0049ca2238d0dc5af8870250bb2f4bf18956
 
 name:           labyrinth
 version:        0.1.0.0
@@ -33,12 +33,12 @@ library
       Labyrinth.Game.Tile
       Labyrinth.Game.Treasure
       Labyrinth.UI
-      Labyrinth.UI.Global
+      Labyrinth.UI.Modal
       Labyrinth.UI.Screen.Registration
       Labyrinth.UI.Screen.Splash
       Labyrinth.UI.Widget
       Labyrinth.Store
-      Labyrinth.Store.Event.Global
+      Labyrinth.Store.Event.Modal
       Labyrinth.Store.Event.Splash
       Labyrinth.Store.Event.Registration
       Data.List.Extended

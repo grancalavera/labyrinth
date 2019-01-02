@@ -1,7 +1,6 @@
 module Labyrinth.UI
   ( Screen(..)
   , Modal(..)
-  , Global
   , SplashScreen
   , RegistrationScreen
   , Name(..)
@@ -10,12 +9,13 @@ module Labyrinth.UI
 where
 
 import           Brick
+import qualified Brick.Widgets.Dialog          as D
 import qualified Brick.Widgets.Edit            as E
 import           Brick.Forms                    ( focusedFormInputAttr )
 import qualified Graphics.Vty                  as V
 
 import           Labyrinth.UI.Internal
-import           Labyrinth.UI.Global
+import           Labyrinth.UI.Modal
 import           Labyrinth.UI.Screen.Splash
 import           Labyrinth.UI.Screen.Registration
 
@@ -28,6 +28,7 @@ attributeMap = const $ attrMap
   [ (E.editAttr          , V.white `on` V.black)
   , (E.editFocusedAttr   , V.black `on` V.white)
   , (focusedFormInputAttr, V.black `on` V.white)
+  , (D.buttonSelectedAttr, V.black `on` V.white)
   , ("Yellow"            , V.black `on` V.yellow)
   , ("Blue"              , V.black `on` V.blue)
   , ("Green"             , V.black `on` V.green)

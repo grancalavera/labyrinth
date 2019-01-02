@@ -2,12 +2,14 @@ module Labyrinth.UI.Screen.Splash
   ( draw
   , SplashScreen
   , initial
+  , chooseCursor
   )
 where
 
 import           Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
+import           Labyrinth.UI.Internal
 import qualified Labyrinth.UI.Widget           as Widget
 
 data SplashScreen = SplashScreen
@@ -16,7 +18,7 @@ draw :: SplashScreen -> Widget n
 draw _ =
   C.vCenter
     $ C.hCenter
-    $ B.borderWithLabel (str "Labyrinth")
+    $ B.borderWithLabel (txt " Labyrinth ")
     $ hLimit 50
     $ padTop (Pad 1)
     $ padLeftRight 1
@@ -26,6 +28,10 @@ draw _ =
         , "To create a new game press [Enter] and add some players."
         ]
 
-
 initial :: SplashScreen
 initial = SplashScreen
+
+chooseCursor
+  :: SplashScreen
+  -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
+chooseCursor _ = Nothing

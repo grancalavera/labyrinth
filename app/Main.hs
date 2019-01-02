@@ -5,14 +5,14 @@ import           Graphics.Vty                   ( Vty )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
 import           Data.Maybe                     ( fromMaybe )
-
+import           Control.Monad                  ( void )
 import qualified Labyrinth.UI                  as UI
 import           Labyrinth.UI                   ( Name
                                                 , Screen(..)
                                                 )
 import           Labyrinth.UI.Widget
-import qualified Labyrinth.UI.Global           as Global
-import qualified Labyrinth.Store.Event.Global  as Global
+import qualified Labyrinth.UI.Modal            as Modal
+import qualified Labyrinth.Store.Event.Modal   as Modal
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 import qualified Labyrinth.Store.Event.Splash  as Splash
 
@@ -25,23 +25,11 @@ import qualified Labyrinth.Store               as Store
 import           Labyrinth.Store                ( Store
                                                 , Ev
                                                 , state
-                                                , global
+                                                , modal
                                                 )
 
 main :: IO ()
-main = do
-  store <- customMain buildVty Nothing app Store.initial
-  case store ^. state of
-
-    Splash _ -> putStrLn $ "\n\n\n" <> "Finished at Splash." <> "\n\n\n"
-
-    Registration screen ->
-      putStrLn
-        $  "\n\n\n"
-        <> "Finished at Registration:\n"
-        <> (show $ screen ^. Registration.players)
-        <> "\n\n\n"
-
+main = void $ customMain buildVty Nothing app Store.initial
 
 app :: App (Store Ev) Ev Name
 app = App { appDraw         = draw
@@ -52,9 +40,9 @@ app = App { appDraw         = draw
           }
 
 draw :: Store e -> [Widget Name]
-draw store = [appContainer 50 screen]
+draw store = [maybe screen Modal.draw (store ^. modal)]
  where
-  screen = case store ^. state of
+  screen = appContainer 50 $ case store ^. state of
     Splash       s -> Splash.draw s
     Registration s -> Registration.draw s
 
@@ -62,8 +50,8 @@ handleEvent
   :: Ord e => Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 handleEvent store ev = handle store ev
  where
-  handle = if Store.handleGlobalEvent store ev
-    then Global.handle
+  handle = if Store.isModalEvent store ev
+    then Modal.handle
     else case store ^. state of
       Splash       screen -> Splash.handle screen
       Registration screen -> Registration.handle screen
@@ -75,13 +63,9 @@ buildVty = do
   return v
 
 chooseCursor :: Store e -> [CursorLocation Name] -> Maybe (CursorLocation Name)
-chooseCursor store = if isBlocked then globalCursor else screenCursor
- where
-  glob         = store ^. global
-  noCursor     = neverShowCursor store
-  cursorOrNot  = fromMaybe noCursor
-  isBlocked    = Global.screenIsBlocked glob
-  globalCursor = cursorOrNot $ Global.chooseCursor glob
-  screenCursor = case store ^. state of
-    Registration screen -> cursorOrNot $ Registration.chooseCursor screen
-    _                   -> noCursor
+chooseCursor store =
+  fromMaybe (neverShowCursor store) $ if Store.isShowingModal store
+    then store ^. modal >>= Modal.chooseCursor
+    else case store ^. state of
+      Splash       screen -> Splash.chooseCursor screen
+      Registration screen -> Registration.chooseCursor screen
