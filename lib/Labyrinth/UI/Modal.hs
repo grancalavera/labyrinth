@@ -1,11 +1,12 @@
 module Labyrinth.UI.Modal
   ( Modal(..)
+  , ModalCallback
   , chooseCursor
   , draw
-  , quitConfirmation
   , dialog
   , onTrue
   , onFalse
+  , showModal
   )
 where
 
@@ -17,31 +18,36 @@ import           Lens.Micro.TH                  ( makeLenses )
 import           Brick.Widgets.Dialog           ( Dialog(..) )
 import           Labyrinth.UI.Internal
 
-type Callback s e = EventM Name (Next (s e))
+type ModalCallback s e = EventM Name (Next (s e))
+type ModalOptions = (Int, [(String, Bool)])
 
 data Modal s e = Modal
   { _dialog :: Dialog Bool
   , _dialogBody :: Widget Name
-  , _onFalse :: Callback s e
-  , _onTrue :: Callback s e
+  , _onTrue :: ModalCallback s e
+  , _onFalse :: ModalCallback s e
   }
 makeLenses ''Modal
 
 draw :: Modal s e -> Widget Name
-draw modal = D.renderDialog theDialog $ C.hCenter $ padAll 1 theBody
+draw modal = D.renderDialog dialog' $ C.hCenter $ padAll 1 body'
  where
-  theDialog = modal ^. dialog
-  theBody   = modal ^. dialogBody
+  dialog' = modal ^. dialog
+  body'   = modal ^. dialogBody
 
 chooseCursor
   :: Modal s e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
 chooseCursor _ = Nothing
 
-quitConfirmation :: Callback s e -> Callback s e -> Modal s e
-quitConfirmation whenTrue whenFalse = Modal
-  { _dialog     = D.dialog (Just " Labyrinth ") (Just (0, choices)) 50
-  , _dialogBody = txt "Do you want to quit Labyrinth?"
-  , _onFalse    = whenFalse
-  , _onTrue     = whenTrue
+showModal
+  :: String
+  -> ModalOptions
+  -> ModalCallback s e
+  -> ModalCallback s e
+  -> Modal s e
+showModal message options onT onF = Modal
+  { _dialog     = D.dialog (Just " Labyrinth ") (Just options) 50
+  , _dialogBody = str message
+  , _onTrue     = onT
+  , _onFalse    = onF
   }
-  where choices = [("Stay", False), ("Quit", True)]
