@@ -1,6 +1,3 @@
-{-# LANGUAGE RankNTypes      #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Labyrinth.Game
   (
   -- Working with Games
@@ -47,22 +44,22 @@ import           Data.Maybe                     ( fromJust
                                                 , fromMaybe
                                                 )
 import           Linear.V2                      ( V2(..) )
-import           Labyrinth.Position             ( Position )
-import           Labyrinth.Direction            ( Direction(..) )
+import           Labyrinth.Game.Position        ( Position )
+import           Labyrinth.Game.Direction       ( Direction(..) )
 import           Labyrinth.Game.Description     ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
-import           Labyrinth.Gate                 ( Gate(..) )
-import           Labyrinth.Treasure             ( Treasure
+import           Labyrinth.Game.Gate            ( Gate(..) )
+import           Labyrinth.Game.Treasure        ( Treasure
                                                 , Searching
                                                 , Found
                                                 )
-import qualified Labyrinth.Players             as P
-import           Labyrinth.Players              ( Color(..)
+import qualified Labyrinth.Game.Players        as P
+import           Labyrinth.Game.Players         ( Color(..)
                                                 , Players
                                                 , Player
                                                 )
-import           Labyrinth.Tile                 ( Tile(..) )
-import qualified Labyrinth.Tile                as T
+import           Labyrinth.Game.Tile            ( Tile(..) )
+import qualified Labyrinth.Game.Tile           as T
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 , (^.)
@@ -92,17 +89,16 @@ fromDescription gd = do
   token'       <- GD.firstToken gd
   treasureMap' <- GD.treasureMap gd
 
-  return Game
-    { _tileAt      = gd ^. GD.gStartPosition
-    , _token       = token'
-    , _phase       = Plan
-    , _rows        = GD.rows gd
-    , _cols        = GD.cols gd
-    , _gates       = GD.gates gd
-    , _tiles       = tiles'
-    , _players     = gd ^. GD.gPlayers
-    , _treasureMap = treasureMap'
-    }
+  return Game { _tileAt      = gd ^. GD.gStartPosition
+              , _token       = token'
+              , _phase       = Plan
+              , _rows        = GD.rows gd
+              , _cols        = GD.cols gd
+              , _gates       = GD.gates gd
+              , _tiles       = tiles'
+              , _players     = gd ^. GD.gPlayers
+              , _treasureMap = treasureMap'
+              }
 
 --------------------------------------------------------------------------------
 -- state transitions

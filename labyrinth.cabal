@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cadedd98e1d3af13fc77affaa5dbe79e30c20ddcf796ec9d57beb5c2f2d1057f
+-- hash: 06b633992ca3efe7339170475e8b0049ca2238d0dc5af8870250bb2f4bf18956
 
 name:           labyrinth
 version:        0.1.0.0
@@ -24,12 +24,39 @@ source-repository head
   location: https://github.com/grancalavera/labyrinth
 
 library
+  exposed-modules:
+      Labyrinth
+      Labyrinth.Game
+      Labyrinth.Game.Direction
+      Labyrinth.Game.Gate
+      Labyrinth.Game.Players
+      Labyrinth.Game.Tile
+      Labyrinth.Game.Treasure
+      Labyrinth.UI
+      Labyrinth.UI.Modal
+      Labyrinth.UI.Screen.Registration
+      Labyrinth.UI.Screen.Splash
+      Labyrinth.UI.Widget
+      Labyrinth.Store
+      Labyrinth.Store.Event.Modal
+      Labyrinth.Store.Event.Splash
+      Labyrinth.Store.Event.Registration
+      Data.List.Extended
+  other-modules:
+      Data.Random
+      Labyrinth.Game.Description
+      Labyrinth.Game.Position
+      Labyrinth.Store.Internal
+      Labyrinth.UI.Internal
+      Paths_labyrinth
   hs-source-dirs:
       lib
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
     , base >=4.7 && <5
+    , brick
     , containers
     , linear
     , microlens
@@ -37,26 +64,16 @@ library
     , mtl
     , random
     , text
-  exposed-modules:
-      Labyrinth
-      Labyrinth.Direction
-      Labyrinth.Game
-      Labyrinth.Gate
-      Labyrinth.Players
-      Labyrinth.Tile
-      Labyrinth.Treasure
-      Data.List.Extended
-  other-modules:
-      Labyrinth.Game.Description
-      Labyrinth.Position
-      Labyrinth.Random
-      Paths_labyrinth
+    , vty
   default-language: Haskell2010
 
 executable labyrinth
   main-is: Main.hs
+  other-modules:
+      Paths_labyrinth
   hs-source-dirs:
       app
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
@@ -68,27 +85,25 @@ executable labyrinth
     , microlens-th
     , text
     , vty
-  other-modules:
-      UI.Game
-      UI.Graphics
-      UI.Players
-      Paths_labyrinth
   default-language: Haskell2010
 
 test-suite labyrinth-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
+  other-modules:
+      Screens.RegistrationSpec
+      Paths_labyrinth
   hs-source-dirs:
       test
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base
+    , brick
     , containers
     , hspec
     , hspec-discover
     , labyrinth
     , microlens
-  other-modules:
-      Paths_labyrinth
   default-language: Haskell2010

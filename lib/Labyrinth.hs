@@ -16,7 +16,7 @@ module Labyrinth
   )
 where
 
-import           Labyrinth.Direction            ( Direction(..) )
+import           Labyrinth.Game.Direction       ( Direction(..) )
 import           Labyrinth.Game                as Game
 import           Labyrinth.Game                 ( Game(..)
                                                 , Phase(..)
@@ -24,14 +24,14 @@ import           Labyrinth.Game                 ( Game(..)
 import           Labyrinth.Game.Description     ( DGame(..)
                                                 , DTile(..)
                                                 )
-import           Labyrinth.Gate                 ( Gate(..) )
-import qualified Labyrinth.Treasure            as Treasure
-import           Labyrinth.Treasure             ( Treasure(..) )
-import           Labyrinth.Players              ( Players
+import           Labyrinth.Game.Gate            ( Gate(..) )
+import qualified Labyrinth.Game.Treasure       as Treasure
+import           Labyrinth.Game.Treasure        ( Treasure(..) )
+import           Labyrinth.Game.Players         ( Players
                                                 , Color(..)
                                                 )
-import           Labyrinth.Position             ( Position )
-import           Labyrinth.Tile                 ( Terrain(..)
+import           Labyrinth.Game.Position        ( Position )
+import           Labyrinth.Game.Tile            ( Terrain(..)
                                                 , Tile
                                                 )
 

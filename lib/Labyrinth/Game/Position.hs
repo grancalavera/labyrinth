@@ -1,4 +1,4 @@
-module Labyrinth.Position
+module Labyrinth.Game.Position
   ( Position
   )
 where

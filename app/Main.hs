@@ -1,61 +1,71 @@
 module Main where
 
-import           Linear.V2                      ( V2(..) )
-import qualified Labyrinth
-import           Labyrinth                      ( Players
-                                                , Game
-                                                , DGame(..)
-                                                , DTile(..)
-                                                , Gate(..)
-                                                , Direction(..)
-                                                , Terrain(..)
-                                                , Color(..)
+import           Brick
+import           Graphics.Vty                   ( Vty )
+import qualified Graphics.Vty                  as V
+import           Lens.Micro                     ( (^.) )
+import           Data.Maybe                     ( fromMaybe )
+import           Control.Monad                  ( void )
+import qualified Labyrinth.UI                  as UI
+import           Labyrinth.UI                   ( Name
+                                                , Screen(..)
                                                 )
-import           UI.Players                     ( addPlayers )
-import           UI.Game                        ( playGame )
+import           Labyrinth.UI.Widget
+import qualified Labyrinth.UI.Modal            as Modal
+import qualified Labyrinth.Store.Event.Modal   as Modal
+import qualified Labyrinth.UI.Screen.Splash    as Splash
+import qualified Labyrinth.Store.Event.Splash  as Splash
+
+import qualified Labyrinth.UI.Screen.Registration
+                                               as Registration
+import qualified Labyrinth.Store.Event.Registration
+                                               as Registration
+
+import qualified Labyrinth.Store               as Store
+import           Labyrinth.Store                ( Store
+                                                , Ev
+                                                , state
+                                                , modal
+                                                )
 
 main :: IO ()
-main = addPlayers >>= game >>= playGame
+main = void $ customMain buildVty Nothing app Store.initial
 
-game :: Players -> IO Game
-game players = Labyrinth.gameFromDescription DGame
-  { _gPlayers       = players
-  , _gStartPosition = V2 0 2
-  , _gTreasures     = Labyrinth.treasures
-  , _gRows          = 9
-  , _gCols          = 9
-  , _gGates         = [ (V2 0 2, Gate South True)
-                      , (V2 0 4, Gate South True)
-                      , (V2 0 6, Gate South True)
-                      , (V2 2 0, Gate East True)
-                      , (V2 4 0, Gate East True)
-                      , (V2 6 0, Gate East True)
-                      , (V2 2 8, Gate West True)
-                      , (V2 4 8, Gate West True)
-                      , (V2 6 8, Gate West True)
-                      , (V2 8 2, Gate North True)
-                      , (V2 8 4, Gate North True)
-                      , (V2 8 6, Gate North True)
-                      ]
-  , _gTiles = [ DTile Corner (Just $ V2 1 1) (Just South) False (Just Yellow)
-              , DTile Corner (Just $ V2 1 7) (Just West)  False (Just Red)
-              , DTile Corner (Just $ V2 7 1) (Just East)  False (Just Green)
-              , DTile Corner (Just $ V2 7 7) (Just North) False (Just Blue)
-              , DTile Fork   (Just $ V2 1 3) (Just South) True  Nothing
-              , DTile Fork   (Just $ V2 1 5) (Just South) True  Nothing
-              , DTile Fork   (Just $ V2 3 1) (Just East)  True  Nothing
-              , DTile Fork   (Just $ V2 5 1) (Just East)  True  Nothing
-              , DTile Fork   (Just $ V2 3 7) (Just West)  True  Nothing
-              , DTile Fork   (Just $ V2 5 7) (Just West)  True  Nothing
-              , DTile Fork   (Just $ V2 7 3) (Just North) True  Nothing
-              , DTile Fork   (Just $ V2 7 5) (Just North) True  Nothing
-              , DTile Fork   (Just $ V2 3 3) (Just East)  True  Nothing
-              , DTile Fork   (Just $ V2 5 3) (Just North) True  Nothing
-              , DTile Fork   (Just $ V2 3 5) (Just South) True  Nothing
-              , DTile Fork   (Just $ V2 5 5) (Just West)  True  Nothing
-              ]
-              ++ replicate 12 (DTile Path Nothing Nothing False Nothing)
-              ++ replicate 6  (DTile Corner Nothing Nothing True Nothing)
-              ++ replicate 10 (DTile Corner Nothing Nothing False Nothing)
-              ++ replicate 6  (DTile Fork Nothing Nothing True Nothing)
-  }
+app :: App (Store Ev) Ev Name
+app = App { appDraw         = draw
+          , appChooseCursor = chooseCursor
+          , appHandleEvent  = handleEvent
+          , appStartEvent   = return
+          , appAttrMap      = UI.attributeMap
+          }
+
+draw :: Store e -> [Widget Name]
+draw store = [maybe screen Modal.draw (store ^. modal)]
+ where
+  screen = appContainer 50 $ case store ^. state of
+    Splash       s -> Splash.draw s
+    Registration s -> Registration.draw s
+
+handleEvent
+  :: Ord e => Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
+handleEvent store ev = handle store ev
+ where
+  handle = if Store.isModalEvent store ev
+    then Modal.handle
+    else case store ^. state of
+      Splash       screen -> Splash.handle screen
+      Registration screen -> Registration.handle screen
+
+buildVty :: IO Vty
+buildVty = do
+  v <- V.mkVty =<< V.standardIOConfig
+  V.setMode (V.outputIface v) V.Mouse True
+  return v
+
+chooseCursor :: Store e -> [CursorLocation Name] -> Maybe (CursorLocation Name)
+chooseCursor store =
+  fromMaybe (neverShowCursor store) $ if Store.isShowingModal store
+    then store ^. modal >>= Modal.chooseCursor
+    else case store ^. state of
+      Splash       screen -> Splash.chooseCursor screen
+      Registration screen -> Registration.chooseCursor screen

@@ -1,4 +1,4 @@
-module Labyrinth.Treasure
+module Labyrinth.Game.Treasure
   ( Treasure(..)
   , Searching
   , Found

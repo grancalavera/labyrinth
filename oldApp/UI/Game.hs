@@ -1,7 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TemplateHaskell   #-}
-
 module UI.Game
   ( playGame
   )
@@ -45,9 +41,9 @@ import           Linear.V2                      ( V2(..)
 import qualified Data.Text                     as T
 import           Labyrinth
 import qualified Labyrinth.Game                as G
-import qualified Labyrinth.Treasure            as Treasure
-import qualified Labyrinth.Players             as Players
-import qualified Labyrinth.Tile                as Tile
+import qualified Labyrinth.Game.Treasure       as Treasure
+import qualified Labyrinth.Game.Players        as Players
+import qualified Labyrinth.Game.Tile           as Tile
 import qualified UI.Graphics                   as Graphics
 
 -- https://github.com/jtdaugherty/brick/blob/master/docs/guide.rst#resource-names
@@ -59,16 +55,15 @@ data UI = UI {
 makeLenses ''UI
 
 playGame :: Game -> IO Name
-playGame g = void $ Brick.defaultMain app UI {_game = g, _hint = False}
+playGame g = void $ Brick.defaultMain app UI { _game = g, _hint = False }
 
 app :: App UI e Name
-app = App
-  { appDraw         = drawUI
-  , appHandleEvent  = handleEvent
-  , appStartEvent   = return
-  , appAttrMap      = const attributeMap
-  , appChooseCursor = Brick.neverShowCursor
-  }
+app = App { appDraw         = drawUI
+          , appHandleEvent  = handleEvent
+          , appStartEvent   = return
+          , appAttrMap      = const attributeMap
+          , appChooseCursor = Brick.neverShowCursor
+          }
 
 drawUI :: UI -> [Widget Name]
 drawUI ui =
