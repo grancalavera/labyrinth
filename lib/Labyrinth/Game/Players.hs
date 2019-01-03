@@ -14,9 +14,7 @@ module Labyrinth.Game.Players
 where
 
 import           Data.Map.Strict                ( Map )
-import           Data.List                      ( sortBy )
 import           Data.Text                      ( Text )
-import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.Map.Strict               as Map
 
@@ -36,14 +34,7 @@ makeLenses ''Player
 type Players = Map Color Player
 
 toList :: Players -> [(Color, Player)]
-toList = sortBy playOrder . Map.toList
- where
-  playOrder :: (Color, Player) -> (Color, Player) -> Ordering
-  playOrder x y | ord x < ord y = LT
-                | ord x > ord y = GT
-                | otherwise     = EQ
-  ord = (^. order) . snd
-
+toList =  Map.toList
 
 -- from this point all needs to be removed
 -- just left it here b/c otherwise it will
