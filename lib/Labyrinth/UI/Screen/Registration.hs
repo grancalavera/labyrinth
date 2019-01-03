@@ -46,6 +46,7 @@ import           Data.Map.Strict                ( Map
 
 import           Labyrinth.Game.Players         ( Player(..)
                                                 , Color(..)
+                                                , PlayOrder
                                                 , name
                                                 , order
                                                 )
@@ -53,7 +54,7 @@ import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal
 
-type PlayerIndex = Map Int Player
+type PlayerIndex = Map PlayOrder Player
 type ColorFieldMap = Map Color Name
 type PlayerForm e = Form Player e Name
 type FormProcessor e = PlayerForm e -> EventM Name (PlayerForm e)
@@ -87,7 +88,7 @@ editPlayer :: RegistrationScreen e -> Player -> RegistrationScreen e
 editPlayer screen player =
   screen & form ?~ editPlayerForm (screen ^. players) player
 
-playerAt :: RegistrationScreen e -> Int -> Maybe Player
+playerAt :: RegistrationScreen e -> PlayOrder -> Maybe Player
 playerAt screen = ((screen ^. players) !?)
 
 processForm
@@ -131,7 +132,11 @@ draw screen = content
     if hasEnoughPlayers screen then txt "Ctrl+p: begin game" else emptyWidget
 
   editPlayerLabel p =
-    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! (p ^. order)
+    str
+      $  " "
+      <> "Edit: Ctrl+"
+      <> ["a", "s", "d", "f"]
+      !! (fromEnum $ p ^. order)
 
 extractForm :: TheForm e -> PlayerForm e
 extractForm (AddPlayer  f) = f
@@ -164,9 +169,9 @@ mkForm ps = newForm [nameField, colorField ps]
 
 nextFormState :: PlayerIndex -> Maybe Player
 nextFormState players' = case availableColors players' of
-  [] -> Nothing
-  colors' ->
-    Just (Player "" (head colors') (length Players.colors - length colors'))
+  []      -> Nothing
+  colors' -> Just
+    (Player "" (head colors') (toEnum $ length Players.colors - length colors'))
 
 nameField :: Player -> FormFieldState Player e Name
 nameField = label "Name" @@= editTextField Players.name NameField (Just 1)

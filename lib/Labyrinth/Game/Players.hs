@@ -1,6 +1,7 @@
 module Labyrinth.Game.Players
   ( Color(..)
   , Player(..)
+  , PlayOrder(..)
   , Players
   , colors
   , name
@@ -20,6 +21,7 @@ import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.Map.Strict               as Map
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
+data PlayOrder = First | Second | Third | Fourth deriving (Show, Eq, Ord, Enum)
 
 colors :: [Color]
 colors = [(toEnum 0) ..]
@@ -27,7 +29,7 @@ colors = [(toEnum 0) ..]
 data Player = Player
   { _name  :: Text
   , _color :: Color
-  , _order :: Int
+  , _order :: PlayOrder
   } deriving (Show, Eq)
 makeLenses ''Player
 
