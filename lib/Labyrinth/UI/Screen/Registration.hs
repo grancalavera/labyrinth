@@ -41,12 +41,13 @@ import qualified Data.Map.Strict               as Map
 import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map
                                                 , (!)
-                                                , (!?)
                                                 )
 
 import           Labyrinth.Game.Players         ( Player(..)
                                                 , Color(..)
+                                                , Players
                                                 , PlayOrder
+                                                , PlayerIndex
                                                 , name
                                                 , order
                                                 )
@@ -54,26 +55,20 @@ import qualified Labyrinth.Game.Players        as Players
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal
 
-type PlayerIndex = Map PlayOrder Player
 type ColorFieldMap = Map Color Name
 type PlayerForm e = Form Player e Name
 type FormProcessor e = PlayerForm e -> EventM Name (PlayerForm e)
-
 data TheForm e = AddPlayer ( PlayerForm e) | EditPlayer ( PlayerForm e)
 
 data RegistrationScreen e = RegistrationScreen
   { _form :: Maybe (TheForm e)
-  , _players :: PlayerIndex
-  , _minPlayers :: Int
-  , _maxPlayers :: Int
+  , _players :: Players
   }
 makeLenses ''RegistrationScreen
 
 initial :: RegistrationScreen e
-initial = RegistrationScreen { _form       = addPlayerForm mempty
-                             , _players    = mempty
-                             , _minPlayers = 2
-                             , _maxPlayers = 4
+initial = RegistrationScreen { _form    = addPlayerForm mempty
+                             , _players = Players.initial
                              }
 
 submitPlayer :: RegistrationScreen e -> RegistrationScreen e
@@ -89,7 +84,7 @@ editPlayer screen player =
   screen & form ?~ editPlayerForm (screen ^. players) player
 
 playerAt :: RegistrationScreen e -> PlayOrder -> Maybe Player
-playerAt screen = ((screen ^. players) !?)
+playerAt screen = Players.playerAt (screen ^. players)
 
 processForm
   :: RegistrationScreen e
@@ -115,7 +110,7 @@ draw screen = content
     Just (EditPlayer form') -> titleBox " Edit Player " $ renderForm form'
     _                       -> emptyWidget
 
-  registered = case (Map.toList $ screen ^. players) of
+  registered = case (Players.toList $ screen ^. players) of
     [] -> emptyWidget
     ps -> titleBox " Players " $ vBox $ map (toPlayer . snd) ps
 
@@ -151,8 +146,8 @@ asEdit = EditPlayer
 register :: RegistrationScreen e -> Player -> RegistrationScreen e
 register screen player = screen'
  where
-  players' = Map.insert (player ^. Players.order) player (screen ^. players)
-  form'    = addPlayerForm players'
+  players' = Players.insert player (screen ^. players)
+  form'    = addPlayerForm (players' ^. Players.players)
   screen'  = screen & form .~ form' & players .~ players'
 
 addPlayerForm :: PlayerIndex -> Maybe (TheForm e)
@@ -160,9 +155,9 @@ addPlayerForm players' = case nextFormState players' of
   Just player -> Just $ AddPlayer (mkForm players' player)
   Nothing     -> Nothing
 
-editPlayerForm :: PlayerIndex -> Player -> TheForm e
-editPlayerForm ps p = EditPlayer (mkForm ps' p)
-  where ps' = Map.delete (p ^. Players.order) ps
+editPlayerForm :: Players -> Player -> TheForm e
+editPlayerForm ps p = EditPlayer (mkForm (ps' ^. Players.players) p)
+  where ps' = Players.delete p ps
 
 mkForm :: PlayerIndex -> Player -> PlayerForm e
 mkForm ps = newForm [nameField, colorField ps]
@@ -205,16 +200,10 @@ availableColors ps = Set.toList $ Set.difference existing taken
   taken    = Set.fromList $ map ((^. Players.color) . snd) (Map.toList ps)
 
 hasEnoughPlayers :: RegistrationScreen e -> Bool
-hasEnoughPlayers screen = minCount <= currentCount
- where
-  currentCount = Map.size $ screen ^. players
-  minCount     = screen ^. minPlayers
+hasEnoughPlayers = Players.hasEnoughPlayers . (^. players)
 
 isFull :: RegistrationScreen e -> Bool
-isFull screen = maxCount == currentCount
- where
-  currentCount = Map.size $ screen ^. players
-  maxCount     = screen ^. maxPlayers
+isFull = Players.isFull . (^. players)
 
 chooseCursor
   :: RegistrationScreen e

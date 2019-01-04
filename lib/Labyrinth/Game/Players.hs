@@ -3,26 +3,38 @@ module Labyrinth.Game.Players
   , Player(..)
   , PlayOrder(..)
   , Players
+  , PlayerIndex
+  , initial
   , colors
   , name
   , order
   , color
-  , toMap
+  , players
+  , minPlayers
+  , maxPlayers
+  , hasEnoughPlayers
+  , isFull
   , toList
-  , fromList
+  , playerAt
+  , insert
+  , delete
   )
 where
 
-import           Data.Map.Strict                ( Map )
+import           Data.Map.Strict                ( Map
+                                                , (!?)
+                                                )
 import           Data.Text                      ( Text )
+import           Lens.Micro                     ( (^.)
+                                                , (%~)
+                                                , (&)
+                                                )
 import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.Map.Strict               as Map
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 data PlayOrder = First | Second | Third | Fourth deriving (Show, Eq, Ord, Enum)
-
-colors :: [Color]
-colors = [(toEnum 0) ..]
+type PlayerIndex = Map PlayOrder Player
 
 data Player = Player
   { _name  :: Text
@@ -31,19 +43,36 @@ data Player = Player
   } deriving (Show, Eq)
 makeLenses ''Player
 
-type Players = Map Color Player
+data Players = Players
+  { _players :: PlayerIndex
+  , _minPlayers :: Int
+  , _maxPlayers :: Int
+  }
+makeLenses ''Players
 
-toList :: Players -> [(Color, Player)]
-toList =  Map.toList
+initial :: Players
+initial = Players { _players = mempty, _minPlayers = 2, _maxPlayers = 4 }
 
--- from this point all needs to be removed
--- just left it here b/c otherwise it will
--- not compile and I don't want to fix it yet
+colors :: [Color]
+colors = [(toEnum 0) ..]
 
-type PlayerMap = Players
+hasEnoughPlayers :: Players -> Bool
+hasEnoughPlayers ps = (ps ^. minPlayers) <= count ps
 
-toMap :: Players -> PlayerMap
-toMap = id
+isFull :: Players -> Bool
+isFull ps = ps ^. maxPlayers == count ps
 
-fromList :: [(Color, Player)] -> Maybe Players
-fromList = undefined
+count :: Players -> Int
+count = Map.size . (^. players)
+
+toList :: Players -> [(PlayOrder, Player)]
+toList = Map.toList . (^. players)
+
+playerAt :: Players -> PlayOrder -> Maybe Player
+playerAt ps = ((ps ^. players) !?)
+
+insert :: Player -> Players -> Players
+insert p ps = ps & players %~ Map.insert (p ^. order) p
+
+delete :: Player -> Players -> Players
+delete p ps = ps & players %~ Map.delete (p ^. order)
