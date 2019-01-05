@@ -1,9 +1,9 @@
-module Labyrinth.Game.Players
-  ( Color(..)
+module Labyrinth.Game.Configuration
+  ( Configuration
+  , Color(..)
   , Player(..)
   , PlayOrder(..)
   , Players
-  , PlayerIndex
   , initial
   , colors
   , name
@@ -11,13 +11,12 @@ module Labyrinth.Game.Players
   , color
   , players
   , minPlayers
-  , maxPlayers
   , hasEnoughPlayers
-  , isFull
   , toList
   , playerAt
   , insert
   , delete
+  , availableColors
   )
 where
 
@@ -28,13 +27,15 @@ import           Data.Text                      ( Text )
 import           Lens.Micro                     ( (^.)
                                                 , (%~)
                                                 , (&)
+                                                , _2
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.Map.Strict               as Map
+import qualified Data.Set                      as Set
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 data PlayOrder = First | Second | Third | Fourth deriving (Show, Eq, Ord, Enum)
-type PlayerIndex = Map PlayOrder Player
+type Players = Map PlayOrder Player
 
 data Player = Player
   { _name  :: Text
@@ -43,36 +44,39 @@ data Player = Player
   } deriving (Show, Eq)
 makeLenses ''Player
 
-data Players = Players
-  { _players :: PlayerIndex
+data Configuration = Conf
+  { _players    :: Players
   , _minPlayers :: Int
-  , _maxPlayers :: Int
   }
-makeLenses ''Players
+makeLenses ''Configuration
 
-initial :: Players
-initial = Players { _players = mempty, _minPlayers = 2, _maxPlayers = 4 }
+initial :: Configuration
+initial = Conf { _players = mempty, _minPlayers = 2 }
 
 colors :: [Color]
 colors = [(toEnum 0) ..]
 
-hasEnoughPlayers :: Players -> Bool
-hasEnoughPlayers ps = (ps ^. minPlayers) <= count ps
+hasEnoughPlayers :: Configuration -> Bool
+hasEnoughPlayers ps = (ps ^. minPlayers) <= countPlayers ps
 
-isFull :: Players -> Bool
-isFull ps = ps ^. maxPlayers == count ps
+countPlayers :: Configuration -> Int
+countPlayers = Map.size . (^. players)
 
-count :: Players -> Int
-count = Map.size . (^. players)
-
-toList :: Players -> [(PlayOrder, Player)]
+toList :: Configuration -> [(PlayOrder, Player)]
 toList = Map.toList . (^. players)
 
-playerAt :: Players -> PlayOrder -> Maybe Player
+playerAt :: Configuration -> PlayOrder -> Maybe Player
 playerAt ps = ((ps ^. players) !?)
 
-insert :: Player -> Players -> Players
+insert :: Player -> Configuration -> Configuration
 insert p ps = ps & players %~ Map.insert (p ^. order) p
 
-delete :: Player -> Players -> Players
+delete :: Player -> Configuration -> Configuration
 delete p ps = ps & players %~ Map.delete (p ^. order)
+
+availableColors :: Configuration -> [Color]
+availableColors ps = Set.toList available
+ where
+  available = Set.difference existing taken
+  existing  = Set.fromList colors
+  taken     = Set.fromList $ map (^. (_2 . color)) (toList ps)

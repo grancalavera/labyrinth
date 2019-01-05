@@ -7,6 +7,7 @@ module Labyrinth.UI.Widget
   , line
   , playerLabel
   , dialog
+  , label
   )
 where
 
@@ -16,7 +17,7 @@ import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
 import           Lens.Micro                     ( (^.) )
 
-import           Labyrinth.Game.Players         ( Player
+import           Labyrinth.Game.Configuration   ( Player
                                                 , name
                                                 , color
                                                 )
@@ -46,4 +47,8 @@ playerAttr :: Player -> Widget n -> Widget n
 playerAttr = withAttr . attrName . show . (^. color)
 
 dialog :: Widget n
-dialog = C.centerLayer $B.border $  padAll 4 $ txt "Layer floating \nOn top of it all."
+dialog =
+  C.centerLayer $ B.border $ padAll 4 $ txt "Layer floating \nOn top of it all."
+
+label :: String -> Widget n -> Widget n
+label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w

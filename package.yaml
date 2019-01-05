@@ -26,13 +26,7 @@ library:
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
   exposed-modules:
-    # - Labyrinth
-    # - Labyrinth.Game
-    # - Labyrinth.Game.Direction
-    # - Labyrinth.Game.Gate
-    - Labyrinth.Game.Players
-    # - Labyrinth.Game.Tile
-    # - Labyrinth.Game.Treasure
+    - Labyrinth.Game.Configuration
     - Labyrinth.UI
     - Labyrinth.UI.Modal
     - Labyrinth.UI.Screen.Registration

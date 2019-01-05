@@ -21,5 +21,4 @@ handle :: EventHandler SplashScreen e
 handle _ store ev = case ev of
   VtyEvent (V.EvKey V.KEnter []) -> continue toRegistration
   _                              -> continue store
- where
-  toRegistration = store & state .~ Registration Registration.initial
+  where toRegistration = store & state .~ Registration Registration.initial
