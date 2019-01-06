@@ -156,23 +156,20 @@ nameField :: Player -> FormFieldState Player e Name
 nameField = label "Name" @@= editTextField Conf.name NameField (Just 1)
 
 colorField :: Configuration -> Player -> FormFieldState Player e Name
-colorField cfg =
-  label "Color" @@= radioField Conf.color (colorOptions cfg colorFieldMap)
+colorField cfg = label "Color" @@= radioField Conf.color (colorOptions cfg)
 
-colorOptions :: Configuration -> ColorFieldMap -> [(Color, Name, Text)]
-colorOptions cfg fieldsMap = zip3 colors fields labels
+colorOptions :: Configuration -> [(Color, Name, Text)]
+colorOptions cfg = zip3 colors fields labels
  where
-  colors = Conf.availableColors cfg
-  labels = map (Text.pack . show) colors
-  fields = map (\k -> fieldsMap ! k) colors
-
-colorFieldMap :: ColorFieldMap
-colorFieldMap = Map.fromList
-  [ (Yellow, YellowField)
-  , (Red   , RedField)
-  , (Blue  , BlueField)
-  , (Green , GreenField)
-  ]
+  colors       = Conf.availableColors cfg
+  labels       = map (Text.pack . show) colors
+  fields       = map (fieldByColor !) colors
+  fieldByColor = Map.fromList
+    [ (Yellow, YellowField)
+    , (Red   , RedField)
+    , (Blue  , BlueField)
+    , (Green , GreenField)
+    ]
 
 hasEnoughPlayers :: RegistrationScreen e -> Bool
 hasEnoughPlayers = Conf.hasEnoughPlayers . (^. conf)
