@@ -27,7 +27,6 @@ import           Data.Text                      ( Text )
 import           Lens.Micro                     ( (^.)
                                                 , (%~)
                                                 , (&)
-                                                , _2
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 import qualified Data.Map.Strict               as Map
@@ -62,8 +61,8 @@ hasEnoughPlayers ps = (ps ^. minPlayers) <= countPlayers ps
 countPlayers :: Configuration -> Int
 countPlayers = Map.size . (^. players)
 
-toList :: Configuration -> [(PlayOrder, Player)]
-toList = Map.toList . (^. players)
+toList :: Configuration -> [Player]
+toList = map snd . Map.toList . (^. players)
 
 playerAt :: Configuration -> PlayOrder -> Maybe Player
 playerAt ps = ((ps ^. players) !?)
@@ -79,4 +78,4 @@ availableColors ps = Set.toList available
  where
   available = Set.difference existing taken
   existing  = Set.fromList colors
-  taken     = Set.fromList $ map (^. (_2 . color)) (toList ps)
+  taken     = Set.fromList $ map (^. color) (toList ps)

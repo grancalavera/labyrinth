@@ -78,7 +78,7 @@ draw screen = theForm <=> registered <=> help
 
   registered = case Conf.toList $ screen ^. conf of
     [] -> emptyWidget
-    ps -> titleBox " Players " $ vBox $ map (toPlayer . snd) ps
+    ps -> titleBox " Players " $ vBox $ map toPlayer ps
 
   toPlayer p = playerLabel 35 p <+> editPlayerCommand p
 
