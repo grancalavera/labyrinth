@@ -114,13 +114,13 @@ processForm
   -> FormProcessor e
   -> EventM Name (RegistrationScreen e)
 processForm screen process = case screen ^. form of
-  Just (AddPlayerForm  form') -> processAndWrap asAdd form'
-  Just (EditPlayerForm form') -> processAndWrap asEdit form'
+  Just (AddPlayerForm  form') -> processAndWrap AddPlayerForm form'
+  Just (EditPlayerForm form') -> processAndWrap EditPlayerForm form'
   Nothing                     -> return screen
  where
-  processAndWrap wrapAs f = do
+  processAndWrap wrap f = do
     f' <- process f
-    return $ screen & form ?~ wrapAs f'
+    return $ screen & form ?~ wrap f'
 
 extractPlayer :: RegistrationScreen e -> Maybe Player
 extractPlayer screen = formState . extractForm <$> (screen ^. form)
@@ -128,12 +128,6 @@ extractPlayer screen = formState . extractForm <$> (screen ^. form)
 extractForm :: TheForm e -> PlayerForm e
 extractForm (AddPlayerForm  f) = f
 extractForm (EditPlayerForm f) = f
-
-asAdd :: PlayerForm e -> TheForm e
-asAdd = AddPlayerForm
-
-asEdit :: PlayerForm e -> TheForm e
-asEdit = EditPlayerForm
 
 register :: RegistrationScreen e -> Player -> RegistrationScreen e
 register screen player = RegistrationScreen form' conf'
