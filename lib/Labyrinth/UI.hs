@@ -21,7 +21,6 @@ import           Labyrinth.UI.Screen.Registration
 
 data Screen e = Splash SplashScreen | Registration (RegistrationScreen e)
 
-
 attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap
   V.defAttr

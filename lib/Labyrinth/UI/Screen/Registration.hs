@@ -6,14 +6,13 @@ module Labyrinth.UI.Screen.Registration
   , playerAt
   , processForm
   , hasEnoughPlayers
-  , form
-  , players
+  , chooseCursor
+  , extractPlayer
   , initial
   , draw
+  --
+  , form
   , register
-  , isFull
-  , chooseCursor
-  , extractForm
   )
 where
 
@@ -31,99 +30,59 @@ import           Brick.Forms                    ( Form
                                                 )
 import           Lens.Micro.TH                  ( makeLenses )
 import           Lens.Micro                     ( (^.)
-                                                , (.~)
                                                 , (?~)
                                                 , (&)
                                                 )
 import           Data.Text                      ( Text )
 import qualified Data.Text                     as Text
 import qualified Data.Map.Strict               as Map
-import qualified Data.Set                      as Set
 import           Data.Map.Strict                ( Map
                                                 , (!)
-                                                , (!?)
                                                 )
 
-import           Labyrinth.Game.Players         ( Player(..)
+import           Labyrinth.Game.Configuration   ( Player(..)
                                                 , Color(..)
+                                                , Configuration
                                                 , PlayOrder
                                                 , name
                                                 , order
                                                 )
-import qualified Labyrinth.Game.Players        as Players
+import qualified Labyrinth.Game.Configuration  as Conf
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal
 
-type PlayerIndex = Map PlayOrder Player
 type ColorFieldMap = Map Color Name
 type PlayerForm e = Form Player e Name
 type FormProcessor e = PlayerForm e -> EventM Name (PlayerForm e)
-
-data TheForm e = AddPlayer ( PlayerForm e) | EditPlayer ( PlayerForm e)
+data TheForm e = AddPlayerForm (PlayerForm e) | EditPlayerForm ( PlayerForm e)
 
 data RegistrationScreen e = RegistrationScreen
   { _form :: Maybe (TheForm e)
-  , _players :: PlayerIndex
-  , _minPlayers :: Int
-  , _maxPlayers :: Int
+  , _conf :: Configuration
   }
 makeLenses ''RegistrationScreen
 
 initial :: RegistrationScreen e
-initial = RegistrationScreen { _form       = addPlayerForm mempty
-                             , _players    = mempty
-                             , _minPlayers = 2
-                             , _maxPlayers = 4
+initial = RegistrationScreen { _form = mkAddPlayerForm Conf.initial
+                             , _conf = Conf.initial
                              }
 
-submitPlayer :: RegistrationScreen e -> RegistrationScreen e
-submitPlayer screen =
-  maybe screen (register screen . formState . extractForm) (screen ^. form)
-
-validate :: RegistrationScreen e -> Bool
-validate screen = maybe False (val . extractForm) (screen ^. form)
-  where val = (0 <) . Text.length . (^. name) . formState
-
-editPlayer :: RegistrationScreen e -> Player -> RegistrationScreen e
-editPlayer screen player =
-  screen & form ?~ editPlayerForm (screen ^. players) player
-
-playerAt :: RegistrationScreen e -> PlayOrder -> Maybe Player
-playerAt screen = ((screen ^. players) !?)
-
-processForm
-  :: RegistrationScreen e
-  -> FormProcessor e
-  -> EventM Name (RegistrationScreen e)
-processForm screen process = case screen ^. form of
-  Just (AddPlayer  form') -> processAndPack asAdd form'
-  Just (EditPlayer form') -> processAndPack asEdit form'
-  Nothing                 -> return screen
- where
-  processAndPack packAs f = do
-    f' <- process f
-    return $ screen & form ?~ packAs f'
-
 draw :: RegistrationScreen s -> Widget Name
-draw screen = content
+draw screen = theForm <=> registered <=> help
 
  where
-  content = theForm <=> registered <=> help
-
   theForm = case screen ^. form of
-    Just (AddPlayer  form') -> titleBox " Add Player " $ renderForm form'
-    Just (EditPlayer form') -> titleBox " Edit Player " $ renderForm form'
-    _                       -> emptyWidget
+    Just (AddPlayerForm  form') -> titleBox " Add Player " $ renderForm form'
+    Just (EditPlayerForm form') -> titleBox " Edit Player " $ renderForm form'
+    _                           -> emptyWidget
 
-  registered = case (Map.toList $ screen ^. players) of
+  registered = case Conf.toList $ screen ^. conf of
     [] -> emptyWidget
-    ps -> titleBox " Players " $ vBox $ map (toPlayer . snd) ps
+    ps -> titleBox " Players " $ vBox $ map toPlayer ps
 
-  toPlayer p = playerLabel 35 p <+> editPlayerLabel p
+  toPlayer p = playerLabel 35 p <+> editPlayerCommand p
 
-  help        = beginCommand <=> submitCommand <=> quitCommand
-
-  quitCommand = txt "Ctrl+q: quit"
+  help = submitCommand <=> beginCommand <=> quitCommand
 
   submitCommand =
     if validate screen then txt "Enter: add player" else emptyWidget
@@ -131,90 +90,89 @@ draw screen = content
   beginCommand =
     if hasEnoughPlayers screen then txt "Ctrl+p: begin game" else emptyWidget
 
-  editPlayerLabel p =
-    str
-      $  " "
-      <> "Edit: Ctrl+"
-      <> ["a", "s", "d", "f"]
-      !! (fromEnum $ p ^. order)
+  editPlayerCommand p =
+    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! fromEnum (p ^. order)
+
+  quitCommand = txt "Ctrl+q: quit"
+
+submitPlayer :: RegistrationScreen e -> RegistrationScreen e
+submitPlayer screen = maybe screen (register screen) (extractPlayer screen)
+
+validate :: RegistrationScreen e -> Bool
+validate screen = maybe False (val . extractForm) (screen ^. form)
+  where val = (0 <) . Text.length . (^. name) . formState
+
+editPlayer :: RegistrationScreen e -> Player -> RegistrationScreen e
+editPlayer screen player =
+  screen & form ?~ mkEditPlayerForm (screen ^. conf) player
+
+playerAt :: RegistrationScreen e -> PlayOrder -> Maybe Player
+playerAt screen = Conf.playerAt (screen ^. conf)
+
+processForm
+  :: RegistrationScreen e
+  -> FormProcessor e
+  -> EventM Name (RegistrationScreen e)
+processForm screen process = case screen ^. form of
+  Just (AddPlayerForm  form') -> processAndWrap AddPlayerForm form'
+  Just (EditPlayerForm form') -> processAndWrap EditPlayerForm form'
+  Nothing                     -> return screen
+ where
+  processAndWrap wrap f = do
+    f' <- process f
+    return $ screen & form ?~ wrap f'
+
+extractPlayer :: RegistrationScreen e -> Maybe Player
+extractPlayer screen = formState . extractForm <$> (screen ^. form)
 
 extractForm :: TheForm e -> PlayerForm e
-extractForm (AddPlayer  f) = f
-extractForm (EditPlayer f) = f
-
-asAdd :: PlayerForm e -> TheForm e
-asAdd = AddPlayer
-
-asEdit :: PlayerForm e -> TheForm e
-asEdit = EditPlayer
+extractForm (AddPlayerForm  f) = f
+extractForm (EditPlayerForm f) = f
 
 register :: RegistrationScreen e -> Player -> RegistrationScreen e
-register screen player = screen'
+register screen player = RegistrationScreen form' conf'
  where
-  players' = Map.insert (player ^. Players.order) player (screen ^. players)
-  form'    = addPlayerForm players'
-  screen'  = screen & form .~ form' & players .~ players'
+  conf' = Conf.insert player (screen ^. conf)
+  form' = mkAddPlayerForm conf'
 
-addPlayerForm :: PlayerIndex -> Maybe (TheForm e)
-addPlayerForm players' = case nextFormState players' of
-  Just player -> Just $ AddPlayer (mkForm players' player)
+mkAddPlayerForm :: Configuration -> Maybe (TheForm e)
+mkAddPlayerForm cfg = case nextDefaultPlayer cfg of
+  Just player -> Just $ AddPlayerForm (mkForm cfg player)
   Nothing     -> Nothing
 
-editPlayerForm :: PlayerIndex -> Player -> TheForm e
-editPlayerForm ps p = EditPlayer (mkForm ps' p)
-  where ps' = Map.delete (p ^. Players.order) ps
+mkEditPlayerForm :: Configuration -> Player -> TheForm e
+mkEditPlayerForm cfg p = EditPlayerForm (mkForm (Conf.delete p cfg) p)
 
-mkForm :: PlayerIndex -> Player -> PlayerForm e
-mkForm ps = newForm [nameField, colorField ps]
-
-nextFormState :: PlayerIndex -> Maybe Player
-nextFormState players' = case availableColors players' of
+nextDefaultPlayer :: Configuration -> Maybe Player
+nextDefaultPlayer cfg = case Conf.availableColors cfg of
   []      -> Nothing
   colors' -> Just
-    (Player "" (head colors') (toEnum $ length Players.colors - length colors'))
+    (Player "" (head colors') (toEnum $ length Conf.colors - length colors'))
+
+mkForm :: Configuration -> Player -> PlayerForm e
+mkForm cfg = newForm [nameField, colorField cfg]
 
 nameField :: Player -> FormFieldState Player e Name
-nameField = label "Name" @@= editTextField Players.name NameField (Just 1)
+nameField = label "Name" @@= editTextField Conf.name NameField (Just 1)
 
-colorField :: PlayerIndex -> Player -> FormFieldState Player e Name
-colorField players' = label "Color"
-  @@= radioField Players.color (colorOptions players' colorFieldMap)
+colorField :: Configuration -> Player -> FormFieldState Player e Name
+colorField cfg = label "Color" @@= radioField Conf.color (colorOptions cfg)
 
-label :: String -> Widget n -> Widget n
-label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w
-
-colorOptions :: PlayerIndex -> ColorFieldMap -> [(Color, Name, Text)]
-colorOptions players' fieldsMap = zip3 colors fields labels
+colorOptions :: Configuration -> [(Color, Name, Text)]
+colorOptions cfg = zip3 colors fields labels
  where
-  colors = availableColors players'
-  labels = map (Text.pack . show) colors
-  fields = map (\k -> fieldsMap ! k) colors
-
-colorFieldMap :: ColorFieldMap
-colorFieldMap = Map.fromList
-  [ (Yellow, YellowField)
-  , (Red   , RedField)
-  , (Blue  , BlueField)
-  , (Green , GreenField)
-  ]
-
-availableColors :: PlayerIndex -> [Color]
-availableColors ps = Set.toList $ Set.difference existing taken
- where
-  existing = Set.fromList Players.colors
-  taken    = Set.fromList $ map ((^. Players.color) . snd) (Map.toList ps)
+  colors       = Conf.availableColors cfg
+  labels       = map (Text.pack . show) colors
+  fields       = map (fieldByColor !) colors
+  fieldByColor = Map.fromList
+    [ (Yellow, YellowField)
+    , (Red   , RedField)
+    , (Blue  , BlueField)
+    , (Green , GreenField)
+    ]
 
 hasEnoughPlayers :: RegistrationScreen e -> Bool
-hasEnoughPlayers screen = minCount <= currentCount
- where
-  currentCount = Map.size $ screen ^. players
-  minCount     = screen ^. minPlayers
-
-isFull :: RegistrationScreen e -> Bool
-isFull screen = maxCount == currentCount
- where
-  currentCount = Map.size $ screen ^. players
-  maxCount     = screen ^. maxPlayers
+hasEnoughPlayers = Conf.hasEnoughPlayers . (^. conf)
 
 chooseCursor
   :: RegistrationScreen e

@@ -10,7 +10,7 @@ import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 )
 import           Labyrinth.Store.Internal
-import           Labyrinth.UI                   ( Screen(..)
+import           Labyrinth.UI                   ( Screen(Registration)
                                                 , RegistrationScreen
                                                 )
 import           Labyrinth.UI.Screen.Registration
@@ -21,7 +21,7 @@ import           Labyrinth.UI.Screen.Registration
                                                 , processForm
                                                 , hasEnoughPlayers
                                                 )
-import           Labyrinth.Game.Players         ( PlayOrder(..) )
+import           Labyrinth.Game.Configuration   ( PlayOrder(..) )
 
 type RegistrationEventHandler e = EventHandler (RegistrationScreen e) e
 

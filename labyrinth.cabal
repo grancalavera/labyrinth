@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 06b633992ca3efe7339170475e8b0049ca2238d0dc5af8870250bb2f4bf18956
+-- hash: ec1ea91fa480de6e8788dcbfaa4e073d7bdbe8222dc2016857173d0ddb621e96
 
 name:           labyrinth
 version:        0.1.0.0
@@ -25,13 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Labyrinth
-      Labyrinth.Game
-      Labyrinth.Game.Direction
-      Labyrinth.Game.Gate
-      Labyrinth.Game.Players
-      Labyrinth.Game.Tile
-      Labyrinth.Game.Treasure
+      Labyrinth.Game.Configuration
       Labyrinth.UI
       Labyrinth.UI.Modal
       Labyrinth.UI.Screen.Registration
@@ -44,8 +38,6 @@ library
       Data.List.Extended
   other-modules:
       Data.Random
-      Labyrinth.Game.Description
-      Labyrinth.Game.Position
       Labyrinth.Store.Internal
       Labyrinth.UI.Internal
       Paths_labyrinth
@@ -91,6 +83,7 @@ test-suite labyrinth-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Game.ConfigurationSpec
       Screens.RegistrationSpec
       Paths_labyrinth
   hs-source-dirs:
