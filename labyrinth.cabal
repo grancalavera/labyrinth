@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ec1ea91fa480de6e8788dcbfaa4e073d7bdbe8222dc2016857173d0ddb621e96
+-- hash: 1e24afb5f6504a9ffaad8dec66d28928e27c84927b574b28d41d50f00ba18574
 
 name:           labyrinth
 version:        0.1.0.0
@@ -28,13 +28,13 @@ library
       Labyrinth.Game.Configuration
       Labyrinth.UI
       Labyrinth.UI.Modal
-      Labyrinth.UI.Screen.Registration
+      Labyrinth.UI.Screen.Setup
       Labyrinth.UI.Screen.Splash
       Labyrinth.UI.Widget
       Labyrinth.Store
       Labyrinth.Store.Event.Modal
       Labyrinth.Store.Event.Splash
-      Labyrinth.Store.Event.Registration
+      Labyrinth.Store.Event.Setup
       Data.List.Extended
   other-modules:
       Data.Random
@@ -84,7 +84,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   other-modules:
       Game.ConfigurationSpec
-      Screens.RegistrationSpec
+      Screens.SetupSpec
       Paths_labyrinth
   hs-source-dirs:
       test

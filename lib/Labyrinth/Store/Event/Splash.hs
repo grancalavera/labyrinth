@@ -8,17 +8,14 @@ import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 )
-import           Labyrinth.Store.Internal       ( EventHandler
-                                                , state
-                                                )
-import           Labyrinth.UI                   ( Screen(..)
-                                                , SplashScreen
-                                                )
-import qualified Labyrinth.UI.Screen.Registration
-                                               as Registration
+import           Labyrinth.Store.Internal
 
-handle :: EventHandler SplashScreen e
+
+import           Labyrinth.UI                   ( SplashS )
+import qualified Labyrinth.UI.Screen.Setup     as Setup
+
+handle :: EventHandler SplashS e
 handle _ store ev = case ev of
   VtyEvent (V.EvKey V.KEnter []) -> continue toRegistration
   _                              -> continue store
-  where toRegistration = store & state .~ Registration Registration.initial
+  where toRegistration = store & state .~ Setup Setup.initial

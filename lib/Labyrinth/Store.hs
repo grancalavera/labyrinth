@@ -1,5 +1,6 @@
 module Labyrinth.Store
   ( Store
+  , State(..)
   , Ev
   , state
   , modal
@@ -14,9 +15,7 @@ import           Lens.Micro                     ( (^.) )
 import           Data.Maybe                     ( isJust )
 import           Labyrinth.Store.Internal
 import qualified Labyrinth.Store.Event.Modal   as Modal
-import           Labyrinth.UI                   ( Name
-                                                , Screen(..)
-                                                )
+import           Labyrinth.UI                   ( Name )
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 
 initial :: Store e

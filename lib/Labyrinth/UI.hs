@@ -1,8 +1,7 @@
 module Labyrinth.UI
-  ( Screen(..)
-  , Modal(..)
-  , SplashScreen
-  , RegistrationScreen
+  ( Modal(..)
+  , SplashS
+  , SetupS
   , Name(..)
   , attributeMap
   )
@@ -17,9 +16,7 @@ import qualified Graphics.Vty                  as V
 import           Labyrinth.UI.Internal
 import           Labyrinth.UI.Modal
 import           Labyrinth.UI.Screen.Splash
-import           Labyrinth.UI.Screen.Registration
-
-data Screen e = Splash SplashScreen | Registration (RegistrationScreen e)
+import           Labyrinth.UI.Screen.Setup
 
 attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap

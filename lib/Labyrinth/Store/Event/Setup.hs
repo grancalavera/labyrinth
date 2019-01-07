@@ -1,4 +1,4 @@
-module Labyrinth.Store.Event.Registration
+module Labyrinth.Store.Event.Setup
   ( handle
   )
 where
@@ -10,11 +10,8 @@ import           Lens.Micro                     ( (&)
                                                 , (.~)
                                                 )
 import           Labyrinth.Store.Internal
-import           Labyrinth.UI                   ( Screen(Registration)
-                                                , RegistrationScreen
-                                                )
-import           Labyrinth.UI.Screen.Registration
-                                                ( submitPlayer
+import           Labyrinth.UI                   ( SetupS )
+import           Labyrinth.UI.Screen.Setup      ( submitPlayer
                                                 , validate
                                                 , editPlayer
                                                 , playerAt
@@ -23,10 +20,10 @@ import           Labyrinth.UI.Screen.Registration
                                                 )
 import           Labyrinth.Game.Configuration   ( PlayOrder(..) )
 
-type RegistrationEventHandler e = EventHandler (RegistrationScreen e) e
+type RegistrationEventHandler e = EventHandler (SetupS e) e
 
 handle :: RegistrationEventHandler e
-handle screen store ev = handleEvent screen store ev
+handle s store ev = handleEvent s store ev
  where
   handleEvent = case ev of
     VtyEvent (V.EvKey (V.KChar 'p') [V.MCtrl]) -> play
@@ -38,20 +35,19 @@ handle screen store ev = handleEvent screen store ev
     _ -> processInput
 
 submit :: RegistrationEventHandler e
-submit screen store _ = continue
-  $ if validate screen then update store (submitPlayer screen) else store
+submit s store _ =
+  continue $ if validate s then update store (submitPlayer s) else store
 
 play :: RegistrationEventHandler e
-play screen store _ =
-  if hasEnoughPlayers screen then halt store else continue store
+play s store _ = if hasEnoughPlayers s then halt store else continue store
 
 processInput :: RegistrationEventHandler e
-processInput screen store ev =
-  processForm screen (handleFormEvent ev) >>= continue . update store
+processInput s store ev =
+  processForm s (handleFormEvent ev) >>= continue . update store
 
 edit :: PlayOrder -> RegistrationEventHandler e
-edit i screen store _ =
-  continue $ update store $ maybe screen (editPlayer screen) (playerAt screen i)
+edit i s store _ =
+  continue $ update store $ maybe s (editPlayer s) (playerAt s i)
 
-update :: Store e -> RegistrationScreen e -> Store e
-update store screen = store & state .~ Registration screen
+update :: Store e -> SetupS e -> Store e
+update store s = store & state .~ Setup s

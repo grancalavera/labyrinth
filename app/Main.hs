@@ -7,22 +7,19 @@ import           Lens.Micro                     ( (^.) )
 import           Data.Maybe                     ( fromMaybe )
 import           Control.Monad                  ( void )
 import qualified Labyrinth.UI                  as UI
-import           Labyrinth.UI                   ( Name
-                                                , Screen(..)
-                                                )
+import           Labyrinth.UI                   ( Name )
 import           Labyrinth.UI.Widget
 import qualified Labyrinth.UI.Modal            as Modal
 import qualified Labyrinth.Store.Event.Modal   as Modal
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 import qualified Labyrinth.Store.Event.Splash  as Splash
 
-import qualified Labyrinth.UI.Screen.Registration
-                                               as Registration
-import qualified Labyrinth.Store.Event.Registration
-                                               as Registration
+import qualified Labyrinth.UI.Screen.Setup     as Setup
+import qualified Labyrinth.Store.Event.Setup   as Setup
 
 import qualified Labyrinth.Store               as Store
 import           Labyrinth.Store                ( Store
+                                                , State(..)
                                                 , Ev
                                                 , state
                                                 , modal
@@ -40,11 +37,11 @@ app = App { appDraw         = draw
           }
 
 draw :: Store e -> [Widget Name]
-draw store = [maybe screen Modal.draw (store ^. modal)]
+draw store = [maybe drawScreen Modal.draw (store ^. modal)]
  where
-  screen = appContainer 50 $ case store ^. state of
-    Splash       s -> Splash.draw s
-    Registration s -> Registration.draw s
+  drawScreen = appContainer 50 $ case store ^. state of
+    Splash s -> Splash.draw s
+    Setup  s -> Setup.draw s
 
 handleEvent
   :: Ord e => Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
@@ -53,8 +50,8 @@ handleEvent store ev = handle store ev
   handle = if Store.isModalEvent store ev
     then Modal.handle
     else case store ^. state of
-      Splash       screen -> Splash.handle screen
-      Registration screen -> Registration.handle screen
+      Splash s -> Splash.handle s
+      Setup  s -> Setup.handle s
 
 buildVty :: IO Vty
 buildVty = do
@@ -67,5 +64,5 @@ chooseCursor store =
   fromMaybe (neverShowCursor store) $ if Store.isShowingModal store
     then store ^. modal >>= Modal.chooseCursor
     else case store ^. state of
-      Splash       screen -> Splash.chooseCursor screen
-      Registration screen -> Registration.chooseCursor screen
+      Splash s -> Splash.chooseCursor s
+      Setup  s -> Setup.chooseCursor s

@@ -29,13 +29,13 @@ library:
     - Labyrinth.Game.Configuration
     - Labyrinth.UI
     - Labyrinth.UI.Modal
-    - Labyrinth.UI.Screen.Registration
+    - Labyrinth.UI.Screen.Setup
     - Labyrinth.UI.Screen.Splash
     - Labyrinth.UI.Widget
     - Labyrinth.Store
     - Labyrinth.Store.Event.Modal
     - Labyrinth.Store.Event.Splash
-    - Labyrinth.Store.Event.Registration
+    - Labyrinth.Store.Event.Setup
     - Data.List.Extended
   dependencies:
     - base >=4.7 && <5
