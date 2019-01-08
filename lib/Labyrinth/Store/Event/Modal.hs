@@ -18,12 +18,10 @@ import           Data.Map.Strict                ( Map
                                                 )
 import           Data.Maybe                     ( fromMaybe )
 import           Labyrinth.UI                   ( Name )
-import           Labyrinth.UI.Modal             ( Modal
-                                                , ModalCallback
-                                                , dialog
+import           Labyrinth.UI.Modal             ( dialog
                                                 , onTrue
                                                 , onFalse
-                                                , showModal
+                                                , mkModal
                                                 )
 import           Labyrinth.Store.Internal
 
@@ -50,17 +48,12 @@ handleWithModal store ev = maybe (continue store) withModal (store ^. modal)
     _ -> continue store
 
 promptToQuit :: GlobalEventHandler e
-promptToQuit store _ = continue $ store & modal ?~ quitPrompt onT onF
- where
-  onT = halt store
-  onF = continue $ store & modal .~ Nothing
+promptToQuit store _ = showModal store $ mkModal
+  (txt "Do you want to quit Labyrinth?")
+  (0, [("Stay", False), ("Quit", True)])
+  (halt store)
+  (hideModal store)
 
 eventMap :: Ord e => Map (BrickEvent Name e) (GlobalEventHandler e)
 eventMap =
   Map.fromList [(VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl]), promptToQuit)]
-
-quitPrompt :: ModalCallback Store e -> ModalCallback Store e -> Modal Store e
-quitPrompt = showModal body options
- where
-  body    = txt "Do you want to quit Labyrinth?"
-  options = (0, [("Stay", False), ("Quit", True)])

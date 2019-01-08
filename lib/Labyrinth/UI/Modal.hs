@@ -7,6 +7,7 @@ module Labyrinth.UI.Modal
   , onTrue
   , onFalse
   , showModal
+  , mkModal
   )
 where
 
@@ -45,7 +46,15 @@ showModal
   -> ModalCallback s e
   -> ModalCallback s e
   -> Modal s e
-showModal body options onT onF = Modal
+showModal = mkModal
+
+mkModal
+  :: Widget Name
+  -> ModalOptions
+  -> ModalCallback s e
+  -> ModalCallback s e
+  -> Modal s e
+mkModal body options onT onF = Modal
   { _dialog     = D.dialog (Just " Labyrinth ") (Just options) 50
   , _dialogBody = body
   , _onTrue     = onT

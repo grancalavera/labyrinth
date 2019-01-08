@@ -8,7 +8,6 @@ import           Brick.Forms                    ( handleFormEvent )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (&)
                                                 , (.~)
-                                                , (?~)
                                                 , (^.)
                                                 )
 import           Labyrinth.Store.Internal
@@ -21,15 +20,10 @@ import           Labyrinth.UI.Screen.Setup      ( submitPlayer
                                                 , hasEnoughPlayers
                                                 , firstPlayer
                                                 )
-import qualified Labyrinth.UI.Modal            as Modal
 import           Labyrinth.UI.Widget            ( playerAttr )
-import           Labyrinth.UI.Modal             ( Modal
-                                                , ModalCallback
-                                                )
+import           Labyrinth.UI.Modal             ( mkModal )
 import qualified Labyrinth.Game.Configuration  as Conf
-import           Labyrinth.Game.Configuration   ( PlayOrder(..)
-                                                , Player
-                                                )
+import           Labyrinth.Game.Configuration   ( PlayOrder(..) )
 
 type RegistrationEventHandler e = EventHandler (SetupS e) e
 
@@ -53,8 +47,14 @@ play :: RegistrationEventHandler e
 play s store _ = if hasEnoughPlayers s then start else continue store
  where
   start = maybe (continue store) promptToStart (firstPlayer s)
-  promptToStart p = continue $ store & modal ?~ startPrompt p onT onT
-  onT = halt store
+  promptToStart p = showModal store $ mkModal
+    (txt "The next player is " <+> playerAttr
+      p
+      (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. Conf.name)
+    )
+    (0, [("OK", True)])
+    (hideModal store)
+    (hideModal store)
 
 processInput :: RegistrationEventHandler e
 processInput s store ev =
@@ -66,13 +66,3 @@ edit i s store _ =
 
 update :: Store e -> SetupS e -> Store e
 update store s = store & state .~ Setup s
-
-startPrompt
-  :: Player -> ModalCallback Store e -> ModalCallback Store e -> Modal Store e
-startPrompt p = Modal.showModal message options
- where
-  name    = p ^. Conf.name
-  message = txt "The next player is "
-    <+> playerAttr p (padLeft (Pad 1) $ padRight (Pad 1) $ txt name)
-
-  options = (0, [("OK", True)])
