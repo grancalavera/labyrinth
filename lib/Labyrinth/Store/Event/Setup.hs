@@ -22,6 +22,7 @@ import           Labyrinth.UI.Screen.Setup      ( submitPlayer
                                                 , firstPlayer
                                                 )
 import qualified Labyrinth.UI.Modal            as Modal
+import           Labyrinth.UI.Widget            ( playerAttr )
 import           Labyrinth.UI.Modal             ( Modal
                                                 , ModalCallback
                                                 )
@@ -67,5 +68,9 @@ promptToStart
   :: SetupS e -> ModalCallback Store e -> ModalCallback Store e -> Modal Store e
 promptToStart s = Modal.showModal message options
  where
-  message = "The next player is " <> (firstPlayer s ^. Conf.name)
+  p       = firstPlayer s
+  name    = p ^. Conf.name
+  message = txt "The next player is "
+    <+> playerAttr p (padLeft (Pad 1) $ padRight (Pad 1) $ txt name)
+
   options = (0, [("OK", True)])

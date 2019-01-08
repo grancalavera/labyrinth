@@ -60,7 +60,7 @@ eventMap =
   Map.fromList [(VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl]), promptToQuit)]
 
 quitPrompt :: ModalCallback Store e -> ModalCallback Store e -> Modal Store e
-quitPrompt = showModal message options
+quitPrompt = showModal body options
  where
-  message = "Do you want to quit Labyrinth?"
+  body    = txt "Do you want to quit Labyrinth?"
   options = (0, [("Stay", False), ("Quit", True)])

@@ -6,6 +6,7 @@ module Labyrinth.UI.Widget
   , box
   , line
   , playerLabel
+  , playerAttr
   , label
   )
 where
