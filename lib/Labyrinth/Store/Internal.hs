@@ -17,8 +17,7 @@ import           Labyrinth.UI                   ( Name
                                                 )
 
 data Ev = Ev deriving (Show, Eq, Ord)
-data State e = Splash SplashS | Setup (SetupS e)
-
+data State e = Splash SplashS | Setup (SetupS e) | Plan | Search | Return | TurnResult | GameOver
 data Store e = Store
   { _state :: State e
   , _modal :: Maybe (Modal Store e)

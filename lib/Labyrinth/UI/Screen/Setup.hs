@@ -10,6 +10,7 @@ module Labyrinth.UI.Screen.Setup
   , extractPlayer
   , initial
   , draw
+  , firstPlayer
   --
   , form
   , register
@@ -41,7 +42,7 @@ import           Data.Map.Strict                ( (!) )
 import           Labyrinth.Game.Configuration   ( Player(..)
                                                 , Color(..)
                                                 , Configuration
-                                                , PlayOrder
+                                                , PlayOrder(..)
                                                 , name
                                                 , order
                                                 )
@@ -60,8 +61,7 @@ data SetupS e = SetupS
 makeLenses ''SetupS
 
 initial :: SetupS e
-initial =
-  SetupS { _form = mkAddPlayerForm Conf.initial, _conf = Conf.initial }
+initial = SetupS { _form = mkAddPlayerForm Conf.initial, _conf = Conf.initial }
 
 draw :: SetupS s -> Widget Name
 draw s = theForm <=> registered <=> help
@@ -103,8 +103,7 @@ editPlayer s player = s & form ?~ mkEditPlayerForm (s ^. conf) player
 playerAt :: SetupS e -> PlayOrder -> Maybe Player
 playerAt s = Conf.playerAt (s ^. conf)
 
-processForm
-  :: SetupS e -> FormProcessor e -> EventM Name (SetupS e)
+processForm :: SetupS e -> FormProcessor e -> EventM Name (SetupS e)
 processForm s process = case s ^. form of
   Just (AddPlayerForm  form') -> processAndWrap AddPlayerForm form'
   Just (EditPlayerForm form') -> processAndWrap EditPlayerForm form'
@@ -167,8 +166,10 @@ hasEnoughPlayers :: SetupS e -> Bool
 hasEnoughPlayers = Conf.hasEnoughPlayers . (^. conf)
 
 chooseCursor
-  :: SetupS e
-  -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
+  :: SetupS e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
 chooseCursor s = case (s ^. form) of
   Nothing    -> Nothing
   Just form' -> Just (focusRingCursor formFocus $ extractForm form')
+
+firstPlayer :: SetupS e -> Player
+firstPlayer s = (s ^. conf . Conf.players) ! First

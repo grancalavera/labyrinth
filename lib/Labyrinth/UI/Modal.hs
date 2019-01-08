@@ -17,6 +17,7 @@ import           Lens.Micro                     ( (^.) )
 import           Lens.Micro.TH                  ( makeLenses )
 import           Brick.Widgets.Dialog           ( Dialog(..) )
 import           Labyrinth.UI.Internal
+import           Data.Text                      ( Text )
 
 type ModalCallback s e = EventM Name (Next (s e))
 type ModalOptions = (Int, [(String, Bool)])
@@ -40,14 +41,10 @@ chooseCursor
 chooseCursor _ = Nothing
 
 showModal
-  :: String
-  -> ModalOptions
-  -> ModalCallback s e
-  -> ModalCallback s e
-  -> Modal s e
+  :: Text -> ModalOptions -> ModalCallback s e -> ModalCallback s e -> Modal s e
 showModal message options onT onF = Modal
   { _dialog     = D.dialog (Just " Labyrinth ") (Just options) 50
-  , _dialogBody = str message
+  , _dialogBody = txt message
   , _onTrue     = onT
   , _onFalse    = onF
   }

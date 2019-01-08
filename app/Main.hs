@@ -42,6 +42,7 @@ draw store = [maybe drawScreen Modal.draw (store ^. modal)]
   drawScreen = appContainer 50 $ case store ^. state of
     Splash s -> Splash.draw s
     Setup  s -> Setup.draw s
+    _        -> emptyWidget
 
 handleEvent
   :: Ord e => Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
@@ -52,6 +53,7 @@ handleEvent store ev = handle store ev
     else case store ^. state of
       Splash s -> Splash.handle s
       Setup  s -> Setup.handle s
+      _        -> \_ _ -> halt store
 
 buildVty :: IO Vty
 buildVty = do
@@ -66,3 +68,4 @@ chooseCursor store =
     else case store ^. state of
       Splash s -> Splash.chooseCursor s
       Setup  s -> Setup.chooseCursor s
+      _        -> Nothing
