@@ -171,5 +171,5 @@ chooseCursor s = case (s ^. form) of
   Nothing    -> Nothing
   Just form' -> Just (focusRingCursor formFocus $ extractForm form')
 
-firstPlayer :: SetupS e -> Player
-firstPlayer s = (s ^. conf . Conf.players) ! First
+firstPlayer :: SetupS e -> Maybe Player
+firstPlayer = Conf.firstPlayer . (^. conf)

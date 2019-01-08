@@ -17,6 +17,7 @@ module Labyrinth.Game.Configuration
   , insert
   , delete
   , availableColors
+  , firstPlayer
   )
 where
 
@@ -79,3 +80,6 @@ availableColors ps = Set.toList available
   available = Set.difference existing taken
   existing  = Set.fromList colors
   taken     = Set.fromList $ map (^. color) (toList ps)
+
+firstPlayer :: Configuration -> Maybe Player
+firstPlayer = (`playerAt` First)

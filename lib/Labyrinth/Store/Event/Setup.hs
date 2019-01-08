@@ -27,7 +27,9 @@ import           Labyrinth.UI.Modal             ( Modal
                                                 , ModalCallback
                                                 )
 import qualified Labyrinth.Game.Configuration  as Conf
-import           Labyrinth.Game.Configuration   ( PlayOrder(..) )
+import           Labyrinth.Game.Configuration   ( PlayOrder(..)
+                                                , Player
+                                                )
 
 type RegistrationEventHandler e = EventHandler (SetupS e) e
 
@@ -50,8 +52,9 @@ submit s store _ =
 play :: RegistrationEventHandler e
 play s store _ = if hasEnoughPlayers s then start else continue store
  where
-  start = continue $ store & modal ?~ promptToStart s onT onT
-  onT   = halt store
+  start = maybe (continue store) promptToStart (firstPlayer s)
+  promptToStart p = continue $ store & modal ?~ startPrompt p onT onT
+  onT = halt store
 
 processInput :: RegistrationEventHandler e
 processInput s store ev =
@@ -64,11 +67,10 @@ edit i s store _ =
 update :: Store e -> SetupS e -> Store e
 update store s = store & state .~ Setup s
 
-promptToStart
-  :: SetupS e -> ModalCallback Store e -> ModalCallback Store e -> Modal Store e
-promptToStart s = Modal.showModal message options
+startPrompt
+  :: Player -> ModalCallback Store e -> ModalCallback Store e -> Modal Store e
+startPrompt p = Modal.showModal message options
  where
-  p       = firstPlayer s
   name    = p ^. Conf.name
   message = txt "The next player is "
     <+> playerAttr p (padLeft (Pad 1) $ padRight (Pad 1) $ txt name)
