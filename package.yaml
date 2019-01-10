@@ -19,6 +19,7 @@ library:
     - RankNTypes
     - RecordWildCards
     - TemplateHaskell
+    - LambdaCase
   ghc-options:
     - -Wall
     - -Wcompat
@@ -71,6 +72,7 @@ executables:
       - RankNTypes
       - RecordWildCards
       - TemplateHaskell
+      - LambdaCase
     dependencies:
       - base
       - brick
@@ -102,6 +104,7 @@ tests:
       - RankNTypes
       - RecordWildCards
       - TemplateHaskell
+      - LambdaCase
     dependencies:
       - base
       - brick

@@ -5,7 +5,7 @@ import           Graphics.Vty                   ( Vty )
 import qualified Graphics.Vty                  as V
 import           Lens.Micro                     ( (^.) )
 import           Data.Maybe                     ( fromMaybe )
-import           Control.Monad                  ( void )
+-- import           Control.Monad                  ( void )
 import qualified Labyrinth.UI                  as UI
 import           Labyrinth.UI                   ( Name )
 import           Labyrinth.UI.Widget
@@ -22,11 +22,12 @@ import           Labyrinth.Store                ( Store
                                                 , State(..)
                                                 , Ev
                                                 , state
-                                                , modal
                                                 )
 
 main :: IO ()
-main = void $ customMain buildVty Nothing app Store.initial
+main = do
+  store <- customMain buildVty Nothing app Store.initial
+  putStrLn $ show store
 
 app :: App (Store Ev) Ev Name
 app = App { appDraw         = draw
@@ -37,7 +38,7 @@ app = App { appDraw         = draw
           }
 
 draw :: Store e -> [Widget Name]
-draw store = [maybe drawScreen Modal.draw (store ^. modal)]
+draw store = [maybe drawScreen Modal.draw (Store.nextModal store)]
  where
   drawScreen = appContainer 50 $ case store ^. state of
     Splash s -> Splash.draw s
@@ -64,7 +65,7 @@ buildVty = do
 chooseCursor :: Store e -> [CursorLocation Name] -> Maybe (CursorLocation Name)
 chooseCursor store =
   fromMaybe (neverShowCursor store) $ if Store.isShowingModal store
-    then store ^. modal >>= Modal.chooseCursor
+    then Store.nextModal store >>= Modal.chooseCursor
     else case store ^. state of
       Splash s -> Splash.chooseCursor s
       Setup  s -> Setup.chooseCursor s

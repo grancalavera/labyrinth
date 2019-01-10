@@ -6,7 +6,6 @@ module Labyrinth.UI.Modal
   , dialog
   , onTrue
   , onFalse
-  , showModal
   , mkModal
   )
 where
@@ -27,8 +26,12 @@ data Modal s e = Modal
   , _dialogBody :: Widget Name
   , _onTrue :: ModalCallback s e
   , _onFalse :: ModalCallback s e
+  , _description :: String
   }
 makeLenses ''Modal
+
+instance Show (Modal s e) where
+  show m = "Modal: " <> m ^. description
 
 draw :: Modal s e -> Widget Name
 draw modal = D.renderDialog dialog' $ C.hCenter $ padAll 1 body'
@@ -40,23 +43,17 @@ chooseCursor
   :: Modal s e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
 chooseCursor _ = Nothing
 
-showModal
-  :: Widget Name
-  -> ModalOptions
-  -> ModalCallback s e
-  -> ModalCallback s e
-  -> Modal s e
-showModal = mkModal
-
 mkModal
-  :: Widget Name
+  :: String
+  -> Widget Name
   -> ModalOptions
   -> ModalCallback s e
   -> ModalCallback s e
   -> Modal s e
-mkModal body options onT onF = Modal
-  { _dialog     = D.dialog (Just " Labyrinth ") (Just options) 50
-  , _dialogBody = body
-  , _onTrue     = onT
-  , _onFalse    = onF
+mkModal desc body options onT onF = Modal
+  { _dialog      = D.dialog (Just " Labyrinth ") (Just options) 50
+  , _dialogBody  = body
+  , _onTrue      = onT
+  , _onFalse     = onF
+  , _description = desc
   }

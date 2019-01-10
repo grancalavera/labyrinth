@@ -12,7 +12,7 @@ import qualified Brick.Widgets.Center          as C
 import           Labyrinth.UI.Internal
 import qualified Labyrinth.UI.Widget           as Widget
 
-data SplashS = SplashS
+data SplashS = SplashS deriving (Show)
 
 draw :: SplashS -> Widget n
 draw _ =

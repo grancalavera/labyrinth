@@ -48,6 +48,7 @@ play s store _ = if hasEnoughPlayers s then start else continue store
  where
   start = maybe (continue store) promptToStart (firstPlayer s)
   promptToStart p = showModal store $ mkModal
+    "start"
     (txt "The next player is " <+> playerAttr
       p
       (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. Conf.name)

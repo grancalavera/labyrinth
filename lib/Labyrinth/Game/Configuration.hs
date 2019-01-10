@@ -47,7 +47,7 @@ makeLenses ''Player
 data Configuration = Conf
   { _players    :: Players
   , _minPlayers :: Int
-  }
+  } deriving (Show, Eq)
 makeLenses ''Configuration
 
 initial :: Configuration

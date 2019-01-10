@@ -7,14 +7,16 @@ module Labyrinth.Store.Internal
   , modal
   , showModal
   , hideModal
+  , nextModal
   )
 where
 
 import           Brick
 import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (?~)
-                                                , (&)
-                                                , (.~)
+import           Control.Monad.IO.Class         ( liftIO )
+import           Lens.Micro                     ( (&)
+                                                , (%~)
+                                                , (^.)
                                                 )
 import           Labyrinth.UI                   ( Name
                                                 , Modal
@@ -23,18 +25,37 @@ import           Labyrinth.UI                   ( Name
                                                 )
 
 data Ev = Ev deriving (Show, Eq, Ord)
-data State e = Splash SplashS | Setup (SetupS e) | Plan | Search | Return | TurnResult | GameOver
+data State e = Splash SplashS
+             | Setup (SetupS e)
+             | Plan
+             | Search
+             | Return
+             | TurnResult
+             | GameOver deriving (Show)
+
 data Store e = Store
   { _state :: State e
-  , _modal :: Maybe (Modal Store e)
-  }
+  , _modal :: [Modal Store e]
+  } deriving (Show)
 makeLenses ''Store
 
 type EventHandler s e
   = s -> Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 
 showModal :: Store e -> Modal Store e -> EventM Name (Next (Store e))
-showModal store m = continue $ store & modal ?~ m
+showModal store m = continue $ store & modal %~ (m :)
 
 hideModal :: Store e -> EventM Name (Next (Store e))
-hideModal store = continue $ store & modal .~ Nothing
+hideModal store = do
+  let m1 = store ^. modal
+  liftIO $ putStrLn $ "modals before: " <> show (length m1)
+  let store' = store & modal %~ \case
+        []       -> []
+        (_ : ms) -> ms
+  let m2 = store' ^. modal
+  liftIO $ putStrLn $ "modals after: " <> show (length m2)
+  continue store'
+nextModal :: Store e -> Maybe (Modal Store e)
+nextModal store = case store ^. modal of
+  []      -> Nothing
+  (m : _) -> Just m

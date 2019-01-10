@@ -54,10 +54,13 @@ type PlayerForm e = Form Player e Name
 type FormProcessor e = PlayerForm e -> EventM Name (PlayerForm e)
 data TheForm e = AddPlayerForm (PlayerForm e) | EditPlayerForm ( PlayerForm e)
 
+instance Show (TheForm e) where
+  show (AddPlayerForm  _) = "AddPlayerForm"
+  show (EditPlayerForm _) = "EditPlayerForm"
 data SetupS e = SetupS
   { _form :: Maybe (TheForm e)
   , _conf :: Configuration
-  }
+  } deriving (Show)
 makeLenses ''SetupS
 
 initial :: SetupS e
