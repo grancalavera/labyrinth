@@ -54,8 +54,8 @@ play s store _ = if hasEnoughPlayers s then start else continue store
       (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. Conf.name)
     )
     (0, [("OK", True)])
-    (hideModal store)
-    (hideModal store)
+    halt
+    halt
 
 processInput :: RegistrationEventHandler e
 processInput s store ev =

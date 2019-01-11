@@ -38,10 +38,10 @@ handleInModal :: GlobalEventHandler e
 handleInModal store ev = maybe (continue store) withModal (nextModal store)
  where
   withModal m = case ev of
-    (VtyEvent (V.EvKey V.KEsc   [])) -> m ^. onFalse
+    (VtyEvent (V.EvKey V.KEsc   [])) -> (m ^. onFalse) store
     (VtyEvent (V.EvKey V.KEnter [])) -> fromMaybe (continue store) $ do
       sel <- D.dialogSelection (m ^. dialog)
-      return $ if sel then m ^. onTrue else m ^. onFalse
+      return $ if sel then (m ^. onTrue) store else (m ^. onFalse) store
     (VtyEvent vtyEv) -> do
       d <- D.handleDialogEvent vtyEv (m ^. dialog)
       continue $ store & modal %~ \case
@@ -54,8 +54,8 @@ promptToQuit store _ = showModal store $ mkModal
   "quit"
   (txt "Do you want to quit Labyrinth?")
   (0, [("Stay", False), ("Quit", True)])
-  (halt store)
-  (hideModal store)
+  halt
+  hideModal
 
 eventMap :: Ord e => Map (BrickEvent Name e) (GlobalEventHandler e)
 eventMap =

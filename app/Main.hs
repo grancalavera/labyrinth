@@ -22,12 +22,13 @@ import           Labyrinth.Store                ( Store
                                                 , State(..)
                                                 , Ev
                                                 , state
+                                                , modal
                                                 )
 
 main :: IO ()
 main = do
   store <- customMain buildVty Nothing app Store.initial
-  putStrLn $ show store
+  print store
 
 app :: App (Store Ev) Ev Name
 app = App { appDraw         = draw
@@ -38,8 +39,9 @@ app = App { appDraw         = draw
           }
 
 draw :: Store e -> [Widget Name]
-draw store = [maybe drawScreen Modal.draw (Store.nextModal store)]
+draw store = [showModals, maybe drawScreen Modal.draw (Store.nextModal store)]
  where
+  showModals = str $ show (store ^. modal)
   drawScreen = appContainer 50 $ case store ^. state of
     Splash s -> Splash.draw s
     Setup  s -> Setup.draw s

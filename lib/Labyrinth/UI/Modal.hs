@@ -18,7 +18,7 @@ import           Lens.Micro.TH                  ( makeLenses )
 import           Brick.Widgets.Dialog           ( Dialog(..) )
 import           Labyrinth.UI.Internal
 
-type ModalCallback s e = EventM Name (Next (s e))
+type ModalCallback s e = s e -> EventM Name (Next (s e))
 type ModalOptions = (Int, [(String, Bool)])
 
 data Modal s e = Modal
