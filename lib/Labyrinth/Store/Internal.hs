@@ -11,7 +11,7 @@ module Labyrinth.Store.Internal
   )
 where
 
-import Data.Maybe (listToMaybe)
+import           Data.Maybe                     ( listToMaybe )
 import           Brick
 import           Lens.Micro.TH                  ( makeLenses )
 import           Lens.Micro                     ( (&)
@@ -46,8 +46,8 @@ showModal store m = continue $ store & modal %~ (m :)
 
 hideModal :: Store e -> EventM Name (Next (Store e))
 hideModal store = continue $ store & modal %~ \case
-  [] -> []
-  (_:ms) -> ms
+  []       -> []
+  (_ : ms) -> ms
 
 nextModal :: Store e -> Maybe (Modal Store e)
-nextModal = listToMaybe . (^.modal)
+nextModal = listToMaybe . (^. modal)

@@ -7,6 +7,7 @@ module Labyrinth.UI.Modal
   , onTrue
   , onFalse
   , mkModal
+  , mkOkModal
   )
 where
 
@@ -57,3 +58,6 @@ mkModal desc body options onT onF = Modal
   , _onFalse     = onF
   , _description = desc
   }
+
+mkOkModal :: String -> Widget Name -> ModalCallback s e -> Modal s e
+mkOkModal desc body onOk = mkModal desc body (0, [("OK", True)]) onOk onOk

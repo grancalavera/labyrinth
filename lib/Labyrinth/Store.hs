@@ -25,4 +25,4 @@ isModalEvent :: Ord e => Store e -> BrickEvent Name e -> Bool
 isModalEvent store ev = isShowingModal store || Modal.isModalEvent ev
 
 isShowingModal :: Store e -> Bool
-isShowingModal = (0 <) . length . (^. modal)
+isShowingModal = not . null . (^. modal)

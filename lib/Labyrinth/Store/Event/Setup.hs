@@ -21,7 +21,7 @@ import           Labyrinth.UI.Screen.Setup      ( submitPlayer
                                                 , firstPlayer
                                                 )
 import           Labyrinth.UI.Widget            ( playerAttr )
-import           Labyrinth.UI.Modal             ( mkModal )
+import           Labyrinth.UI.Modal             ( mkOkModal )
 import qualified Labyrinth.Game.Configuration  as Conf
 import           Labyrinth.Game.Configuration   ( PlayOrder(..) )
 
@@ -47,14 +47,12 @@ play :: RegistrationEventHandler e
 play s store _ = if hasEnoughPlayers s then start else continue store
  where
   start = maybe (continue store) promptToStart (firstPlayer s)
-  promptToStart p = showModal store $ mkModal
+  promptToStart p = showModal store $ mkOkModal
     "start"
     (txt "The next player is " <+> playerAttr
       p
       (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. Conf.name)
     )
-    (0, [("OK", True)])
-    halt
     halt
 
 processInput :: RegistrationEventHandler e
