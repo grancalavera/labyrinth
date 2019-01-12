@@ -1,6 +1,8 @@
 module Labyrinth.Store.Event.Modal
   ( handle
   , isModalEvent
+  , showModal
+  , nextModal
   )
 where
 
@@ -17,7 +19,9 @@ import           Data.Map.Strict                ( Map
                                                 , (!?)
                                                 )
 import           Data.Maybe                     ( fromMaybe )
-import           Labyrinth.UI                   ( Name )
+import           Labyrinth.UI                   ( Name
+                                                , ModalCallback
+                                                )
 import           Labyrinth.UI.Modal             ( dialog
                                                 , onTrue
                                                 , onFalse
@@ -38,13 +42,15 @@ handleInModal :: GlobalEventHandler e
 handleInModal store ev = maybe (continue store) withModal (nextModal store)
  where
   withModal m = case ev of
-    (VtyEvent (V.EvKey V.KEsc   [])) -> (m ^. onFalse) store
+    (VtyEvent (V.EvKey V.KEsc   [])) -> (hideModalAnd $ m ^. onFalse) store
     (VtyEvent (V.EvKey V.KEnter [])) -> fromMaybe (continue store) $ do
       sel <- D.dialogSelection (m ^. dialog)
-      return $ if sel then (m ^. onTrue) store else (m ^. onFalse) store
+      return $ if sel
+        then (hideModalAnd $ m ^. onTrue) store
+        else (hideModalAnd $ m ^. onFalse) store
     (VtyEvent vtyEv) -> do
       d <- D.handleDialogEvent vtyEv (m ^. dialog)
-      continue $ store & modal %~ \case
+      continue $ store & modals %~ \case
         []       -> []
         (_ : ms) -> (m & dialog .~ d) : ms
     _ -> continue store
@@ -55,8 +61,13 @@ promptToQuit store _ = showModal store $ mkModal
   (txt "Do you want to quit Labyrinth?")
   (0, [("Stay", False), ("Quit", True)])
   halt
-  hideModal
+  continue
 
 eventMap :: Ord e => Map (BrickEvent Name e) (GlobalEventHandler e)
 eventMap =
   Map.fromList [(VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl]), promptToQuit)]
+
+hideModalAnd :: ModalCallback Store e -> ModalCallback Store e
+hideModalAnd f store = f $ store & modals %~ \case
+  []       -> []
+  (_ : ms) -> ms

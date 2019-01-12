@@ -33,6 +33,7 @@ library:
     - Labyrinth.Game.Players
     - Labyrinth.UI
     - Labyrinth.UI.Modal
+    - Labyrinth.UI.Debug
     - Labyrinth.UI.Screen.Splash
     - Labyrinth.UI.Screen.Setup
     - Labyrinth.UI.Screen.Game

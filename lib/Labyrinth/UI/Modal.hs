@@ -60,4 +60,4 @@ mkModal desc body options onT onF = Modal
   }
 
 mkOkModal :: String -> Widget Name -> ModalCallback s e -> Modal s e
-mkOkModal desc body onOk = mkModal desc body (0, [("OK", True)]) onOk onOk
+mkOkModal desc body onOk = mkModal desc body (0, [("OK", True)]) onOk continue

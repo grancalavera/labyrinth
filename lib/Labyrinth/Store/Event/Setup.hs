@@ -46,7 +46,7 @@ play :: RegistrationEventHandler e
 play s store _ = maybe (continue store) promptToPlay (S.setup s)
  where
   promptToPlay (p, ps) = showModal store
-    $ UI.mkOkModal "start" (UI.nextPlayerPrompt p) (toNewGame p ps)
+    $ UI.mkOkModal "start" (UI.nextPlayerPrompt p) (continueToNewGame p ps)
 
 processInput :: RegistrationEventHandler e
 processInput s store ev =
@@ -59,5 +59,6 @@ edit i s store _ =
 update :: Store e -> SetupS e -> Store e
 update store s = store & state .~ Setup s
 
-toNewGame :: Player -> Players -> ModalCallback Store e
-toNewGame p ps store = continue $ store & state .~ Plan (G.initial (Game ps p))
+continueToNewGame :: Player -> Players -> ModalCallback Store e
+continueToNewGame p ps store =
+  continue $ store & state .~ Plan (G.initial (Game ps p))

@@ -3,7 +3,7 @@ module Labyrinth.Store
   , State(..)
   , Ev
   , state
-  , modal
+  , modals
   , initial
   , isModalEvent
   , isShowingModal
@@ -19,10 +19,10 @@ import           Labyrinth.UI                   ( Name )
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 
 initial :: Store e
-initial = Store { _state = Splash Splash.initial, _modal = [] }
+initial = Store { _state = Splash Splash.initial, _modals = [] }
 
 isModalEvent :: Ord e => Store e -> BrickEvent Name e -> Bool
 isModalEvent store ev = isShowingModal store || Modal.isModalEvent ev
 
 isShowingModal :: Store e -> Bool
-isShowingModal = not . null . (^. modal)
+isShowingModal = not . null . (^. modals)

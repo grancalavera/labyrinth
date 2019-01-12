@@ -2,7 +2,6 @@ module Labyrinth.UI.Screen.Splash
   ( draw
   , SplashS
   , initial
-  , chooseCursor
   )
 where
 
@@ -30,7 +29,3 @@ draw _ =
 
 initial :: SplashS
 initial = SplashS
-
-chooseCursor
-  :: SplashS -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
-chooseCursor _ = Nothing

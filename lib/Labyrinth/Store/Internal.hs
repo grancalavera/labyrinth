@@ -4,9 +4,8 @@ module Labyrinth.Store.Internal
   , Ev
   , EventHandler
   , state
-  , modal
+  , modals
   , showModal
-  , hideModal
   , nextModal
   )
 where
@@ -36,19 +35,14 @@ data State e = Splash SplashS
 
 data Store e = Store
   { _state :: State e
-  , _modal :: [Modal Store e]
+  , _modals :: [Modal Store e]
   } deriving (Show)
 makeLenses ''Store
 type EventHandler s e
   = s -> Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 
 showModal :: Store e -> Modal Store e -> EventM Name (Next (Store e))
-showModal store m = continue $ store & modal %~ (m :)
-
-hideModal :: Store e -> EventM Name (Next (Store e))
-hideModal store = continue $ store & modal %~ \case
-  []       -> []
-  (_ : ms) -> ms
+showModal store m = continue $ store & modals %~ (m :)
 
 nextModal :: Store e -> Maybe (Modal Store e)
-nextModal = listToMaybe . (^. modal)
+nextModal = listToMaybe . (^. modals)
