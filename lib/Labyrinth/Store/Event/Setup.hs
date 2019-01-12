@@ -22,8 +22,8 @@ import           Labyrinth.UI.Screen.Setup      ( submitPlayer
                                                 )
 import           Labyrinth.UI.Widget            ( playerAttr )
 import           Labyrinth.UI.Modal             ( mkOkModal )
-import qualified Labyrinth.Game.Configuration  as Conf
-import           Labyrinth.Game.Configuration   ( PlayOrder(..) )
+import qualified Labyrinth.Game.Players        as P
+import           Labyrinth.Game                 ( PlayOrder(..) )
 
 type RegistrationEventHandler e = EventHandler (SetupS e) e
 
@@ -51,7 +51,7 @@ play s store _ = if hasEnoughPlayers s then start else continue store
     "start"
     (txt "The next player is " <+> playerAttr
       p
-      (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. Conf.name)
+      (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. P.name)
     )
     halt
 

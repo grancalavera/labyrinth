@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9e5a9c46995465dd06fdb9e83cd962b4b3162c014a7b88276f4fc770ac9c8189
+-- hash: ef17f6cdea93104f8d6d428788a1ef43cd189c2f30129602bdaa26fd4cec9ed2
 
 name:           labyrinth
 version:        0.1.0.0
@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
+      Labyrinth.Game
       Labyrinth.Game.Configuration
+      Labyrinth.Game.Players
       Labyrinth.UI
       Labyrinth.UI.Modal
       Labyrinth.UI.Screen.Setup

@@ -39,14 +39,13 @@ import qualified Data.Text                     as Text
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( (!) )
 
-import           Labyrinth.Game.Configuration   ( Player(..)
+import           Labyrinth.Game                 ( Player(..)
                                                 , Color(..)
                                                 , Configuration
                                                 , PlayOrder(..)
-                                                , name
-                                                , order
                                                 )
-import qualified Labyrinth.Game.Configuration  as Conf
+import qualified Labyrinth.Game.Configuration  as C
+import qualified Labyrinth.Game.Players        as P
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal
 
@@ -64,7 +63,7 @@ data SetupS e = SetupS
 makeLenses ''SetupS
 
 initial :: SetupS e
-initial = SetupS { _form = mkAddPlayerForm Conf.initial, _conf = Conf.initial }
+initial = SetupS { _form = mkAddPlayerForm C.initial, _conf = C.initial }
 
 draw :: SetupS s -> Widget Name
 draw s = theForm <=> registered <=> help
@@ -75,7 +74,7 @@ draw s = theForm <=> registered <=> help
     Just (EditPlayerForm form') -> titleBox " Edit Player " $ renderForm form'
     _                           -> emptyWidget
 
-  registered = case Conf.toList $ s ^. conf of
+  registered = case C.toList $ s ^. conf of
     [] -> emptyWidget
     ps -> titleBox " Players " $ vBox $ map toPlayer ps
 
@@ -89,7 +88,8 @@ draw s = theForm <=> registered <=> help
     if hasEnoughPlayers s then txt "Ctrl+p: begin game" else emptyWidget
 
   editPlayerCommand p =
-    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! fromEnum (p ^. order)
+    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! fromEnum
+      (p ^. P.order)
 
   quitCommand = txt "Ctrl+q: quit"
 
@@ -98,13 +98,13 @@ submitPlayer s = maybe s (register s) (extractPlayer s)
 
 validate :: SetupS e -> Bool
 validate s = maybe False (val . extractForm) (s ^. form)
-  where val = (0 <) . Text.length . (^. name) . formState
+  where val = (0 <) . Text.length . (^. P.name) . formState
 
 editPlayer :: SetupS e -> Player -> SetupS e
 editPlayer s player = s & form ?~ mkEditPlayerForm (s ^. conf) player
 
 playerAt :: SetupS e -> PlayOrder -> Maybe Player
-playerAt s = Conf.playerAt (s ^. conf)
+playerAt s = C.playerAt (s ^. conf)
 
 processForm :: SetupS e -> FormProcessor e -> EventM Name (SetupS e)
 processForm s process = case s ^. form of
@@ -126,7 +126,7 @@ extractForm (EditPlayerForm f) = f
 register :: SetupS e -> Player -> SetupS e
 register s player = SetupS form' conf'
  where
-  conf' = Conf.insert player (s ^. conf)
+  conf' = C.insert player (s ^. conf)
   form' = mkAddPlayerForm conf'
 
 mkAddPlayerForm :: Configuration -> Maybe (TheForm e)
@@ -135,27 +135,27 @@ mkAddPlayerForm cfg = case nextDefaultPlayer cfg of
   Nothing     -> Nothing
 
 mkEditPlayerForm :: Configuration -> Player -> TheForm e
-mkEditPlayerForm cfg p = EditPlayerForm (mkForm (Conf.delete p cfg) p)
+mkEditPlayerForm cfg p = EditPlayerForm (mkForm (C.delete p cfg) p)
 
 nextDefaultPlayer :: Configuration -> Maybe Player
-nextDefaultPlayer cfg = case Conf.availableColors cfg of
-  []      -> Nothing
-  colors' -> Just
-    (Player "" (head colors') (toEnum $ length Conf.colors - length colors'))
+nextDefaultPlayer cfg = case C.availableColors cfg of
+  [] -> Nothing
+  colors' ->
+    Just (Player "" (head colors') (toEnum $ length P.colors - length colors'))
 
 mkForm :: Configuration -> Player -> PlayerForm e
 mkForm cfg = newForm [nameField, colorField cfg]
 
 nameField :: Player -> FormFieldState Player e Name
-nameField = label "Name" @@= editTextField Conf.name NameField (Just 1)
+nameField = label "Name" @@= editTextField P.name NameField (Just 1)
 
 colorField :: Configuration -> Player -> FormFieldState Player e Name
-colorField cfg = label "Color" @@= radioField Conf.color (colorOptions cfg)
+colorField cfg = label "Color" @@= radioField P.color (colorOptions cfg)
 
 colorOptions :: Configuration -> [(Color, Name, Text)]
 colorOptions cfg = zip3 colors fields labels
  where
-  colors       = Conf.availableColors cfg
+  colors       = C.availableColors cfg
   labels       = map (Text.pack . show) colors
   fields       = map (fieldByColor !) colors
   fieldByColor = Map.fromList
@@ -166,7 +166,7 @@ colorOptions cfg = zip3 colors fields labels
     ]
 
 hasEnoughPlayers :: SetupS e -> Bool
-hasEnoughPlayers = Conf.hasEnoughPlayers . (^. conf)
+hasEnoughPlayers = C.hasEnoughPlayers . (^. conf)
 
 chooseCursor
   :: SetupS e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
@@ -175,4 +175,4 @@ chooseCursor s = case (s ^. form) of
   Just form' -> Just (focusRingCursor formFocus $ extractForm form')
 
 firstPlayer :: SetupS e -> Maybe Player
-firstPlayer = Conf.firstPlayer . (^. conf)
+firstPlayer = C.firstPlayer . (^. conf)

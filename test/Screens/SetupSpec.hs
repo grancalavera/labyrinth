@@ -5,7 +5,7 @@ import           Lens.Micro                     ( (^.) )
 import           Data.Maybe                     ( fromJust
                                                 , isNothing
                                                 )
-import           Labyrinth.Game.Configuration   ( Color(..)
+import           Labyrinth.Game                 ( Color(..)
                                                 , Player(..)
                                                 , PlayOrder(..)
                                                 )

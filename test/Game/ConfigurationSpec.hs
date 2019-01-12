@@ -1,6 +1,11 @@
 module Game.ConfigurationSpec where
 
 import           Test.Hspec
+import           Labyrinth.Game                 ( Player(..)
+                                                , Color(..)
+                                                , PlayOrder(..)
+                                                )
+import qualified Labyrinth.Game.Players        as P
 import           Labyrinth.Game.Configuration
 
 spec :: Spec
@@ -50,7 +55,7 @@ spec = describe "Game Configuration" $ do
 
   it "initially all colors should be available" $ do
     let actual = availableColors initial
-    actual `shouldBe` colors
+    actual `shouldBe` P.colors
 
   it "Yellow should be taken" $ do
     let actual = availableColors onePlayer
