@@ -16,6 +16,6 @@ import qualified Labyrinth.UI.Screen.Setup     as Setup
 
 handle :: EventHandler SplashS e
 handle _ store ev = case ev of
-  VtyEvent (V.EvKey V.KEnter []) -> continue toRegistration
+  VtyEvent (V.EvKey V.KEnter []) -> toRegistration
   _                              -> continue store
-  where toRegistration = store & state .~ Setup Setup.initial
+  where toRegistration = continue $ store & state .~ Setup Setup.initial

@@ -20,6 +20,7 @@ library:
     - RecordWildCards
     - TemplateHaskell
     - LambdaCase
+    - TupleSections
   ghc-options:
     - -Wall
     - -Wcompat
@@ -32,8 +33,9 @@ library:
     - Labyrinth.Game.Players
     - Labyrinth.UI
     - Labyrinth.UI.Modal
-    - Labyrinth.UI.Screen.Setup
     - Labyrinth.UI.Screen.Splash
+    - Labyrinth.UI.Screen.Setup
+    - Labyrinth.UI.Screen.Game
     - Labyrinth.UI.Widget
     - Labyrinth.Store
     - Labyrinth.Store.Event.Modal
@@ -75,6 +77,7 @@ executables:
       - RecordWildCards
       - TemplateHaskell
       - LambdaCase
+      - TupleSections
     dependencies:
       - base
       - brick
@@ -107,6 +110,7 @@ tests:
       - RecordWildCards
       - TemplateHaskell
       - LambdaCase
+      - TupleSections
     dependencies:
       - base
       - brick

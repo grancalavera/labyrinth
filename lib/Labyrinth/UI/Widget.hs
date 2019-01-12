@@ -8,6 +8,7 @@ module Labyrinth.UI.Widget
   , playerLabel
   , playerAttr
   , label
+  , nextPlayerPrompt
   )
 where
 
@@ -46,3 +47,7 @@ playerAttr = withAttr . attrName . show . (^. P.color)
 
 label :: String -> Widget n -> Widget n
 label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w
+
+nextPlayerPrompt :: Player -> Widget n
+nextPlayerPrompt p = txt "The next player is "
+  <+> playerAttr p (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. P.name)

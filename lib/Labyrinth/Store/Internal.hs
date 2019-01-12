@@ -22,15 +22,16 @@ import           Labyrinth.UI                   ( Name
                                                 , Modal
                                                 , SplashS
                                                 , SetupS
+                                                , GameS
                                                 )
 
 data Ev = Ev deriving (Show, Eq, Ord)
 data State e = Splash SplashS
              | Setup (SetupS e)
-             | Plan
-             | Search
-             | Return
-             | TurnResult
+             | Plan GameS
+             | Search GameS
+             | Escape GameS
+             | TurnResult GameS
              | GameOver deriving (Show)
 
 data Store e = Store

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ef17f6cdea93104f8d6d428788a1ef43cd189c2f30129602bdaa26fd4cec9ed2
+-- hash: c4ecded4a317515194ffec780399ead781fb6980bb83fc4782fe5aa4ec1d9811
 
 name:           labyrinth
 version:        0.1.0.0
@@ -30,8 +30,9 @@ library
       Labyrinth.Game.Players
       Labyrinth.UI
       Labyrinth.UI.Modal
-      Labyrinth.UI.Screen.Setup
       Labyrinth.UI.Screen.Splash
+      Labyrinth.UI.Screen.Setup
+      Labyrinth.UI.Screen.Game
       Labyrinth.UI.Widget
       Labyrinth.Store
       Labyrinth.Store.Event.Modal
@@ -45,7 +46,7 @@ library
       Paths_labyrinth
   hs-source-dirs:
       lib
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
@@ -67,7 +68,7 @@ executable labyrinth
       Paths_labyrinth
   hs-source-dirs:
       app
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
       base
@@ -90,7 +91,7 @@ test-suite labyrinth-test
       Paths_labyrinth
   hs-source-dirs:
       test
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck

@@ -5,15 +5,17 @@ module Labyrinth.UI.Screen.Setup
   , editPlayer
   , playerAt
   , processForm
-  , hasEnoughPlayers
   , chooseCursor
   , extractPlayer
   , initial
   , draw
   , firstPlayer
+  , players
+  , setup
   --
   , form
   , register
+  , hasEnoughPlayers
   )
 where
 
@@ -38,8 +40,9 @@ import           Data.Text                      ( Text )
 import qualified Data.Text                     as Text
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( (!) )
-
+import           Control.Monad                  ( guard )
 import           Labyrinth.Game                 ( Player(..)
+                                                , Players
                                                 , Color(..)
                                                 , Configuration
                                                 , PlayOrder(..)
@@ -176,3 +179,11 @@ chooseCursor s = case (s ^. form) of
 
 firstPlayer :: SetupS e -> Maybe Player
 firstPlayer = C.firstPlayer . (^. conf)
+
+players :: SetupS e -> Players
+players = (^. (conf . C.players))
+
+setup :: SetupS e -> Maybe (Player, Players)
+setup s = do
+  guard (hasEnoughPlayers s)
+  firstPlayer s >>= Just . (, players s)

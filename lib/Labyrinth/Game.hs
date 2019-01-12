@@ -3,9 +3,24 @@ module Labyrinth.Game
   , Players
   , Color(..)
   , PlayOrder(..)
+  , Game(..)
   , Configuration
+  , players
+  , playing
   )
 where
 
-import           Labyrinth.Game.Players
-import           Labyrinth.Game.Configuration
+import           Lens.Micro.TH                  ( makeLenses )
+import           Labyrinth.Game.Players         ( Player(..)
+                                                , Players
+                                                , Color(..)
+                                                , PlayOrder(..)
+                                                )
+import           Labyrinth.Game.Configuration   ( Configuration )
+
+data Game = Game
+  { _players :: Players
+  , _playing :: Player
+  } deriving (Show)
+
+makeLenses  ''Game

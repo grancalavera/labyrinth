@@ -1,8 +1,10 @@
 module Labyrinth.UI
-  ( Modal(..)
-  , SplashS
+  ( SplashS
   , SetupS
+  , GameS
+  , Modal(..)
   , Name(..)
+  , ModalCallback
   , attributeMap
   )
 where
@@ -17,6 +19,7 @@ import           Labyrinth.UI.Internal
 import           Labyrinth.UI.Modal
 import           Labyrinth.UI.Screen.Splash
 import           Labyrinth.UI.Screen.Setup
+import           Labyrinth.UI.Screen.Game
 
 attributeMap :: s -> AttrMap
 attributeMap = const $ attrMap
