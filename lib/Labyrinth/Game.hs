@@ -11,7 +11,7 @@ module Labyrinth.Game
 where
 
 import           Lens.Micro.TH                  ( makeLenses )
-import           Labyrinth.Game.Players         ( Player(..)
+import           Labyrinth.Game.Player          ( Player(..)
                                                 , Players
                                                 , Color(..)
                                                 , PlayOrder(..)

@@ -5,7 +5,7 @@ import           Labyrinth.Game                 ( Player(..)
                                                 , Color(..)
                                                 , PlayOrder(..)
                                                 )
-import qualified Labyrinth.Game.Players        as P
+import qualified Labyrinth.Game.Player        as P
 import           Labyrinth.Game.Configuration
 
 spec :: Spec

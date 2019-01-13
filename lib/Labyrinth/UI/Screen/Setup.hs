@@ -48,7 +48,7 @@ import           Labyrinth.Game                 ( Player(..)
                                                 , PlayOrder(..)
                                                 )
 import qualified Labyrinth.Game.Configuration  as C
-import qualified Labyrinth.Game.Players        as P
+import qualified Labyrinth.Game.Player        as P
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal
 

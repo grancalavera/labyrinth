@@ -25,6 +25,7 @@ import           Labyrinth.UI                   ( Name
                                                 )
 
 data Ev = Ev deriving (Show, Eq, Ord)
+
 data State e = Splash SplashS
              | Setup (SetupS e)
              | Plan GameS
@@ -38,6 +39,7 @@ data Store e = Store
   , _modals :: [Modal Store e]
   } deriving (Show)
 makeLenses ''Store
+
 type EventHandler s e
   = s -> Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 

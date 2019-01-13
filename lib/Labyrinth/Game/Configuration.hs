@@ -22,8 +22,8 @@ import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                ( (!?) )
 
 import qualified Data.Set                      as Set
-import qualified Labyrinth.Game.Players        as P
-import           Labyrinth.Game.Players         ( Players
+import qualified Labyrinth.Game.Player         as P
+import           Labyrinth.Game.Player          ( Players
                                                 , Player
                                                 , PlayOrder(First)
                                                 , Color
