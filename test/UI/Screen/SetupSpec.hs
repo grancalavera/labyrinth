@@ -1,4 +1,4 @@
-module Screens.SetupSpec where
+module UI.Screen.SetupSpec where
 
 import           Test.Hspec
 import           Lens.Micro                     ( (^.) )

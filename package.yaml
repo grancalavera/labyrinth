@@ -30,7 +30,8 @@ library:
   exposed-modules:
     - Labyrinth.Game
     - Labyrinth.Game.Configuration
-    - Labyrinth.Game.Players
+    - Labyrinth.Game.Player
+    - Labyrinth.Game.Treasure
     - Labyrinth.UI
     - Labyrinth.UI.Modal
     - Labyrinth.UI.Debug
