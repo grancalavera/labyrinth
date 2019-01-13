@@ -32,6 +32,8 @@ library:
     - Labyrinth.Game.Configuration
     - Labyrinth.Game.Player
     - Labyrinth.Game.Treasure
+    - Labyrinth.Game.Cell
+    - Labyrinth.Game.Direction
     - Labyrinth.UI
     - Labyrinth.UI.Modal
     - Labyrinth.UI.Debug
