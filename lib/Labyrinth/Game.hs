@@ -12,7 +12,10 @@ where
 
 import           Lens.Micro.TH                  ( makeLenses )
 import           Labyrinth.Game.Position        ( Position )
-import           Labyrinth.Game.Cell            ( Cell )
+import           Labyrinth.Game.Board           ( Board )
+import           Labyrinth.Game.Cell            ( TileCell
+                                                , GateCell
+                                                )
 import           Labyrinth.Game.Treasure        ( TreasureMap )
 import           Data.Map.Strict                ( Map )
 import           Labyrinth.Game.Player          ( Player(..)
@@ -28,8 +31,8 @@ data Game = Game
   , _extraTile :: Position
   , _rowCount  :: Int
   , _colCount  :: Int
-  , _tiles     :: Map Position Cell
-  , _gates     :: Map Position Cell
+  , _tiles     :: Board TileCell
+  , _gates     :: Board GateCell
   , _treasures :: Map Player TreasureMap
   } deriving (Show)
 makeLenses  ''Game

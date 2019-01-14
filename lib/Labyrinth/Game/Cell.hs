@@ -36,24 +36,23 @@ data TileCell = TileCell
   { _treasure :: Maybe Treasure
   , _players :: Set Player
   } deriving (Show)
+makeLenses ''TileCell
 
 data GateCell = GateCell
   { _isOpen :: Bool
   } deriving (Show)
+makeLenses ''GateCell
 
-data CellData = TileData TileCell | GateData GateCell deriving (Show)
+newtype CellData a = CellData a deriving (Show)
 
-data Cell = Cell
+data Cell a = Cell
   { _terrain   :: Terrain
   , _direction :: Direction
-  , _cellData  :: CellData
+  , _cellData  :: CellData a
   } deriving (Show)
-
-makeLenses ''TileCell
-makeLenses ''GateCell
 makeLenses ''Cell
 
-exits :: Cell -> Exits
+exits :: Cell a -> Exits
 exits t = Set.fromList $ case (t ^. terrain, t ^. direction) of
 
   (Gate  , North) -> [North]
@@ -76,22 +75,22 @@ exits t = Set.fromList $ case (t ^. terrain, t ^. direction) of
   (Fork  , South) -> [West, South, East]
   (Fork  , East ) -> [South, East, North]
 
-rotate :: Cell -> Cell
+rotate :: Cell a -> Cell a
 rotate = direction %~ Dir.previous
 
-rotate' :: Cell -> Cell
+rotate' :: Cell a -> Cell a
 rotate' = direction %~ Dir.next
 
-randomRotate :: Cell -> IO Cell
+randomRotate :: Cell a -> IO (Cell a)
 randomRotate t = do
   i <- randomRIO (0, 3)
   let r = foldl (.) id $ replicate i rotate
   return (r t)
 
-hasExit :: Direction -> Cell -> Bool
+hasExit :: Direction -> Cell a -> Bool
 hasExit d = Set.member d . exits
 
-connected :: Direction -> Cell -> Cell -> Bool
+connected :: Direction -> Cell a -> Cell a -> Bool
 connected d exit enter = canExit && canEnter
  where
   canExit  = hasExit d exit
