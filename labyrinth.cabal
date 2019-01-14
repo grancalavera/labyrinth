@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 650d345e86af7bf361f6aa712de2b55f221bf6f3bdda2cefdf9048f61b8de894
+-- hash: 19d35a9de36807978124f7b5d286d59f5d2b283cef596344943fdacb03cd3a9a
 
 name:           labyrinth
 version:        0.1.0.0
@@ -45,6 +45,7 @@ library
       Data.List.Extended
   other-modules:
       Data.Random
+      Labyrinth.Game.Position
       Labyrinth.Store.Internal
       Labyrinth.UI.Internal
       Paths_labyrinth

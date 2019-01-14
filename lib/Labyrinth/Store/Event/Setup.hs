@@ -60,5 +60,5 @@ update :: Store e -> SetupS e -> Store e
 update store s = store & state .~ Setup s
 
 continueToNewGame :: Player -> Players -> ModalCallback Store e
-continueToNewGame p ps store =
-  continue $ store & state .~ Plan (G.initial (Game ps p))
+continueToNewGame _ _ store =
+  halt store

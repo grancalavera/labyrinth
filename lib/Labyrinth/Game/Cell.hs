@@ -47,7 +47,7 @@ data Cell = Cell
   { _terrain   :: Terrain
   , _direction :: Direction
   , _cellData  :: CellData
-  }
+  } deriving (Show)
 
 makeLenses ''TileCell
 makeLenses ''GateCell

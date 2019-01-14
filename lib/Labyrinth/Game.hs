@@ -11,6 +11,10 @@ module Labyrinth.Game
 where
 
 import           Lens.Micro.TH                  ( makeLenses )
+import           Labyrinth.Game.Position        ( Position )
+import           Labyrinth.Game.Cell            ( Cell )
+import           Labyrinth.Game.Treasure        ( TreasureMap )
+import           Data.Map.Strict                ( Map )
 import           Labyrinth.Game.Player          ( Player(..)
                                                 , Players
                                                 , Color(..)
@@ -19,8 +23,13 @@ import           Labyrinth.Game.Player          ( Player(..)
 import           Labyrinth.Game.Configuration   ( Configuration )
 
 data Game = Game
-  { _players :: Players
-  , _playing :: Player
+  { _players   :: Players
+  , _playing   :: Player
+  , _extraTile :: Position
+  , _rowCount  :: Int
+  , _colCount  :: Int
+  , _tiles     :: Map Position Cell
+  , _gates     :: Map Position Cell
+  , _treasures :: Map Player TreasureMap
   } deriving (Show)
-
 makeLenses  ''Game
