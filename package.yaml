@@ -30,10 +30,13 @@ library:
   exposed-modules:
     - Labyrinth.Game
     - Labyrinth.Game.Configuration
+    - Labyrinth.Game.Position
     - Labyrinth.Game.Player
     - Labyrinth.Game.Treasure
     - Labyrinth.Game.Cell
     - Labyrinth.Game.Direction
+    - Labyrinth.Game.Class
+    - Labyrinth.Game.NewGame
     - Labyrinth.UI
     - Labyrinth.UI.Modal
     - Labyrinth.UI.Debug
@@ -123,4 +126,4 @@ tests:
       - hspec
       - hspec-discover
       - microlens
-      - QuickCheck
+      - linear

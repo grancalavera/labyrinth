@@ -5,8 +5,6 @@ module Labyrinth.Game
   , PlayOrder(..)
   , Game(..)
   , Configuration
-  , players
-  , playing
   )
 where
 
@@ -24,15 +22,4 @@ import           Labyrinth.Game.Player          ( Player(..)
                                                 , PlayOrder(..)
                                                 )
 import           Labyrinth.Game.Configuration   ( Configuration )
-
-data Game = Game
-  { _players   :: Players
-  , _playing   :: Player
-  , _extraTile :: Position
-  , _rowCount  :: Int
-  , _colCount  :: Int
-  , _tiles     :: Board TileCell
-  , _gates     :: Board GateCell
-  , _treasures :: Map Player TreasureMap
-  } deriving (Show)
-makeLenses  ''Game
+import           Labyrinth.Game.Class   ( Game(..) )

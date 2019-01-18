@@ -15,6 +15,7 @@ import qualified Data.Set                      as Set
 import           Data.Set                       ( Set )
 import           Lens.Micro.TH                  ( makeLenses )
 import           Lens.Micro                     ( (^.) )
+import qualified Data.Random                   as Random
 
 data Treasure = TA | TB | TC | TD | TE | TF
               | TG | TH | TI | TJ | TK | TL

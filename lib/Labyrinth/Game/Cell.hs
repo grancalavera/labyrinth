@@ -3,6 +3,7 @@ module Labyrinth.Game.Cell
   , TileCell(..)
   , GateCell(..)
   , CellData(..)
+  , Terrain
   , treasure
   , players
   , isOpen

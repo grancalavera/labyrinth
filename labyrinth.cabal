@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3fd6e6e576037b1a78a6c96b4709e0c318734d1082cdf837078cc9eb402aaab1
+-- hash: 7d335120dac833d1ea3728ec8034f7a3c34a77fe1d931077784408b876f88ac1
 
 name:           labyrinth
 version:        0.1.0.0
@@ -27,10 +27,13 @@ library
   exposed-modules:
       Labyrinth.Game
       Labyrinth.Game.Configuration
+      Labyrinth.Game.Position
       Labyrinth.Game.Player
       Labyrinth.Game.Treasure
       Labyrinth.Game.Cell
       Labyrinth.Game.Direction
+      Labyrinth.Game.Class
+      Labyrinth.Game.NewGame
       Labyrinth.UI
       Labyrinth.UI.Modal
       Labyrinth.UI.Debug
@@ -46,7 +49,6 @@ library
   other-modules:
       Data.Random
       Labyrinth.Game.Board
-      Labyrinth.Game.Position
       Labyrinth.Store.Internal
       Labyrinth.UI.Internal
       Paths_labyrinth
@@ -93,6 +95,7 @@ test-suite labyrinth-test
   main-is: Spec.hs
   other-modules:
       Game.ConfigurationSpec
+      Game.NewGameSpec
       Game.TreasureSpec
       UI.Screen.SetupSpec
       Paths_labyrinth
@@ -101,12 +104,12 @@ test-suite labyrinth-test
   default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      QuickCheck
-    , base
+      base
     , brick
     , containers
     , hspec
     , hspec-discover
     , labyrinth
+    , linear
     , microlens
   default-language: Haskell2010
