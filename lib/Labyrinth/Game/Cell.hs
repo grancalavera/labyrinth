@@ -30,9 +30,6 @@ import           Labyrinth.Game.Direction       ( Direction(..) )
 import           Labyrinth.Game.Treasure        ( Treasure )
 import           Labyrinth.Game.Player          ( Player )
 
-data Terrain = Gate | Path | Corner | Fork deriving (Show, Eq)
-type Exits = Set Direction
-
 data TileCell = TileCell
   { _treasure :: Maybe Treasure
   , _players :: Set Player
@@ -45,12 +42,15 @@ data GateCell = GateCell
 makeLenses ''GateCell
 
 newtype CellData a = CellData a deriving (Show)
+data Terrain = Gate | Path | Corner | Fork deriving (Show, Eq)
 
 data Cell a = Cell
   { _terrain   :: Terrain
   , _direction :: Direction
   , _cellData  :: CellData a
   } deriving (Show)
+
+type Exits = Set Direction
 makeLenses ''Cell
 
 exits :: Cell a -> Exits
