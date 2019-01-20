@@ -19,9 +19,7 @@ import           Data.Map.Strict                ( Map
                                                 , (!?)
                                                 )
 import           Data.Maybe                     ( fromMaybe )
-import           Labyrinth.UI                   ( Name
-                                                , ModalCallback
-                                                )
+import           Labyrinth.UI                   ( Name )
 import           Labyrinth.UI.Modal             ( dialog
                                                 , onTrue
                                                 , onFalse
@@ -66,8 +64,3 @@ promptToQuit store _ = showModal store $ mkModal
 eventMap :: Ord e => Map (BrickEvent Name e) (GlobalEventHandler e)
 eventMap =
   Map.fromList [(VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl]), promptToQuit)]
-
-hideModalAnd :: ModalCallback Store e -> ModalCallback Store e
-hideModalAnd f store = f $ store & modals %~ \case
-  []       -> []
-  (_ : ms) -> ms

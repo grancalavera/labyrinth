@@ -8,7 +8,6 @@ where
 import           Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Labyrinth.UI.Internal
 import qualified Labyrinth.UI.Widget           as Widget
 
 data SplashS = SplashS deriving (Show)

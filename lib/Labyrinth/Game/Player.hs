@@ -1,4 +1,4 @@
-module Labyrinth.Game.Player
+ module Labyrinth.Game.Player
   ( Player(..)
   , Color(..)
   , PlayOrder(..)
@@ -9,12 +9,17 @@ module Labyrinth.Game.Player
   , colors
   , count
   , toList
+  , fromList
+  , first
   )
 where
 
 import           Lens.Micro.TH                  ( makeLenses )
+import           Lens.Micro                     ( (^.) )
 import qualified Data.Map.Strict               as Map
-import           Data.Map.Strict                ( Map )
+import           Data.Map.Strict                ( (!?)
+                                                , Map
+                                                )
 import           Data.Text                      ( Text )
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
@@ -25,7 +30,7 @@ data Player = Player
   { _name  :: Text
   , _color :: Color
   , _order :: PlayOrder
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Ord)
 makeLenses ''Player
 
 colors :: [Color]
@@ -36,3 +41,9 @@ count = Map.size
 
 toList :: Players -> [Player]
 toList = map snd . Map.toList
+
+fromList :: [Player] -> Players
+fromList = Map.fromList . map (\p -> (p ^. order, p))
+
+first :: Players -> Maybe Player
+first = (!? First)

@@ -7,6 +7,7 @@ module Labyrinth.Store.Internal
   , modals
   , showModal
   , nextModal
+  , hideModalAnd
   )
 where
 
@@ -22,6 +23,7 @@ import           Labyrinth.UI                   ( Name
                                                 , SplashS
                                                 , SetupS
                                                 , GameS
+                                                , ModalCallback
                                                 )
 
 data Ev = Ev deriving (Show, Eq, Ord)
@@ -45,6 +47,11 @@ type EventHandler s e
 
 showModal :: Store e -> Modal Store e -> EventM Name (Next (Store e))
 showModal store m = continue $ store & modals %~ (m :)
+
+hideModalAnd :: ModalCallback Store e -> ModalCallback Store e
+hideModalAnd f store = f $ store & modals %~ \case
+  []       -> []
+  (_ : ms) -> ms
 
 nextModal :: Store e -> Maybe (Modal Store e)
 nextModal = listToMaybe . (^. modals)

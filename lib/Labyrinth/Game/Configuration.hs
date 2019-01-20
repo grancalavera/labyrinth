@@ -25,7 +25,7 @@ import qualified Data.Set                      as Set
 import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.Game.Player          ( Players
                                                 , Player
-                                                , PlayOrder(First)
+                                                , PlayOrder
                                                 , Color
                                                 )
 
@@ -64,4 +64,4 @@ availableColors ps = Set.toList available
   taken     = Set.fromList $ map (^. P.color) (toList ps)
 
 firstPlayer :: Configuration -> Maybe Player
-firstPlayer = (`playerAt` First)
+firstPlayer = P.first . (^. players)

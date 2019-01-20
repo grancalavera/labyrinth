@@ -18,7 +18,7 @@ import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
 import           Lens.Micro                     ( (^.) )
 
-import qualified Labyrinth.Game.Player        as P
+import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.Game                 ( Player )
 
 page :: [Text] -> Widget n

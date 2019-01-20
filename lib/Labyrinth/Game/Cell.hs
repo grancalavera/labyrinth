@@ -3,7 +3,7 @@ module Labyrinth.Game.Cell
   , TileCell(..)
   , GateCell(..)
   , CellData(..)
-  , Terrain
+  , Terrain(..)
   , treasure
   , players
   , isOpen
@@ -15,6 +15,7 @@ module Labyrinth.Game.Cell
   , randomRotate
   , hasExit
   , connected
+  , mkCell
   )
 where
 
@@ -52,6 +53,9 @@ data Cell a = Cell
 
 type Exits = Set Direction
 makeLenses ''Cell
+
+mkCell :: Terrain -> Direction -> a -> Cell a
+mkCell t dir d = Cell t dir (CellData d)
 
 exits :: Cell a -> Exits
 exits t = Set.fromList $ case (t ^. terrain, t ^. direction) of

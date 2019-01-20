@@ -15,11 +15,9 @@ import           Labyrinth.UI                   ( SetupS
                                                 , ModalCallback
                                                 )
 import qualified Labyrinth.UI.Screen.Setup     as S
-import qualified Labyrinth.UI.Screen.Game      as G
 import qualified Labyrinth.UI.Widget           as UI
 import qualified Labyrinth.UI.Modal            as UI
 import           Labyrinth.Game                 ( PlayOrder(..)
-                                                , Game(..)
                                                 , Player
                                                 , Players
                                                 )
@@ -60,5 +58,4 @@ update :: Store e -> SetupS e -> Store e
 update store s = store & state .~ Setup s
 
 continueToNewGame :: Player -> Players -> ModalCallback Store e
-continueToNewGame _ _ store =
-  halt store
+continueToNewGame _ _ = halt
