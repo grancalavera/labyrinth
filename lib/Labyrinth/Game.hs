@@ -7,6 +7,7 @@ module Labyrinth.Game
   , Configuration
   , Position
   , defaultGame
+  , playing
   )
 where
 
@@ -23,7 +24,7 @@ import           Labyrinth.Game.Player          ( Player(..)
                                                 )
 import qualified Labyrinth.Game.Treasure       as T
 import           Labyrinth.Game.Configuration   ( Configuration )
-import           Labyrinth.Game.Class           ( Game(..) )
+import           Labyrinth.Game.Class           ( Game(..), playing )
 import qualified Labyrinth.Game.Board          as Board
 import           Labyrinth.Game.Board           ( Board(..) )
 import qualified Labyrinth.Game.Cell           as Cell

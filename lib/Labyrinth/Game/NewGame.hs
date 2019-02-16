@@ -42,9 +42,10 @@ import           Labyrinth.Game.Position        ( Position )
 import           Labyrinth.Game.Treasure        ( Treasure )
 import qualified Labyrinth.Game.Direction      as D
 import           Labyrinth.Game.Direction       ( Direction )
+import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.Game.Player          ( Players
                                                 , Player
-                                                , PlayOrder(First)
+                                                , PlayOrder
                                                 )
 import           Labyrinth.Game.Class           ( Game(..) )
 
@@ -75,7 +76,7 @@ newGame tiles gates players rows cols treasures extraTile positions = do
     >>= addPositions shufPos
     >>= addTreasures shufTre
     >>= traverse mkTile
-    >>= \ts -> players !? First >>= \playing -> do
+    >>= \ts -> P.first players >>= \playing -> do
           let cellBoard = Board $ Map.fromList ts
           Just $ Game { _players   = players
                       , _playing   = playing

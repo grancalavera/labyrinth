@@ -9,9 +9,7 @@ module Labyrinth.UI.Screen.Setup
   , extractPlayer
   , initial
   , draw
-  , firstPlayer
   , players
-  , setup
   --
   , form
   , register
@@ -48,7 +46,7 @@ import           Labyrinth.Game                 ( Player(..)
                                                 , PlayOrder(..)
                                                 )
 import qualified Labyrinth.Game.Configuration  as C
-import qualified Labyrinth.Game.Player        as P
+import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.UI.Widget
 import           Labyrinth.UI.Internal
 
@@ -177,13 +175,7 @@ chooseCursor s = case (s ^. form) of
   Nothing    -> Nothing
   Just form' -> Just (focusRingCursor formFocus $ extractForm form')
 
-firstPlayer :: SetupS e -> Maybe Player
-firstPlayer = C.firstPlayer . (^. conf)
-
-players :: SetupS e -> Players
-players = (^. (conf . C.players))
-
-setup :: SetupS e -> Maybe (Player, Players)
-setup s = do
+players :: SetupS e -> Maybe Players
+players s = do
   guard (hasEnoughPlayers s)
-  firstPlayer s >>= Just . (, players s)
+  Just $ s ^. (conf . C.players)
