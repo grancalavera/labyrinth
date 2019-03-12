@@ -1,31 +1,21 @@
 module Game.NewGameSpec where
 import           Test.Hspec
 
-import qualified Data.Set                      as Set
-import           Data.Set                       ( Set )
-import           Data.Maybe                     ( isJust )
-import           Lens.Micro                     ( _3
-                                                , (^.)
-                                                )
-import           Linear.V2                      ( V2(..) )
-import           Labyrinth.Game                 ( Player(..)
-                                                , Players
-                                                , PlayOrder(..)
-                                                , Color(..)
-                                                )
-import qualified Labyrinth.Game.Player         as P
-import           Labyrinth.Game.Position        ( Position )
-import           Labyrinth.Game.Treasure        ( Treasure(..) )
-import           Labyrinth.Game.Direction       ( Direction(..) )
-import           Labyrinth.Game.Cell            ( Terrain(..) )
-import           Labyrinth.Game.NewGame         ( TileD
-                                                , HasTreasure
-                                                , availablePositions
-                                                , addPositions
-                                                , addTreasures
-                                                , addPlayers
-                                                , chooseDirections
-                                                )
+import           Data.Maybe               (isJust)
+import           Data.Set                 (Set)
+import qualified Data.Set                 as Set
+import           Labyrinth.Game           (Color (..), PlayOrder (..),
+                                           Player (..))
+import           Labyrinth.Game.Cell      (Terrain (..))
+import           Labyrinth.Game.Direction (Direction (..))
+import           Labyrinth.Game.NewGame   (HasTreasure, TileD, addPlayers,
+                                           addPositions, addTreasures,
+                                           availablePositions, chooseDirections)
+import qualified Labyrinth.Game.Player    as P
+import           Labyrinth.Game.Position  (Position)
+import           Labyrinth.Game.Treasure  (Treasure (..))
+import           Lens.Micro               ((^.), _3)
+import           Linear.V2                (V2 (..))
 
 spec :: Spec
 spec = describe "NewGame" $ do

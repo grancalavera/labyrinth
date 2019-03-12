@@ -11,30 +11,22 @@ module Labyrinth.Game
   )
 where
 
-import qualified Data.Set                      as Set
-import           Data.Set                       ( Set )
-import           Linear.V2                      ( V2(..) )
+import           Data.Set                     (Set)
+import qualified Data.Set                     as Set
+import           Linear.V2                    (V2 (..))
 
-import           Labyrinth.Game.Position        ( Position )
-import           Labyrinth.Game.Direction       ( Direction(..) )
-import           Labyrinth.Game.Player          ( Player(..)
-                                                , Players
-                                                , Color(..)
-                                                , PlayOrder(..)
-                                                )
-import qualified Labyrinth.Game.Treasure       as T
-import           Labyrinth.Game.Configuration   ( Configuration )
-import           Labyrinth.Game.Class           ( Game(..), playing )
-import qualified Labyrinth.Game.Board          as Board
-import           Labyrinth.Game.Board           ( Board(..) )
-import qualified Labyrinth.Game.Cell           as Cell
-import           Labyrinth.Game.Cell            ( Terrain(..)
-                                                , GateCell(..)
-                                                )
-import           Labyrinth.Game.NewGame         ( HasTreasure
-                                                , TileD
-                                                , newGame
-                                                )
+import           Labyrinth.Game.Board         (Board (..))
+import qualified Labyrinth.Game.Board         as Board
+import           Labyrinth.Game.Cell          (GateCell (..), Terrain (..))
+import qualified Labyrinth.Game.Cell          as Cell
+import           Labyrinth.Game.Class         (Game (..), playing)
+import           Labyrinth.Game.Configuration (Configuration)
+import           Labyrinth.Game.Direction     (Direction (..))
+import           Labyrinth.Game.NewGame       (HasTreasure, TileD, newGame)
+import           Labyrinth.Game.Player        (Color (..), PlayOrder (..),
+                                               Player (..), Players)
+import           Labyrinth.Game.Position      (Position)
+import qualified Labyrinth.Game.Treasure      as T
 
 defaultGame :: Players -> IO (Maybe Game)
 defaultGame players =

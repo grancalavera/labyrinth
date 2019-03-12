@@ -3,27 +3,19 @@ module Labyrinth.Store.Event.Setup
   )
 where
 
-import           Data.Maybe                     ( maybe )
-import           Control.Monad.IO.Class         ( liftIO )
 import           Brick
-import           Brick.Forms                    ( handleFormEvent )
-import qualified Graphics.Vty                  as V
-import           Lens.Micro                     ( (&)
-                                                , (.~)
-                                                , (^.)
-                                                )
+import           Brick.Forms               (handleFormEvent)
+import           Control.Monad.IO.Class    (liftIO)
+import           Data.Maybe                (maybe)
+import qualified Graphics.Vty              as V
+import           Labyrinth.Game            (PlayOrder (..))
+import qualified Labyrinth.Game            as G
 import           Labyrinth.Store.Internal
-import           Labyrinth.UI                   ( SetupS
-                                                , ModalCallback
-                                                )
-import qualified Labyrinth.UI.Screen.Setup     as S
-import qualified Labyrinth.UI.Widget           as UI
-import qualified Labyrinth.UI.Modal            as UI
-import qualified Labyrinth.Game                as G
-import           Labyrinth.Game                 ( PlayOrder(..)
-                                                , Player
-                                                , Players
-                                                )
+import           Labyrinth.UI              (SetupS)
+import qualified Labyrinth.UI.Modal        as UI
+import qualified Labyrinth.UI.Screen.Setup as S
+import qualified Labyrinth.UI.Widget       as UI
+import           Lens.Micro                ((&), (.~), (^.))
 
 
 
@@ -38,8 +30,8 @@ handle s store ev = handleEvent s store ev
     VtyEvent (V.EvKey (V.KChar 's') [V.MCtrl]) -> edit Second
     VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) -> edit Third
     VtyEvent (V.EvKey (V.KChar 'f') [V.MCtrl]) -> edit Fourth
-    VtyEvent (V.EvKey V.KEnter []) -> submit
-    _ -> processInput
+    VtyEvent (V.EvKey V.KEnter [])             -> submit
+    _                                          -> processInput
 
 play :: RegistrationEventHandler e
 play s store _ = maybe (continue store) beginGame (S.players s)

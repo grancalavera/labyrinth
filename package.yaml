@@ -52,6 +52,7 @@ library:
     - Labyrinth.Game.Direction
     - Labyrinth.Game.Class
     - Labyrinth.Game.NewGame
+    - Labyrinth.Game.Builder
     - Labyrinth.UI
     - Labyrinth.UI.Modal
     - Labyrinth.UI.Debug
