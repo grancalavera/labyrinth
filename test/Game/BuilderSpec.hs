@@ -22,13 +22,17 @@ import           Labyrinth.Game.Player                    ( Color(..)
 spec :: Spec
 spec = describe "Builds new games declaratively" $ do
 
+  -- fails these validations:
+  -- validatePlayers
+  -- validateUniquePositions
+  -- validateUniqueGatePositions
   let plan1 = BuildPlan
         { buildBoard     = NonEmpty.fromList [BuildPath]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 0, Cell Gate South Open)
                              ]
-        , buildPositions = NonEmpty.fromList [V2 0 0]
+        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 0]
         , buildPlayers   = mempty
         , minPlayers     = 2
         }
@@ -40,7 +44,7 @@ spec = describe "Builds new games declaratively" $ do
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 0, Cell Gate South Open)
                              ]
-        , buildPositions = NonEmpty.fromList [V2 0 0]
+        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1]
         , buildPlayers   = Map.fromList
                              [ (First , Player "P1" Yellow First)
                              , (Second, Player "P2" Yellow Second)
@@ -51,11 +55,16 @@ spec = describe "Builds new games declaratively" $ do
   context "Low level validation" $ do
 
     it "a plan without players should fail to validate" $ do
-      let actual   = Builder.validatePlayers plan1
-          expected = Builder.minPlayersError (minPlayers plan1)
-      actual `shouldBe` expected
+      Builder.validatePlayers plan1
+        `shouldBe` Builder.minPlayersError (minPlayers plan1)
 
     it "a plan with enough players should succeed player validation" $ do
-      let actual   = Builder.validatePlayers plan2
-          expected = Right plan2
-      actual `shouldBe` expected
+      Builder.validatePlayers plan2 `shouldBe` Right plan2
+
+    it "a plan with duplicated position should fail to validate" $ do
+      Builder.validateUniquePositions plan1
+        `shouldBe` Builder.uniquePositionsError
+
+    it "a plan with unique positions should succeed unique positions validation"
+      $ do
+          Builder.validateUniquePositions plan2 `shouldBe` Right plan2

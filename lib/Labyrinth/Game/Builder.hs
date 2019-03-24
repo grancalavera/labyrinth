@@ -4,6 +4,8 @@ module Labyrinth.Game.Builder
   , BuildError
   , minPlayersError
   , validatePlayers
+  , uniquePositionsError
+  , validateUniquePositions
   -- temp
   , gates
   , board
@@ -81,6 +83,19 @@ validatePlayers :: BuildPlan -> Either BuildError BuildPlan
 validatePlayers plan@BuildPlan { minPlayers, buildPlayers }
   | minPlayers <= Player.count buildPlayers = Right plan
   | otherwise                               = minPlayersError minPlayers
+
+
+uniquePositionsError :: Either BuildError BuildPlan
+uniquePositionsError = Left "Error: positions must be unique"
+
+validateUniquePositions :: BuildPlan -> Either BuildError BuildPlan
+validateUniquePositions plan@BuildPlan { buildPositions }
+  | hasUniqueElements buildPositions = Right plan
+  | otherwise                        = uniquePositionsError
+
+hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
+hasUniqueElements ne = (countUniques ne) == NonEmpty.length ne
+  where countUniques = Set.size . Set.fromList . NonEmpty.toList
 
 -- http://hackage.haskell.org/package/validation-1/docs/Data-Validation.html#t%3aAccValidationP
 -- validateBuildCount :: BuildMaterials -> BuildPlan -> Either BuildError ()
