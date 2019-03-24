@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 731fccbb933cc5bf36a9ea8dcd36851f22b94d0ff94df395c7dc0a827280e5cd
+-- hash: 93ddfe0e0669273a9da46b2b5ae8155283057b407d05f547967c2ec03b31a3d7
 
 name:           labyrinth
 version:        0.1.0.0
@@ -34,7 +34,6 @@ library
       Labyrinth.Game.Cell
       Labyrinth.Game.Direction
       Labyrinth.Game.Class
-      Labyrinth.Game.NewGame
       Labyrinth.Game.Builder
       Labyrinth.UI
       Labyrinth.UI.Modal
@@ -56,7 +55,7 @@ library
       Paths_labyrinth
   hs-source-dirs:
       lib
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections DeriveFunctor
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
@@ -101,8 +100,8 @@ test-suite labyrinth-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Game.BuilderSpec
       Game.ConfigurationSpec
-      Game.NewGameSpec
       Game.TreasureSpec
       UI.Screen.SetupSpec
       Paths_labyrinth

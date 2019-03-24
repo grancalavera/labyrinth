@@ -4,20 +4,16 @@ module Labyrinth.Store.Event.Setup
 where
 
 import           Brick
-import           Brick.Forms               (handleFormEvent)
-import           Control.Monad.IO.Class    (liftIO)
-import           Data.Maybe                (maybe)
-import qualified Graphics.Vty              as V
-import           Labyrinth.Game            (PlayOrder (..))
-import qualified Labyrinth.Game            as G
+import           Brick.Forms                              ( handleFormEvent )
+import           Data.Maybe                               ( maybe )
+import qualified Graphics.Vty                  as V
+import           Labyrinth.Game                           ( PlayOrder(..) )
 import           Labyrinth.Store.Internal
-import           Labyrinth.UI              (SetupS)
-import qualified Labyrinth.UI.Modal        as UI
-import qualified Labyrinth.UI.Screen.Setup as S
-import qualified Labyrinth.UI.Widget       as UI
-import           Lens.Micro                ((&), (.~), (^.))
-
-
+import           Labyrinth.UI                             ( SetupS )
+import qualified Labyrinth.UI.Screen.Setup     as S
+import           Lens.Micro                               ( (&)
+                                                          , (.~)
+                                                          )
 
 type RegistrationEventHandler e = EventHandler (SetupS e) e
 
@@ -30,19 +26,12 @@ handle s store ev = handleEvent s store ev
     VtyEvent (V.EvKey (V.KChar 's') [V.MCtrl]) -> edit Second
     VtyEvent (V.EvKey (V.KChar 'd') [V.MCtrl]) -> edit Third
     VtyEvent (V.EvKey (V.KChar 'f') [V.MCtrl]) -> edit Fourth
-    VtyEvent (V.EvKey V.KEnter [])             -> submit
-    _                                          -> processInput
+    VtyEvent (V.EvKey V.KEnter []) -> submit
+    _ -> processInput
 
 play :: RegistrationEventHandler e
 play s store _ = maybe (continue store) beginGame (S.players s)
- where
-  beginGame ps = do
-    mg <- liftIO $ G.defaultGame ps
-    case mg of
-      Nothing -> halt store -- but in reality this is a runtime error
-      Just g  -> do
-        let p = g ^. G.playing
-        showModal store $ UI.mkOkModal "start" (UI.nextPlayerPrompt p) halt
+  where beginGame _ = halt store
 
 edit :: PlayOrder -> RegistrationEventHandler e
 edit i s store _ =

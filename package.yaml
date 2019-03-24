@@ -36,6 +36,7 @@ library:
     - TemplateHaskell
     - LambdaCase
     - TupleSections
+    - DeriveFunctor
   ghc-options:
     - -Wall
     - -Wcompat
@@ -51,7 +52,6 @@ library:
     - Labyrinth.Game.Cell
     - Labyrinth.Game.Direction
     - Labyrinth.Game.Class
-    - Labyrinth.Game.NewGame
     - Labyrinth.Game.Builder
     - Labyrinth.UI
     - Labyrinth.UI.Modal

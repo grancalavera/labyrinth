@@ -12,21 +12,21 @@ module Labyrinth.Game.Configuration
   )
 where
 
-import           Lens.Micro                     ( (^.)
-                                                , (%~)
-                                                , (&)
-                                                )
-import           Lens.Micro.TH                  ( makeLenses )
+import           Lens.Micro                               ( (^.)
+                                                          , (%~)
+                                                          , (&)
+                                                          )
+import           Lens.Micro.TH                            ( makeLenses )
 import qualified Data.Map.Strict               as Map
-import           Data.Map.Strict                ( (!?) )
+import           Data.Map.Strict                          ( (!?) )
 
 import qualified Data.Set                      as Set
 import qualified Labyrinth.Game.Player         as P
-import           Labyrinth.Game.Player          ( Players
-                                                , Player
-                                                , PlayOrder
-                                                , Color
-                                                )
+import           Labyrinth.Game.Player                    ( Players
+                                                          , Player
+                                                          , PlayOrder
+                                                          , Color
+                                                          )
 
 data Configuration = Conf
   { _players    :: Players

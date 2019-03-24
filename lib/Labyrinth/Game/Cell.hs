@@ -1,12 +1,10 @@
 module Labyrinth.Game.Cell
   ( Cell(..)
   , TileCell(..)
-  , GateCell(..)
-  , CellData(..)
+  , GateState(..)
   , Terrain(..)
   , treasure
   , players
-  , isOpen
   , terrain
   , direction
   , cellData
@@ -15,47 +13,39 @@ module Labyrinth.Game.Cell
   , randomRotate
   , hasExit
   , connected
-  , mkCell
   )
 where
 
 import qualified Data.Set                      as Set
-import           Data.Set                       ( Set )
-import           System.Random                  ( randomRIO )
-import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (^.)
-                                                , (%~)
-                                                )
+import           Data.Set                                 ( Set )
+import           System.Random                            ( randomRIO )
+import           Lens.Micro.TH                            ( makeLenses )
+import           Lens.Micro                               ( (^.)
+                                                          , (%~)
+                                                          )
 import qualified Labyrinth.Game.Direction      as Dir
-import           Labyrinth.Game.Direction       ( Direction(..) )
-import           Labyrinth.Game.Treasure        ( Treasure )
-import           Labyrinth.Game.Player          ( Player )
+import           Labyrinth.Game.Direction                 ( Direction(..) )
+import           Labyrinth.Game.Treasure                  ( Treasure )
+import           Labyrinth.Game.Player                    ( Player )
 
 data TileCell = TileCell
   { _treasure :: Maybe Treasure
   , _players :: Set Player
-  } deriving (Show)
+  } deriving (Show, Eq)
 makeLenses ''TileCell
 
-data GateCell = GateCell
-  { _isOpen :: Bool
-  } deriving (Show)
-makeLenses ''GateCell
+data GateState = Closed | Open deriving(Show, Eq)
 
-newtype CellData a = CellData a deriving (Show)
 data Terrain = Gate | Path | Corner | Fork deriving (Show, Eq)
 
 data Cell a = Cell
   { _terrain   :: Terrain
   , _direction :: Direction
-  , _cellData  :: CellData a
-  } deriving (Show)
-
-type Exits = Set Direction
+  , _cellData  :: a
+  } deriving (Show, Eq, Functor)
 makeLenses ''Cell
 
-mkCell :: Terrain -> Direction -> a -> Cell a
-mkCell t dir d = Cell t dir (CellData d)
+type Exits = Set Direction
 
 exits :: Cell a -> Exits
 exits t = Set.fromList $ case (t ^. terrain, t ^. direction) of

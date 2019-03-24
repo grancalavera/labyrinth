@@ -14,13 +14,13 @@
   )
 where
 
-import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (^.) )
+import           Lens.Micro.TH                            ( makeLenses )
+import           Lens.Micro                               ( (^.) )
 import qualified Data.Map.Strict               as Map
-import           Data.Map.Strict                ( (!?)
-                                                , Map
-                                                )
-import           Data.Text                      ( Text )
+import           Data.Map.Strict                          ( (!?)
+                                                          , Map
+                                                          )
+import           Data.Text                                ( Text )
 
 data Color = Yellow | Red  | Blue | Green deriving (Show, Eq, Ord, Enum)
 data PlayOrder = First | Second | Third | Fourth deriving (Show, Eq, Ord, Enum)

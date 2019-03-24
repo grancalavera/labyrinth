@@ -4,10 +4,10 @@ module Labyrinth.Game.Board
   )
 where
 
-import           Data.Map.Strict                ( Map )
+import           Data.Map.Strict                          ( Map )
 import qualified Data.Map.Strict               as Map
-import           Labyrinth.Game.Position        ( Position )
-import           Labyrinth.Game.Cell            ( Cell )
+import           Labyrinth.Game.Position                  ( Position )
+import           Labyrinth.Game.Cell                      ( Cell )
 
 newtype Board a = Board { toMap :: Map Position (Cell a)} deriving (Show)
 
