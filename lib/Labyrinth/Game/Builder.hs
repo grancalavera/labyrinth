@@ -2,10 +2,14 @@ module Labyrinth.Game.Builder
   ( BuildTile(..)
   , BuildPlan(..)
   , BuildError
+  --
   , minPlayersError
-  , validatePlayers
   , uniquePositionsError
+  , uniqueGatePositionsError
+  --
+  , validatePlayers
   , validateUniquePositions
+  , validateUniqueGatePositions
   -- temp
   , gates
   , board
@@ -84,7 +88,6 @@ validatePlayers plan@BuildPlan { minPlayers, buildPlayers }
   | minPlayers <= Player.count buildPlayers = Right plan
   | otherwise                               = minPlayersError minPlayers
 
-
 uniquePositionsError :: Either BuildError BuildPlan
 uniquePositionsError = Left "Error: positions must be unique"
 
@@ -92,6 +95,15 @@ validateUniquePositions :: BuildPlan -> Either BuildError BuildPlan
 validateUniquePositions plan@BuildPlan { buildPositions }
   | hasUniqueElements buildPositions = Right plan
   | otherwise                        = uniquePositionsError
+
+uniqueGatePositionsError :: Either BuildError BuildPlan
+uniqueGatePositionsError = Left "Error: gates must have unique positions"
+
+validateUniqueGatePositions :: BuildPlan -> Either BuildError BuildPlan
+validateUniqueGatePositions plan@BuildPlan { buildGates }
+  | hasUniqueElements gatePositions = Right plan
+  | otherwise                       = uniqueGatePositionsError
+  where gatePositions = NonEmpty.map fst buildGates
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
 hasUniqueElements ne = (countUniques ne) == NonEmpty.length ne

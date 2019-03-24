@@ -26,8 +26,11 @@ spec = describe "Builds new games declaratively" $ do
   -- validatePlayers
   -- validateUniquePositions
   -- validateUniqueGatePositions
-  let plan1 = BuildPlan
-        { buildBoard     = NonEmpty.fromList [BuildPath]
+  let invalidPlan = BuildPlan
+        { buildBoard     = NonEmpty.fromList
+                             [ BuildHome (V2 1 0) South First
+                             , BuildHome (V2 1 1) South First
+                             ]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 0, Cell Gate South Open)
@@ -38,11 +41,11 @@ spec = describe "Builds new games declaratively" $ do
         }
 
 
-  let plan2 = BuildPlan
+  let validPlan = BuildPlan
         { buildBoard     = NonEmpty.fromList [BuildPath]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
-                             , (V2 0 0, Cell Gate South Open)
+                             , (V2 0 1, Cell Gate South Open)
                              ]
         , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1]
         , buildPlayers   = Map.fromList
@@ -52,19 +55,28 @@ spec = describe "Builds new games declaratively" $ do
         , minPlayers     = 2
         }
 
-  context "Low level validation" $ do
+  context "Internal validation" $ do
 
-    it "a plan without players should fail to validate" $ do
-      Builder.validatePlayers plan1
-        `shouldBe` Builder.minPlayersError (minPlayers plan1)
+    it "a plan without players should fail to validate"
+      $          Builder.validatePlayers invalidPlan
+      `shouldBe` Builder.minPlayersError (minPlayers invalidPlan)
 
-    it "a plan with enough players should succeed player validation" $ do
-      Builder.validatePlayers plan2 `shouldBe` Right plan2
+    it "a plan with enough players should succeed player validation"
+      $          Builder.validatePlayers validPlan
+      `shouldBe` Right validPlan
 
-    it "a plan with duplicated position should fail to validate" $ do
-      Builder.validateUniquePositions plan1
-        `shouldBe` Builder.uniquePositionsError
+    it "a plan with duplicated position should fail to validate"
+      $          Builder.validateUniquePositions invalidPlan
+      `shouldBe` Builder.uniquePositionsError
 
-    it "a plan with unique positions should succeed unique positions validation"
-      $ do
-          Builder.validateUniquePositions plan2 `shouldBe` Right plan2
+    it "a valid plan should have unique positions"
+      $          Builder.validateUniquePositions validPlan
+      `shouldBe` Right validPlan
+
+    it "a plan with gates in duplicated positions should fail to validate"
+      $          Builder.validateUniqueGatePositions invalidPlan
+      `shouldBe` Builder.uniqueGatePositionsError
+
+    it "a plan with gates in unique positions should be valid"
+      $          Builder.validateUniqueGatePositions validPlan
+      `shouldBe` Right validPlan
