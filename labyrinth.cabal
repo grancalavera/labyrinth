@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d2f42bf884af2fd17b468e955dcef28d504c012103b8f3a8dcbf3d4feb91c34f
+-- hash: 50d1b891b57de356c29a3363242f7ca573e4fe3d4209d4fa66f9992437af8c30
 
 name:           labyrinth
 version:        0.1.0.0
@@ -59,7 +59,7 @@ library
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       array
-    , base >=4.7 && <5
+    , base
     , brick
     , containers
     , linear
@@ -68,6 +68,7 @@ library
     , mtl
     , random
     , text
+    , validation
     , vty
   default-language: Haskell2010
 
@@ -80,14 +81,18 @@ executable labyrinth
   default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
-      base
+      array
+    , base
     , brick
     , containers
     , labyrinth
     , linear
     , microlens
     , microlens-th
+    , mtl
+    , random
     , text
+    , validation
     , vty
   default-language: Haskell2010
 
@@ -105,7 +110,8 @@ test-suite labyrinth-test
   default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base
+      array
+    , base
     , brick
     , containers
     , hspec
@@ -113,4 +119,10 @@ test-suite labyrinth-test
     , labyrinth
     , linear
     , microlens
+    , microlens-th
+    , mtl
+    , random
+    , text
+    , validation
+    , vty
   default-language: Haskell2010

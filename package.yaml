@@ -9,6 +9,21 @@ github: grancalavera/labyrinth
 extra-source-files:
   - README.md
 
+dependencies:
+  - base >=4.7 && <5
+  - array
+  - base
+  - brick
+  - containers
+  - linear
+  - microlens
+  - microlens-th
+  - mtl
+  - random
+  - text
+  - validation
+  - vty
+
 library:
   source-dirs:
     - lib
@@ -49,18 +64,6 @@ library:
     - Labyrinth.Store.Event.Splash
     - Labyrinth.Store.Event.Setup
     - Data.List.Extended
-  dependencies:
-    - base >=4.7 && <5
-    - array
-    - brick
-    - containers
-    - linear
-    - microlens
-    - microlens-th
-    - mtl
-    - random
-    - text
-    - vty
 
 executables:
   labyrinth:
@@ -86,15 +89,7 @@ executables:
       - LambdaCase
       - TupleSections
     dependencies:
-      - base
-      - brick
-      - containers
       - labyrinth
-      - linear
-      - microlens
-      - microlens-th
-      - text
-      - vty
 
 tests:
   labyrinth-test:
@@ -119,11 +114,6 @@ tests:
       - LambdaCase
       - TupleSections
     dependencies:
-      - base
-      - brick
-      - containers
       - labyrinth
       - hspec
       - hspec-discover
-      - microlens
-      - linear
