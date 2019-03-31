@@ -1,15 +1,14 @@
 module Labyrinth.Game.Builder
   ( BuildTile(..)
   , BuildPlan(..)
-  , BuildError
+  , BuildError(..)
   --
-  , minPlayersError
-  , uniquePositionsError
-  , uniqueGatePositionsError
-  --
-  , validatePlayers
+  , mkPlayers
+  , mkTreasures
   , validateUniquePositions
   , validateUniqueGatePositions
+  , validateTilePosition
+  , validateFixedTilesPositions
   -- temp
   , gates
   , board
@@ -22,6 +21,11 @@ import           Data.Set                                 ( Set )
 import qualified Data.Set                      as Set
 import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
+import           Data.Validation                          ( Validation(..)
+                                                          , validate
+                                                          , toEither
+                                                          , fromEither
+                                                          )
 import           Labyrinth.Game.Direction                 ( Direction(..) )
 import qualified Labyrinth.Game.Player         as Player
 import           Labyrinth.Game.Player                    ( PlayOrder(..)
@@ -62,6 +66,25 @@ type BuildBoard = NonEmpty BuildTile
 type BuildGates = NonEmpty (Position, Cell GateState)
 type BuildPositions = NonEmpty Position
 
+data BuildError = InvalidMinPlayers Int
+                | DuplicatedPositions
+                | DuplicatedGatePositions
+                | UnknownTilePosition Position
+                | InvalidBuildTreasures Int
+                deriving Eq
+
+instance Show BuildError where
+  show e = case e of
+    InvalidMinPlayers n -> "Error: minPlayers should be at least " <> show n
+    DuplicatedPositions ->
+      "Error: buildPositions should not have duplicated positions"
+    DuplicatedGatePositions -> "Error: all gates should have unique positions"
+    UnknownTilePosition p ->
+      "Error: a tile position must exist in buildPositions, unknown position: "
+        <> show p
+    InvalidBuildTreasures n ->
+      "Error: buildTreasures should be a multiple of " <> show n
+
 data BuildTile = BuildHome Position Direction PlayOrder
                | BuildFixedTreasureFork Position Direction
                | BuildTreasureCorner
@@ -75,41 +98,56 @@ data BuildPlan = BuildPlan { buildBoard     :: BuildBoard
                            , buildPositions :: BuildPositions -- validate unique positions
                            , buildPlayers   :: Players
                            , minPlayers     :: Int
+                           , buildTreasures :: Int
                            } deriving(Show, Eq)
 
-type BuildError = String
--- type BuildPredicate = BuildTile -> Bool
+mkPlayers :: BuildPlan -> Validation [BuildError] Players
+mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
+  [InvalidMinPlayers minPlayers]
+  ((minPlayers <=) . Player.count)
+  buildPlayers
 
-minPlayersError :: Int -> Either BuildError BuildPlan
-minPlayersError n = Left $ "Error: minPlayers should be at least " <> (show n)
+-- should be a multiple of `product playerCount`
+-- should be equal to all the tiles that can hold a treasure
+mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
+mkTreasures plan@BuildPlan { buildTreasures } = fromEither $ do
+  pCount <- toEither $ Player.count <$> mkPlayers plan
+  let pMultiple = product [1 .. pCount]
+  toEither
+    $  [1 .. buildTreasures]
+    <$ validate [InvalidBuildTreasures pMultiple]
+                ((0 ==) . (`mod` pMultiple))
+                buildTreasures
 
-validatePlayers :: BuildPlan -> Either BuildError BuildPlan
-validatePlayers plan@BuildPlan { minPlayers, buildPlayers }
-  | minPlayers <= Player.count buildPlayers = Right plan
-  | otherwise                               = minPlayersError minPlayers
+validateUniquePositions :: BuildPlan -> Validation [BuildError] BuildPlan
+validateUniquePositions plan@BuildPlan { buildPositions } =
+  plan <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
 
-uniquePositionsError :: Either BuildError BuildPlan
-uniquePositionsError = Left "Error: positions must be unique"
+validateUniqueGatePositions :: BuildPlan -> Validation [BuildError] BuildPlan
+validateUniqueGatePositions plan@BuildPlan { buildGates } =
+  plan
+    <$ validate [DuplicatedGatePositions]
+                (hasUniqueElements . fmap fst)
+                buildGates
 
-validateUniquePositions :: BuildPlan -> Either BuildError BuildPlan
-validateUniquePositions plan@BuildPlan { buildPositions }
-  | hasUniqueElements buildPositions = Right plan
-  | otherwise                        = uniquePositionsError
+validateFixedTilesPositions :: BuildPlan -> Validation [BuildError] BuildPlan
+validateFixedTilesPositions plan@BuildPlan { buildPositions, buildBoard } =
+  plan <$ traverse (validateTilePosition buildPositions) buildBoard
 
-uniqueGatePositionsError :: Either BuildError BuildPlan
-uniqueGatePositionsError = Left "Error: gates must have unique positions"
+validateTilePosition
+  :: BuildPositions -> BuildTile -> Validation [BuildError] BuildTile
+validateTilePosition ps t = case t of
+  BuildHome p _ _            -> t <$ validatePos ps p
+  BuildFixedTreasureFork p _ -> t <$ validatePos ps p
+  _                          -> Success t
 
-validateUniqueGatePositions :: BuildPlan -> Either BuildError BuildPlan
-validateUniqueGatePositions plan@BuildPlan { buildGates }
-  | hasUniqueElements gatePositions = Right plan
-  | otherwise                       = uniqueGatePositionsError
-  where gatePositions = NonEmpty.map fst buildGates
+validatePos :: BuildPositions -> Position -> Validation [BuildError] Position
+validatePos ps p = validate [UnknownTilePosition p] (`elem` ps) p
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
-hasUniqueElements ne = (countUniques ne) == NonEmpty.length ne
+hasUniqueElements ne = countUniques ne == NonEmpty.length ne
   where countUniques = Set.size . Set.fromList . NonEmpty.toList
 
--- http://hackage.haskell.org/package/validation-1/docs/Data-Validation.html#t%3aAccValidationP
 -- validateBuildCount :: BuildMaterials -> BuildPlan -> Either BuildError ()
 -- validateBuildCount = undefined
 

@@ -4,10 +4,12 @@ import           Test.Hspec
 import qualified Data.Map.Strict               as Map
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Linear.V2                                ( V2(..) )
+import           Data.Validation                          ( Validation(..) )
 
 import qualified Labyrinth.Game.Builder        as Builder
 import           Labyrinth.Game.Builder                   ( BuildTile(..)
                                                           , BuildPlan(..)
+                                                          , BuildError(..)
                                                           )
 import           Labyrinth.Game.Direction                 ( Direction(..) )
 import           Labyrinth.Game.Cell                      ( GateState(..)
@@ -20,63 +22,135 @@ import           Labyrinth.Game.Player                    ( Color(..)
                                                           )
 
 spec :: Spec
-spec = describe "Builds new games declaratively" $ do
+spec = describe "Building new games declaratively" $ do
 
   -- fails these validations:
   -- validatePlayers
   -- validateUniquePositions
   -- validateUniqueGatePositions
-  let invalidPlan = BuildPlan
-        { buildBoard     = NonEmpty.fromList
-                             [ BuildHome (V2 1 0) South First
-                             , BuildHome (V2 1 1) South First
-                             ]
-        , buildGates     = NonEmpty.fromList
-                             [ (V2 0 0, Cell Gate South Open)
-                             , (V2 0 0, Cell Gate South Open)
-                             ]
-        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 0]
-        , buildPlayers   = mempty
-        , minPlayers     = 2
-        }
-
-
-  let validPlan = BuildPlan
+  let validPositions = NonEmpty.fromList [V2 0 0, V2 0 1]
+      validPlayers   = Map.fromList
+        [(First, Player "P1" Yellow First), (Second, Player "P2" Red Second)]
+      fourValidPlayers = Map.fromList
+        [ (First , Player "P1" Yellow First)
+        , (Second, Player "P2" Red Second)
+        , (Third , Player "P3" Green First)
+        , (Fourth, Player "P4" Blue Second)
+        ]
+      validPlan = BuildPlan
         { buildBoard     = NonEmpty.fromList [BuildPath]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 1, Cell Gate South Open)
                              ]
-        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1]
-        , buildPlayers   = Map.fromList
-                             [ (First , Player "P1" Yellow First)
-                             , (Second, Player "P2" Yellow Second)
-                             ]
+        , buildPositions = validPositions
+        , buildPlayers   = validPlayers
         , minPlayers     = 2
+        , buildTreasures = 24
         }
 
-  context "Internal validation" $ do
+  let invalidPositions = NonEmpty.fromList [V2 0 0, V2 0 0]
+      unknownPosition1 = V2 1 0
+      unknownPosition2 = V2 1 1
+      invalidPlan      = BuildPlan
+        { buildBoard     = NonEmpty.fromList
+                             [ BuildHome unknownPosition1 South First
+                             , BuildHome unknownPosition2 South First
+                             ]
+        , buildGates     = NonEmpty.fromList
+                             [ (V2 0 0, Cell Gate South Open)
+                             , (V2 0 0, Cell Gate South Open)
+                             ]
+        , buildPositions = invalidPositions
+        , buildPlayers   = mempty
+        , minPlayers     = 2
+        , buildTreasures = 0
+        }
 
-    it "a plan without players should fail to validate"
-      $          Builder.validatePlayers invalidPlan
-      `shouldBe` Builder.minPlayersError (minPlayers invalidPlan)
+  let invalidPlan2 = BuildPlan
+        { buildBoard     = NonEmpty.fromList
+                             [ BuildHome unknownPosition1 South First
+                             , BuildHome unknownPosition2 South First
+                             ]
+        , buildGates     = NonEmpty.fromList
+                             [ (V2 0 0, Cell Gate South Open)
+                             , (V2 0 0, Cell Gate South Open)
+                             ]
+        , buildPositions = invalidPositions
+        , buildPlayers   = fourValidPlayers
+        , minPlayers     = 2
+        , buildTreasures = 1
+        }
 
-    it "a plan with enough players should succeed player validation"
-      $          Builder.validatePlayers validPlan
-      `shouldBe` Right validPlan
+  -- these two tiles are not in then `invalidPlan` but they are in the `validPlan`
+  let aPosition  = V2 0 1
+      fixedTile1 = BuildHome aPosition South First
+      fixedTile2 = BuildFixedTreasureFork aPosition South
 
-    it "a plan with duplicated position should fail to validate"
+  context "Players" $ do
+    it "fails with empty players"
+      $          Builder.mkPlayers invalidPlan
+      `shouldBe` Failure [InvalidMinPlayers (minPlayers invalidPlan)]
+
+    it "succeeds with enough players"
+      $          Builder.mkPlayers validPlan
+      `shouldBe` Success validPlayers
+
+  context "Plan positions" $ do
+    it "fails with duplicate tile positions"
       $          Builder.validateUniquePositions invalidPlan
-      `shouldBe` Builder.uniquePositionsError
+      `shouldBe` Failure [DuplicatedPositions]
 
-    it "a valid plan should have unique positions"
+    it "succeeds with unique tile positions"
       $          Builder.validateUniquePositions validPlan
-      `shouldBe` Right validPlan
+      `shouldBe` Success validPlan
 
-    it "a plan with gates in duplicated positions should fail to validate"
+    it "fails with duplicate gate positions"
       $          Builder.validateUniqueGatePositions invalidPlan
-      `shouldBe` Builder.uniqueGatePositionsError
+      `shouldBe` Failure [DuplicatedGatePositions]
 
-    it "a plan with gates in unique positions should be valid"
+    it "succeeds with unique gate positions"
       $          Builder.validateUniqueGatePositions validPlan
-      `shouldBe` Right validPlan
+      `shouldBe` Success validPlan
+
+  context "Fixed tile positions" $ do
+    it "fails when `BuildHome` position is not in the plan" $ do
+      let actual   = Builder.validateTilePosition invalidPositions fixedTile1
+          expected = Failure [UnknownTilePosition aPosition]
+      actual `shouldBe` expected
+
+    it "fails when `BuildFixedTreasureFork` position is not in the plan" $ do
+      let actual   = Builder.validateTilePosition invalidPositions fixedTile2
+          expected = Failure [UnknownTilePosition aPosition]
+      actual `shouldBe` expected
+
+    it "suceeds when `BuildHome` position is in the plan"
+      $          Builder.validateTilePosition validPositions fixedTile1
+      `shouldBe` Success fixedTile1
+
+    it "suceeds when `BuildFixedTreasureFork` position is in the plan"
+      $          Builder.validateTilePosition validPositions fixedTile2
+      `shouldBe` Success fixedTile2
+
+    it "shows errors for each unknown tile position"
+      $          Builder.validateFixedTilesPositions invalidPlan
+      `shouldBe` Failure
+                   [ UnknownTilePosition unknownPosition1
+                   , UnknownTilePosition unknownPosition2
+                   ]
+    it "succeeds when all fixed tile positions exist"
+      $          Builder.validateFixedTilesPositions validPlan
+      `shouldBe` Success validPlan
+
+  context "Treasures" $ do
+    it "fails when player validation fails"
+      $          Builder.mkTreasures invalidPlan
+      `shouldBe` Failure [InvalidMinPlayers (minPlayers invalidPlan)]
+
+    it "fails when treasure count validation fails"
+      $          Builder.mkTreasures invalidPlan2
+      `shouldBe` Failure [InvalidBuildTreasures (product [1 .. 4])]
+
+    it "succeeds when player and treasure validation succeed"
+      $          Builder.mkTreasures validPlan
+      `shouldBe` Success [1 .. 24]
