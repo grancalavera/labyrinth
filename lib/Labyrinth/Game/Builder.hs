@@ -2,6 +2,7 @@ module Labyrinth.Game.Builder
   ( BuildTile(..)
   , BuildPlan(..)
   , BuildError(..)
+
   --
   , mkPlayers
   , mkTreasures
@@ -9,6 +10,8 @@ module Labyrinth.Game.Builder
   , validateUniqueGatePositions
   , validateTilePosition
   , validateFixedTilesPositions
+  , validatePositionsCount
+
   -- temp
   , gates
   , board
@@ -21,6 +24,7 @@ import           Data.Set                                 ( Set )
 import qualified Data.Set                      as Set
 import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
+import           Data.Bifunctor                           ( bimap )
 import           Data.Validation                          ( Validation(..)
                                                           , validate
                                                           , toEither
@@ -71,6 +75,8 @@ data BuildError = InvalidMinPlayers Int
                 | DuplicatedGatePositions
                 | UnknownTilePosition Position
                 | InvalidBuildTreasures Int
+                | TooManyPositions
+                | TooFewPositions
                 deriving Eq
 
 instance Show BuildError where
@@ -84,6 +90,8 @@ instance Show BuildError where
         <> show p
     InvalidBuildTreasures n ->
       "Error: buildTreasures should be a multiple of " <> show n
+    TooManyPositions -> "Error: too many positions given"
+    TooFewPositions  -> "Error: too few positions given"
 
 data BuildTile = BuildHome Position Direction PlayOrder
                | BuildFixedTreasureFork Position Direction
@@ -107,8 +115,6 @@ mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
   ((minPlayers <=) . Player.count)
   buildPlayers
 
--- should be a multiple of `product playerCount`
--- should be equal to all the tiles that can hold a treasure
 mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
 mkTreasures plan@BuildPlan { buildTreasures } = fromEither $ do
   pCount <- toEither $ Player.count <$> mkPlayers plan
@@ -147,6 +153,13 @@ validatePos ps p = validate [UnknownTilePosition p] (`elem` ps) p
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
 hasUniqueElements ne = countUniques ne == NonEmpty.length ne
   where countUniques = Set.size . Set.fromList . NonEmpty.toList
+
+validatePositionsCount :: BuildPlan -> Validation [BuildError] BuildPositions
+validatePositionsCount BuildPlan { buildBoard, buildPositions } =
+  buildPositions
+    <$ validate [TooFewPositions]  (uncurry (<=)) tileCount_posCount
+    <* validate [TooManyPositions] (uncurry (>=)) tileCount_posCount
+  where tileCount_posCount = bimap length length (buildBoard, buildPositions)
 
 -- validateBuildCount :: BuildMaterials -> BuildPlan -> Either BuildError ()
 -- validateBuildCount = undefined

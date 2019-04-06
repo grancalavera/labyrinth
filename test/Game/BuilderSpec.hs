@@ -38,7 +38,7 @@ spec = describe "Building new games declaratively" $ do
         , (Fourth, Player "P4" Blue Second)
         ]
       validPlan = BuildPlan
-        { buildBoard     = NonEmpty.fromList [BuildPath]
+        { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 1, Cell Gate South Open)
@@ -52,7 +52,8 @@ spec = describe "Building new games declaratively" $ do
   let invalidPositions = NonEmpty.fromList [V2 0 0, V2 0 0]
       unknownPosition1 = V2 1 0
       unknownPosition2 = V2 1 1
-      invalidPlan      = BuildPlan
+
+  let invalidPlan = BuildPlan
         { buildBoard     = NonEmpty.fromList
                              [ BuildHome unknownPosition1 South First
                              , BuildHome unknownPosition2 South First
@@ -77,6 +78,30 @@ spec = describe "Building new games declaratively" $ do
                              , (V2 0 0, Cell Gate South Open)
                              ]
         , buildPositions = invalidPositions
+        , buildPlayers   = fourValidPlayers
+        , minPlayers     = 2
+        , buildTreasures = 1
+        }
+
+  let tooFewPositionsPlan = BuildPlan
+        { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath, BuildPath]
+        , buildGates     = NonEmpty.fromList
+                             [ (V2 0 0, Cell Gate South Open)
+                             , (V2 0 0, Cell Gate South Open)
+                             ]
+        , buildPositions = validPositions
+        , buildPlayers   = fourValidPlayers
+        , minPlayers     = 2
+        , buildTreasures = 1
+        }
+
+  let tooManyPositionsPlan = BuildPlan
+        { buildBoard     = NonEmpty.fromList [BuildPath]
+        , buildGates     = NonEmpty.fromList
+                             [ (V2 0 0, Cell Gate South Open)
+                             , (V2 0 0, Cell Gate South Open)
+                             ]
+        , buildPositions = validPositions
         , buildPlayers   = fourValidPlayers
         , minPlayers     = 2
         , buildTreasures = 1
@@ -154,3 +179,16 @@ spec = describe "Building new games declaratively" $ do
     it "succeeds when player and treasure validation succeed"
       $          Builder.mkTreasures validPlan
       `shouldBe` Success [1 .. 24]
+
+  context "Total positions count" $ do
+    it "fails when there are too many positions"
+      $          Builder.validatePositionsCount tooManyPositionsPlan
+      `shouldBe` Failure [TooManyPositions]
+
+    it "fails when there are too few positions"
+      $          Builder.validatePositionsCount tooFewPositionsPlan
+      `shouldBe` Failure [TooFewPositions]
+
+    it "succeeds when equal to `BuildBoard` count"
+      $          Builder.validatePositionsCount validPlan
+      `shouldBe` Success validPositions
