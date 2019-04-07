@@ -2,34 +2,35 @@ module Labyrinth.Game.Builder
   ( BuildTile(..)
   , BuildPlan(..)
   , BuildError(..)
-
-  --
   , mkPlayers
   , mkTreasures
   , validateUniquePositions
   , validateUniqueGatePositions
-  , validateTilePosition
   , validateFixedTilesPositions
   , validatePositionsCount
-
-  -- temp
-  , gates
-  , board
-  , positions
+  , defaultPlan
+  , _buildBoard
+  , _buildGates
+  , _buildPlayers
+  , _buildPositions
+  , _buildTreasures
+  , _minPlayers
   )
 where
 
 import           Linear.V2                                ( V2(..) )
-import           Data.Set                                 ( Set )
 import qualified Data.Set                      as Set
 import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
+
+import           Lens.Micro.TH                            ( makeLensesFor )
 import           Data.Validation                          ( Validation(..)
                                                           , validate
                                                           , toEither
                                                           , fromEither
                                                           )
+
 import           Labyrinth.Game.Direction                 ( Direction(..) )
 import qualified Labyrinth.Game.Player         as Player
 import           Labyrinth.Game.Player                    ( PlayOrder(..)
@@ -104,15 +105,24 @@ data BuildTile = BuildHome Position Direction PlayOrder
                | BuildTreasureFork
                | BuildPath
                | BuildFork
-               deriving (Show, Eq)
+               deriving (Show, Eq, Ord)
 
 data BuildPlan = BuildPlan { buildBoard     :: BuildBoard
-                           , buildGates     :: BuildGates     -- validate unique keys
-                           , buildPositions :: BuildPositions -- validate unique positions
+                           , buildGates     :: BuildGates
                            , buildPlayers   :: Players
-                           , minPlayers     :: Int
+                           , buildPositions :: BuildPositions
                            , buildTreasures :: Int
+                           , minPlayers     :: Int
                            } deriving(Show, Eq)
+
+makeLensesFor
+  [ ("buildBoard", "_buildBoard")
+  , ("buildGates", "_buildGates")
+  , ("buildPlayers", "_buildPlayers")
+  , ("buildPositions", "_buildPositions")
+  , ("buildTreasures", "_buildTreasures")
+  , ("minPlayers", "_minPlayers")
+  ] ''BuildPlan
 
 mkPlayers :: BuildPlan -> Validation [BuildError] Players
 mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
@@ -122,12 +132,15 @@ mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
 
 mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
 mkTreasures plan@BuildPlan { buildBoard, buildTreasures } =
-  [1 .. buildTreasures] <$ validateTreasurePlayerRatio <* validateSameLength
-    TooFewTreasures
-    TooManyTreasures
-    (NonEmpty.filter hasTreasure buildBoard)
-    [1 .. buildTreasures]
+  treasures
+    <$ validateTreasurePlayerRatio
+    <* validateSameLength TooFewTreasures
+                          TooManyTreasures
+                          wantsTreasure
+                          treasures
  where
+  treasures                   = [1 .. buildTreasures]
+  wantsTreasure               = NonEmpty.filter hasTreasure buildBoard
   validateTreasurePlayerRatio = fromEither $ do
     pCount <- toEither $ Player.count <$> mkPlayers plan
     let pMultiple = product [1 .. pCount]
@@ -185,84 +198,20 @@ validateSameLength errTooFew errTooMany expected actual =
     <* validate [errTooMany] (uncurry (>=)) (lengths expected actual)
   where lengths l r = bimap length length (l, r)
 
--- validateBuildCount :: BuildMaterials -> BuildPlan -> Either BuildError ()
--- validateBuildCount = undefined
-
--- hasValidCornerCount :: BuildMaterials -> BuildPlan -> Bool
--- hasValidCornerCount = undefined
-
--- hasValidPathCount :: BuildMaterials -> BuildPlan -> Bool
--- hasValidPathCount = undefined
-
--- hasValidForkCount :: BuildMaterials -> BuildPlan -> Bool
--- hasValidForkCount = undefined
-
--- hasValidGateCount :: BuildMaterials -> BuildPlan -> Bool
--- hasValidGateCount = undefined
-
--- hasValidTreasureCount :: BuildMaterials -> BuildPlan -> Bool
--- hasValidTreasureCount = undefined
-
--- isFixed :: BuildTile -> Bool
--- isFixed (BuildGate _ _             ) = True
--- isFixed (BuildHome _ _ _           ) = True
--- isFixed (BuildFixedTreasureFork _ _) = True
--- isFixed _                            = False
-
--- fixedPlan :: BuildPlan -> BuildPlan
--- fixedPlan = filter isFixed
-
--- randomPlan :: BuildPlan -> BuildPlan
--- randomPlan = filter isRandom
-
--- buildGame :: BuildMaterials -> BuildPlan -> Either [BuildError] Game
--- buildGame = undefined
-
--- isRandom :: BuildPredicate
--- isRandom = not . isFixed
-
 hasTreasure :: BuildTile -> Bool
 hasTreasure (BuildFixedTreasureFork _ _) = True
 hasTreasure BuildTreasureCorner          = True
 hasTreasure BuildTreasureFork            = True
 hasTreasure _                            = False
 
--- isGate :: BuildPredicate
--- isGate (BuildGate _ _) = True
--- isGate _               = False
-
--- isPath :: BuildPredicate
--- isPath BuildPath = True
--- isPath _         = False
-
--- isCorner :: BuildPredicate
--- isCorner (BuildHome _ _ _)   = True
--- isCorner BuildTreasureCorner = True
--- isCorner _                   = False
-
--- isFork :: BuildPredicate
--- isFork (BuildFixedTreasureFork _ _) = True
--- isFork BuildTreasureFork            = True
--- isFork BuildFork                    = True
--- isFork _                            = False
-
--- count :: BuildPredicate -> BuildPlan -> Int
--- count predicate = length . filter predicate
-
--- countGates :: BuildPlan -> Int
--- countGates = count isGate
-
--- countPaths :: BuildPlan -> Int
--- countPaths = count isPath
-
--- countCorners :: BuildPlan -> Int
--- countCorners = count isCorner
-
--- countForks :: BuildPlan -> Int
--- countForks = count isFork
-
--- countTreasures :: BuildPlan -> Int
--- countTreasures = count hasTreasure
+defaultPlan :: Players -> BuildPlan
+defaultPlan players = BuildPlan { buildBoard     = board
+                                , buildGates     = gates
+                                , buildPositions = positions
+                                , buildPlayers   = players
+                                , minPlayers     = 2
+                                , buildTreasures = 24
+                                }
 
 gates :: BuildGates
 gates = NonEmpty.fromList
@@ -305,6 +254,63 @@ board =
     <> replicate 10 BuildFork
     <> replicate 12 BuildPath
 
-positions :: Set Position
+positions :: NonEmpty Position
 positions =
-  Set.fromList $ [ V2 row col | row <- [1 .. 7], col <- [1 .. 7] ] <> [V2 0 2]
+  NonEmpty.fromList
+    $  [ V2 row col | row <- [1 .. 7], col <- [1 .. 7] ]
+    <> [V2 0 2]
+
+-- isFixed :: BuildTile -> Bool
+-- isFixed (BuildGate _ _             ) = True
+-- isFixed (BuildHome _ _ _           ) = True
+-- isFixed (BuildFixedTreasureFork _ _) = True
+-- isFixed _                            = False
+
+-- fixedPlan :: BuildPlan -> BuildPlan
+-- fixedPlan = filter isFixed
+
+-- randomPlan :: BuildPlan -> BuildPlan
+-- randomPlan = filter isRandom
+
+-- buildGame :: BuildMaterials -> BuildPlan -> Either [BuildError] Game
+-- buildGame = undefined
+
+-- isRandom :: BuildPredicate
+-- isRandom = not . isFixed
+
+-- isGate :: BuildPredicate
+-- isGate (BuildGate _ _) = True
+-- isGate _               = False
+
+-- isPath :: BuildPredicate
+-- isPath BuildPath = True
+-- isPath _         = False
+
+-- isCorner :: BuildPredicate
+-- isCorner (BuildHome _ _ _)   = True
+-- isCorner BuildTreasureCorner = True
+-- isCorner _                   = False
+
+-- isFork :: BuildPredicate
+-- isFork (BuildFixedTreasureFork _ _) = True
+-- isFork BuildTreasureFork            = True
+-- isFork BuildFork                    = True
+-- isFork _                            = False
+
+-- count :: BuildPredicate -> BuildPlan -> Int
+-- count predicate = length . filter predicate
+
+-- countGates :: BuildPlan -> Int
+-- countGates = count isGate
+
+-- countPaths :: BuildPlan -> Int
+-- countPaths = count isPath
+
+-- countCorners :: BuildPlan -> Int
+-- countCorners = count isCorner
+
+-- countForks :: BuildPlan -> Int
+-- countForks = count isFork
+
+-- countTreasures :: BuildPlan -> Int
+-- countTreasures = count hasTreasure

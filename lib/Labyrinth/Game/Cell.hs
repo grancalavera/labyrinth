@@ -34,15 +34,15 @@ data TileCell = TileCell
   } deriving (Show, Eq)
 makeLenses ''TileCell
 
-data GateState = Closed | Open deriving(Show, Eq)
+data GateState = Closed | Open deriving(Show, Eq, Ord)
 
-data Terrain = Gate | Path | Corner | Fork deriving (Show, Eq)
+data Terrain = Gate | Path | Corner | Fork deriving (Show, Eq, Ord)
 
 data Cell a = Cell
   { _terrain   :: Terrain
   , _direction :: Direction
   , _cellData  :: a
-  } deriving (Show, Eq, Functor)
+  } deriving (Show, Eq, Ord, Functor)
 makeLenses ''Cell
 
 type Exits = Set Direction
