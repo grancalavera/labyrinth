@@ -28,7 +28,7 @@ spec = describe "Building new games declaratively" $ do
   -- validatePlayers
   -- validateUniquePositions
   -- validateUniqueGatePositions
-  let validPositions = NonEmpty.fromList [V2 0 0, V2 0 1]
+  let validPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
       validPlayers   = Map.fromList
         [(First, Player "P1" Yellow First), (Second, Player "P2" Red Second)]
       fourValidPlayers = Map.fromList
@@ -38,7 +38,12 @@ spec = describe "Building new games declaratively" $ do
         , (Fourth, Player "P4" Blue Second)
         ]
       validPlan = BuildPlan
-        { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
+        { buildBoard     = NonEmpty.fromList
+                             [ BuildTreasureCorner
+                             , BuildTreasureCorner
+                             , BuildTreasureCorner
+                             , BuildTreasureCorner
+                             ]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 1, Cell Gate South Open)
@@ -46,7 +51,7 @@ spec = describe "Building new games declaratively" $ do
         , buildPositions = validPositions
         , buildPlayers   = validPlayers
         , minPlayers     = 2
-        , buildTreasures = 24
+        , buildTreasures = 4
         }
 
   let invalidPositions = NonEmpty.fromList [V2 0 0, V2 0 0]
@@ -84,27 +89,61 @@ spec = describe "Building new games declaratively" $ do
         }
 
   let tooFewPositionsPlan = BuildPlan
-        { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath, BuildPath]
+        { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 0, Cell Gate South Open)
                              ]
-        , buildPositions = validPositions
+        , buildPositions = NonEmpty.fromList [V2 0 0]
         , buildPlayers   = fourValidPlayers
         , minPlayers     = 2
         , buildTreasures = 1
         }
 
   let tooManyPositionsPlan = BuildPlan
-        { buildBoard     = NonEmpty.fromList [BuildPath]
+        { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
         , buildGates     = NonEmpty.fromList
                              [ (V2 0 0, Cell Gate South Open)
                              , (V2 0 0, Cell Gate South Open)
                              ]
-        , buildPositions = validPositions
+        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2]
         , buildPlayers   = fourValidPlayers
         , minPlayers     = 2
         , buildTreasures = 1
+        }
+
+  let tooFewTreasuresPlan = BuildPlan
+        { buildBoard     = NonEmpty.fromList
+                             [ BuildFixedTreasureFork (V2 0 0) North
+                             , BuildTreasureCorner
+                             , BuildTreasureFork
+                             , BuildTreasureFork
+                             ]
+        , buildGates     = NonEmpty.fromList
+                             [ (V2 0 0, Cell Gate South Open)
+                             , (V2 0 1, Cell Gate South Open)
+                             ]
+        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
+        , buildPlayers   = validPlayers
+        , minPlayers     = 2
+        , buildTreasures = 2
+        }
+
+  let tooManyTreasuresPlan = BuildPlan
+        { buildBoard     = NonEmpty.fromList
+                             [ BuildFixedTreasureFork (V2 0 0) North
+                             , BuildTreasureCorner
+                             , BuildTreasureFork
+                             , BuildTreasureFork
+                             ]
+        , buildGates     = NonEmpty.fromList
+                             [ (V2 0 0, Cell Gate South Open)
+                             , (V2 0 1, Cell Gate South Open)
+                             ]
+        , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
+        , buildPlayers   = validPlayers
+        , minPlayers     = 2
+        , buildTreasures = 6
         }
 
   -- these two tiles are not in then `invalidPlan` but they are in the `validPlan`
@@ -174,11 +213,20 @@ spec = describe "Building new games declaratively" $ do
 
     it "fails when treasure count validation fails"
       $          Builder.mkTreasures invalidPlan2
-      `shouldBe` Failure [InvalidBuildTreasures (product [1 .. 4])]
+      `shouldBe` Failure
+                   [InvalidBuildTreasures (product [1 .. 4]), TooManyTreasures]
+
+    it "fails when there are too few treasures"
+      $          Builder.mkTreasures tooFewTreasuresPlan
+      `shouldBe` Failure [TooFewTreasures]
+
+    it "fails when there are too many treasures"
+      $          Builder.mkTreasures tooManyTreasuresPlan
+      `shouldBe` Failure [TooManyTreasures]
 
     it "succeeds when player and treasure validation succeed"
       $          Builder.mkTreasures validPlan
-      `shouldBe` Success [1 .. 24]
+      `shouldBe` Success [1 .. 4]
 
   context "Total positions count" $ do
     it "fails when there are too many positions"

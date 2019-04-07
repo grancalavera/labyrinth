@@ -77,6 +77,8 @@ data BuildError = InvalidMinPlayers Int
                 | InvalidBuildTreasures Int
                 | TooManyPositions
                 | TooFewPositions
+                | TooManyTreasures
+                | TooFewTreasures
                 deriving Eq
 
 instance Show BuildError where
@@ -92,6 +94,9 @@ instance Show BuildError where
       "Error: buildTreasures should be a multiple of " <> show n
     TooManyPositions -> "Error: too many positions given"
     TooFewPositions  -> "Error: too few positions given"
+    TooManyTreasures -> "Error: too many treasures given"
+    TooFewTreasures  -> "Error: too few treasures given"
+
 
 data BuildTile = BuildHome Position Direction PlayOrder
                | BuildFixedTreasureFork Position Direction
@@ -116,14 +121,19 @@ mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
   buildPlayers
 
 mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
-mkTreasures plan@BuildPlan { buildTreasures } = fromEither $ do
-  pCount <- toEither $ Player.count <$> mkPlayers plan
-  let pMultiple = product [1 .. pCount]
-  toEither
-    $  [1 .. buildTreasures]
-    <$ validate [InvalidBuildTreasures pMultiple]
-                ((0 ==) . (`mod` pMultiple))
-                buildTreasures
+mkTreasures plan@BuildPlan { buildBoard, buildTreasures } =
+  [1 .. buildTreasures] <$ validateTreasurePlayerRatio <* validateSameLength
+    TooFewTreasures
+    TooManyTreasures
+    (NonEmpty.filter hasTreasure buildBoard)
+    [1 .. buildTreasures]
+ where
+  validateTreasurePlayerRatio = fromEither $ do
+    pCount <- toEither $ Player.count <$> mkPlayers plan
+    let pMultiple = product [1 .. pCount]
+    if 0 == (buildTreasures `mod` pMultiple)
+      then Right ()
+      else Left [InvalidBuildTreasures pMultiple]
 
 validateUniquePositions :: BuildPlan -> Validation [BuildError] BuildPlan
 validateUniquePositions plan@BuildPlan { buildPositions } =
@@ -157,9 +167,23 @@ hasUniqueElements ne = countUniques ne == NonEmpty.length ne
 validatePositionsCount :: BuildPlan -> Validation [BuildError] BuildPositions
 validatePositionsCount BuildPlan { buildBoard, buildPositions } =
   buildPositions
-    <$ validate [TooFewPositions]  (uncurry (<=)) tileCount_posCount
-    <* validate [TooManyPositions] (uncurry (>=)) tileCount_posCount
-  where tileCount_posCount = bimap length length (buildBoard, buildPositions)
+    <$ validateSameLength TooFewPositions
+                          TooManyPositions
+                          buildBoard
+                          buildPositions
+
+validateSameLength
+  :: Foldable t
+  => BuildError
+  -> BuildError
+  -> t a
+  -> t b
+  -> Validation [BuildError] ()
+validateSameLength errTooFew errTooMany expected actual =
+  ()
+    <$ validate [errTooFew]  (uncurry (<=)) (lengths expected actual)
+    <* validate [errTooMany] (uncurry (>=)) (lengths expected actual)
+  where lengths l r = bimap length length (l, r)
 
 -- validateBuildCount :: BuildMaterials -> BuildPlan -> Either BuildError ()
 -- validateBuildCount = undefined
@@ -197,11 +221,11 @@ validatePositionsCount BuildPlan { buildBoard, buildPositions } =
 -- isRandom :: BuildPredicate
 -- isRandom = not . isFixed
 
--- hasTreasure :: BuildPredicate
--- hasTreasure (BuildFixedTreasureFork _ _) = True
--- hasTreasure (BuildTreasureCorner       ) = True
--- hasTreasure (BuildTreasureFork         ) = True
--- hasTreasure _                            = False
+hasTreasure :: BuildTile -> Bool
+hasTreasure (BuildFixedTreasureFork _ _) = True
+hasTreasure BuildTreasureCorner          = True
+hasTreasure BuildTreasureFork            = True
+hasTreasure _                            = False
 
 -- isGate :: BuildPredicate
 -- isGate (BuildGate _ _) = True
