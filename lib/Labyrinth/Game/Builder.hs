@@ -4,6 +4,7 @@ module Labyrinth.Game.Builder
   , BuildError(..)
   , mkPlayers
   , mkTreasures
+  , validatePlan
   , validateUniquePositions
   , validateUniqueGatePositions
   , validateFixedTilesPositions
@@ -123,6 +124,14 @@ makeLensesFor
   , ("buildTreasures", "_buildTreasures")
   , ("minPlayers", "_minPlayers")
   ] ''BuildPlan
+
+validatePlan :: BuildPlan -> Validation [BuildError] ()
+validatePlan plan =
+  ()
+    <$ validateFixedTilesPositions plan
+    <* validatePositionsCount plan
+    <* validateUniqueGatePositions plan
+    <* validateUniquePositions plan
 
 mkPlayers :: BuildPlan -> Validation [BuildError] Players
 mkPlayers BuildPlan { minPlayers, buildPlayers } = validate

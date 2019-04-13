@@ -64,6 +64,21 @@ addDuplicate l = NonEmpty.insert (NonEmpty.head l) l
 
 spec :: Spec
 spec = describe "Building new games declaratively" $ do
+
+  context "Validation API" $ do
+
+    it "should be valid with 2 players"
+      $          Builder.validatePlan (Builder.defaultPlan players2)
+      `shouldBe` Success ()
+
+    it "should be valid with 3 players"
+      $          Builder.validatePlan (Builder.defaultPlan players3)
+      `shouldBe` Success ()
+
+    it "should be valid with 4 players"
+      $          Builder.validatePlan (Builder.defaultPlan players4)
+      `shouldBe` Success ()
+
   context "Players" $ do
 
     it "fails with empty players"
