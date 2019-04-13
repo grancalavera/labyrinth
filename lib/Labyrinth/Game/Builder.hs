@@ -148,20 +148,20 @@ mkTreasures plan@BuildPlan { buildBoard, buildTreasures } =
       then Right ()
       else Left [InvalidBuildTreasures pMultiple]
 
-validateUniquePositions :: BuildPlan -> Validation [BuildError] BuildPlan
-validateUniquePositions plan@BuildPlan { buildPositions } =
-  plan <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
+validateUniquePositions :: BuildPlan -> Validation [BuildError] ()
+validateUniquePositions BuildPlan { buildPositions } =
+  () <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
 
-validateUniqueGatePositions :: BuildPlan -> Validation [BuildError] BuildPlan
-validateUniqueGatePositions plan@BuildPlan { buildGates } =
-  plan
+validateUniqueGatePositions :: BuildPlan -> Validation [BuildError] ()
+validateUniqueGatePositions BuildPlan { buildGates } =
+  ()
     <$ validate [DuplicatedGatePositions]
                 (hasUniqueElements . fmap fst)
                 buildGates
 
-validateFixedTilesPositions :: BuildPlan -> Validation [BuildError] BuildPlan
-validateFixedTilesPositions plan@BuildPlan { buildPositions, buildBoard } =
-  plan <$ traverse (validateTilePosition buildPositions) buildBoard
+validateFixedTilesPositions :: BuildPlan -> Validation [BuildError] ()
+validateFixedTilesPositions BuildPlan { buildPositions, buildBoard } =
+  () <$ traverse (validateTilePosition buildPositions) buildBoard
 
 validateTilePosition
   :: BuildPositions -> BuildTile -> Validation [BuildError] BuildTile
@@ -170,16 +170,16 @@ validateTilePosition ps t = case t of
   BuildFixedTreasureFork p _ -> t <$ validatePos ps p
   _                          -> Success t
 
-validatePos :: BuildPositions -> Position -> Validation [BuildError] Position
-validatePos ps p = validate [UnknownTilePosition p] (`elem` ps) p
+validatePos :: BuildPositions -> Position -> Validation [BuildError] ()
+validatePos ps p = () <$ validate [UnknownTilePosition p] (`elem` ps) p
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
 hasUniqueElements ne = countUniques ne == NonEmpty.length ne
   where countUniques = Set.size . Set.fromList . NonEmpty.toList
 
-validatePositionsCount :: BuildPlan -> Validation [BuildError] BuildPositions
+validatePositionsCount :: BuildPlan -> Validation [BuildError] ()
 validatePositionsCount BuildPlan { buildBoard, buildPositions } =
-  buildPositions
+  ()
     <$ validateSameLength TooFewPositions
                           TooManyPositions
                           buildBoard

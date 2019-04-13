@@ -93,7 +93,7 @@ spec = describe "Building new games declaratively" $ do
 
     it "succeeds with unique tile positions"
       $          Builder.validateUniquePositions validPlan2Players
-      `shouldBe` Success validPlan2Players
+      `shouldBe` Success ()
 
   context "Gate positions" $ do
     it "fails with duplicate gate positions"
@@ -102,7 +102,7 @@ spec = describe "Building new games declaratively" $ do
 
     it "succeeds with unique gate positions"
       $          Builder.validateUniqueGatePositions validPlan2Players
-      `shouldBe` Success validPlan2Players
+      `shouldBe` Success ()
 
   context "Fixed tile positions" $ do
     it "fails when tiles are placed in unknown positions" $ do
@@ -121,7 +121,7 @@ spec = describe "Building new games declaratively" $ do
 
     it "succeeds when all fixed tile positions exist"
       $          Builder.validateFixedTilesPositions validPlan2Players
-      `shouldBe` Success validPlan2Players
+      `shouldBe` Success ()
 
   context "Treasures" $ do
     it "fails when player validation fails"
@@ -216,12 +216,12 @@ spec = describe "Building new games declaratively" $ do
 
     it "succeeds with valid 2 players plan"
       $          Builder.validatePositionsCount validPlan2Players
-      `shouldBe` Success (Builder.buildPositions validPlan2Players)
+      `shouldBe` Success ()
 
     it "succeeds with valid 3 players plan"
       $          Builder.validatePositionsCount validPlan3Players
-      `shouldBe` Success (Builder.buildPositions validPlan3Players)
+      `shouldBe` Success ()
 
     it "succeeds with valid 4 players plan"
       $          Builder.validatePositionsCount validPlan4Players
-      `shouldBe` Success (Builder.buildPositions validPlan4Players)
+      `shouldBe` Success ()
