@@ -131,8 +131,12 @@ mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
   buildPlayers
 
 mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
-mkTreasures plan@BuildPlan { buildBoard, buildTreasures } =
-  treasures
+mkTreasures plan@BuildPlan { buildTreasures } =
+  [1 .. buildTreasures] <$ validateTreasures plan
+
+validateTreasures :: BuildPlan -> Validation [BuildError] ()
+validateTreasures plan@BuildPlan { buildBoard, buildTreasures } =
+  ()
     <$ validateTreasurePlayerRatio
     <* validateSameLength TooFewTreasures
                           TooManyTreasures
