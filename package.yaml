@@ -15,6 +15,7 @@ dependencies:
   - base
   - brick
   - containers
+  - either
   - linear
   - microlens
   - microlens-th

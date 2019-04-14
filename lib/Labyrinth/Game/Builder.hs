@@ -24,6 +24,8 @@ import qualified Data.Set                      as Set
 import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
+import           Control.Monad.IO.Class                   ( liftIO )
+import           Control.Monad.Except                     ( liftEither )
 
 import           Lens.Micro.TH                            ( makeLensesFor )
 import           Data.Validation                          ( Validation(..)
@@ -32,6 +34,7 @@ import           Data.Validation                          ( Validation(..)
                                                           , fromEither
                                                           )
 
+import           Labyrinth.Game.Class                     ( Game )
 import           Labyrinth.Game.Direction                 ( Direction(..) )
 import qualified Labyrinth.Game.Player         as Player
 import           Labyrinth.Game.Player                    ( PlayOrder(..)
@@ -124,6 +127,12 @@ makeLensesFor
   , ("buildTreasures", "_buildTreasures")
   , ("minPlayers", "_minPlayers")
   ] ''BuildPlan
+
+mkGame :: BuildPlan -> IO (Validation [BuildError] Game)
+mkGame plan = do
+  -- let treasures = liftIO (toEither $ mkTreasures plan)
+  treasures <- liftIO $ liftEither $ toEither $ mkTreasures plan
+  return $ Failure [TooFewPositions]
 
 validatePlan :: BuildPlan -> Validation [BuildError] ()
 validatePlan plan =
