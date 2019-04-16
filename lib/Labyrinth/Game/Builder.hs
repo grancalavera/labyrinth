@@ -20,12 +20,9 @@ module Labyrinth.Game.Builder
 where
 
 import           Linear.V2                                ( V2(..) )
-import qualified Data.Set                      as Set
 import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
-import           Control.Monad.IO.Class                   ( liftIO )
-import           Control.Monad.Except                     ( liftEither )
 
 import           Lens.Micro.TH                            ( makeLensesFor )
 import           Data.Validation                          ( Validation(..)
@@ -34,7 +31,6 @@ import           Data.Validation                          ( Validation(..)
                                                           , fromEither
                                                           )
 
-import           Labyrinth.Game.Class                     ( Game )
 import           Labyrinth.Game.Direction                 ( Direction(..) )
 import qualified Labyrinth.Game.Player         as Player
 import           Labyrinth.Game.Player                    ( PlayOrder(..)
@@ -128,12 +124,6 @@ makeLensesFor
   , ("minPlayers", "_minPlayers")
   ] ''BuildPlan
 
-mkGame :: BuildPlan -> IO (Validation [BuildError] Game)
-mkGame plan = do
-  -- let treasures = liftIO (toEither $ mkTreasures plan)
-  treasures <- liftIO $ liftEither $ toEither $ mkTreasures plan
-  return $ Failure [TooFewPositions]
-
 validatePlan :: BuildPlan -> Validation [BuildError] ()
 validatePlan plan =
   ()
@@ -196,8 +186,7 @@ validatePos :: BuildPositions -> Position -> Validation [BuildError] ()
 validatePos ps p = () <$ validate [UnknownTilePosition p] (`elem` ps) p
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
-hasUniqueElements ne = countUniques ne == NonEmpty.length ne
-  where countUniques = Set.size . Set.fromList . NonEmpty.toList
+hasUniqueElements ne = NonEmpty.length (NonEmpty.nub ne) == NonEmpty.length ne
 
 validatePositionsCount :: BuildPlan -> Validation [BuildError] ()
 validatePositionsCount BuildPlan { buildBoard, buildPositions } =
