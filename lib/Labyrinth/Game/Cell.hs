@@ -18,10 +18,13 @@ where
 
 import qualified Data.Set                      as Set
 import           Data.Set                                 ( Set )
-import           System.Random                            ( randomRIO )
 import           Lens.Micro.TH                            ( makeLenses )
 import           Lens.Micro                               ( (^.)
                                                           , (%~)
+                                                          )
+import           Control.Monad.Random.Strict              ( RandomGen
+                                                          , Rand
+                                                          , getRandomR
                                                           )
 import qualified Labyrinth.Game.Direction      as Dir
 import           Labyrinth.Game.Direction                 ( Direction(..) )
@@ -76,9 +79,9 @@ rotate = direction %~ Dir.previous
 rotate' :: Cell a -> Cell a
 rotate' = direction %~ Dir.next
 
-randomRotate :: Cell a -> IO (Cell a)
+randomRotate :: RandomGen g => Cell a -> Rand g (Cell a)
 randomRotate t = do
-  i <- randomRIO (0, 3)
+  i <- getRandomR (0, 3)
   let r = foldl (.) id $ replicate i rotate
   return (r t)
 

@@ -11,16 +11,14 @@ extra-source-files:
 
 dependencies:
   - base >=4.7 && <5
-  - array
-  - base
   - brick
   - containers
   - either
   - linear
   - microlens
   - microlens-th
+  - MonadRandom
   - mtl
-  - random
   - text
   - validation
   - vty

@@ -1,30 +1,22 @@
--- replace this by
--- http://hackage.haskell.org/package/random-fu-0.2.3.0
-module Data.Random where
+module Data.Random
+  ( choose
+  , shuffle
+  )
+where
 
-import qualified Data.Array.IO                 as AIO
-import           Data.Array.IO                  ( IOArray )
-import           Control.Monad                  ( forM )
-import           System.Random                  ( randomRIO )
+import           Data.List.NonEmpty                       ( NonEmpty )
+import qualified Data.List.NonEmpty            as NE
+import           Control.Monad.Random.Strict              ( RandomGen
+                                                          , Rand
+                                                          , getRandomR
+                                                          )
 
--- replace by
--- http://hackage.haskell.org/package/random-extras-0.19/docs/Data-Random-Extras.html#v:sample
-choose :: [a] -> IO (Maybe a)
-choose [] = return Nothing
-choose xs = Just . (xs !!) <$> randomRIO (0, length xs - 1)
+choose :: RandomGen g => NonEmpty a -> Rand g a
+choose xs = (xs NE.!!) <$> getRandomR (0, length xs - 1)
 
--- replace by
--- http://hackage.haskell.org/package/random-extras-0.19/docs/Data-Random-Extras.html#v:shuffle
-shuffle :: [a] -> IO [a]
+shuffle :: (RandomGen g, Eq a) => [a] -> Rand g [a]
+shuffle [] = return []
 shuffle xs = do
-  ar <- newArray n xs
-  forM [1 .. n] $ \i -> do
-    j  <- randomRIO (i, n)
-    vi <- AIO.readArray ar i
-    vj <- AIO.readArray ar j
-    AIO.writeArray ar j vi
-    return vj
- where
-  n = length xs
-  newArray :: Int -> [a] -> IO (IOArray Int a)
-  newArray n' = AIO.newListArray (1, n')
+  x'  <- choose $ NE.fromList xs
+  xs' <- shuffle $ filter (x' /=) xs
+  return (x' : xs')

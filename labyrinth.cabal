@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a18eb1b72995435a0953d0a34cde152f193f42119a5f49e7978e70f9a160c0d6
+-- hash: 300451da74aa2b2b237c65224c964846657a9b50a7f91d8472317998482c0798
 
 name:           labyrinth
 version:        0.1.0.0
@@ -58,8 +58,8 @@ library
   default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections DeriveFunctor
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      array
-    , base
+      MonadRandom
+    , base >=4.7 && <5
     , brick
     , containers
     , either
@@ -67,7 +67,6 @@ library
     , microlens
     , microlens-th
     , mtl
-    , random
     , text
     , validation
     , vty
@@ -82,8 +81,8 @@ executable labyrinth
   default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
-      array
-    , base
+      MonadRandom
+    , base >=4.7 && <5
     , brick
     , containers
     , either
@@ -92,7 +91,6 @@ executable labyrinth
     , microlens
     , microlens-th
     , mtl
-    , random
     , text
     , validation
     , vty
@@ -112,8 +110,8 @@ test-suite labyrinth-test
   default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      array
-    , base
+      MonadRandom
+    , base >=4.7 && <5
     , brick
     , containers
     , either
@@ -124,7 +122,6 @@ test-suite labyrinth-test
     , microlens
     , microlens-th
     , mtl
-    , random
     , text
     , validation
     , vty
