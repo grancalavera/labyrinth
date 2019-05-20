@@ -13,8 +13,8 @@ where
 
 import           Data.Maybe                     ( listToMaybe )
 import           Brick
-import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (&)
+import           Control.Lens                  ( makeLenses )
+import           Control.Lens                     ( (&)
                                                 , (%~)
                                                 , (^.)
                                                 )

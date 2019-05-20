@@ -10,11 +10,12 @@ module Labyrinth.Game.Treasure
   )
 where
 
-import           Control.Monad                  ( guard )
+import           Control.Monad                            ( guard )
 import qualified Data.Set                      as Set
-import           Data.Set                       ( Set )
-import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (^.) )
+import           Data.Set                                 ( Set )
+import           Control.Lens                             ( (^.)
+                                                          , makeLenses
+                                                          )
 
 data Treasure = TA | TB | TC | TD | TE | TF
               | TG | TH | TI | TJ | TK | TL

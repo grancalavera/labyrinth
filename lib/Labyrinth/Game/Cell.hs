@@ -18,9 +18,9 @@ where
 
 import qualified Data.Set                      as Set
 import           Data.Set                                 ( Set )
-import           Lens.Micro.TH                            ( makeLenses )
-import           Lens.Micro                               ( (^.)
+import           Control.Lens                             ( (^.)
                                                           , (%~)
+                                                          , makeLenses
                                                           )
 import           Control.Monad.Random.Strict              ( RandomGen
                                                           , Rand

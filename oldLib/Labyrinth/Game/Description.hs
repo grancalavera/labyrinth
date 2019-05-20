@@ -53,11 +53,11 @@ import           Labyrinth.Game.Tile            ( Terrain(..)
                                                 , Tokens
                                                 )
 import           Labyrinth.Game.Gate            ( Gate(..) )
-import           Lens.Micro                     ( (&)
+import           Control.Lens                     ( (&)
                                                 , (.~)
                                                 , (^.)
                                                 )
-import           Lens.Micro.TH                  ( makeLenses )
+import           Control.Lens                  ( makeLenses )
 
 data Env = Env
   { _ePositions :: [Position]

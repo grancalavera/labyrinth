@@ -12,11 +12,11 @@ module Labyrinth.Game.Configuration
   )
 where
 
-import           Lens.Micro                               ( (^.)
+import           Control.Lens                               ( (^.)
                                                           , (%~)
                                                           , (&)
                                                           )
-import           Lens.Micro.TH                            ( makeLenses )
+import           Control.Lens                            ( makeLenses )
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                          ( (!?) )
 

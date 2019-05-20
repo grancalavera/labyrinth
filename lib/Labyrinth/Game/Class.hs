@@ -12,7 +12,7 @@ module Labyrinth.Game.Class
 where
 
 import           Data.Map.Strict                          ( Map )
-import           Lens.Micro.TH                            ( makeLenses )
+import           Control.Lens                            ( makeLenses )
 
 import           Labyrinth.Game.Board                     ( Board )
 import           Labyrinth.Game.Cell                      ( TileCell

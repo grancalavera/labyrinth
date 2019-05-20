@@ -1,7 +1,7 @@
 module UI.Screen.SetupSpec where
 
 import           Test.Hspec
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                     ( (^.) )
 import           Data.Maybe                     ( fromJust
                                                 , isNothing
                                                 )

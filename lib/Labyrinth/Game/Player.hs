@@ -14,8 +14,8 @@
   )
 where
 
-import           Lens.Micro.TH                            ( makeLenses )
-import           Lens.Micro                               ( (^.) )
+import           Control.Lens                            ( makeLenses )
+import           Control.Lens                               ( (^.) )
 import qualified Data.Map.Strict               as Map
 import           Data.Map.Strict                          ( (!?)
                                                           , Map

@@ -29,8 +29,8 @@ import           Brick.Forms                    ( Form
                                                 , formFocus
                                                 , (@@=)
                                                 )
-import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro                     ( (^.)
+import           Control.Lens                  ( makeLenses )
+import           Control.Lens                     ( (^.)
                                                 , (?~)
                                                 , (&)
                                                 )

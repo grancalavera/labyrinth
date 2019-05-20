@@ -12,10 +12,10 @@ module Labyrinth.Store
 where
 
 import           Brick
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                             ( (^.) )
 import           Labyrinth.Store.Internal
 import qualified Labyrinth.Store.Event.Modal   as Modal
-import           Labyrinth.UI                   ( Name )
+import           Labyrinth.UI                             ( Name )
 import qualified Labyrinth.UI.Screen.Splash    as Splash
 
 initial :: Store e

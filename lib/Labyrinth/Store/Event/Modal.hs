@@ -8,7 +8,7 @@ where
 
 import           Brick
 import qualified Brick.Widgets.Dialog          as D
-import           Lens.Micro                     ( (.~)
+import           Control.Lens                     ( (.~)
                                                 , (&)
                                                 , (^.)
                                                 , (%~)

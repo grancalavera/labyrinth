@@ -5,7 +5,7 @@ where
 
 import           Brick
 import qualified Graphics.Vty                  as V
-import           Lens.Micro                     ( (&)
+import           Control.Lens                     ( (&)
                                                 , (.~)
                                                 )
 import           Labyrinth.Store.Internal

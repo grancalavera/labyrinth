@@ -3,41 +3,41 @@ module UI.Game
   )
 where
 
-import           Brick                          ( App(..)
-                                                , AttrMap
-                                                , BrickEvent(..)
-                                                , EventM
-                                                , Next
-                                                , Widget
-                                                , continue
-                                                , halt
-                                                , on
-                                                )
+import           Brick                                    ( App(..)
+                                                          , AttrMap
+                                                          , BrickEvent(..)
+                                                          , EventM
+                                                          , Next
+                                                          , Widget
+                                                          , continue
+                                                          , halt
+                                                          , on
+                                                          )
 import qualified Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Control.Monad                  ( void
-                                                , guard
-                                                )
-import           Lens.Micro                     ( (^.)
-                                                , (&)
-                                                , (.~)
-                                                )
-import           Lens.Micro.TH                  ( makeLenses )
+import           Control.Monad                            ( void
+                                                          , guard
+                                                          )
+import           Control.Lens                             ( (^.)
+                                                          , (&)
+                                                          , (.~)
+                                                          )
+import           Control.Lens                             ( makeLenses )
 import qualified Data.List.Extended            as L
 import qualified Data.Set                      as Set
-import           Data.Map.Strict                ( Map )
+import           Data.Map.Strict                          ( Map )
 import qualified Data.Map.Strict               as Map
-import           Data.Maybe                     ( fromMaybe
-                                                , fromJust
-                                                )
-import           Data.Monoid                    ( (<>) )
-import           Data.Text                      ( unpack )
+import           Data.Maybe                               ( fromMaybe
+                                                          , fromJust
+                                                          )
+import           Data.Monoid                              ( (<>) )
+import           Data.Text                                ( unpack )
 import qualified Graphics.Vty                  as V
-import           Graphics.Vty.Input.Events      ( Modifier(..) )
-import           Linear.V2                      ( V2(..)
-                                                , _x
-                                                )
+import           Graphics.Vty.Input.Events                ( Modifier(..) )
+import           Linear.V2                                ( V2(..)
+                                                          , _x
+                                                          )
 import qualified Data.Text                     as T
 import           Labyrinth
 import qualified Labyrinth.Game                as G

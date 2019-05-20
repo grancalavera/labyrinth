@@ -1,14 +1,14 @@
 module Main where
 
 import           Brick
-import           Graphics.Vty                   ( Vty )
+import           Graphics.Vty                             ( Vty )
 import qualified Graphics.Vty                  as V
-import           Lens.Micro                     ( (^.) )
-import           Data.Maybe                     ( fromMaybe )
+import           Control.Lens                             ( (^.) )
+import           Data.Maybe                               ( fromMaybe )
 
 import qualified Labyrinth.UI                  as UI
 import qualified Labyrinth.UI.Widget           as UI
-import           Labyrinth.UI                   ( Name )
+import           Labyrinth.UI                             ( Name )
 
 import qualified Labyrinth.UI.Debug            as Debug
 
@@ -22,10 +22,10 @@ import qualified Labyrinth.UI.Screen.Setup     as Setup
 import qualified Labyrinth.Store.Event.Setup   as Setup
 
 import qualified Labyrinth.Store               as Store
-import           Labyrinth.Store                ( Store
-                                                , State(..)
-                                                , Ev
-                                                )
+import           Labyrinth.Store                          ( Store
+                                                          , State(..)
+                                                          , Ev
+                                                          )
 
 main :: IO ()
 main = do

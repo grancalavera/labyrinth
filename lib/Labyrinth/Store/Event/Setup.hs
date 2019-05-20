@@ -11,7 +11,7 @@ import           Labyrinth.Game                           ( PlayOrder(..) )
 import           Labyrinth.Store.Internal
 import           Labyrinth.UI                             ( SetupS )
 import qualified Labyrinth.UI.Screen.Setup     as S
-import           Lens.Micro                               ( (&)
+import           Control.Lens                               ( (&)
                                                           , (.~)
                                                           )
 

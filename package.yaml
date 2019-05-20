@@ -15,8 +15,7 @@ dependencies:
   - containers
   - either
   - linear
-  - microlens
-  - microlens-th
+  - lens
   - MonadRandom
   - mtl
   - text

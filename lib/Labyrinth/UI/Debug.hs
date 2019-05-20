@@ -4,7 +4,7 @@ module Labyrinth.UI.Debug
 where
 
 import           Brick
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                     ( (^.) )
 import qualified Labyrinth.Store               as S
 import           Labyrinth.Store                ( Store
                                                 , State(..)

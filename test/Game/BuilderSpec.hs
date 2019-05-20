@@ -6,7 +6,7 @@ import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.List.NonEmpty                       ( NonEmpty )
 import           Linear.V2                                ( V2(..) )
 import           Data.Validation                          ( Validation(..) )
-import           Lens.Micro                               ( (&)
+import           Control.Lens                             ( (&)
                                                           , (.~)
                                                           , (^.)
                                                           )

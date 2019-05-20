@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 300451da74aa2b2b237c65224c964846657a9b50a7f91d8472317998482c0798
+-- hash: 893766a27dd9090214893c9a688d78e9213a83decd3d90269fcb075106820fb5
 
 name:           labyrinth
 version:        0.1.0.0
@@ -63,9 +63,8 @@ library
     , brick
     , containers
     , either
+    , lens
     , linear
-    , microlens
-    , microlens-th
     , mtl
     , text
     , validation
@@ -87,9 +86,8 @@ executable labyrinth
     , containers
     , either
     , labyrinth
+    , lens
     , linear
-    , microlens
-    , microlens-th
     , mtl
     , text
     , validation
@@ -118,9 +116,8 @@ test-suite labyrinth-test
     , hspec
     , hspec-discover
     , labyrinth
+    , lens
     , linear
-    , microlens
-    , microlens-th
     , mtl
     , text
     , validation

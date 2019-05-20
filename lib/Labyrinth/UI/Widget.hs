@@ -16,7 +16,7 @@ import           Data.Text                      ( Text )
 import           Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                     ( (^.) )
 
 import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.Game                 ( Player )

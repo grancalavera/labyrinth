@@ -20,10 +20,10 @@ import           Labyrinth.Game.Direction       ( Direction(..) )
 import qualified Labyrinth.Game.Direction      as Direction
 import           Labyrinth.Game.Treasure        ( Treasure )
 import           Labyrinth.Game.Players         ( Color )
-import           Lens.Micro                     ( (%~)
+import           Control.Lens                     ( (%~)
                                                 , (^.)
                                                 )
-import           Lens.Micro.TH                  ( makeLenses )
+import           Control.Lens                  ( makeLenses )
 import           System.Random                  ( randomRIO )
 
 type Tokens = Set Color

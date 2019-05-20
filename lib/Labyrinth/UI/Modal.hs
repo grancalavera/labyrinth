@@ -14,8 +14,8 @@ where
 import           Brick
 import qualified Brick.Widgets.Center          as C
 import qualified Brick.Widgets.Dialog          as D
-import           Lens.Micro                     ( (^.) )
-import           Lens.Micro.TH                  ( makeLenses )
+import           Control.Lens                     ( (^.) )
+import           Control.Lens                  ( makeLenses )
 import           Brick.Widgets.Dialog           ( Dialog(..) )
 import           Labyrinth.UI.Internal
 

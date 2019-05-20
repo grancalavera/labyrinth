@@ -24,7 +24,7 @@ import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
 
-import           Lens.Micro.TH                            ( makeLensesFor )
+import           Control.Lens                             ( makeLensesFor )
 import           Data.Validation                          ( Validate
                                                           , Validation(..)
                                                           , validate
