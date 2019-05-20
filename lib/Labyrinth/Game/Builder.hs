@@ -124,6 +124,7 @@ makeLensesFor
   , ("minPlayers", "_minPlayers")
   ] ''BuildPlan
 
+
 validatePlan :: BuildPlan -> Validation [BuildError] ()
 validatePlan plan =
   ()
@@ -131,6 +132,25 @@ validatePlan plan =
     <* validatePositionsCount plan
     <* validateUniqueGatePositions plan
     <* validateUniquePositions plan
+
+validateFixedTilesPositions :: BuildPlan -> Validation [BuildError] ()
+validateFixedTilesPositions BuildPlan { buildPositions, buildBoard } =
+  () <$ traverse (validateTilePosition buildPositions) buildBoard
+
+validatePositionsCount :: BuildPlan -> Validation [BuildError] ()
+validatePositionsCount BuildPlan { buildBoard, buildPositions } =
+  ()
+    <$ validateSameLength TooFewPositions
+                          TooManyPositions
+                          buildBoard
+                          buildPositions
+
+validateUniqueGatePositions :: BuildPlan -> Validation [BuildError] ()
+validateUniqueGatePositions BuildPlan { buildGates } =
+  ()
+    <$ validate [DuplicatedGatePositions]
+                (hasUniqueElements . fmap fst)
+                buildGates
 
 mkPlayers :: BuildPlan -> Validation [BuildError] Players
 mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
@@ -141,6 +161,10 @@ mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
 mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
 mkTreasures plan@BuildPlan { buildTreasures } =
   [1 .. buildTreasures] <$ validateTreasures plan
+
+validateUniquePositions :: BuildPlan -> Validation [BuildError] ()
+validateUniquePositions BuildPlan { buildPositions } =
+  () <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
 
 validateTreasures :: BuildPlan -> Validation [BuildError] ()
 validateTreasures plan@BuildPlan { buildBoard, buildTreasures } =
@@ -160,21 +184,6 @@ validateTreasures plan@BuildPlan { buildBoard, buildTreasures } =
       then Right ()
       else Left [InvalidBuildTreasures pMultiple]
 
-validateUniquePositions :: BuildPlan -> Validation [BuildError] ()
-validateUniquePositions BuildPlan { buildPositions } =
-  () <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
-
-validateUniqueGatePositions :: BuildPlan -> Validation [BuildError] ()
-validateUniqueGatePositions BuildPlan { buildGates } =
-  ()
-    <$ validate [DuplicatedGatePositions]
-                (hasUniqueElements . fmap fst)
-                buildGates
-
-validateFixedTilesPositions :: BuildPlan -> Validation [BuildError] ()
-validateFixedTilesPositions BuildPlan { buildPositions, buildBoard } =
-  () <$ traverse (validateTilePosition buildPositions) buildBoard
-
 validateTilePosition
   :: BuildPositions -> BuildTile -> Validation [BuildError] BuildTile
 validateTilePosition ps t = case t of
@@ -182,19 +191,12 @@ validateTilePosition ps t = case t of
   BuildFixedTreasureFork p _ -> t <$ validatePos ps p
   _                          -> Success t
 
+
 validatePos :: BuildPositions -> Position -> Validation [BuildError] ()
 validatePos ps p = () <$ validate [UnknownTilePosition p] (`elem` ps) p
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
 hasUniqueElements ne = NonEmpty.length (NonEmpty.nub ne) == NonEmpty.length ne
-
-validatePositionsCount :: BuildPlan -> Validation [BuildError] ()
-validatePositionsCount BuildPlan { buildBoard, buildPositions } =
-  ()
-    <$ validateSameLength TooFewPositions
-                          TooManyPositions
-                          buildBoard
-                          buildPositions
 
 validateSameLength
   :: Foldable t
