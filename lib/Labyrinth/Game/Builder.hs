@@ -28,7 +28,6 @@ import           Control.Lens                             ( makeLensesFor
                                                           , (#)
                                                           )
 import           Data.Validation                          ( Validate
-                                                          , Validation(..)
                                                           , validate
                                                           , _Success
                                                           , _Failure
@@ -128,7 +127,10 @@ makeLensesFor
   ] ''BuildPlan
 
 
-validatePlan :: BuildPlan -> Validation [BuildError] ()
+validatePlan
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] ()
 validatePlan plan =
   ()
     <$ validateFixedTilesPositions plan
@@ -136,11 +138,17 @@ validatePlan plan =
     <* validateUniqueGatePositions plan
     <* validateUniquePositions plan
 
-validateFixedTilesPositions :: BuildPlan -> Validation [BuildError] ()
+validateFixedTilesPositions
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] ()
 validateFixedTilesPositions BuildPlan { buildPositions, buildBoard } =
   () <$ traverse (validateTilePosition buildPositions) buildBoard
 
-validatePositionsCount :: BuildPlan -> Validation [BuildError] ()
+validatePositionsCount
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] ()
 validatePositionsCount BuildPlan { buildBoard, buildPositions } =
   ()
     <$ validateSameLength TooFewPositions
@@ -148,7 +156,10 @@ validatePositionsCount BuildPlan { buildBoard, buildPositions } =
                           buildBoard
                           buildPositions
 
-validateUniqueGatePositions :: BuildPlan -> Validation [BuildError] ()
+validateUniqueGatePositions
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] ()
 validateUniqueGatePositions BuildPlan { buildGates } =
   ()
     <$ validate [DuplicatedGatePositions]
@@ -161,11 +172,17 @@ mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
   ((minPlayers <=) . Player.count)
   buildPlayers
 
-mkTreasures :: BuildPlan -> Validation [BuildError] [Int]
+mkTreasures
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] [Int]
 mkTreasures plan@BuildPlan { buildTreasures } =
   [1 .. buildTreasures] <$ validateTreasures plan
 
-validateUniquePositions :: BuildPlan -> Validation [BuildError] ()
+validateUniquePositions
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] ()
 validateUniquePositions BuildPlan { buildPositions } =
   () <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
 
