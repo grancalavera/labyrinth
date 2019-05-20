@@ -24,12 +24,14 @@ import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
 
-import           Control.Lens                             ( makeLensesFor )
+import           Control.Lens                             ( makeLensesFor
+                                                          , (#)
+                                                          )
 import           Data.Validation                          ( Validate
                                                           , Validation(..)
                                                           , validate
-                                                          , toEither
-                                                          , fromEither
+                                                          , _Success
+                                                          , _Failure
                                                           )
 
 import           Labyrinth.Game.Direction                 ( Direction(..) )
@@ -153,7 +155,7 @@ validateUniqueGatePositions BuildPlan { buildGates } =
                 (hasUniqueElements . fmap fst)
                 buildGates
 
-mkPlayers :: BuildPlan -> Validation [BuildError] Players
+mkPlayers :: Validate f => BuildPlan -> f [BuildError] Players
 mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
   [InvalidMinPlayers minPlayers]
   ((minPlayers <=) . Player.count)
@@ -167,31 +169,40 @@ validateUniquePositions :: BuildPlan -> Validation [BuildError] ()
 validateUniquePositions BuildPlan { buildPositions } =
   () <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
 
-validateTreasures :: BuildPlan -> Validation [BuildError] ()
+validateTreasures
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPlan
+  -> f [BuildError] ()
 validateTreasures plan@BuildPlan { buildBoard, buildTreasures } =
   ()
-    <$ validateTreasurePlayerRatio
+    <$ validateTreasurePlayerRatio plan buildTreasures
     <* validateSameLength TooFewTreasures
                           TooManyTreasures
                           wantsTreasure
                           treasures
  where
-  treasures                   = [1 .. buildTreasures]
-  wantsTreasure               = NonEmpty.filter hasTreasure buildBoard
-  validateTreasurePlayerRatio = fromEither $ do
-    pCount <- toEither $ Player.count <$> mkPlayers plan
+  treasures     = [1 .. buildTreasures]
+  wantsTreasure = NonEmpty.filter hasTreasure buildBoard
+
+validateTreasurePlayerRatio
+  :: Validate f => BuildPlan -> Int -> f [BuildError] ()
+validateTreasurePlayerRatio plan buildTreasures =
+  either (_Failure #) (_Success #) $ do
+    pCount <- Player.count <$> mkPlayers plan
     let pMultiple = product [1 .. pCount]
     if 0 == (buildTreasures `mod` pMultiple)
       then Right ()
       else Left [InvalidBuildTreasures pMultiple]
 
 validateTilePosition
-  :: BuildPositions -> BuildTile -> Validation [BuildError] BuildTile
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPositions
+  -> BuildTile
+  -> f [BuildError] BuildTile
 validateTilePosition ps t = case t of
   BuildHome p _ _            -> t <$ validatePos ps p
   BuildFixedTreasureFork p _ -> t <$ validatePos ps p
-  _                          -> Success t
-
+  _                          -> _Success # t
 
 validatePos
   :: (Validate f, Applicative (f [BuildError]))
@@ -204,12 +215,12 @@ hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
 hasUniqueElements ne = NonEmpty.length (NonEmpty.nub ne) == NonEmpty.length ne
 
 validateSameLength
-  :: Foldable t
+  :: (Foldable t, Validate f, Applicative (f [BuildError]))
   => BuildError
   -> BuildError
   -> t a
   -> t b
-  -> Validation [BuildError] ()
+  -> f [BuildError] ()
 validateSameLength errTooFew errTooMany expected actual =
   ()
     <$ validate [errTooFew]  (uncurry (<=)) (lengths expected actual)
