@@ -25,7 +25,8 @@ import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
 
 import           Lens.Micro.TH                            ( makeLensesFor )
-import           Data.Validation                          ( Validation(..)
+import           Data.Validation                          ( Validate
+                                                          , Validation(..)
                                                           , validate
                                                           , toEither
                                                           , fromEither
@@ -192,7 +193,11 @@ validateTilePosition ps t = case t of
   _                          -> Success t
 
 
-validatePos :: BuildPositions -> Position -> Validation [BuildError] ()
+validatePos
+  :: (Validate f, Applicative (f [BuildError]))
+  => BuildPositions
+  -> Position
+  -> f [BuildError] ()
 validatePos ps p = () <$ validate [UnknownTilePosition p] (`elem` ps) p
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
