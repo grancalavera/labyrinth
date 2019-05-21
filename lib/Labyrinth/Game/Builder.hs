@@ -2,6 +2,7 @@ module Labyrinth.Game.Builder
   ( BuildTile(..)
   , BuildPlan(..)
   , BuildError(..)
+  , gameBuilder
   , mkPlayers
   , mkTreasures
   , validatePlan
@@ -23,7 +24,14 @@ import           Linear.V2                                ( V2(..) )
 import           Data.List.NonEmpty                       ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
 import           Data.Bifunctor                           ( bimap )
+import           System.Random                            ( getStdGen )
 
+import           Control.Monad.IO.Class                   ( MonadIO
+                                                          , liftIO
+                                                          )
+import           Control.Monad.Except                     ( ExceptT
+                                                          , liftEither
+                                                          )
 import           Control.Lens                             ( makeLensesFor
                                                           , (#)
                                                           )
@@ -33,6 +41,7 @@ import           Data.Validation                          ( Validate
                                                           , _Failure
                                                           )
 
+import           Labyrinth.Game.Class                     ( Game )
 import           Labyrinth.Game.Direction                 ( Direction(..) )
 import qualified Labyrinth.Game.Player         as Player
 import           Labyrinth.Game.Player                    ( PlayOrder(..)
@@ -126,6 +135,17 @@ makeLensesFor
   , ("minPlayers", "_minPlayers")
   ] ''BuildPlan
 
+
+type GameBuilder m a = ExceptT [BuildError] m a
+
+gameBuilder :: MonadIO m => BuildPlan -> GameBuilder m ([Int], Players)
+gameBuilder plan = do
+  gen <- liftIO getStdGen
+  liftEither $ do
+    validatePlan plan
+    t <- mkTreasures plan
+    p <- mkPlayers plan
+    return (t, p)
 
 validatePlan
   :: (Validate f, Applicative (f [BuildError]))

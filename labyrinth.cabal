@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 893766a27dd9090214893c9a688d78e9213a83decd3d90269fcb075106820fb5
+-- hash: f0cc5ea741064ea083224ba94acf17c294e11b6d0b07c496d2a1fc948bd3c13e
 
 name:           labyrinth
 version:        0.1.0.0
@@ -66,6 +66,7 @@ library
     , lens
     , linear
     , mtl
+    , random
     , text
     , validation
     , vty
@@ -89,6 +90,7 @@ executable labyrinth
     , lens
     , linear
     , mtl
+    , random
     , text
     , validation
     , vty
@@ -119,6 +121,7 @@ test-suite labyrinth-test
     , lens
     , linear
     , mtl
+    , random
     , text
     , validation
     , vty

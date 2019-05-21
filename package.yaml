@@ -18,6 +18,7 @@ dependencies:
   - lens
   - MonadRandom
   - mtl
+  - random
   - text
   - validation
   - vty
