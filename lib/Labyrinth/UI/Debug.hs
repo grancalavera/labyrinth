@@ -4,18 +4,18 @@ module Labyrinth.UI.Debug
 where
 
 import           Brick
-import           Control.Lens                     ( (^.) )
+import           Control.Lens                                                 ( (^.) )
 import qualified Labyrinth.Store               as S
-import           Labyrinth.Store                ( Store
-                                                , State(..)
-                                                )
+import           Labyrinth.Store                                              ( Store
+                                                                              , State(..)
+                                                                              )
 
 draw :: Store e -> Widget n
 draw store = vBox [state, modals]
  where
   state = txt . ("State: " <>) $ case store ^. S.state of
-    Splash _ -> "Splash"
-    Setup  _ -> "Setup"
-    Plan   _ -> "Plan"
-    _        -> "not implemented"
+    Splash  -> "Splash"
+    Setup _ -> "Setup"
+    Plan  _ -> "Plan"
+    _       -> "not implemented"
   modals = str $ show $ store ^. S.modals

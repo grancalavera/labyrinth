@@ -2,7 +2,6 @@ module Labyrinth.Game.Builder
   ( BuildTile(..)
   , BuildPlan(..)
   , BuildError(..)
-  , gameBuilder
   , mkPlayers
   , mkTreasures
   , validatePlan
@@ -20,38 +19,29 @@ module Labyrinth.Game.Builder
   )
 where
 
-import           Linear.V2                                ( V2(..) )
-import           Data.List.NonEmpty                       ( NonEmpty )
+import           Linear.V2                                                    ( V2(..) )
+import           Data.List.NonEmpty                                           ( NonEmpty )
 import qualified Data.List.NonEmpty            as NonEmpty
-import           Data.Bifunctor                           ( bimap )
-import           System.Random                            ( getStdGen )
+import           Data.Bifunctor                                               ( bimap )
+import           Control.Lens                                                 ( makeLensesFor
+                                                                              , (#)
+                                                                              )
+import           Data.Validation                                              ( Validate
+                                                                              , validate
+                                                                              , _Success
+                                                                              , _Failure
+                                                                              )
 
-import           Control.Monad.IO.Class                   ( MonadIO
-                                                          , liftIO
-                                                          )
-import           Control.Monad.Except                     ( ExceptT
-                                                          , liftEither
-                                                          )
-import           Control.Lens                             ( makeLensesFor
-                                                          , (#)
-                                                          )
-import           Data.Validation                          ( Validate
-                                                          , validate
-                                                          , _Success
-                                                          , _Failure
-                                                          )
-
-import           Labyrinth.Game.Class                     ( Game )
-import           Labyrinth.Game.Direction                 ( Direction(..) )
+import           Labyrinth.Game.Direction                                     ( Direction(..) )
 import qualified Labyrinth.Game.Player         as Player
-import           Labyrinth.Game.Player                    ( PlayOrder(..)
-                                                          , Players
-                                                          )
-import           Labyrinth.Game.Position                  ( Position )
-import           Labyrinth.Game.Cell                      ( GateState(..)
-                                                          , Cell(..)
-                                                          , Terrain(..)
-                                                          )
+import           Labyrinth.Game.Player                                        ( PlayOrder(..)
+                                                                              , Players
+                                                                              )
+import           Labyrinth.Game.Position                                      ( Position )
+import           Labyrinth.Game.Cell                                          ( GateState(..)
+                                                                              , Cell(..)
+                                                                              , Terrain(..)
+                                                                              )
 
 {-
   - Take a blank board of dimensions 9x9
@@ -91,24 +81,7 @@ data BuildError = InvalidMinPlayers Int
                 | TooFewPositions
                 | TooManyTreasures
                 | TooFewTreasures
-                deriving Eq
-
-instance Show BuildError where
-  show e = case e of
-    InvalidMinPlayers n -> "Error: minPlayers should be at least " <> show n
-    DuplicatedPositions ->
-      "Error: buildPositions should not have duplicated positions"
-    DuplicatedGatePositions -> "Error: all gates should have unique positions"
-    UnknownTilePosition p ->
-      "Error: a tile position must exist in buildPositions, unknown position: "
-        <> show p
-    InvalidBuildTreasures n ->
-      "Error: buildTreasures should be a multiple of " <> show n
-    TooManyPositions -> "Error: too many positions given"
-    TooFewPositions  -> "Error: too few positions given"
-    TooManyTreasures -> "Error: too many treasures given"
-    TooFewTreasures  -> "Error: too few treasures given"
-
+                deriving (Eq, Show)
 
 data BuildTile = BuildHome Position Direction PlayOrder
                | BuildFixedTreasureFork Position Direction
@@ -135,22 +108,7 @@ makeLensesFor
   , ("minPlayers", "_minPlayers")
   ] ''BuildPlan
 
-
-type GameBuilder m a = ExceptT [BuildError] m a
-
-gameBuilder :: MonadIO m => BuildPlan -> GameBuilder m ([Int], Players)
-gameBuilder plan = do
-  gen <- liftIO getStdGen
-  liftEither $ do
-    validatePlan plan
-    t <- mkTreasures plan
-    p <- mkPlayers plan
-    return (t, p)
-
-validatePlan
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] ()
+validatePlan :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] ()
 validatePlan plan =
   ()
     <$ validateFixedTilesPositions plan
@@ -159,77 +117,46 @@ validatePlan plan =
     <* validateUniquePositions plan
 
 validateFixedTilesPositions
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] ()
+  :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] ()
 validateFixedTilesPositions BuildPlan { buildPositions, buildBoard } =
   () <$ traverse (validateTilePosition buildPositions) buildBoard
 
 validatePositionsCount
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] ()
+  :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] ()
 validatePositionsCount BuildPlan { buildBoard, buildPositions } =
-  ()
-    <$ validateSameLength TooFewPositions
-                          TooManyPositions
-                          buildBoard
-                          buildPositions
+  () <$ validateSameLength TooFewPositions TooManyPositions buildBoard buildPositions
 
 validateUniqueGatePositions
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] ()
+  :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] ()
 validateUniqueGatePositions BuildPlan { buildGates } =
-  ()
-    <$ validate [DuplicatedGatePositions]
-                (hasUniqueElements . fmap fst)
-                buildGates
+  () <$ validate [DuplicatedGatePositions] (hasUniqueElements . fmap fst) buildGates
 
 mkPlayers :: Validate f => BuildPlan -> f [BuildError] Players
-mkPlayers BuildPlan { minPlayers, buildPlayers } = validate
-  [InvalidMinPlayers minPlayers]
-  ((minPlayers <=) . Player.count)
-  buildPlayers
+mkPlayers BuildPlan { minPlayers, buildPlayers } =
+  validate [InvalidMinPlayers minPlayers] ((minPlayers <=) . Player.count) buildPlayers
 
-mkTreasures
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] [Int]
-mkTreasures plan@BuildPlan { buildTreasures } =
-  [1 .. buildTreasures] <$ validateTreasures plan
+mkTreasures :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] [Int]
+mkTreasures plan@BuildPlan { buildTreasures } = [1 .. buildTreasures] <$ validateTreasures plan
 
 validateUniquePositions
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] ()
+  :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] ()
 validateUniquePositions BuildPlan { buildPositions } =
   () <$ validate [DuplicatedPositions] hasUniqueElements buildPositions
 
-validateTreasures
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPlan
-  -> f [BuildError] ()
+validateTreasures :: (Validate f, Applicative (f [BuildError])) => BuildPlan -> f [BuildError] ()
 validateTreasures plan@BuildPlan { buildBoard, buildTreasures } =
   ()
     <$ validateTreasurePlayerRatio plan buildTreasures
-    <* validateSameLength TooFewTreasures
-                          TooManyTreasures
-                          wantsTreasure
-                          treasures
+    <* validateSameLength TooFewTreasures TooManyTreasures wantsTreasure treasures
  where
   treasures     = [1 .. buildTreasures]
   wantsTreasure = NonEmpty.filter hasTreasure buildBoard
 
-validateTreasurePlayerRatio
-  :: Validate f => BuildPlan -> Int -> f [BuildError] ()
-validateTreasurePlayerRatio plan buildTreasures =
-  either (_Failure #) (_Success #) $ do
-    pCount <- Player.count <$> mkPlayers plan
-    let pMultiple = product [1 .. pCount]
-    if 0 == (buildTreasures `mod` pMultiple)
-      then Right ()
-      else Left [InvalidBuildTreasures pMultiple]
+validateTreasurePlayerRatio :: Validate f => BuildPlan -> Int -> f [BuildError] ()
+validateTreasurePlayerRatio plan buildTreasures = either (_Failure #) (_Success #) $ do
+  pCount <- Player.count <$> mkPlayers plan
+  let pMultiple = product [1 .. pCount]
+  if 0 == (buildTreasures `mod` pMultiple) then Right () else Left [InvalidBuildTreasures pMultiple]
 
 validateTilePosition
   :: (Validate f, Applicative (f [BuildError]))
@@ -242,10 +169,7 @@ validateTilePosition ps t = case t of
   _                          -> _Success # t
 
 validatePos
-  :: (Validate f, Applicative (f [BuildError]))
-  => BuildPositions
-  -> Position
-  -> f [BuildError] ()
+  :: (Validate f, Applicative (f [BuildError])) => BuildPositions -> Position -> f [BuildError] ()
 validatePos ps p = () <$ validate [UnknownTilePosition p] (`elem` ps) p
 
 hasUniqueElements :: (Ord a) => NonEmpty a -> Bool
@@ -259,9 +183,10 @@ validateSameLength
   -> t b
   -> f [BuildError] ()
 validateSameLength errTooFew errTooMany expected actual =
-  ()
-    <$ validate [errTooFew]  (uncurry (<=)) (lengths expected actual)
-    <* validate [errTooMany] (uncurry (>=)) (lengths expected actual)
+  () <$ validate [errTooFew] (uncurry (<=)) (lengths expected actual) <* validate
+    [errTooMany]
+    (uncurry (>=))
+    (lengths expected actual)
   where lengths l r = bimap length length (l, r)
 
 hasTreasure :: BuildTile -> Bool
@@ -321,10 +246,7 @@ board =
     <> replicate 12 BuildPath
 
 positions :: NonEmpty Position
-positions =
-  NonEmpty.fromList
-    $  [ V2 row col | row <- [1 .. 7], col <- [1 .. 7] ]
-    <> [V2 0 2]
+positions = NonEmpty.fromList $ [ V2 row col | row <- [1 .. 7], col <- [1 .. 7] ] <> [V2 0 2]
 
 -- isFixed :: BuildTile -> Bool
 -- isFixed (BuildGate _ _             ) = True

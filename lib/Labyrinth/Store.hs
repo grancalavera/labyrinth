@@ -12,17 +12,15 @@ module Labyrinth.Store
 where
 
 import           Brick
-import           Control.Lens                             ( (^.) )
+import           Control.Lens                                                 ( (^.) )
 import           Labyrinth.Store.Internal
-import qualified Labyrinth.Store.Event.Modal   as Modal
-import           Labyrinth.UI                             ( Name )
-import qualified Labyrinth.UI.Screen.Splash    as Splash
+import           Labyrinth.UI                                                 ( Name )
 
 initial :: Store e
-initial = Store { _state = Splash Splash.initial, _modals = [] }
+initial = Store { _state = Splash, _modals = [] }
 
-isModalEvent :: Ord e => Store e -> BrickEvent Name e -> Bool
-isModalEvent store ev = isShowingModal store || Modal.isModalEvent ev
+isModalEvent :: Store e -> BrickEvent Name e -> Bool
+isModalEvent store _ = isShowingModal store
 
 isShowingModal :: Store e -> Bool
 isShowingModal = not . null . (^. modals)

@@ -1,7 +1,6 @@
 module Labyrinth.UI.Screen.Splash
   ( draw
   , SplashS
-  , initial
   )
 where
 
@@ -12,8 +11,8 @@ import qualified Labyrinth.UI.Widget           as Widget
 
 data SplashS = SplashS deriving (Show)
 
-draw :: SplashS -> Widget n
-draw _ =
+draw :: Widget n
+draw =
   C.vCenter
     $ C.hCenter
     $ B.borderWithLabel (txt " Labyrinth ")
@@ -25,6 +24,3 @@ draw _ =
         , "The game can be played with two players and with up to four players."
         , "To create a new game press [Enter] and add some players."
         ]
-
-initial :: SplashS
-initial = SplashS

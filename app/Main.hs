@@ -1,14 +1,14 @@
 module Main where
 
 import           Brick
-import           Graphics.Vty                             ( Vty )
+import           Graphics.Vty                                       ( Vty )
 import qualified Graphics.Vty                  as V
-import           Control.Lens                             ( (^.) )
-import           Data.Maybe                               ( fromMaybe )
+import           Control.Lens                                       ( (^.) )
+import           Data.Maybe                                         ( fromMaybe )
 
 import qualified Labyrinth.UI                  as UI
 import qualified Labyrinth.UI.Widget           as UI
-import           Labyrinth.UI                             ( Name )
+import           Labyrinth.UI                                       ( Name )
 
 import qualified Labyrinth.UI.Debug            as Debug
 
@@ -22,10 +22,10 @@ import qualified Labyrinth.UI.Screen.Setup     as Setup
 import qualified Labyrinth.Store.Event.Setup   as Setup
 
 import qualified Labyrinth.Store               as Store
-import           Labyrinth.Store                          ( Store
-                                                          , State(..)
-                                                          , Ev
-                                                          )
+import           Labyrinth.Store                                    ( Store
+                                                                    , State(..)
+                                                                    , Ev
+                                                                    )
 
 main :: IO ()
 main = do
@@ -41,24 +41,21 @@ app = App { appDraw         = draw
           }
 
 draw :: Store e -> [Widget Name]
-draw store =
-  [Debug.draw store, maybe drawScreen Modal.draw (Store.nextModal store)]
+draw store = [Debug.draw store, maybe drawScreen Modal.draw (Store.nextModal store)]
  where
   drawScreen = UI.appContainer 50 $ case store ^. Store.state of
-    Splash s -> Splash.draw s
-    Setup  s -> Setup.draw s
-    _        -> txt "Screen not implemented"
+    Splash  -> Splash.draw
+    Setup s -> Setup.draw s
+    _       -> txt "Screen not implemented"
 
-handleEvent
-  :: Ord e => Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
-handleEvent store ev = handle store ev
- where
-  handle = if Store.isModalEvent store ev
-    then Modal.handle
-    else case store ^. Store.state of
-      Splash s -> Splash.handle s
-      Setup  s -> Setup.handle s
-      _        -> \_ _ -> halt store
+handleEvent :: Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
+handleEvent store (VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl])) = Modal.promptToQuit store
+handleEvent store ev
+  | Store.isShowingModal store = Modal.handle store ev
+  | otherwise = case store ^. Store.state of
+    Splash  -> Splash.handle () store ev
+    Setup s -> Setup.handle s store ev
+    _       -> halt store
 
 buildVty :: IO Vty
 buildVty = do
@@ -67,9 +64,8 @@ buildVty = do
   return v
 
 chooseCursor :: Store e -> [CursorLocation Name] -> Maybe (CursorLocation Name)
-chooseCursor store =
-  fromMaybe (neverShowCursor store) $ if Store.isShowingModal store
-    then Store.nextModal store >>= Modal.chooseCursor
-    else case store ^. Store.state of
-      Setup s -> Setup.chooseCursor s
-      _       -> Nothing
+chooseCursor store = fromMaybe (neverShowCursor store) $ if Store.isShowingModal store
+  then Store.nextModal store >>= Modal.chooseCursor
+  else case store ^. Store.state of
+    Setup s -> Setup.chooseCursor s
+    _       -> Nothing

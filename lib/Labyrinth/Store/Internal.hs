@@ -11,24 +11,23 @@ module Labyrinth.Store.Internal
   )
 where
 
-import           Data.Maybe                     ( listToMaybe )
+import           Data.Maybe                                                   ( listToMaybe )
 import           Brick
-import           Control.Lens                  ( makeLenses )
-import           Control.Lens                     ( (&)
-                                                , (%~)
-                                                , (^.)
-                                                )
-import           Labyrinth.UI                   ( Name
-                                                , Modal
-                                                , SplashS
-                                                , SetupS
-                                                , GameS
-                                                , ModalCallback
-                                                )
+import           Control.Lens                                                 ( makeLenses
+                                                                              , (&)
+                                                                              , (%~)
+                                                                              , (^.)
+                                                                              )
+import           Labyrinth.UI                                                 ( Name
+                                                                              , Modal
+                                                                              , SetupS
+                                                                              , GameS
+                                                                              , ModalCallback
+                                                                              )
 
 data Ev = Ev deriving (Show, Eq, Ord)
 
-data State e = Splash SplashS
+data State e = Splash
              | Setup (SetupS e)
              | Plan GameS
              | Search GameS
@@ -42,8 +41,7 @@ data Store e = Store
   } deriving (Show)
 makeLenses ''Store
 
-type EventHandler s e
-  = s -> Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
+type EventHandler s e = s -> Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 
 showModal :: Store e -> Modal Store e -> EventM Name (Next (Store e))
 showModal store m = continue $ store & modals %~ (m :)

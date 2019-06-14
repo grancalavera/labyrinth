@@ -18,33 +18,33 @@ module Labyrinth.UI.Screen.Setup
 where
 
 import           Brick
-import           Brick.Focus                    ( focusRingCursor )
-import           Brick.Forms                    ( Form
-                                                , FormFieldState
-                                                , newForm
-                                                , radioField
-                                                , editTextField
-                                                , renderForm
-                                                , formState
-                                                , formFocus
-                                                , (@@=)
-                                                )
-import           Control.Lens                  ( makeLenses )
-import           Control.Lens                     ( (^.)
-                                                , (?~)
-                                                , (&)
-                                                )
-import           Data.Text                      ( Text )
+import           Brick.Focus                                                  ( focusRingCursor )
+import           Brick.Forms                                                  ( Form
+                                                                              , FormFieldState
+                                                                              , newForm
+                                                                              , radioField
+                                                                              , editTextField
+                                                                              , renderForm
+                                                                              , formState
+                                                                              , formFocus
+                                                                              , (@@=)
+                                                                              )
+import           Control.Lens                                                 ( makeLenses
+                                                                              , (^.)
+                                                                              , (?~)
+                                                                              , (&)
+                                                                              )
+import           Data.Text                                                    ( Text )
 import qualified Data.Text                     as Text
 import qualified Data.Map.Strict               as Map
-import           Data.Map.Strict                ( (!) )
-import           Control.Monad                  ( guard )
-import           Labyrinth.Game                 ( Player(..)
-                                                , Players
-                                                , Color(..)
-                                                , Configuration
-                                                , PlayOrder(..)
-                                                )
+import           Data.Map.Strict                                              ( (!) )
+import           Control.Monad                                                ( guard )
+import           Labyrinth.Game                                               ( Player(..)
+                                                                              , Players
+                                                                              , Color(..)
+                                                                              , Configuration
+                                                                              , PlayOrder(..)
+                                                                              )
 import qualified Labyrinth.Game.Configuration  as C
 import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.UI.Widget
@@ -52,14 +52,15 @@ import           Labyrinth.UI.Internal
 
 type PlayerForm e = Form Player e Name
 type FormProcessor e = PlayerForm e -> EventM Name (PlayerForm e)
-data TheForm e = AddPlayerForm (PlayerForm e) | EditPlayerForm ( PlayerForm e)
+data TheForm e = AddPlayerForm (PlayerForm e) | EditPlayerForm (PlayerForm e)
 
 instance Show (TheForm e) where
   show (AddPlayerForm  _) = "AddPlayerForm"
   show (EditPlayerForm _) = "EditPlayerForm"
+
 data SetupS e = SetupS
-  { _form :: Maybe (TheForm e)
-  , _conf :: Configuration
+  { _form :: Maybe (TheForm e)  -- _form is the user interface
+  , _conf :: Configuration      -- _conf is just an environment
   } deriving (Show)
 makeLenses ''SetupS
 
@@ -85,12 +86,10 @@ draw s = theForm <=> registered <=> help
 
   submitCommand = if validate s then txt "Enter: add player" else emptyWidget
 
-  beginCommand =
-    if hasEnoughPlayers s then txt "Ctrl+p: begin game" else emptyWidget
+  beginCommand  = if hasEnoughPlayers s then txt "Ctrl+p: begin game" else emptyWidget
 
   editPlayerCommand p =
-    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! fromEnum
-      (p ^. P.order)
+    str $ " " <> "Edit: Ctrl+" <> ["a", "s", "d", "f"] !! fromEnum (p ^. P.order)
 
   quitCommand = txt "Ctrl+q: quit"
 
@@ -140,9 +139,8 @@ mkEditPlayerForm cfg p = EditPlayerForm (mkForm (C.delete p cfg) p)
 
 nextDefaultPlayer :: Configuration -> Maybe Player
 nextDefaultPlayer cfg = case C.availableColors cfg of
-  [] -> Nothing
-  colors' ->
-    Just (Player "" (head colors') (toEnum $ length P.colors - length colors'))
+  []      -> Nothing
+  colors' -> Just (Player "" (head colors') (toEnum $ length P.colors - length colors'))
 
 mkForm :: Configuration -> Player -> PlayerForm e
 mkForm cfg = newForm [nameField, colorField cfg]
@@ -156,21 +154,16 @@ colorField cfg = label "Color" @@= radioField P.color (colorOptions cfg)
 colorOptions :: Configuration -> [(Color, Name, Text)]
 colorOptions cfg = zip3 colors fields labels
  where
-  colors       = C.availableColors cfg
-  labels       = map (Text.pack . show) colors
-  fields       = map (fieldByColor !) colors
-  fieldByColor = Map.fromList
-    [ (Yellow, YellowField)
-    , (Red   , RedField)
-    , (Blue  , BlueField)
-    , (Green , GreenField)
-    ]
+  colors = C.availableColors cfg
+  labels = map (Text.pack . show) colors
+  fields = map (fieldByColor !) colors
+  fieldByColor =
+    Map.fromList [(Yellow, YellowField), (Red, RedField), (Blue, BlueField), (Green, GreenField)]
 
 hasEnoughPlayers :: SetupS e -> Bool
 hasEnoughPlayers = C.hasEnoughPlayers . (^. conf)
 
-chooseCursor
-  :: SetupS e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
+chooseCursor :: SetupS e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
 chooseCursor s = case (s ^. form) of
   Nothing    -> Nothing
   Just form' -> Just (focusRingCursor formFocus $ extractForm form')
