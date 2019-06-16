@@ -14,11 +14,11 @@ where
 import           Brick
 import qualified Brick.Widgets.Center          as C
 import qualified Brick.Widgets.Dialog          as D
-import           Control.Lens                                                 ( (^.)
-                                                                              , makeLenses
-                                                                              )
+import           Control.Lens                                       ( (^.)
+                                                                    , makeLenses
+                                                                    )
 
-import           Brick.Widgets.Dialog                                         ( Dialog(..) )
+import           Brick.Widgets.Dialog                               ( Dialog(..) )
 import           Labyrinth.UI.Internal
 
 type ModalCallback s e = s e -> EventM Name (Next (s e))
@@ -46,7 +46,12 @@ chooseCursor :: Modal s e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocati
 chooseCursor _ = Nothing
 
 mkModal
-  :: String -> Widget Name -> ModalOptions -> ModalCallback s e -> ModalCallback s e -> Modal s e
+  :: String
+  -> Widget Name
+  -> ModalOptions
+  -> ModalCallback s e
+  -> ModalCallback s e
+  -> Modal s e
 mkModal desc body options onT onF = Modal
   { _dialog      = D.dialog (Just " Labyrinth ") (Just options) 50
   , _dialogBody  = body

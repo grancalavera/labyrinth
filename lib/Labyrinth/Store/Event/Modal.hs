@@ -27,7 +27,7 @@ handle :: Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 handle store ev = maybe (continue store) withModal (nextModal store)
  where
   withModal m = case ev of
-    (VtyEvent (V.EvKey V.KEsc   [])) -> (hideModalAnd $ m ^. onFalse) store
+    -- (VtyEvent (V.EvKey V.KEsc   [])) -> (hideModalAnd $ m ^. onFalse) store
     (VtyEvent (V.EvKey V.KEnter [])) -> fromMaybe (continue store) $ do
       sel <- D.dialogSelection (m ^. dialog)
       return $ if sel

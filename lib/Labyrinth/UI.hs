@@ -12,7 +12,8 @@ where
 import           Brick
 import qualified Brick.Widgets.Dialog          as D
 import qualified Brick.Widgets.Edit            as E
-import           Brick.Forms                    ( focusedFormInputAttr )
+import           Brick.Forms                                        ( focusedFormInputAttr
+                                                                    )
 import qualified Graphics.Vty                  as V
 
 import           Labyrinth.UI.Internal

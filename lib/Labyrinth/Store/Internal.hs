@@ -11,19 +11,19 @@ module Labyrinth.Store.Internal
   )
 where
 
-import           Data.Maybe                                                   ( listToMaybe )
+import           Data.Maybe                                         ( listToMaybe )
 import           Brick
-import           Control.Lens                                                 ( makeLenses
-                                                                              , (&)
-                                                                              , (%~)
-                                                                              , (^.)
-                                                                              )
-import           Labyrinth.UI                                                 ( Name
-                                                                              , Modal
-                                                                              , SetupS
-                                                                              , GameS
-                                                                              , ModalCallback
-                                                                              )
+import           Control.Lens                                       ( makeLenses
+                                                                    , (&)
+                                                                    , (%~)
+                                                                    , (^.)
+                                                                    )
+import           Labyrinth.UI                                       ( Name
+                                                                    , Modal
+                                                                    , SetupS
+                                                                    , GameS
+                                                                    , ModalCallback
+                                                                    )
 
 data Ev = Ev deriving (Show, Eq, Ord)
 
