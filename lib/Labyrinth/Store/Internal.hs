@@ -27,8 +27,7 @@ import           Labyrinth.UI                                       ( Name
 
 data Ev = Ev deriving (Show, Eq, Ord)
 
-data State e = Splash
-             | Setup (SetupS e)
+data State e = Setup (SetupS e)
              | Plan GameS
              | Search GameS
              | Escape GameS

@@ -14,7 +14,6 @@ draw :: Store e -> Widget n
 draw store = vBox [state, modals]
  where
   state = txt . ("State: " <>) $ case store ^. S.state of
-    Splash  -> "Splash"
     Setup _ -> "Setup"
     Plan  _ -> "Plan"
     _       -> "not implemented"

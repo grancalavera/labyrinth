@@ -1,6 +1,5 @@
 module Labyrinth.UI
-  ( SplashS
-  , SetupS
+  ( SetupS
   , GameS
   , Modal(..)
   , Name(..)
@@ -18,7 +17,6 @@ import qualified Graphics.Vty                  as V
 
 import           Labyrinth.UI.Internal
 import           Labyrinth.UI.Modal
-import           Labyrinth.UI.Screen.Splash
 import           Labyrinth.UI.Screen.Setup
 import           Labyrinth.UI.Screen.Game
 
