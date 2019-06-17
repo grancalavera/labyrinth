@@ -15,8 +15,6 @@ import qualified Labyrinth.UI.Debug            as Debug
 import qualified Labyrinth.UI.Modal            as Modal
 import qualified Labyrinth.Store.Event.Modal   as Modal
 
-import qualified Labyrinth.UI.Screen.Splash    as Splash
-import qualified Labyrinth.Store.Event.Splash  as Splash
 
 import qualified Labyrinth.UI.Screen.Setup     as Setup
 import qualified Labyrinth.Store.Event.Setup   as Setup
@@ -44,7 +42,6 @@ draw :: Store e -> [Widget Name]
 draw store = [Debug.draw store, maybe drawScreen Modal.draw (Store.nextModal store)]
  where
   drawScreen = UI.appContainer 50 $ case store ^. Store.state of
-    Splash  -> Splash.draw
     Setup s -> Setup.draw s
     _       -> txt "Screen not implemented"
 
@@ -53,7 +50,6 @@ handleEvent store (VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl])) = Modal.promptToQ
 handleEvent store ev
   | Store.isShowingModal store = Modal.handle store ev
   | otherwise = case store ^. Store.state of
-    Splash  -> Splash.handle () store ev
     Setup s -> Setup.handle s store ev
     _       -> halt store
 

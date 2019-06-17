@@ -50,18 +50,16 @@ library:
     - Labyrinth.Game.Treasure
     - Labyrinth.Game.Cell
     - Labyrinth.Game.Direction
-    - Labyrinth.Game.Class
+    - Labyrinth.Game.Internal
     - Labyrinth.Game.Builder
     - Labyrinth.UI
     - Labyrinth.UI.Modal
     - Labyrinth.UI.Debug
-    - Labyrinth.UI.Screen.Splash
     - Labyrinth.UI.Screen.Setup
     - Labyrinth.UI.Screen.Game
     - Labyrinth.UI.Widget
     - Labyrinth.Store
     - Labyrinth.Store.Event.Modal
-    - Labyrinth.Store.Event.Splash
     - Labyrinth.Store.Event.Setup
     - Data.List.Extended
 
