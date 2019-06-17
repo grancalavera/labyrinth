@@ -50,7 +50,7 @@ library:
     - Labyrinth.Game.Treasure
     - Labyrinth.Game.Cell
     - Labyrinth.Game.Direction
-    - Labyrinth.Game.Class
+    - Labyrinth.Game.Internal
     - Labyrinth.Game.Builder
     - Labyrinth.UI
     - Labyrinth.UI.Modal

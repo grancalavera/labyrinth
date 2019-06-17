@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 93fb38eef1e2c6a59d61eebbb216da166de766b944b3bd9c14cec0240d291675
+-- hash: 58488c2e57ed015a60f1b4c993913489c3b359fe13a6a08fbe861fb7de44a9e2
 
 name:           labyrinth
 version:        0.1.0.0
@@ -33,7 +33,7 @@ library
       Labyrinth.Game.Treasure
       Labyrinth.Game.Cell
       Labyrinth.Game.Direction
-      Labyrinth.Game.Class
+      Labyrinth.Game.Internal
       Labyrinth.Game.Builder
       Labyrinth.UI
       Labyrinth.UI.Modal
