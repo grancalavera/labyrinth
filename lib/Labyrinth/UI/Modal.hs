@@ -6,6 +6,7 @@ module Labyrinth.UI.Modal
   , dialog
   , onTrue
   , onFalse
+  , isDismissible
   , mkModal
   , mkOkModal
   )
@@ -30,6 +31,7 @@ data Modal s e = Modal
   , _onTrue :: ModalCallback s e
   , _onFalse :: ModalCallback s e
   , _description :: String
+  , _isDismissible :: Bool
   }
 makeLenses ''Modal
 
@@ -47,18 +49,21 @@ chooseCursor _ = Nothing
 
 mkModal
   :: String
+  -> Bool
   -> Widget Name
   -> ModalOptions
   -> ModalCallback s e
   -> ModalCallback s e
   -> Modal s e
-mkModal desc body options onT onF = Modal
-  { _dialog      = D.dialog (Just " Labyrinth ") (Just options) 50
-  , _dialogBody  = body
-  , _onTrue      = onT
-  , _onFalse     = onF
-  , _description = desc
+mkModal desc dismissible body options onT onF = Modal
+  { _dialog        = D.dialog (Just " Labyrinth ") (Just options) 50
+  , _dialogBody    = body
+  , _onTrue        = onT
+  , _onFalse       = onF
+  , _description   = desc
+  , _isDismissible = dismissible
   }
 
 mkOkModal :: String -> String -> Widget Name -> ModalCallback s e -> Modal s e
-mkOkModal desc label body onOk = mkModal desc body (0, [(label, True)]) onOk continue
+mkOkModal desc label body onOk =
+  mkModal desc False body (0, [(label, True)]) onOk continue

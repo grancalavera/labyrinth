@@ -20,6 +20,7 @@ import           Labyrinth.UI.Modal                                 ( dialog
                                                                     , onTrue
                                                                     , onFalse
                                                                     , mkModal
+                                                                    , isDismissible
                                                                     )
 import           Labyrinth.Store.Internal
 
@@ -27,7 +28,8 @@ handle :: Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
 handle store ev = maybe (continue store) withModal (nextModal store)
  where
   withModal m = case ev of
-    -- (VtyEvent (V.EvKey V.KEsc   [])) -> (hideModalAnd $ m ^. onFalse) store
+    (VtyEvent (V.EvKey V.KEsc [])) ->
+      if m ^. isDismissible then hideModalAnd continue store else continue store
     (VtyEvent (V.EvKey V.KEnter [])) -> fromMaybe (continue store) $ do
       sel <- D.dialogSelection (m ^. dialog)
       return $ if sel
@@ -42,6 +44,7 @@ handle store ev = maybe (continue store) withModal (nextModal store)
 
 promptToQuit :: Store e -> EventM Name (Next (Store e))
 promptToQuit store = showModal store $ mkModal "quit"
+                                               True
                                                (txt "Do you want to quit Labyrinth?")
                                                (0, [("Stay", False), ("Quit", True)])
                                                halt
