@@ -32,40 +32,40 @@ module Labyrinth.Game
   )
 where
 
-import           Control.Monad                  ( guard )
-import           Data.Monoid                    ( (<>) )
+import           Control.Monad                            ( guard )
+import           Data.Monoid                              ( (<>) )
 import qualified Data.List.Extended            as L
 import qualified Data.Tuple                    as Tu
 import qualified Data.Set                      as Set
-import           Data.Set                       ( Set )
+import           Data.Set                                 ( Set )
 import qualified Data.Map.Strict               as Map
-import           Data.Map.Strict                ( Map )
-import           Data.Maybe                     ( fromJust
-                                                , fromMaybe
-                                                )
-import           Linear.V2                      ( V2(..) )
-import           Labyrinth.Game.Position        ( Position )
-import           Labyrinth.Game.Direction       ( Direction(..) )
-import           Labyrinth.Game.Description     ( DGame(..) )
+import           Data.Map.Strict                          ( Map )
+import           Data.Maybe                               ( fromJust
+                                                          , fromMaybe
+                                                          )
+import           Linear.V2                                ( V2(..) )
+import           Labyrinth.Game.Position                  ( Position )
+import           Labyrinth.Game.Direction                 ( Direction(..) )
+import           Labyrinth.Game.Description               ( DGame(..) )
 import qualified Labyrinth.Game.Description    as GD
-import           Labyrinth.Game.Gate            ( Gate(..) )
-import           Labyrinth.Game.Treasure        ( Treasure
-                                                , Searching
-                                                , Found
-                                                )
+import           Labyrinth.Game.Gate                      ( Gate(..) )
+import           Labyrinth.Game.Treasure                  ( Treasure
+                                                          , Searching
+                                                          , Found
+                                                          )
 import qualified Labyrinth.Game.Players        as P
-import           Labyrinth.Game.Players         ( Color(..)
-                                                , Players
-                                                , Player
-                                                )
-import           Labyrinth.Game.Tile            ( Tile(..) )
+import           Labyrinth.Game.Players                   ( Color(..)
+                                                          , Players
+                                                          , Player
+                                                          )
+import           Labyrinth.Game.Tile                      ( Tile(..) )
 import qualified Labyrinth.Game.Tile           as T
-import           Lens.Micro                     ( (&)
-                                                , (.~)
-                                                , (^.)
-                                                )
-import           Lens.Micro.TH                  ( makeLenses )
-import           Lens.Micro.Type                ( Lens' )
+import           Control.Lens                             ( (&)
+                                                          , (.~)
+                                                          , (^.)
+                                                          , makeLenses
+                                                          )
+import           Lens.Micro.Type                          ( Lens' )
 
 data Phase = Plan | Search | Over deriving (Show, Eq)
 

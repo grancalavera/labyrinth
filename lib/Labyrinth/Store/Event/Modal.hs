@@ -1,66 +1,51 @@
 module Labyrinth.Store.Event.Modal
   ( handle
-  , isModalEvent
+  , showModal
+  , nextModal
+  , promptToQuit
   )
 where
 
 import           Brick
 import qualified Brick.Widgets.Dialog          as D
-import           Lens.Micro                     ( (?~)
-                                                , (.~)
-                                                , (&)
-                                                , (^.)
-                                                )
+import           Control.Lens                                       ( (.~)
+                                                                    , (&)
+                                                                    , (^.)
+                                                                    , (%~)
+                                                                    )
 import qualified Graphics.Vty                  as V
-import qualified Data.Map.Strict               as Map
-import           Data.Map.Strict                ( Map
-                                                , (!?)
-                                                )
-import           Data.Maybe                     ( fromMaybe )
-import           Labyrinth.UI                   ( Name )
-import           Labyrinth.UI.Modal             ( Modal
-                                                , ModalCallback
-                                                , dialog
-                                                , onTrue
-                                                , onFalse
-                                                , showModal
-                                                )
+import           Data.Maybe                                         ( fromMaybe )
+import           Labyrinth.UI                                       ( Name )
+import           Labyrinth.UI.Modal                                 ( dialog
+                                                                    , onTrue
+                                                                    , onFalse
+                                                                    , mkModal
+                                                                    , isDismissible
+                                                                    )
 import           Labyrinth.Store.Internal
 
-type GlobalEventHandler e
-  = Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
-
-isModalEvent :: Ord e => BrickEvent Name e -> Bool
-isModalEvent = (`elem` Map.keys eventMap)
-
-handle :: Ord e => GlobalEventHandler e
-handle store ev = (fromMaybe handleWithModal $ eventMap !? ev) store ev
-
-handleWithModal :: GlobalEventHandler e
-handleWithModal store ev = maybe (continue store) withModal (store ^. modal)
+handle :: Store e -> BrickEvent Name e -> EventM Name (Next (Store e))
+handle store ev = maybe (continue store) withModal (nextModal store)
  where
-  withModal modal' = case ev of
-    (VtyEvent (V.EvKey V.KEsc   [])) -> modal' ^. onFalse
+  withModal m = case ev of
+    (VtyEvent (V.EvKey V.KEsc [])) ->
+      if m ^. isDismissible then hideModalAnd continue store else continue store
     (VtyEvent (V.EvKey V.KEnter [])) -> fromMaybe (continue store) $ do
-      sel <- D.dialogSelection (modal' ^. dialog)
-      return $ if sel then modal' ^. onTrue else modal' ^. onFalse
+      sel <- D.dialogSelection (m ^. dialog)
+      return $ if sel
+        then (hideModalAnd $ m ^. onTrue) store
+        else (hideModalAnd $ m ^. onFalse) store
     (VtyEvent vtyEv) -> do
-      dialog' <- D.handleDialogEvent vtyEv (modal' ^. dialog)
-      continue $ store & modal ?~ (modal' & dialog .~ dialog')
+      d <- D.handleDialogEvent vtyEv (m ^. dialog)
+      continue $ store & modals %~ \case
+        []       -> []
+        (_ : ms) -> (m & dialog .~ d) : ms
     _ -> continue store
 
-promptToQuit :: GlobalEventHandler e
-promptToQuit store _ = continue $ store & modal ?~ quitPrompt onT onF
- where
-  onT = halt store
-  onF = continue $ store & modal .~ Nothing
-
-eventMap :: Ord e => Map (BrickEvent Name e) (GlobalEventHandler e)
-eventMap =
-  Map.fromList [(VtyEvent (V.EvKey (V.KChar 'q') [V.MCtrl]), promptToQuit)]
-
-quitPrompt :: ModalCallback Store e -> ModalCallback Store e -> Modal Store e
-quitPrompt = showModal message options
- where
-  message = "Do you want to quit Labyrinth?"
-  options = (0, [("Stay", False), ("Quit", True)])
+promptToQuit :: Store e -> EventM Name (Next (Store e))
+promptToQuit store = showModal store $ mkModal "quit"
+                                               True
+                                               (txt "Do you want to quit Labyrinth?")
+                                               (0, [("Stay", False), ("Quit", True)])
+                                               halt
+                                               continue

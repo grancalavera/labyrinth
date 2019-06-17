@@ -1,10 +1,15 @@
 module Game.ConfigurationSpec where
 
 import           Test.Hspec
+import           Labyrinth.Game                 ( Player(..)
+                                                , Color(..)
+                                                , PlayOrder(..)
+                                                )
+import qualified Labyrinth.Game.Player         as P
 import           Labyrinth.Game.Configuration
 
 spec :: Spec
-spec = describe "Game Configuration" $ do
+spec = describe "Configuration" $ do
 
   let playerA      = Player "A" Yellow First
       playerB      = Player "B" Red Second
@@ -37,20 +42,18 @@ spec = describe "Game Configuration" $ do
     actual `shouldBe` True
 
   it "only a player should exist in each playing order" $ do
-    let tresni = flip insert
-        conf =
+    let i = flip insert
+    let conf =
           initial
-            `tresni` Player "A" Yellow First
-            `tresni` Player "B" Red    First
-            `tresni` Player "C" Blue   First
-            `tresni` Player "D" Green  First
-        actual = hasEnoughPlayers conf
-
-    actual `shouldBe` False
+            `i` Player "A" Yellow First
+            `i` Player "B" Red    First
+            `i` Player "C" Blue   First
+            `i` Player "D" Green  First
+    hasEnoughPlayers conf `shouldBe` False
 
   it "initially all colors should be available" $ do
     let actual = availableColors initial
-    actual `shouldBe` colors
+    actual `shouldBe` P.colors
 
   it "Yellow should be taken" $ do
     let actual = availableColors onePlayer

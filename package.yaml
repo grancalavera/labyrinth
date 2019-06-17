@@ -9,6 +9,20 @@ github: grancalavera/labyrinth
 extra-source-files:
   - README.md
 
+dependencies:
+  - base >=4.7 && <5
+  - brick
+  - containers
+  - either
+  - linear
+  - lens
+  - MonadRandom
+  - mtl
+  - random
+  - text
+  - validation
+  - vty
+
 library:
   source-dirs:
     - lib
@@ -19,6 +33,9 @@ library:
     - RankNTypes
     - RecordWildCards
     - TemplateHaskell
+    - LambdaCase
+    - TupleSections
+    - DeriveFunctor
   ghc-options:
     - -Wall
     - -Wcompat
@@ -26,29 +43,26 @@ library:
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
   exposed-modules:
+    - Data.List.Extended
+    - Labyrinth.Builder
+    - Labyrinth.Builder.Validation
+    - Labyrinth.Game
+    - Labyrinth.Game.Cell
     - Labyrinth.Game.Configuration
-    - Labyrinth.UI
-    - Labyrinth.UI.Modal
-    - Labyrinth.UI.Screen.Registration
-    - Labyrinth.UI.Screen.Splash
-    - Labyrinth.UI.Widget
+    - Labyrinth.Game.Direction
+    - Labyrinth.Game.Internal
+    - Labyrinth.Game.Player
+    - Labyrinth.Game.Position
+    - Labyrinth.Game.Treasure
     - Labyrinth.Store
     - Labyrinth.Store.Event.Modal
-    - Labyrinth.Store.Event.Splash
-    - Labyrinth.Store.Event.Registration
-    - Data.List.Extended
-  dependencies:
-    - base >=4.7 && <5
-    - array
-    - brick
-    - containers
-    - linear
-    - microlens
-    - microlens-th
-    - mtl
-    - random
-    - text
-    - vty
+    - Labyrinth.Store.Event.Setup
+    - Labyrinth.UI
+    - Labyrinth.UI.Debug
+    - Labyrinth.UI.Modal
+    - Labyrinth.UI.Screen.Game
+    - Labyrinth.UI.Screen.Setup
+    - Labyrinth.UI.Widget
 
 executables:
   labyrinth:
@@ -71,16 +85,10 @@ executables:
       - RankNTypes
       - RecordWildCards
       - TemplateHaskell
+      - LambdaCase
+      - TupleSections
     dependencies:
-      - base
-      - brick
-      - containers
       - labyrinth
-      - linear
-      - microlens
-      - microlens-th
-      - text
-      - vty
 
 tests:
   labyrinth-test:
@@ -102,12 +110,9 @@ tests:
       - RankNTypes
       - RecordWildCards
       - TemplateHaskell
+      - LambdaCase
+      - TupleSections
     dependencies:
-      - base
-      - brick
-      - containers
       - labyrinth
       - hspec
       - hspec-discover
-      - microlens
-      - QuickCheck

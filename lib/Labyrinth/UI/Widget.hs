@@ -6,7 +6,9 @@ module Labyrinth.UI.Widget
   , box
   , line
   , playerLabel
+  , playerAttr
   , label
+  , nextPlayerPrompt
   )
 where
 
@@ -14,12 +16,10 @@ import           Data.Text                      ( Text )
 import           Brick
 import qualified Brick.Widgets.Border          as B
 import qualified Brick.Widgets.Center          as C
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                     ( (^.) )
 
-import           Labyrinth.Game.Configuration   ( Player
-                                                , name
-                                                , color
-                                                )
+import qualified Labyrinth.Game.Player         as P
+import           Labyrinth.Game                 ( Player )
 
 page :: [Text] -> Widget n
 page = vBox . map paragraph
@@ -40,10 +40,14 @@ box :: Widget n -> Widget n
 box = B.border . padTop (Pad 1)
 
 playerLabel :: Int -> Player -> Widget n
-playerLabel w p = playerAttr p $ hLimit w $ C.hCenter $ txt $ (p ^. name)
+playerLabel w p = playerAttr p $ hLimit w $ C.hCenter $ txt $ (p ^. P.name)
 
 playerAttr :: Player -> Widget n -> Widget n
-playerAttr = withAttr . attrName . show . (^. color)
+playerAttr = withAttr . attrName . show . (^. P.color)
 
 label :: String -> Widget n -> Widget n
 label s w = padBottom (Pad 1) $ vLimit 1 (hLimit 15 $ str s <+> fill ' ') <+> w
+
+nextPlayerPrompt :: Player -> Widget n
+nextPlayerPrompt p = txt "The next player is "
+  <+> playerAttr p (padLeft (Pad 1) $ padRight (Pad 1) $ txt $ p ^. P.name)

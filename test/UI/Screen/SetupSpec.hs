@@ -1,16 +1,15 @@
-module Screens.RegistrationSpec where
+module UI.Screen.SetupSpec where
 
 import           Test.Hspec
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                     ( (^.) )
 import           Data.Maybe                     ( fromJust
                                                 , isNothing
                                                 )
-import           Labyrinth.Game.Configuration   ( Color(..)
+import           Labyrinth.Game                 ( Color(..)
                                                 , Player(..)
                                                 , PlayOrder(..)
                                                 )
-import           Labyrinth.UI.Screen.Registration
-                                                ( register
+import           Labyrinth.UI.Screen.Setup      ( register
                                                 , hasEnoughPlayers
                                                 , initial
                                                 , form
@@ -18,7 +17,7 @@ import           Labyrinth.UI.Screen.Registration
                                                 )
 
 spec :: Spec
-spec = describe "Registration" $ do
+spec = describe "Setup" $ do
 
   let playerA      = Player "A" Yellow First
       playerB      = Player "B" Red Second

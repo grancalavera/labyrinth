@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ec1ea91fa480de6e8788dcbfaa4e073d7bdbe8222dc2016857173d0ddb621e96
+-- hash: f57f5a6068da1ff2f373d5e60fd1221c324ca37c1a281abc5d25be71dcec2651
 
 name:           labyrinth
 version:        0.1.0.0
@@ -15,7 +17,6 @@ copyright:      Leon Coto
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
     README.md
 
@@ -25,37 +26,49 @@ source-repository head
 
 library
   exposed-modules:
+      Data.List.Extended
+      Labyrinth.Builder
+      Labyrinth.Builder.Validation
+      Labyrinth.Game
+      Labyrinth.Game.Cell
       Labyrinth.Game.Configuration
-      Labyrinth.UI
-      Labyrinth.UI.Modal
-      Labyrinth.UI.Screen.Registration
-      Labyrinth.UI.Screen.Splash
-      Labyrinth.UI.Widget
+      Labyrinth.Game.Direction
+      Labyrinth.Game.Internal
+      Labyrinth.Game.Player
+      Labyrinth.Game.Position
+      Labyrinth.Game.Treasure
       Labyrinth.Store
       Labyrinth.Store.Event.Modal
-      Labyrinth.Store.Event.Splash
-      Labyrinth.Store.Event.Registration
-      Data.List.Extended
+      Labyrinth.Store.Event.Setup
+      Labyrinth.UI
+      Labyrinth.UI.Debug
+      Labyrinth.UI.Modal
+      Labyrinth.UI.Screen.Game
+      Labyrinth.UI.Screen.Setup
+      Labyrinth.UI.Widget
   other-modules:
       Data.Random
+      Labyrinth.Builder.Internal
+      Labyrinth.Game.Board
       Labyrinth.Store.Internal
       Labyrinth.UI.Internal
       Paths_labyrinth
   hs-source-dirs:
       lib
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections DeriveFunctor
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      array
+      MonadRandom
     , base >=4.7 && <5
     , brick
     , containers
+    , either
+    , lens
     , linear
-    , microlens
-    , microlens-th
     , mtl
     , random
     , text
+    , validation
     , vty
   default-language: Haskell2010
 
@@ -65,17 +78,21 @@ executable labyrinth
       Paths_labyrinth
   hs-source-dirs:
       app
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -optP-Wno-nonportable-include-path
   build-depends:
-      base
+      MonadRandom
+    , base >=4.7 && <5
     , brick
     , containers
+    , either
     , labyrinth
+    , lens
     , linear
-    , microlens
-    , microlens-th
+    , mtl
+    , random
     , text
+    , validation
     , vty
   default-language: Haskell2010
 
@@ -83,20 +100,29 @@ test-suite labyrinth-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      BuilderSpec
       Game.ConfigurationSpec
-      Screens.RegistrationSpec
+      Game.TreasureSpec
+      UI.Screen.SetupSpec
       Paths_labyrinth
   hs-source-dirs:
       test
-  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell
+  default-extensions: DuplicateRecordFields NamedFieldPuns OverloadedStrings RankNTypes RecordWildCards TemplateHaskell LambdaCase TupleSections
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      QuickCheck
-    , base
+      MonadRandom
+    , base >=4.7 && <5
     , brick
     , containers
+    , either
     , hspec
     , hspec-discover
     , labyrinth
-    , microlens
+    , lens
+    , linear
+    , mtl
+    , random
+    , text
+    , validation
+    , vty
   default-language: Haskell2010

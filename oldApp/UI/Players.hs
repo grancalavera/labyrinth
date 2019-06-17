@@ -21,7 +21,7 @@ import qualified Brick.Widgets.Center          as C
 import qualified Brick.Widgets.Edit            as E
 import qualified Data.Text                     as T
 import qualified Graphics.Vty                  as V
-import           Lens.Micro                     ( (^.) )
+import           Control.Lens                     ( (^.) )
 import           Lens.Micro.TH
 
 import           Labyrinth.Game.Players         ( Player(..)

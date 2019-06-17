@@ -6,19 +6,23 @@ module Labyrinth.UI.Modal
   , dialog
   , onTrue
   , onFalse
-  , showModal
+  , isDismissible
+  , mkModal
+  , mkOkModal
   )
 where
 
 import           Brick
 import qualified Brick.Widgets.Center          as C
 import qualified Brick.Widgets.Dialog          as D
-import           Lens.Micro                     ( (^.) )
-import           Lens.Micro.TH                  ( makeLenses )
-import           Brick.Widgets.Dialog           ( Dialog(..) )
+import           Control.Lens                                       ( (^.)
+                                                                    , makeLenses
+                                                                    )
+
+import           Brick.Widgets.Dialog                               ( Dialog(..) )
 import           Labyrinth.UI.Internal
 
-type ModalCallback s e = EventM Name (Next (s e))
+type ModalCallback s e = s e -> EventM Name (Next (s e))
 type ModalOptions = (Int, [(String, Bool)])
 
 data Modal s e = Modal
@@ -26,8 +30,13 @@ data Modal s e = Modal
   , _dialogBody :: Widget Name
   , _onTrue :: ModalCallback s e
   , _onFalse :: ModalCallback s e
+  , _description :: String
+  , _isDismissible :: Bool
   }
 makeLenses ''Modal
+
+instance Show (Modal s e) where
+  show m = "Modal: " <> m ^. description
 
 draw :: Modal s e -> Widget Name
 draw modal = D.renderDialog dialog' $ C.hCenter $ padAll 1 body'
@@ -35,19 +44,26 @@ draw modal = D.renderDialog dialog' $ C.hCenter $ padAll 1 body'
   dialog' = modal ^. dialog
   body'   = modal ^. dialogBody
 
-chooseCursor
-  :: Modal s e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
+chooseCursor :: Modal s e -> Maybe ([CursorLocation Name] -> Maybe (CursorLocation Name))
 chooseCursor _ = Nothing
 
-showModal
+mkModal
   :: String
+  -> Bool
+  -> Widget Name
   -> ModalOptions
   -> ModalCallback s e
   -> ModalCallback s e
   -> Modal s e
-showModal message options onT onF = Modal
-  { _dialog     = D.dialog (Just " Labyrinth ") (Just options) 50
-  , _dialogBody = str message
-  , _onTrue     = onT
-  , _onFalse    = onF
+mkModal desc dismissible body options onT onF = Modal
+  { _dialog        = D.dialog (Just " Labyrinth ") (Just options) 50
+  , _dialogBody    = body
+  , _onTrue        = onT
+  , _onFalse       = onF
+  , _description   = desc
+  , _isDismissible = dismissible
   }
+
+mkOkModal :: String -> String -> Widget Name -> ModalCallback s e -> Modal s e
+mkOkModal desc label body onOk =
+  mkModal desc False body (0, [(label, True)]) onOk continue
