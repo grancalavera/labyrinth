@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 58488c2e57ed015a60f1b4c993913489c3b359fe13a6a08fbe861fb7de44a9e2
+-- hash: f57f5a6068da1ff2f373d5e60fd1221c324ca37c1a281abc5d25be71dcec2651
 
 name:           labyrinth
 version:        0.1.0.0
@@ -26,27 +26,29 @@ source-repository head
 
 library
   exposed-modules:
+      Data.List.Extended
+      Labyrinth.Builder
+      Labyrinth.Builder.Validation
       Labyrinth.Game
-      Labyrinth.Game.Configuration
-      Labyrinth.Game.Position
-      Labyrinth.Game.Player
-      Labyrinth.Game.Treasure
       Labyrinth.Game.Cell
+      Labyrinth.Game.Configuration
       Labyrinth.Game.Direction
       Labyrinth.Game.Internal
-      Labyrinth.Game.Builder
-      Labyrinth.UI
-      Labyrinth.UI.Modal
-      Labyrinth.UI.Debug
-      Labyrinth.UI.Screen.Setup
-      Labyrinth.UI.Screen.Game
-      Labyrinth.UI.Widget
+      Labyrinth.Game.Player
+      Labyrinth.Game.Position
+      Labyrinth.Game.Treasure
       Labyrinth.Store
       Labyrinth.Store.Event.Modal
       Labyrinth.Store.Event.Setup
-      Data.List.Extended
+      Labyrinth.UI
+      Labyrinth.UI.Debug
+      Labyrinth.UI.Modal
+      Labyrinth.UI.Screen.Game
+      Labyrinth.UI.Screen.Setup
+      Labyrinth.UI.Widget
   other-modules:
       Data.Random
+      Labyrinth.Builder.Internal
       Labyrinth.Game.Board
       Labyrinth.Store.Internal
       Labyrinth.UI.Internal
@@ -98,7 +100,7 @@ test-suite labyrinth-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Game.BuilderSpec
+      BuilderSpec
       Game.ConfigurationSpec
       Game.TreasureSpec
       UI.Screen.SetupSpec

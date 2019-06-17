@@ -43,25 +43,26 @@ library:
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
   exposed-modules:
+    - Data.List.Extended
+    - Labyrinth.Builder
+    - Labyrinth.Builder.Validation
     - Labyrinth.Game
-    - Labyrinth.Game.Configuration
-    - Labyrinth.Game.Position
-    - Labyrinth.Game.Player
-    - Labyrinth.Game.Treasure
     - Labyrinth.Game.Cell
+    - Labyrinth.Game.Configuration
     - Labyrinth.Game.Direction
     - Labyrinth.Game.Internal
-    - Labyrinth.Game.Builder
-    - Labyrinth.UI
-    - Labyrinth.UI.Modal
-    - Labyrinth.UI.Debug
-    - Labyrinth.UI.Screen.Setup
-    - Labyrinth.UI.Screen.Game
-    - Labyrinth.UI.Widget
+    - Labyrinth.Game.Player
+    - Labyrinth.Game.Position
+    - Labyrinth.Game.Treasure
     - Labyrinth.Store
     - Labyrinth.Store.Event.Modal
     - Labyrinth.Store.Event.Setup
-    - Data.List.Extended
+    - Labyrinth.UI
+    - Labyrinth.UI.Debug
+    - Labyrinth.UI.Modal
+    - Labyrinth.UI.Screen.Game
+    - Labyrinth.UI.Screen.Setup
+    - Labyrinth.UI.Widget
 
 executables:
   labyrinth:

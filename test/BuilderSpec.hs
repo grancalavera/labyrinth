@@ -1,34 +1,36 @@
-module Game.BuilderSpec where
+module BuilderSpec where
 import           Test.Hspec
 
 import qualified Data.Map.Strict               as Map
 import qualified Data.List.NonEmpty            as NonEmpty
-import           Data.List.NonEmpty                       ( NonEmpty )
-import           Linear.V2                                ( V2(..) )
-import           Data.Validation                          ( Validation(..) )
-import           Control.Lens                             ( (&)
-                                                          , (.~)
-                                                          , (^.)
-                                                          )
+import           Data.List.NonEmpty                                 ( NonEmpty )
+import           Linear.V2                                          ( V2(..) )
+import           Data.Validation                                    ( Validation(..) )
+import           Control.Lens                                       ( (&)
+                                                                    , (.~)
+                                                                    , (^.)
+                                                                    )
 
-import qualified Labyrinth.Game.Builder        as Builder
-import           Labyrinth.Game.Builder                   ( BuildTile(..)
-                                                          , BuildPlan(..)
-                                                          , BuildError(..)
-                                                          , _buildBoard
-                                                          , _buildGates
-                                                          , _buildPositions
-                                                          )
-import           Labyrinth.Game.Direction                 ( Direction(..) )
-import           Labyrinth.Game.Cell                      ( GateState(..)
-                                                          , Cell(..)
-                                                          , Terrain(..)
-                                                          )
-import           Labyrinth.Game.Player                    ( Color(..)
-                                                          , PlayOrder(..)
-                                                          , Player(..)
-                                                          , Players
-                                                          )
+import qualified Labyrinth.Builder             as Builder
+import qualified Labyrinth.Builder.Validation  as Builder
+
+import           Labyrinth.Builder                                  ( BuildTile(..)
+                                                                    , BuildPlan(..)
+                                                                    , BuildError(..)
+                                                                    , _buildBoard
+                                                                    , _buildGates
+                                                                    , _buildPositions
+                                                                    )
+import           Labyrinth.Game.Direction                           ( Direction(..) )
+import           Labyrinth.Game.Cell                                ( GateState(..)
+                                                                    , Cell(..)
+                                                                    , Terrain(..)
+                                                                    )
+import           Labyrinth.Game.Player                              ( Color(..)
+                                                                    , PlayOrder(..)
+                                                                    , Player(..)
+                                                                    , Players
+                                                                    )
 
 players1, players2, players3, players4 :: Players
 players1 = Map.fromList [(First, Player "P1" Yellow First)]
@@ -56,8 +58,8 @@ duplicatedBoardPositions = validPlan2Players & _buildPositions .~ addDuplicate
   (validPlan2Players ^. _buildPositions)
 
 duplicatedGates :: BuildPlan
-duplicatedGates = validPlan2Players & _buildGates .~ addDuplicate
-  (validPlan2Players ^. _buildGates)
+duplicatedGates =
+  validPlan2Players & _buildGates .~ addDuplicate (validPlan2Players ^. _buildGates)
 
 addDuplicate :: Ord a => NonEmpty a -> NonEmpty a
 addDuplicate l = NonEmpty.insert (NonEmpty.head l) l
@@ -128,8 +130,7 @@ spec = describe "Building new games declaratively" $ do
           plan =
             validPlan2Players
               &  _buildBoard
-              .~ (validPlan2Players ^. _buildBoard <> NonEmpty.fromList [t1, t2]
-                 )
+              .~ (validPlan2Players ^. _buildBoard <> NonEmpty.fromList [t1, t2])
 
       Builder.validateFixedTilesPositions plan `shouldBe` Failure
         [UnknownTilePosition unknownP1, UnknownTilePosition unknownP2]
@@ -144,46 +145,42 @@ spec = describe "Building new games declaratively" $ do
       `shouldBe` Failure [InvalidMinPlayers (minPlayers invalidPlan0Players)]
 
     it "fails when there are too few treasures" $ do
-      let tooFewTreasuresPlan = BuildPlan
-            { buildBoard     = NonEmpty.fromList
-                                 [ BuildFixedTreasureFork (V2 0 0) North
-                                 , BuildTreasureCorner
-                                 , BuildTreasureFork
-                                 , BuildTreasureFork
-                                 ]
-            , buildGates     = NonEmpty.fromList
-                                 [ (V2 0 0, Cell Gate South Open)
-                                 , (V2 0 1, Cell Gate South Open)
-                                 ]
-            , buildPositions = NonEmpty.fromList
-                                 [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
-            , buildPlayers   = players2
-            , minPlayers     = 2
-            , buildTreasures = 2
-            }
-      Builder.mkTreasures tooFewTreasuresPlan
-        `shouldBe` Failure [TooFewTreasures]
+      let
+        tooFewTreasuresPlan = BuildPlan
+          { buildBoard     = NonEmpty.fromList
+                               [ BuildFixedTreasureFork (V2 0 0) North
+                               , BuildTreasureCorner
+                               , BuildTreasureFork
+                               , BuildTreasureFork
+                               ]
+          , buildGates     =
+            NonEmpty.fromList
+              [(V2 0 0, Cell Gate South Open), (V2 0 1, Cell Gate South Open)]
+          , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
+          , buildPlayers   = players2
+          , minPlayers     = 2
+          , buildTreasures = 2
+          }
+      Builder.mkTreasures tooFewTreasuresPlan `shouldBe` Failure [TooFewTreasures]
 
     it "fails when there are too many treasures" $ do
-      let tooManyTreasuresPlan = BuildPlan
-            { buildBoard     = NonEmpty.fromList
-                                 [ BuildFixedTreasureFork (V2 0 0) North
-                                 , BuildTreasureCorner
-                                 , BuildTreasureFork
-                                 , BuildTreasureFork
-                                 ]
-            , buildGates     = NonEmpty.fromList
-                                 [ (V2 0 0, Cell Gate South Open)
-                                 , (V2 0 1, Cell Gate South Open)
-                                 ]
-            , buildPositions = NonEmpty.fromList
-                                 [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
-            , buildPlayers   = players2
-            , minPlayers     = 2
-            , buildTreasures = 6
-            }
-      Builder.mkTreasures tooManyTreasuresPlan
-        `shouldBe` Failure [TooManyTreasures]
+      let
+        tooManyTreasuresPlan = BuildPlan
+          { buildBoard     = NonEmpty.fromList
+                               [ BuildFixedTreasureFork (V2 0 0) North
+                               , BuildTreasureCorner
+                               , BuildTreasureFork
+                               , BuildTreasureFork
+                               ]
+          , buildGates     =
+            NonEmpty.fromList
+              [(V2 0 0, Cell Gate South Open), (V2 0 1, Cell Gate South Open)]
+          , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2, V2 0 3]
+          , buildPlayers   = players2
+          , minPlayers     = 2
+          , buildTreasures = 6
+          }
+      Builder.mkTreasures tooManyTreasuresPlan `shouldBe` Failure [TooManyTreasures]
 
     it "succeeds with valid 2 players plan"
       $          Builder.mkTreasures validPlan2Players
@@ -199,32 +196,32 @@ spec = describe "Building new games declaratively" $ do
 
   context "Total positions count" $ do
     it "fails when there are too many positions" $ do
-      let tooManyPositionsPlan = BuildPlan
-            { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
-            , buildGates     = NonEmpty.fromList
-                                 [ (V2 0 0, Cell Gate South Open)
-                                 , (V2 0 0, Cell Gate South Open)
-                                 ]
-            , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2]
-            , buildPlayers   = players4
-            , minPlayers     = 2
-            , buildTreasures = 1
-            }
+      let
+        tooManyPositionsPlan = BuildPlan
+          { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
+          , buildGates     =
+            NonEmpty.fromList
+              [(V2 0 0, Cell Gate South Open), (V2 0 0, Cell Gate South Open)]
+          , buildPositions = NonEmpty.fromList [V2 0 0, V2 0 1, V2 0 2]
+          , buildPlayers   = players4
+          , minPlayers     = 2
+          , buildTreasures = 1
+          }
       Builder.validatePositionsCount tooManyPositionsPlan
         `shouldBe` Failure [TooManyPositions]
 
     it "fails when there are too few positions" $ do
-      let tooFewPositionsPlan = BuildPlan
-            { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
-            , buildGates     = NonEmpty.fromList
-                                 [ (V2 0 0, Cell Gate South Open)
-                                 , (V2 0 0, Cell Gate South Open)
-                                 ]
-            , buildPositions = NonEmpty.fromList [V2 0 0]
-            , buildPlayers   = players4
-            , minPlayers     = 2
-            , buildTreasures = 1
-            }
+      let
+        tooFewPositionsPlan = BuildPlan
+          { buildBoard     = NonEmpty.fromList [BuildPath, BuildPath]
+          , buildGates     =
+            NonEmpty.fromList
+              [(V2 0 0, Cell Gate South Open), (V2 0 0, Cell Gate South Open)]
+          , buildPositions = NonEmpty.fromList [V2 0 0]
+          , buildPlayers   = players4
+          , minPlayers     = 2
+          , buildTreasures = 1
+          }
 
       Builder.validatePositionsCount tooFewPositionsPlan
         `shouldBe` Failure [TooFewPositions]
